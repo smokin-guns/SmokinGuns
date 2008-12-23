@@ -1,0 +1,323 @@
+#include "ui/menudef.h"
+
+{
+\\ ADD FILTER POPUP MENU \\
+
+menuDef {
+    	name "addfilter_popmenu"
+    	visible 0
+    	fullscreen 0
+    	rect 190 200 256 256
+	outOfBoundsClick	
+    	focusColor 1 .75 0 1
+    	style 1
+    	border 1
+	onopen { hide grpFilter ; show add }
+
+itemDef {
+	name window
+	rect 0 0 256 256
+	style 1
+	border 1
+	bordercolor .5 .5 .5 1
+	backcolor 0 0 .5 1
+	visible 1
+	decoration
+	}
+
+itemDef {
+	name window
+	rect 0 220 256 1
+	style 1
+	border 1
+	bordercolor .5 .5 .5 1
+	backcolor 0 0 .5 1
+	visible 1
+	decoration
+	}
+
+
+//	BUTTONS		//
+
+itemDef {
+	name filter_add
+	text "Add"
+	type 1
+	textscale .25
+	group grpFilterbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/button_red.tga"
+	rect 10 5 75 20
+	textalign 1
+	textalignx 37
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 1
+	action { hide grpFilter ; show add }
+	}
+
+itemDef {
+	name filter_edit
+	text "Edit"
+	type 1
+	textscale .25
+	group grpFilterbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/button_red.tga"
+	rect 90 5 75 20
+	textalign 1
+	textalignx 37
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 1
+	action { hide grpFilter ; show edit }
+	}
+
+itemDef {
+	name filter_delete
+	text "Delete"
+	type 1
+	textscale .25
+	group grpFilterbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/button_red.tga"
+	rect 170 5 75 20
+	textalign 1
+	textalignx 37
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 1
+	action { hide grpFilter ; show delete }
+	}
+
+
+
+
+	// ADD FILTER	//
+
+
+itemDef {
+	name add
+	group grpFilter
+	text "Description:"
+	style 0
+	textscale .25
+	type ITEM_TYPE_EDITFIELD
+	rect 20 30 110 20
+	textalign 0
+	textalignx 0
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 0
+	}
+itemDef {
+	name add
+	group grpFilter
+	text "Filter Name:"
+	style 0
+	textscale .25
+	type ITEM_TYPE_EDITFIELD
+	rect 20 50 110 20
+	textalign 0
+	textalignx 0
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 0
+	}
+
+itemDef {
+      	name add
+	group grpFilter
+       	rect 20 80 216 105
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_LISTBOX
+	elementwidth 120
+	elementheight 15
+	textscale .25
+	elementtype LISTBOX_TEXT
+	feeder FEEDER_PLAYER_LIST
+	border 1
+	bordercolor .5 .5 .5 1
+	forecolor 1 1 1 1
+	backcolor 0 0 .5 .25
+	outlinecolor .1 .1 .7 .5
+	visible 0
+	mouseEnter { fadein message_arena ; setitemcolor add bordercolor .7 0 0 1 } 
+	mouseExit { fadeout message_arena ; setitemcolor add bordercolor .5 .5 .5 1 }
+	}
+
+itemDef {
+	name add
+	text "Add"
+	group grpFilter
+	type 1
+	textscale .25
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/button_red.tga"
+	rect 103 190 50 20
+	textalign 1
+	textalignx 25
+	textaligny 15
+	forecolor 1 1 1 1
+	visible 0
+	action { }
+	}
+
+
+
+
+
+//	EDIT	//
+
+
+itemDef {
+	name edit
+	group grpFilter
+	text "Description:"
+	style 0
+	textscale .25
+	type ITEM_TYPE_EDITFIELD
+	rect 20 30 110 20
+	textalign 0
+	textalignx 0
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 0
+	}
+itemDef {
+	name edit
+	group grpFilter
+	text "Filter Name:"
+	style 0
+	textscale .25
+	type ITEM_TYPE_EDITFIELD
+	rect 20 50 110 20
+	textalign 0
+	textalignx 0
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 0
+	}
+
+itemDef {
+      	name edit
+	group grpFilter
+       	rect 20 80 216 105
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_LISTBOX
+	elementwidth 120
+	elementheight 15
+	textscale .25
+	elementtype LISTBOX_TEXT
+	feeder FEEDER_PLAYER_LIST
+	border 1
+	bordercolor .5 .5 .5 1
+	forecolor 1 1 1 1
+	backcolor 0 0 .5 .25
+	outlinecolor .1 .1 .7 .5
+	visible 0
+	mouseEnter { fadein message_arena ; setitemcolor edit bordercolor .7 0 0 1 } 
+	mouseExit { fadeout message_arena ; setitemcolor edit bordercolor .5 .5 .5 1 }
+	}
+
+itemDef {
+	name edit
+	text "Accept"
+	group grpFilter
+	type 1
+	textscale .25
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/button_red.tga"
+	rect 103 190 50 20
+	textalign 1
+	textalignx 25
+	textaligny 15
+	forecolor 1 1 1 1
+	visible 0
+	action { }
+	}
+
+
+
+//	DELETE	//
+
+itemDef {
+	name delete
+	group grpFilter
+	text "Filter Name:"
+	textscale .25
+	rect 20 30 110 20
+	textalign 0
+	textalignx 0
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 0
+	action { }
+	}
+itemDef {
+      	name delete
+	group grpFilter
+       	rect 20 80 216 105
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_LISTBOX
+	elementwidth 120
+	elementheight 15
+	textscale .25
+	elementtype LISTBOX_TEXT
+	feeder FEEDER_PLAYER_LIST
+	border 1
+	bordercolor .5 .5 .5 1
+	forecolor 1 1 1 1
+	backcolor 0 0 .5 .25
+	outlinecolor .1 .1 .7 .5
+	visible 0
+	mouseEnter { fadein message_arena ; setitemcolor delete bordercolor .7 0 0 1 } 
+	mouseExit { fadeout message_arena ; setitemcolor delete bordercolor .5 .5 .5 1 }
+	}
+
+itemDef {
+	name delete
+	text "Delete"
+	group grpFilter
+	type 1
+	textscale .25
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/button_red.tga"
+	rect 103 190 50 20
+	textalign 1
+	textalignx 25
+	textaligny 15
+	forecolor 1 1 1 1
+	visible 0
+	action { }
+	}
+
+
+
+
+
+//	OK	//
+
+itemDef {
+	name type
+	text "Exit"
+	textscale .25
+	type 1
+	group grpFilterbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/button_red.tga"
+	rect 103 230 50 20
+	textalign 1
+	textalignx 25
+	textaligny 15
+	forecolor 1 1 1 1
+	visible 1
+	action { close addfilter_popmenu ; close joinserver ; open joinserver }
+}
+
+
+}
+
+
+
+}

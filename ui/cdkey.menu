@@ -1,0 +1,312 @@
+#include "ui/menudef.h"
+
+{
+\\ SETUP MENU \\
+
+menuDef {
+    	name "cdkey_menu"
+    	visible 0
+    	fullscreen 0
+	rect 186 0 443 426
+    	focusColor 1 .75 0 1
+    	style 1
+    	border 1
+	onClose {
+		uiScript verifyCDKey
+	}
+	onOpen { 
+		setitemcolor fadebox backcolor 0 0 0 1 ; 
+		fadeout fadebox ; 
+		hide grpfinish ;
+		uiScript getCDKey
+	}
+	onEsc { close cdkey_menu ; close setup_menu ; open main }
+
+
+itemDef {
+	name window
+	group grpSystembutton
+	rect 0 2 443 426	
+	style WINDOW_STYLE_FILLED
+	border 1
+	bordercolor .5 .5 .5 .5
+	forecolor 1 1 1 1
+	backcolor 0 0 0 .25
+	visible 1
+	decoration
+	}
+
+
+/*
+//	DEMO ONLY OPTION	//
+
+	itemDef {
+		name demo_only
+		group grpcdkey
+		rect 0 145 454 30
+		text"This Option is Not Available in Demo."
+		textalign 1
+		textstyle 1
+		textscale .333
+		textalignx 217
+		textaligny 23
+		forecolor 1 1 1 1
+		visible 1
+		decoration
+		}
+*/
+
+
+
+
+
+	itemDef {
+		name data
+		group grpcdkey
+		rect 0 145 454 30
+		text"Enter your encryption code in the field below."
+		textalign 1
+		textscale .333
+		textalignx 217
+		textaligny 23
+		forecolor 1 1 1 1
+		visible 1
+		decoration
+		}
+
+	
+
+	itemDef {
+		name datafield
+		group grpcdkey
+		style 0
+		text "Code:"
+		maxchars 4
+   		rect 60 192 50 30	
+   		textalign ITEM_ALIGN_LEFT		
+   		textalignx 0
+   		textaligny 23
+		textscale .333
+		decoration
+		backcolor 1 0 0 .25
+   		forecolor 1 1 1 1
+   		visible 1 
+		}
+
+
+	itemDef {
+		name datafield
+		group grpcdkey
+   		type ITEM_TYPE_EDITFIELD
+		style 1
+		text ""
+		cvar "cdkey1"
+		maxchars 4
+   		rect 107 192 50 30	
+   		textalign ITEM_ALIGN_LEFT		
+   		textalignx 0
+   		textaligny 23
+		textscale .333
+		border 1
+		bordercolor .5 .5 .5 1
+		backcolor 1 0 0 .25
+   		forecolor 1 1 1 1
+   		visible 1
+		mouseenter { setcolor bordercolor 1 .75 0 1 }
+		mouseexit { setcolor bordercolor .5 .5 .5 1 }		
+		}
+itemDef {
+		name datafield
+		group grpcdkey
+   		type ITEM_TYPE_EDITFIELD
+		style 1
+		text ""
+		cvar "cdkey2"
+		maxchars 4
+   		rect 162 192 50 30	
+   		textalign ITEM_ALIGN_LEFT		
+   		textalignx 0
+   		textaligny 23
+		textscale .333
+   		border 1
+		bordercolor .5 .5 .5 1
+		backcolor 1 0 0 .25
+   		forecolor 1 1 1 1
+   		visible 1
+		mouseenter { setcolor bordercolor 1 .75 0 1 }
+		mouseexit { setcolor bordercolor .5 .5 .5 1 }
+		
+		}
+	itemDef {
+		name datafield
+		group grpcdkey
+   		type ITEM_TYPE_EDITFIELD
+		style 1
+		text ""
+		cvar "cdkey3"
+		maxchars 4
+   		rect 217 192 50 30	
+   		textalign ITEM_ALIGN_LEFT		
+   		textalignx 0
+   		textaligny 23
+		textscale .333
+   		border 1
+		bordercolor .5 .5 .5 1
+		backcolor 1 0 0 .25
+   		forecolor 1 1 1 1
+   		visible 1
+		mouseenter { setcolor bordercolor 1 .75 0 1 }
+		mouseexit { setcolor bordercolor .5 .5 .5 1 }
+		
+		}
+	itemDef {
+		name datafield
+		group grpcdkey
+   		type ITEM_TYPE_EDITFIELD
+		style 1
+		text""
+		cvar "cdkey4"
+		maxchars 4
+   		rect 272 192 50 30	
+   		textalign ITEM_ALIGN_LEFT		
+   		textalignx 0
+   		textaligny 23
+		textscale .333
+   		border 1
+		bordercolor .5 .5 .5 1
+		backcolor 1 0 0 .25
+   		forecolor 1 1 1 1
+   		visible 1
+		mouseenter { setcolor bordercolor 1 .75 0 1 }
+		mouseexit { setcolor bordercolor .5 .5 .5 1 }		
+		}
+	itemDef {
+		name datafield
+		group grpcdkey
+		style 0
+		text "-"
+		maxchars 2
+   		rect 327 192 60 30	
+   		textalign ITEM_ALIGN_LEFT		
+   		textalignx 0
+   		textaligny 23
+		textscale .333
+   		backcolor 0 0 0 0
+		decoration
+   		forecolor 1 1 1 1
+   		visible 1		
+		}
+	itemDef {
+		name datafield
+		group grpcdkey
+   		type ITEM_TYPE_EDITFIELD
+		style 1
+		text ""
+		cvar "cdkeychecksum"
+		maxchars 2
+   		rect 335 192 40 30	
+   		textalign ITEM_ALIGN_LEFT		
+   		textalignx 0
+   		textaligny 23
+		textscale .333
+   		border 1
+		bordercolor .5 .5 .5 1
+		forecolor 1 1 1 1
+		backcolor 1 0 0 .25
+   		visible 1
+		mouseenter { setcolor bordercolor 1 .75 0 1 }
+		mouseexit { setcolor bordercolor .5 .5 .5 1 }
+		}
+itemDef {
+		name accept
+		text "Verify"
+		type 1
+		group grpcdkey
+		textscale .3
+		style WINDOW_STYLE_FILLED
+		background "ui/assets/button_back.tga"
+		rect 161 247 100 26
+		textalign 1
+		textalignx 50
+		textaligny 20
+		forecolor 1 1 1 1
+		backcolor .37 .1 .1 1 
+		visible 1
+		action { 
+			play "sound/misc/nomenu.wav" ;
+			uiScript verifyCDKey ; 
+			show finish_message 
+		}
+		mouseEnter { setitemcolor accept backcolor .1 .37 .1 1 } 
+		mouseExit { setitemcolor accept backcolor .37 .1 .1 1 } 
+		}
+	
+	itemDef {
+      		name accept
+		group grpcdkey
+		style WINDOW_STYLE_SHADER
+		background "ui/assets/framebutton.tga"
+ 		rect 161 247 100 26
+      		visible 1 
+		decoration  	  
+    		}
+
+	itemDef {
+      		name accept
+		group grpcdkey
+		style WINDOW_STYLE_SHADER
+		background "ui/assets/leftbutton.tga"
+   	   	rect 149 247 13 26
+   	   	visible 1 
+		decoration  	  
+   	 	}
+
+	itemDef {
+	      	name accept
+		group grpcdkey
+		style WINDOW_STYLE_SHADER
+		background "ui/assets/rightbutton.tga"
+      		rect 260 247 13 26
+     	 	visible 1 
+		decoration  	  
+    		}
+
+
+	itemDef {
+   		name finish_message 
+		group grpfinish
+   		style 0
+		type ITEM_TYPE_EDITFIELD
+		text ""
+		cvar ui_cdkeyvalid
+		rect 0 290 443 20
+      		textalign ITEM_ALIGN_CENTER
+      		textalignx 221
+      		textaligny 20
+		textscale .333
+      		forecolor 1 1 1 1
+      		visible 1 
+		decoration
+    		}
+
+
+itemDef {
+      	name fadebox
+      	style WINDOW_STYLE_FILLED
+ 	background "ui/assets/fadebox.tga"
+	forecolor 0 0 0 1
+	backcolor 0 0 0 1
+	rect 0 0 640 480
+      	visible 1 
+	decoration
+    	}
+
+	
+
+
+}
+}
+
+
+
+

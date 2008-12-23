@@ -1,0 +1,16 @@
+#include "ui/menudef.h"
+
+{
+\\ Cinematic \\
+
+  menuDef {
+    	name "cinematic"
+    	visible 0
+    	fullscreen 1
+    	rect 0 0 640 480
+    	focusColor 1 .67 0 1
+    	style 1
+    	border 1
+	onopen { exec "cinematic idlogo.RoQ" ; open credit }
+}
+}

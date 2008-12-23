@@ -1,0 +1,1020 @@
+#include "ui/menudef.h"
+
+{
+\\ ordersHelp \\
+
+  menuDef {
+    	name "ordersHelp_menu"
+    	visible 0
+    	fullscreen 0
+    	rect 0 90 640 340
+    	focusColor 1 .67 0 1
+    	border 1
+	style 1
+	soundLoop "music/fla_mp03.wav"
+	onEsc { close help_menu ; close powerup_menu ; close ordersHelp_menu ; open main }
+	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ; 
+		fadeout fadebox ;
+		hide grphelptext ; 
+		show helptext ; 
+		hide grpIconAlt ; 
+		hide grpVoiceHead }
+	    
+ 
+
+//	ORDERS ICONS	//
+
+
+itemDef {
+      	name helpIcon
+      	style WINDOW_STYLE_SHADER
+      	rect 37 2 32 32 
+      	visible 1
+      	background "ui/assets/help.tga"
+	decoration
+	}
+
+itemDef {
+      	name attackIcon
+      	style WINDOW_STYLE_SHADER
+      	rect 113 2 32 32 
+      	visible 1
+      	background "ui/assets/assault.tga"
+      	decoration 
+	}
+
+itemDef {
+      	name campIcon
+      	style WINDOW_STYLE_SHADER
+      	rect 189 2 32 32 
+      	visible 1
+      	background "ui/assets/camp.tga"
+      	decoration 
+	}
+
+
+itemDef {
+      	name defendIcon
+      	style WINDOW_STYLE_SHADER
+      	rect 265 2 32 32 
+      	visible 1
+      	background "ui/assets/defend.tga"
+      	decoration 
+	}
+
+
+itemDef {
+      	name followIcon
+      	style WINDOW_STYLE_SHADER
+      	rect 341 2 32 32 
+      	visible 1
+      	background "ui/assets/follow.tga"
+      	decoration 
+	}
+
+
+itemDef {
+      	name patrolIcon
+      	style WINDOW_STYLE_SHADER
+      	rect 415 2 32 32 
+      	visible 1
+      	background "ui/assets/patrol.tga"
+      	decoration 
+	}
+
+itemDef {
+      	name retrieveIcon
+      	style WINDOW_STYLE_SHADER
+      	rect 489 2 32 32 
+      	visible 1
+      	background "ui/assets/retrieve.tga"
+      	decoration 
+	}
+
+itemDef {
+      	name escortIcon
+      	style WINDOW_STYLE_SHADER
+      	rect 563 2 32 32 
+      	visible 1
+      	background "ui/assets/escort.tga"
+      	decoration 
+	}
+
+
+
+//	ORDERS ICONS ALT	//
+
+
+itemDef {
+      	name helpIconAlt
+	group grpIconAlt
+      	style WINDOW_STYLE_SHADER
+      	rect 35 0 34 34 
+      	visible 1
+      	background "ui/assets/help.tga"
+	decoration
+	}
+
+itemDef {
+      	name attackIconAlt
+	group grpIconAlt
+      	style WINDOW_STYLE_SHADER
+      	rect 111 0 34 34 
+      	visible 1
+      	background "ui/assets/assault.tga"
+      	decoration 
+	}
+
+itemDef {
+      	name campIconAlt
+	group grpIconAlt
+      	style WINDOW_STYLE_SHADER
+      	rect 187 0 34 34 
+      	visible 1
+      	background "ui/assets/camp.tga"
+      	decoration 
+	}
+
+
+itemDef {
+      	name defendIconAlt
+	group grpIconAlt
+      	style WINDOW_STYLE_SHADER
+      	rect 263 0 34 34 
+      	visible 1
+      	background "ui/assets/defend.tga"
+      	decoration 
+	}
+
+
+itemDef {
+      	name followIconAlt
+	group grpIconAlt
+      	style WINDOW_STYLE_SHADER
+      	rect 339 0 34 34 
+      	visible 1
+      	background "ui/assets/follow.tga"
+      	decoration 
+	}
+
+
+itemDef {
+      	name patrolIconAlt
+	group grpIconAlt
+      	style WINDOW_STYLE_SHADER
+      	rect 413 0 34 34 
+      	visible 1
+      	background "ui/assets/patrol.tga"
+      	decoration 
+	}
+
+itemDef {
+      	name retrieveIconAlt
+	group grpIconAlt
+      	style WINDOW_STYLE_SHADER
+      	rect 487 0 34 34 
+      	visible 1
+      	background "ui/assets/retrieve.tga"
+      	decoration 
+	}
+
+itemDef {
+      	name escortIconAlt
+	group grpIconAlt
+      	style WINDOW_STYLE_SHADER
+      	rect 561 0 34 34 
+      	visible 1
+      	background "ui/assets/escort.tga"
+      	decoration 
+	}
+
+
+
+//	Leader	//
+
+
+
+
+itemDef {
+      	name Help
+      	rect 28 37 50 26
+	type 1
+	text "Help"
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	textalign 1   	
+	textscale .25
+	textalignx 25
+	textaligny 20 
+      	visible 1
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1
+	action { hide grphelptext ; show helptext ; play "sound/misc/kcaction.wav" }
+	mouseEnter { setitemcolor help backcolor .1 .37 .1 1 ; hide helpIcon ; show helpIconAlt ; hide grpVoiceHead } 
+	mouseExit { setitemcolor help backcolor .37 .1 .1 1 ; hide helpIconAlt ; show helpIcon } 
+	}
+itemDef {
+      	name help 
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/framebutton.tga"
+ 	rect 28 37 50 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name help 
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/leftbutton.tga"
+      	rect 22 37 7 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name help 
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rightbutton.tga"
+      	rect 77 37 7 26
+      	visible 1 
+	decoration  	  
+    	}
+
+
+
+
+// 	Attack		//
+
+
+
+itemDef {
+      	name attack
+      	style 0
+      	rect 104 37 50 26 
+  	text "Attack"
+	style WINDOW_STYLE_FILLED
+	type 1
+	background "ui/assets/button_back.tga"
+	textalign 1   	
+	textscale .25
+	textalignx 25
+	textaligny 20 
+      	visible 1
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1
+	action { hide grphelptext ; show attacktext ; exec "play sound/voices/male1/or_03.wav" ; show grpVoiceHead }
+	mouseEnter { setitemcolor attack backcolor .1 .37 .1 1 ; hide attackIcon ; show attackIconAlt ; hide grpVoiceHead } 
+	mouseExit { setitemcolor attack backcolor .37 .1 .1 1 ; hide attackIconAlt ; show attackIcon } 
+	}
+itemDef {
+      	name attack
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/framebutton.tga"
+ 	rect 104 37 50 26 
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name attack
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/leftbutton.tga"
+      	rect 98 37 7 26 
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name attack
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rightbutton.tga"
+      	rect 153 37 7 26 
+      	visible 1 
+	decoration  	  
+    	}
+
+
+
+//	CAMP	//
+
+
+
+itemDef {
+      	name camp
+      	style 0
+      	rect 180 37 50 26
+	type 1
+  	text "Camp"
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	textalign 1   	
+	textscale .25
+	textalignx 25
+	textaligny 20 
+      	visible 1
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1
+	action { hide grphelptext ; show camptext ; exec "play sound/voices/male1/voc_01.wav" ; show grpVoiceHead }
+	mouseEnter { setitemcolor camp backcolor .1 .37 .1 1 ; hide campIcon ; show campIconAlt ; hide grpVoiceHead } 
+	mouseExit { setitemcolor camp backcolor .37 .1 .1 1 ; hide campIconAlt ; show campIcon } 
+	}
+itemDef {
+      	name camp
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/framebutton.tga"
+ 	rect 180 37 50 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name camp
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/leftbutton.tga"
+      	rect 174 37 7 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name camp
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rightbutton.tga"
+      	rect 229 37 7 26
+      	visible 1 
+	decoration  	  
+    	}
+
+
+
+//	DEFEND	//
+
+
+
+itemDef {
+      	name defend
+      	style 0
+      	rect 256 37 50 26
+	type 1
+  	text "Defend"
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	textalign 1   	
+	textscale .25
+	textalignx 25
+	textaligny 20 
+      	visible 1
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1
+	action { hide grphelptext ; show defendtext ; exec "play sound/voices/male1/or_05.wav" ; show grpVoiceHead }
+	mouseEnter { setitemcolor defend backcolor .1 .37 .1 1 ; hide defendIcon ; show defendIconAlt ; hide grpVoiceHead } 
+	mouseExit { setitemcolor defend backcolor .37 .1 .1 1 ; hide defendIconAlt ; show defendIcon } 
+	}
+itemDef {
+      	name defend
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/framebutton.tga"
+ 	rect 256 37 50 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name defend
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/leftbutton.tga"
+      	rect 250 37 7 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name defend
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rightbutton.tga"
+      	rect 305 37 7 26
+      	visible 1 
+	decoration  	  
+    	}
+
+
+
+//	FOLLOW	//
+
+
+	
+itemDef {
+      	name follow
+	type 1
+      	rect 332 37 50 26
+  	text "Follow"
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	textalign 1   	
+	textscale .25
+	textalignx 25
+	textaligny 20
+      	visible 1
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1
+	action { hide grphelptext ; show followtext ; exec "play sound/voices/male1/or_11.wav" ; show grpVoiceHead }
+	mouseEnter { setitemcolor follow backcolor .1 .37 .1 1 ; hide followIcon ; show followIconAlt ; hide grpVoiceHead } 
+	mouseExit { setitemcolor follow backcolor .37 .1 .1 1 ; hide followIconAlt ; show followIcon } 
+	}
+
+itemDef {
+      	name follow
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/framebutton.tga"
+ 	rect 332 37 50 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name follow
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/leftbutton.tga"
+      	rect 326 37 7 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name follow
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rightbutton.tga"
+      	rect 381 37 7 26
+      	visible 1 
+	decoration  	  
+    	}
+
+
+
+
+//	PATROL	//
+
+
+itemDef {
+      	name patrol
+      	rect 406 37 50 26
+	type 1
+  	text "Patrol"
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	textalign 1   	
+	textscale .25
+	textalignx 25
+	textaligny 20
+      	visible 1
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1
+	action { hide grphelptext ; show patroltext ; exec "play sound/voices/male1/or_10.wav" ; show grpVoiceHead }
+	mouseEnter { setitemcolor patrol backcolor .1 .37 .1 1 ; hide patrolIcon ; show patrolIconAlt ; hide grpVoiceHead } 
+	mouseExit { setitemcolor patrol backcolor .37 .1 .1 1 ; hide patrolIconAlt ; show patrolIcon } 
+	}
+itemDef {
+      	name patrol
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/framebutton.tga"
+ 	rect 406 37 50 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name patrol
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/leftbutton.tga"
+      	rect 400 37 7 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name patrol
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rightbutton.tga"
+      	rect 455 37 7 26
+      	visible 1 
+	decoration  	  
+    	}
+
+
+
+//	RETRIEVE	//
+
+
+
+itemDef {
+      	name retrieve
+      	rect 480 37 50 26
+	type 1
+  	text "Retrieve"
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	textalign 1   	
+	textscale .25
+	textalignx 25
+	textaligny 20
+      	visible 1
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1
+	action { hide grphelptext ; show retrievetext ; exec "play sound/voices/male1/voc_05.wav" ; show grpVoiceHead }
+	mouseEnter { setitemcolor retrieve backcolor .1 .37 .1 1 ; hide retrieveIcon ; show retrieveIconAlt ; hide grpVoiceHead } 
+	mouseExit { setitemcolor retrieve backcolor .37 .1 .1 1 ; hide retrieveIconAlt ; show retrieveIcon } 
+	}
+itemDef {
+      	name retrieve
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/framebutton.tga"
+ 	rect 480 37 50 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name retrieve
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/leftbutton.tga"
+      	rect 474 37 7 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name retrieve
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rightbutton.tga"
+      	rect 529 37 7 26
+      	visible 1 
+	decoration  	  
+    	}
+
+//	ESCORT	//
+
+
+
+itemDef {
+      	name escort
+      	rect 554 37 50 26
+	type 1
+  	text "Escort"
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	textalign 1   	
+	textscale .25
+	textalignx 25
+	textaligny 20
+      	visible 1
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1
+	action { hide grphelptext ; show escorttext ; exec "play sound/voices/male1/voc_11.wav" ; show grpVoiceHead }
+	mouseEnter { setitemcolor escort backcolor .1 .37 .1 1 ; hide escortIcon ; show escortIconAlt ; hide grpVoiceHead } 
+	mouseExit { setitemcolor escort backcolor .37 .1 .1 1 ; hide escortIconAlt ; show escortIcon } 
+	}
+itemDef {
+      	name escort
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/framebutton.tga"
+ 	rect 554 37 50 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name escort
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/leftbutton.tga"
+      	rect 548 37 7 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name escort
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rightbutton.tga"
+      	rect 603 37 7 26
+      	visible 1 
+	decoration  	  
+    	}
+
+// VOICE HEAD 	//
+
+	
+
+
+	itemDef {
+		name "b"
+		group grpVoiceHead
+		rect 40 102 50 50
+    		visible 1
+		style WINDOW_STYLE_SHADER
+		background "ui/assets/head5.tga"
+		decoration
+		}
+	
+	itemDef {
+		name "b"
+		group grpVoiceHead
+		rect 40 102 50 50
+		style WINDOW_STYLE_SHADER
+		background "menuscreen2"
+    		visible 1
+		decoration
+		}
+
+	itemDef {
+		name "voiceWindow"
+		group grpVoiceHead
+		visible 1
+		style 3
+		background "ui/assets/voice_window.tga"
+		rect 38 100 54 54
+		}
+
+
+
+
+//	TEXT MESSAGES	//
+
+
+// 	LEADER	//
+
+itemDef {
+	name helptext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "Help"	
+	rect 140 94 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .3   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+
+itemDef {
+	name helptext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "Only Leaders can give orders to someone else on the team. \r"
+	"Any player can change their own status. Orders are given through \r"
+	"the ingame Orders menu or the HUD system using the Next Team Member \r"
+	"and Next Orders commands.  If you receive an order, you can either \r"
+	"Confirm or Deny that order.  You must have keys bound to those two \r"
+	"commands.  If you confirm the order, your status will automatically \r"
+	"update to reflect your new status."	
+	rect 140 124 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .25   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+
+
+// Attack //
+
+itemDef {
+	name attacktext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "Attack"	
+	rect 140 94 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .3   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+
+itemDef {
+	name attacktext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "Command your team member to assault the enemy and the enemy Base.\r"
+	"In Capture the Flag and One Flag CTF, it orders the team member to get the \r"
+	"opposing team's flag (CTF), or the white flag (One Flag CTF)."	
+	rect 140 124 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .25   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+
+	
+	
+
+// 	CAMP	//
+
+
+itemDef {
+	name camptext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "Camp"	
+	rect 140 94 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .3   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+
+itemDef {
+	name camptext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "Command your team member to stay at YOUR current location."
+	rect 140 124 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .25   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+
+
+// 	Defend	 //
+
+itemDef {
+	name defendtext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "Defend"	
+	rect 140 94 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .3   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+
+itemDef {
+	name defendtext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "Command your team member to guard your team's Base."	
+	rect 140 124 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .25   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+
+
+// 	Follow	 //
+
+
+itemDef {
+	name followtext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "Follow"	
+	rect 140 94 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .3   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+itemDef {
+	name followtext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "Command your team member to follow you."
+	rect 140 124 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .25   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+
+
+
+// 	Patrol	 //
+
+itemDef {
+	name patroltext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "Patrol"	
+	rect 140 94 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .3   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+
+itemDef {
+	name patroltext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "Command your team member to patrol between Bases and \r"
+	"determine their own actions based upon the situation. \r" 
+	"Basically, this command frees the team member \r"
+	"to act independently of your orders."	
+	rect 140 124 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .25   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+
+// 	Retrieve	 //
+
+itemDef {
+	name retrievetext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "Retrieve"	
+	rect 140 94 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .3   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+
+itemDef {
+	name retrievetext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "If your flag is taken from the base in Capture the Flag, this orders \r"
+	"your team member to find the stolen flag and return it.  In One Flag CTF, \r"
+	"it orders the team member to take the white flag from the opposition. \r"
+	"This status can only occur in Capture the Flag or One Flag CTF matches."	
+	rect 140 124 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .25   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+
+
+// 	ESCORT	 //
+
+itemDef {
+	name escorttext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "Escort"	
+	rect 140 94 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .3   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+
+itemDef {
+	name escorttext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "This will command your team member to escort the flag \r"
+	"carrier to the enemy Base.  This command can only be given \r"
+	"Capture the Flag and One Flag CTF matches."	
+	rect 140 124 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .25   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+
+itemDef {
+      	name fadebox
+      	style WINDOW_STYLE_FILLED
+ 	background "ui/assets/fadebox.tga"
+	forecolor 0 0 0 1
+	backcolor 0 0 0 1
+	rect 0 0 640 480
+      	visible 1 
+	decoration
+    	}
+
+
+
+
+
+
+
+
+
+
+}
+
+}
+}
