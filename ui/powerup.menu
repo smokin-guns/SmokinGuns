@@ -1,0 +1,768 @@
+#include "ui/menudef.h"
+
+{
+\\ powerup \\
+
+  menuDef {
+    	name "powerup_menu"
+    	visible 0
+    	fullscreen 0
+    	rect 0 90 640 340
+    	focusColor 1 .67 0 1
+    	border 1
+	style 1
+	onEsc { close help_menu ; close powerup_menu ; close ordersHelp_menu ; open main }
+	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ; 
+		fadeout fadebox ; 
+		hide grphelptext ; 
+		show scouttext ; 
+		hide grpiconalt }
+	    
+//	SCOUT	//
+
+itemDef {
+      	name scoutIcon
+	group grpScout
+      	style WINDOW_STYLE_SHADER
+      	rect 32 2 32 32 
+      	visible 1
+	type ITEM_TYPE_BUTTON
+      	background "icons/scout.tga"
+	}
+itemDef {
+      	name scoutIconAlt
+	group grpIconAlt
+      	style WINDOW_STYLE_SHADER
+      	rect 30 0 34 34 
+      	visible 1
+	type ITEM_TYPE_BUTTON
+      	background "icons/scout.tga"
+	}
+itemDef {
+      	name scout
+	group grpScout
+      	rect 15 37 70 26
+	text "Scout"
+	type 1
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	textalign 1   	
+	textscale .3
+	textalignx 35
+	textaligny 20 
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1
+      	visible 1
+	action { hide grphelptext ; show scouttext ; exec "play sound/items/cl_scout.wav"  }
+	mouseEnter { setitemcolor scout backcolor .1 .37 .1 1 ; hide scoutIcon ; show scoutIconAlt } 
+	mouseExit { setitemcolor scout backcolor .37 .1 .1 1 ; hide scoutIconAlt ; show scoutIcon } 
+	}
+itemDef {
+      	name scout
+	group grpScout
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/framebutton.tga"
+ 	rect 15 37 70 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name scout
+	group grpScout
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/leftbutton.tga"
+      	rect 8 37 8 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name scout
+	group grpScout
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rightbutton.tga"
+      	rect 84 37 8 26
+      	visible 1 
+	decoration  	  
+    	}
+
+//	GUARD	//
+
+itemDef {
+      	name guardIcon
+      	style WINDOW_STYLE_SHADER
+      	rect 128 2 32 32  
+      	visible 1
+      	background "icons/guard.tga"
+      	decoration 
+	}
+itemDef {
+      	name guardIconAlt
+	group grpIconAlt
+      	style WINDOW_STYLE_SHADER
+      	rect 126 0 34 34  
+      	visible 1
+      	background "icons/guard.tga"
+      	decoration 
+	}
+itemDef {
+      	name guard
+      	rect 111 37 70 26 
+	type 1
+  	text "Guard"
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	textalign 1   	
+	textscale .3
+	textalignx 35
+	textaligny 20 
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1
+      	visible 1
+	action { hide grphelptext ; show guardtext ; exec "play sound/items/cl_guard.wav" }
+	mouseEnter { setitemcolor guard backcolor .1 .37 .1 1 ; hide guardIcon ; show guardIconAlt } 
+	mouseExit { setitemcolor guard backcolor .37 .1 .1 1 ; hide guardIconAlt ; show guardIcon } 
+	}
+
+itemDef {
+      	name guard
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/framebutton.tga"
+ 	rect 111 37 70 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name guard
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/leftbutton.tga"
+      	rect 104 37 8 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name guard
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rightbutton.tga"
+      	rect 180 37 8 26
+      	visible 1 
+	decoration  	  
+    	}
+
+//	DOUBLER	//
+
+itemDef {
+      	name doublerIcon
+      	style WINDOW_STYLE_SHADER
+      	rect 222 2 32 32 
+      	visible 1
+      	background "icons/doubler.tga"
+      	decoration 
+	}
+itemDef {
+      	name doublerIconAlt
+	group grpIconAlt
+      	style WINDOW_STYLE_SHADER
+      	rect 220 0 34 34 
+      	visible 1
+      	background "icons/doubler.tga"
+      	decoration 
+	}
+itemDef {
+      	name doubler
+      	rect 207 37 70 26
+	type 1
+  	text "Doubler"
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	textalign 1   	
+	textscale .3
+	textalignx 35
+	textaligny 20 
+      	visible 1
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1
+	action { hide grphelptext ; show doublertext ; exec "play sound/items/cl_doubler.wav" }
+	mouseEnter { setitemcolor doubler backcolor .1 .37 .1 1 ; hide doublerIcon ; show doublerIconAlt } 
+	mouseExit { setitemcolor doubler backcolor .37 .1 .1 1 ; hide doublerIconAlt ; show doublerIcon } 	
+	}
+itemDef {
+      	name doubler
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/framebutton.tga"
+ 	rect 207 37 70 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name doubler
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/leftbutton.tga"
+      	rect 200 37 8 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name doubler
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rightbutton.tga"
+      	rect 276 37 8 26
+      	visible 1 
+	decoration  	  
+    	}
+
+//	AMMO_REGEN	//
+
+itemDef {
+      	name ammo_regenIcon
+      	style WINDOW_STYLE_SHADER
+      	rect 331 2 32 32 
+      	visible 1
+      	background "icons/ammo_regen.tga"
+      	decoration 
+	}
+itemDef {
+      	name ammo_regenIconAlt
+	group grpIconAlt
+      	style WINDOW_STYLE_SHADER
+      	rect 329 0 34 34 
+      	visible 1
+      	background "icons/ammo_regen.tga"
+      	decoration 
+	}
+itemDef {
+      	name ammo_regen
+      	rect 302 37 87 26
+	type 1
+  	text "Ammo-Regen"
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	textalign 1   	
+	textscale .3
+	textalignx 43
+	textaligny 20 
+      	visible 1
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1
+	action { hide grphelptext ; show ammo_regentext ; exec "play sound/items/cl_ammoregen.wav" }
+	mouseEnter { setitemcolor ammo_regen backcolor .1 .37 .1 1 ; hide ammo_regenIcon ; show ammo_regenIconAlt } 
+	mouseExit { setitemcolor ammo_regen backcolor .37 .1 .1 1 ; hide ammo_regenIconAlt ; show ammo_regenIcon } 
+	}
+itemDef {
+      	name ammo_regen
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/framebutton.tga"
+ 	rect 302 37 87 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name ammo_regen
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/leftbutton.tga"
+      	rect 295 37 8 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name ammo_regen
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rightbutton.tga"
+      	rect 388 37 8 26
+      	visible 1 
+	decoration  	  
+    	}
+
+//	KAMIKAZE	//
+
+itemDef {
+      	name kamikazeIcon
+      	style WINDOW_STYLE_SHADER
+      	rect 439 2 32 32 
+      	visible 1
+      	background "icons/kamikaze.tga"
+      	decoration 
+	}
+itemDef {
+      	name kamikazeIconAlt
+	group grpIconAlt
+      	style WINDOW_STYLE_SHADER
+      	rect 437 0 34 34 
+      	visible 1
+      	background "icons/kamikaze.tga"
+      	decoration 
+	}
+itemDef {
+      	name kamikaze
+      	rect 415 37 87 26
+	type 1
+  	text "Kamikaze"
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	textalign 1   	
+	textscale .3
+	textalignx 43
+	textaligny 20 
+      	visible 1
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1
+	action { hide grphelptext ; show kamikazetext ; exec "play sound/items/kamikaze_full.wav" }
+	mouseEnter { setitemcolor kamikaze backcolor .1 .37 .1 1 ; hide kamikazeIcon ; show kamikazeIconAlt } 
+	mouseExit { setitemcolor kamikaze backcolor .37 .1 .1 1 ; hide kamikazeIconAlt ; show kamikazeIcon } 
+	}
+itemDef {
+      	name kamikaze
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/framebutton.tga"
+ 	rect 415 37 87 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name kamikaze
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/leftbutton.tga"
+      	rect 408 37 8 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name kamikaze
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rightbutton.tga"
+      	rect 501 37 8 26
+      	visible 1 
+	decoration  	  
+    	}
+
+
+//	INVULNERABILITY	//
+
+itemDef {
+      	name invulnerabilityIcon
+      	style WINDOW_STYLE_SHADER
+      	rect 561 2 32 32 
+      	visible 1
+      	background "icons/invulnerability.tga"
+      	decoration 
+	}
+itemDef {
+      	name invulnerabilityIconAlt
+	group grpIconAlt
+      	style WINDOW_STYLE_SHADER
+      	rect 559 0 34 34 
+      	visible 1
+      	background "icons/invulnerability.tga"
+      	decoration 
+	}
+itemDef {
+      	name invulnerability
+      	rect 526 37 102 26
+	type 1
+  	text "Invulnerability"
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	textalign 1   	
+	textscale .29
+	textalignx 49
+	textaligny 20 
+      	visible 1
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1
+	action { hide grphelptext ; show invulnerabilitytext ; exec "play sound/items/invul_activate.wav"  }
+	mouseEnter { setitemcolor invulnerability backcolor .1 .37 .1 1 ; hide invulnerabilityIcon ; show invulnerabilityIconAlt } 
+	mouseExit { setitemcolor invulnerability backcolor .37 .1 .1 1 ; hide invulnerabilityIconAlt ; show invulnerabilityIcon } 
+	}
+itemDef {
+      	name invulnerability
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/framebutton.tga"
+ 	rect 526 37 102 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name invulnerability
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/leftbutton.tga"
+      	rect 519 37 8 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name invulnerability
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rightbutton.tga"
+      	rect 626 37 8 26
+      	visible 1 
+	decoration  	  
+    	}
+
+// SCOUT //
+itemDef {
+	name scouttext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "Scout : Team Power-Up"	
+	rect 280 94 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .3   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+itemDef {
+	name scouttext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "The Scout power-up drastically increases the player's rate \r"
+	"of movement and attack.  It also prevents the player from \r"
+	"wearing any armor and discards any armor points that the \r"
+	"player may already have.  As with the other persistent team \r"
+	"power-ups, the player keeps the Scout until he or she \r" 
+	"is fragged. "	
+	rect 280 124 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .25   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+itemDef {
+	name scouttext
+	group grphelptext
+      	style 5	
+	cinematic "scout.RoQ"
+      	rect 10 94 256 192
+      	border 1
+      	bordercolor .5 .5 .5 1
+      	visible 0
+	decoration
+	}
+
+// Guard //
+itemDef {
+	name guardtext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "Guard : Team Power-Up"	
+	rect 280 94 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .3   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+itemDef {
+	name guardtext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "The Guard power-up gives the player an instant health  \r"
+ 	"and armor boost up to 200 points.  The player's health \r"
+	"points will regenerate to keep them at 200 points.  The  \r"
+ 	"player may replenish lost armor points back up to 200 \r"
+	"points.  As with the other persistent team power-ups, \r" 
+	"the player keeps the Guard until he or she is fragged."	
+	rect 280 124 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .25   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+
+itemDef {
+	name guardtext
+	group grphelptext
+      	style WINDOW_STYLE_CINEMATIC 
+	cinematic "guard.RoQ"
+      	rect 10 94 256 192
+	border 1
+      	bordercolor .5 .5 .5 1
+      	visible 0
+	decoration
+	}
+	
+	
+
+// Doubler //
+itemDef {
+	name doublertext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "Doubler : Team Power-Up"	
+	rect 280 94 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .3      
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+itemDef {
+	name doublertext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "The Doubler power-up doubles the amount of damage done \r"
+	"by each hit the player scores.  The doubling effect is also \r"
+	"modified further by the damage boosting effects of the Quad \r"
+	"Damage.  As with the other persistent team power-ups, the \r"
+ 	"player keeps the Doubler until he or she is fragged."	
+	rect 280 124 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .25   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+itemDef {
+	name doublertext
+	group grphelptext
+      	style 5	
+	cinematic "doubler.RoQ"
+      	rect 10 94 256 192
+      	border 1
+      	bordercolor .5 .5 .5 1
+      	visible 0
+	decoration
+	}
+
+// Ammo-Regen //
+itemDef {
+	name ammo_regentext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "Ammo-Regen : Team Power-Up"	
+	rect 280 94 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .3   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+itemDef {
+	name ammo_regentext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "The Ammo-Regen power-up slowly replenishes the \r"
+ 	"ammunition used by each weapon in the player's \r"
+ 	"possession up to a full basic load (the amount that \r"
+ 	"comes with the weapon). The player can shoot faster \r"
+ 	"than the ammo can regenerate.  The Ammo-Regen also \r"
+	"significantly increases the player's rate of fire for \r"
+ 	"all attack types.  As with the other persistent team \r"
+	"power-ups, the player keeps the Ammo-Regen until he or \r" 
+	"she is fragged."	
+	rect 280 124 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .25   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+itemDef {
+	name ammo_regentext
+	group grphelptext
+      	style 5	
+	cinematic "ammo_regen.RoQ"
+      	rect 10 94 256 192
+      	border 1
+      	bordercolor .5 .5 .5 1
+      	visible 0
+	decoration
+	}
+
+// Kamikaze //
+itemDef {
+	name kamikazetext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "Kamikaze : Useable Item"	
+	rect 280 94 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .3   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+itemDef {
+	name kamikazetext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "When carried by a player, the Kamikaze appears as \r"
+ 	"skulls swirling about the body.  Pressing the Use Item \r"
+ 	"key activates the bomb, fragging the player and severely \r"
+ 	"punishing all others within the range of the explosion. \r"
+	"The blast's powerful shockwave shakes the entire arena."	
+	rect 280 124 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .25   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+itemDef {
+	name kamikazetext
+	group grphelptext
+      	style 5	
+	cinematic "kamikaze.RoQ"
+      	rect 10 94 256 192
+      	border 1
+      	bordercolor .5 .5 .5 1
+      	visible 0
+	decoration
+	}
+
+
+// Invulnerability //
+itemDef {
+	name invulnerabilitytext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "Invulnerability : Useable Item"	
+	rect 280 94 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .3   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+itemDef {
+	name invulnerabilitytext
+	group grphelptext
+      	style 0	
+	wrapped
+	text "When activated, the Invulnerability power-up freezes the \r"
+ 	"player in place and surrounds him or her with a mostly \r"
+ 	"impenetrable, crackling shield of magenta energy.  Mostly \r"
+ 	"impenetrable, because the player can fire out and prox \r"
+ 	"mines can be lobbed in." 	
+	rect 280 124 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .25   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+itemDef {
+	name invulnerabilitytext
+	group grphelptext
+      	style 5	
+	cinematic "invulnerability.RoQ"
+      	rect 10 94 256 192
+      	border 1
+      	bordercolor .5 .5 .5 1
+      	visible 0
+	decoration
+	}
+
+itemDef {
+      	name fadebox
+      	style WINDOW_STYLE_FILLED
+ 	background "ui/assets/fadebox.tga"
+	forecolor 0 0 0 1
+	backcolor 0 0 0 1
+	rect 0 0 640 480
+      	visible 1 
+	decoration
+    	}
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+}
+}

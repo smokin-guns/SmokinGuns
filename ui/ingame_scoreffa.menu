@@ -1,0 +1,452 @@
+#include "ui/menudef.h"
+
+{
+\\ score_menu \\
+
+  menuDef {
+    	name "teamscore_menu"
+    	visible 0
+    	fullscreen 1
+    	rect 0 0 640 480
+    	background uibackground4
+    	focusColor 1 .75 0 1
+    	style 1
+    	border 1
+	
+itemDef {
+	name leftteambar
+      	rect 14 102 306 35	
+	style WINDOW_STYLE_FILLED
+	border 1
+	bordercolor .5 .5 .5 1
+	forecolor 1 1 1 1
+	backcolor 1 0 0 1
+	visible 1
+	decoration
+}
+
+itemDef {
+	name rightteambar
+ 	rect 320 102 306 35	
+	style WINDOW_STYLE_FILLED
+	border 1
+	bordercolor .5 .5 .5 1
+	forecolor 1 1 1 1
+	backcolor 0 0 1 1
+	visible 1
+	decoration
+}
+
+itemDef {
+      	name leftteamheadings
+      	text "Status         Name                                 Score    Time    Ping"
+      	textscale .25
+      	style 0	
+      	rect 25 102 128 30 
+      	textalign 0		
+      	textalignx 0		// x alignment point for text
+   				// use it to offset left/right text from the edge 
+            			// or to center the text on a different point
+      	textaligny 23        
+      	backcolor 0 0 0 0
+      	forecolor 1 .75 0 1
+      	decoration
+      	visible 1 	  
+    	}
+
+
+itemDef {
+      	name leftgrad
+      	style WINDOW_STYLE_SHADER
+      	background "ui/assets/halfgradleft.tga"
+      	rect 14 140 306 222 
+				forecolor .75 0 0 0.5
+      	visible 1 
+				decoration
+}
+
+itemDef {
+      	name leftgrad
+      	rect 16 142 302 218 
+		orecolor .75 .75 .75 .75
+      	visible 1 
+		type ITEM_TYPE_LISTBOX
+		elementwidth 135
+		elementheight 20
+		textscale .25
+		elementtype LISTBOX_TEXT
+		feeder FEEDER_REDTEAM_LIST
+		columns 5 2 20 20 60 75 75 165 20 20 205 20 20 235 20 20
+}
+
+
+
+itemDef {
+      	name rightgrad
+      	style WINDOW_STYLE_SHADER
+      	background "ui/assets/halfgradright.tga"
+      	rect 320 140 296 222 	     
+      	forecolor 0 0 .75 0.5
+      	visible 1 
+			  type ITEM_TYPE_LISTBOX
+			  elementwidth 135
+			  elementheight 20
+			  textscale .28
+			  elementtype LISTBOX_TEXT
+			  feeder FEEDER_BLUETEAM_LIST
+				columns 5 2 20 20 60 75 75 165 20 20 205 20 20 235 20 20
+}
+
+itemDef {
+      	name rightteamheadings
+      	text "Status         Name                                 Score    Time    Ping"
+      	textscale .25
+      	style 0	
+      	rect 336 102 128 30 
+      	textalign 0		
+      	textalignx 0		// x alignment point for text
+   				// use it to offset left/right text from the edge 
+            			// or to center the text on a different point
+      	textaligny 23        
+      	backcolor 0 0 0 0
+      	forecolor 1 .75 0 1
+      	decoration
+      	visible 1 	  
+    	}
+
+
+
+
+
+
+
+itemDef {
+	name window
+	rect 14 141 612 221	
+	style WINDOW_STYLE_EMPTY
+	border 1
+	bordercolor .5 .5 .5 .75
+	forecolor 1 1 1 1
+	backcolor 0 0 0 .25
+	visible 1
+	decoration
+}
+
+
+
+
+
+
+// GAMETYPE BAR	//
+
+
+itemDef {
+      	name gametypebar
+      	style 2
+      	rect 0 16 640 35 
+      	textscale 0.4
+      	textalign 0		        // center
+      	textalignx 60       		// x alignment point for text
+                            		// use it to offset left/right text from the edge 
+                            		// or to center the text on a different point
+      	textaligny 21        
+      	style 2
+      	border 4
+      	bordercolor 1 1 1 1
+      	bordersize 1
+      	backcolor 0 0 .75 0.5
+      	visible 1 
+      	decoration 
+}
+
+
+itemDef {
+      	name score
+				text " "
+				ownerdraw CG_GAME_STATUS
+      	textscale .5
+      	style 0	
+      	rect 320 16 210 25 
+				textalignx 0
+				textaligny 21
+      	textalign 1		
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	visible 1 
+				decoration	  
+}
+
+
+itemDef {
+      	name score
+				text ""
+				ownerdraw CG_KILLER
+      	textscale .4
+      	style 0	
+      	rect 320 40 210 40 
+				textalignx 0
+				textaligny 24 
+      	textalign 1		
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	visible 1 
+				decoration	  
+}
+
+
+
+
+//	PLAYER STATS	//
+
+itemDef {
+	name window
+      	rect 14 364 612 24	
+	style WINDOW_STYLE_FILLED
+	border 1
+	bordercolor .5 .5 .5 .5
+	forecolor 0 0 0 0
+	backcolor 0 0 0 .25
+	//outlinecolor 1 1 1 .5
+	visible 1
+	decoration
+}
+
+itemDef {
+      	name name
+      	text "Name:"
+      	textscale .35
+      	style 0	
+      	rect 0 363 128 30 
+      	textalign 1		// center
+      	textalignx 64		// x alignment point for text
+   				// use it to offset left/right text from the edge 
+            			// or to center the text on a different point
+      	textaligny 21        
+      	backcolor 0 0 0 0
+ 	forecolor 1 .75 0 1
+      	decoration
+      	visible 1 	  
+    	}
+
+
+itemDef {
+      	name score
+      	text "Score:"
+      	textscale .35
+      	style 0	
+      	rect 246 363 128 30 
+      	textalign 3		// center
+      	textalignx 16		// x alignment point for text
+   				// use it to offset left/right text from the edge 
+            			// or to center the text on a different point
+      	textaligny 21        
+      	backcolor 0 0 0 0
+	forecolor 1 .75 0 1
+      	decoration
+      	visible 1 	  
+    }
+
+
+itemDef {
+      	name wins
+      	text "Wins:"
+      	textscale .35
+      	style 0	
+      	rect 404 363 128 30 
+      	textalign 1		// center
+      	textalignx 64		// x alignment point for text
+   				// use it to offset left/right text from the edge 
+            			// or to center the text on a different point
+      	textaligny 21        
+      	backcolor 0 0 0 0
+  	forecolor 1 .75 0 1
+      	decoration
+      	visible 1 	  
+    }
+
+
+
+// AWARDS	//
+
+
+itemDef {
+	name window
+      	rect 14 390 612 38	
+	style WINDOW_STYLE_FILLED
+	border 1
+	bordercolor .5 .5 .5 .5
+	forecolor 1 1 1 1
+	backcolor 0 0 0 .25
+	visible 1
+	decoration
+}
+
+itemdef {
+	name medal_accuracy
+	style WINDOW_STYLE_SHADER
+      	rect 48 394 32 32
+      	background "ui/assets/medal_accuracy.tga"
+	forecolor 1 1 1 .25
+      	visible 1 
+	decoration
+}
+
+itemdef {
+	name medal_assist
+	style WINDOW_STYLE_SHADER
+      	rect 112 394 32 32
+      	background "ui/assets/medal_assist.tga"
+	forecolor 1 1 1 .25
+      	visible 1 
+      	decoration 
+
+}
+
+itemdef {
+	name medal_accuracy
+	style WINDOW_STYLE_SHADER
+      	rect 176 394 32 32
+      	background "ui/assets/medal_accuracy.tga"
+	forecolor 1 1 1 .25
+      	visible 1 
+      	decoration 
+
+}
+
+itemdef {
+	name medal_defend
+	style WINDOW_STYLE_SHADER
+      	rect 240 394 32 32
+      	background "ui/assets/medal_defend.tga"
+	forecolor 1 1 1 .25
+      	visible 1 
+      	decoration 
+
+}
+
+itemdef {
+	name medal_excellent
+	style WINDOW_STYLE_SHADER
+      	rect 304 394 32 32
+      	background "ui/assets/medal_excellent.tga"
+	forecolor 1 1 1 .25
+      	visible 1 
+      	decoration 
+
+}
+
+itemdef {
+	name medal_frags
+	style WINDOW_STYLE_SHADER
+      	rect 368 394 32 32
+      	background "ui/assets/medal_frags.tga"
+	forecolor 1 1 1 .25
+      	visible 1 
+      	decoration 
+
+}
+
+itemdef {
+	name medal_gauntlet
+	style WINDOW_STYLE_SHADER
+      	rect 432 394 32 32
+      	background "ui/assets/medal_gauntlet.tga"
+	forecolor 1 1 1 .25
+      	visible 1 
+      	decoration 
+
+}
+
+itemdef {
+	name medal_impressive
+	style WINDOW_STYLE_SHADER
+      	rect 496 394 32 32
+      	background "ui/assets/medal_impressive.tga"
+	forecolor 1 1 1 .25
+      	visible 1 
+      	decoration 
+
+}
+
+itemdef {
+	name medal_victory
+	style WINDOW_STYLE_SHADER
+      	rect 560 394 32 32
+      	background "ui/assets/medal_victory.tga"
+	forecolor 1 1 1 .25
+      	visible 1 
+      	decoration 
+}
+
+
+
+// 	TEAM LOGO	//
+
+
+itemDef {
+      	name playerlogo
+        ownerdraw UI_PLAYERLOGO
+      	rect 71 157 180 180
+      	visible 1
+      	forecolor .5 0 0 .5
+      	decoration 
+     }
+
+itemDef {
+        ownerdraw UI_OPPONENTLOGO
+      	name opposinglogo
+      	rect 397 157 180 180
+      	visible 1
+	      forecolor 0 0 .5 .5
+      	decoration 
+}
+
+itemDef {
+      	name playerlogo
+        ownerdraw UI_PLAYERLOGO_METAL
+      	rect 14 6 96 96
+      	visible 1
+      	forecolor 1 .7 .7 1
+      	decoration 
+     }
+
+itemDef {
+      	name opposinglogo
+        ownerdraw UI_OPPONENTLOGO_METAL
+      	rect 530 6 96 96
+      	visible 1
+      	forecolor .7 .7 1 1
+      	decoration 
+}
+
+
+
+
+//	TEAM NAME	//
+
+itemDef {
+      	name playerteamname
+        ownerdraw UI_PLAYERLOGO_NAME
+      	rect 120 54 120 60	 
+      	decoration
+      	visible 1 	  
+}
+
+itemDef {
+      	name opposingteamname
+        ownerdraw UI_OPPONENTLOGO_NAME
+       	rect 392 54 120 60		 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	decoration
+      	visible 1 	  
+}
+
+
+
+
+
+}
+
+
+}

@@ -1,0 +1,67 @@
+#include "ui/menudef.h"
+
+{
+\\ NEW LEAGUE POPUP MENU \\
+
+menuDef {
+    	name "newleague_popmenu"
+    	visible 0
+    	fullscreen 0
+    	rect 190 200 255 75
+	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+    	focusColor 1 .75 0 1
+    	style 1
+    	border 1
+
+itemDef {
+	name window
+	rect 0 0 255 75
+	style 1
+	border 1
+	bordercolor .5 .5 .5 1
+	backcolor 0 0 .5 1
+	visible 1
+	decoration
+	}
+
+
+	// ENTER NEW LEAGUE NAME	//
+
+
+itemDef {
+	name newleague
+	group grpsettings
+	text "Name:"
+	style 0
+	textscale .3
+	ITEM_TYPE_EDITFIELD
+	rect 20 20 110 20
+	textalign 0
+	textalignx 0
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 1
+	}
+
+itemDef {
+	name type
+	text "OK"
+	textscale .25
+	group grpsettings
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/button_red.tga"
+	rect 103 50 50 20
+	textalign 1
+	textalignx 25
+	textaligny 15
+	forecolor 1 1 1 1
+	visible 1
+	action { close newLeague_popmenu ; close createserver ; open createserver }
+}
+
+
+}
+
+
+
+}
