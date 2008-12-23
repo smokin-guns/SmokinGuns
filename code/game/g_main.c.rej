@@ -1,0 +1,17 @@
+***************
+*** 2389,2395 ****
+  			du_spawnlist[i] = -1;
+  		}
+  
+- #ifdef WIN32
+  		if(g_entities[i].client && level.clients[i].pers.connected == CON_CONNECTED){
+  #else
+  		if(level.clients[i].pers.connected == CON_CONNECTED){
+--- 2389,2395 ----
+  			du_spawnlist[i] = -1;
+  		}
+  
++ #ifndef Q3_VM
+  		if(g_entities[i].client && level.clients[i].pers.connected == CON_CONNECTED){
+  #else
+  		if(level.clients[i].pers.connected == CON_CONNECTED){

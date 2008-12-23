@@ -1,0 +1,20 @@
+***************
+*** 106,112 ****
+  	CG_FillRect(DISTANCE+2*LINE, 480-DISTANCE-2*LINE-LOADING_HEIGHT, progress , LOADING_HEIGHT ,color);
+  
+  	//lines
+- 	color[4] = 0.6f;
+  	//bottom
+  	CG_FillRect(DISTANCE, 480-DISTANCE-LINE, 640-2*DISTANCE , LINE ,color);
+  	//top
+--- 106,115 ----
+  	CG_FillRect(DISTANCE+2*LINE, 480-DISTANCE-2*LINE-LOADING_HEIGHT, progress , LOADING_HEIGHT ,color);
+  
+  	//lines
++ 	// Tequila comment: color index was wrong but color is still set to that value for the last index
++ 	// so I just comment it... Maybe we should just remove that line or Spoon can correct the value
++ 	// he really wanted to set 
++ 	//color[3] = 0.6f;
+  	//bottom
+  	CG_FillRect(DISTANCE, 480-DISTANCE-LINE, 640-2*DISTANCE , LINE ,color);
+  	//top
