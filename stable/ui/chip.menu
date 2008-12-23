@@ -1,0 +1,39 @@
+#include "ui/menudef.h"
+
+	itemDef {
+	   	name "f"
+		rect 5 7 24 24
+		visible 1
+		bordercolor 1 1 1 .75
+		decoration	
+		style 3
+		background "ui/assets/bluechip.tga"
+	}
+
+
+	itemDef {
+     	name "f"
+        rect 5 7 24 24    
+	visible 1
+	decoration	
+	ownerdraw CG_BLUE_FLAGSTATUS
+	}
+
+	itemDef {
+	   	name "f"
+		rect 67 7 24 24
+		visible 1
+		bordercolor 1 1 1 .75
+		decoration	
+		style 3
+		background "ui/assets/redchip.tga"
+	}
+
+	itemDef {
+      	name "f"
+        rect 67 7 24 24
+	visible 1
+	decoration
+	ownerdraw CG_RED_FLAGSTATUS
+	}
+

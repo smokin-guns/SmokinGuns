@@ -1,0 +1,612 @@
+#include "ui/menudef.h"
+
+{
+\\ PLATER SELECTION MENU \\
+
+menuDef {
+    	name "player_menu"
+    	visible 0
+    	fullscreen 1
+    	rect 0 0 640 480
+    	background "menuback_a"
+    	style 1
+	focusColor 1 .75 0 1
+	
+		onOpen { play "sound/misc/kcswish.wav" ;
+		playlooped "music/fla_mp03.wav" ;
+		setitemcolor fadebox backcolor 0 0 0 1 ; 
+		fadeout fadebox ; 
+		uiScript update "ui_GetName" ; 
+		transition menuback_g 0 0 640 480 195 120 255 202 20 10 ;
+		transition clancinematic 107 82 426 316 238 153 170 133 20 10 ;
+		hide back_alt ;
+		show back ;
+		hide grpmessage }
+		onClose { uiScript update "ui_SetName" }
+		onEsc { close player_menu ; open main }
+
+
+
+
+
+
+itemDef {
+      	name gametypebar
+      	style 2
+      	rect 0 5 640 40 
+      	textscale 0.4
+      	textalign 0		        // center
+      	textalignx 60       		// x alignment point for text
+                            		// use it to offset left/right text from the edge 
+                            		// or to center the text on a different point
+      	textaligny 21        
+      	style 2
+      	border 4
+      	bordercolor 0.5 0.5 0.5 0.5
+      	bordersize 2
+      	backcolor 0 0 .75 .5
+      	visible 1 
+	decoration
+	mouseEnter { setcolor backcolor .75 0 0 .5 }
+      	mouseExit { setcolor backcolor 0 0 .75 .5 }
+}
+
+
+itemDef {
+      	name arenatype
+	type ITEM_TYPE_MULTI	
+	cvar "ui_q3model"
+	cvarFloatList { "Team Arena" 0 "Quake III" 1 }
+	text "Model Type:"
+	textstyle 6
+      	rect 0 10 320 31 
+      	textalign ITEM_ALIGN_LEFT
+      	textalignx 20     
+      	textaligny 26    
+	textscale .35     
+      	forecolor 1 1 1 1
+      	visible 1
+	mouseEnter { show message_type } 
+	mouseExit { hide message_type } 
+	action { play "sound/misc/kcaction.wav" } 
+    	}
+
+itemDef {
+      	name quakeimage
+      	style WINDOW_STYLE_SHADER
+	group grpquaketype
+	cvarTest "ui_q3model"
+	showCVar { "1" }	
+ 	background "ui/assets/playerpatriot.tga"
+ 	rect 60 24 128 256
+      	forecolor .25 .25 .25 1
+	decoration
+    	}
+
+itemDef {
+      	name quakeimage
+	group grpquaketype
+	cvarTest "ui_q3model"
+	showCVar { "1" }	
+      	style WINDOW_STYLE_SHADER	
+ 	background "ui/assets/playerpi.tga"
+ 	rect 100 24 128 256
+      	visible 1 
+	decoration
+    	}
+itemDef {
+      	name quakeimage
+	group grpquaketype
+	cvarTest "ui_q3model"
+	showCVar { "1" }		
+      	style WINDOW_STYLE_SHADER	
+ 	background "ui/assets/playerklesk.tga"
+ 	rect 440 24 128 256
+      	forecolor .5 .5 .5 1
+      	visible 1 
+	decoration
+    	}
+
+
+itemDef {
+      	name quakeimage
+	group grpquaketype	
+	cvarTest "ui_q3model"
+	showCVar { "1" }	
+      	style WINDOW_STYLE_SHADER	
+ 	background "ui/assets/playerbiker.tga"
+ 	rect 384 24 128 256
+      	visible 1 
+	decoration
+    	}
+
+
+
+itemDef {
+      	name clanlogo1
+      	style WINDOW_STYLE_SHADER
+	group grparenatype
+	cvarTest "ui_q3model"
+	showCVar { "0" }		
+ 	background "ui/assets/pagans.tga"
+ 	rect 0 150 128 128
+      	forecolor .5 .5 .5 .25
+      	visible 1 
+	decoration
+    	}
+
+itemDef {
+      	name clanlogo1
+	group grparenatype
+	cvarTest "ui_q3model"
+	showCVar { "0" }		
+      	style WINDOW_STYLE_SHADER	
+ 	background "ui/assets/crusaders.tga"
+ 	rect 128 150 128 128
+      	forecolor .5 .5 .5 .25
+      	visible 1 
+	decoration
+    	}
+
+
+itemDef {
+      	name clanlogo1
+	group grparenatype	
+	cvarTest "ui_q3model"
+	showCVar { "0" }	
+      	style WINDOW_STYLE_SHADER	
+ 	background "ui/assets/stroggs.tga"
+ 	rect 384 150 128 128
+      	forecolor .5 .5 .5 .25
+      	visible 1 
+	decoration
+    	}
+
+
+itemDef {
+      	name clanlogo1
+	group grparenatype	
+	cvarTest "ui_q3model"
+	showCVar { "0" }	
+      	style WINDOW_STYLE_SHADER	
+ 	background "ui/assets/intruders.tga"
+ 	rect 512 150 128 128
+      	forecolor .5 .5 .5 .25
+      	visible 1 
+	decoration
+    	}
+
+itemDef {
+      	name window
+	style WINDOW_STYLE_FILLED
+      	rect 238 153 170 133
+	forecolor 0 0 0 1
+	backcolor 0 0 0 1
+      	visible 1
+	decoration
+   	}
+
+
+
+itemDef {
+      	name playerbar
+      	style 2
+      	rect 0 130 640 170 
+      	backcolor 0 0 .75 0
+      	forecolor 1 1 1 1
+      	border 4
+      	bordercolor 0.5 0.5 0.5 .75
+      	bordersize 2
+      	visible 1
+      	decoration 
+    	}
+
+itemDef {
+	name window
+	rect 10 50 620 60	
+	style WINDOW_STYLE_EMPTY
+	border 1
+	bordercolor .5 .5 .5 .5
+	forecolor 1 1 1 1
+	backcolor 0 0 0 0
+	visible 1
+	decoration
+	}
+
+itemDef {
+	name window
+	rect 10 112 205 216	
+	style WINDOW_STYLE_EMPTY
+	border 1
+	bordercolor .5 .5 .5 .5
+	forecolor 1 1 1 1
+	backcolor 0 0 0 0
+	visible 1
+	decoration
+	}
+itemDef {
+	name window
+	rect 217 112 205 216	
+	style WINDOW_STYLE_EMPTY
+	border 1
+	bordercolor .5 .5 .5 .5
+	forecolor 1 1 1 1
+	backcolor 0 0 0 0
+	visible 1
+	decoration
+	}
+
+itemDef {
+	name window
+	rect 424 112 206 216	
+	style WINDOW_STYLE_EMPTY
+	border 1
+	bordercolor .5 .5 .5 .5
+	forecolor 1 1 1 1
+	backcolor 0 0 0 0
+	visible 1
+	decoration
+	}
+
+itemDef {
+	name modelselection
+	ownerdraw UI_PLAYERMODEL
+	rect 424 80 260 260
+	style 1
+	decoration 
+	visible 1
+    	}
+
+itemDef {
+      	name namefield
+	group "playersettinggroup"
+      	type ITEM_TYPE_EDITFIELD
+	style 0
+	text "Name:"
+	cvar "ui_Name"
+	textstyle 6
+	maxChars 32
+      	rect 0 70 215 32 
+      	textalign ITEM_ALIGN_LEFT		
+      	textalignx 20
+      	textaligny 21 
+	textscale .333        
+      	outlinecolor 1 .5 .5 .5
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 1 
+	mouseEnter { show message_name } 
+	mouseExit { hide message_name } 
+    	}
+
+itemDef {
+      	name handicapfield
+	group "playersettinggroup"
+      	style 0	
+	text "Handicap:"
+	ownerdraw UI_HANDICAP
+	textstyle 6
+	rect 0 175 215 32 
+      	textalign ITEM_ALIGN_LEFT		
+      	textalignx 20
+      	textaligny 21 
+	textscale .333        
+      	outlinecolor 1 .5 .5 .5
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 1 
+	mouseEnter { show message_handicap } 
+	mouseExit { hide message_handicap } 
+    	}
+
+itemDef {
+      	name effectfield
+	group "playersettinggroup"
+      	style 0	
+	text "Effect:"
+	ownerdraw UI_EFFECTS
+      	rect 0 205 215 32 
+	textstyle 6
+      	textalign ITEM_ALIGN_LEFT		
+      	textalignx 20     
+      	textaligny 21 
+	textscale .333        
+      	outlinecolor 1 .5 .5 .5
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 1   
+	mouseEnter { show message_effect } 
+	mouseExit { hide message_effect }   
+    	}
+
+itemDef {
+      	name clanfield
+	group grparenatype		
+	ownerdraw UI_CLANNAME
+	text "Clan:"
+	textstyle 6
+      	rect 20 235 215 31 
+	textalign ITEM_ALIGN_LEFT		
+      	textalignx 0
+      	textaligny 21 
+	textscale .333        
+      	forecolor 1 1 1 1
+	cvarTest "ui_q3model"
+	showCVar { "0" }	
+      	visible 1 
+	action { play "sound/misc/nomenu.wav" }
+	mouseEnter { show message_clan } 
+	mouseExit { hide message_clan } 
+    	}
+
+
+
+
+itemDef {
+	name headlist
+      	rect 10 330 620 80
+	group grparenatype	
+	cvarTest "ui_q3model"
+	hideCvar { "1" }
+	type ITEM_TYPE_LISTBOX
+	style WINDOW_STYLE_FILLED
+	elementwidth 61.75
+	elementheight 61.75
+	elementtype LISTBOX_IMAGE
+	feeder FEEDER_HEADS
+	horizontalscroll
+	border 1
+	bordersize 1
+	backcolor 0 0 0 .25
+	bordercolor .5 .5 .5 .5
+	forecolor 1 1 1 1
+	visible 1
+	mouseenter { setitemcolor headlist bordercolor .7 0 0 1 ; show message_model }
+	mouseexit { setitemcolor headlist bordercolor .5 .5 .5 .5 ; hide message_model }
+	}
+itemDef {
+	name headlist
+      	rect 10 330 620 80
+	group grpquaketype	
+	cvarTest "ui_q3model"
+	showCVar { "1" }	
+	type ITEM_TYPE_LISTBOX
+	style WINDOW_STYLE_FILLED
+	elementwidth 61.75
+	elementheight 61.75
+	elementtype LISTBOX_IMAGE
+	feeder FEEDER_Q3HEADS
+	horizontalscroll
+	border 1
+	bordersize 1
+	backcolor 0 0 0 .25
+	bordercolor .5 .5 .5 .5
+	forecolor 1 1 1 1
+	visible 1
+	mouseenter { setitemcolor headlist bordercolor .7 0 0 1 ; show message_model }
+	mouseexit { setitemcolor headlist bordercolor .5 .5 .5 .5 ; hide message_model}
+	}
+
+
+
+// BACK BAR	//
+
+itemDef {
+      	name gotobar
+      	style 2
+      	rect 0 430 640 30 
+      	textscale 0.4
+      	textalign 0		        // center
+      	textalignx 60        // x alignment point for text
+                            // use it to offset left/right text from the edge 
+                            // or to center the text on a different point
+      	textaligny 21        
+      	style 2
+      	border 4
+      	bordercolor 0.5 0.5 0.5 0.5
+      	bordersize 2
+      	backcolor 0 0 .75 0.5
+      	visible 1 
+      	mouseEnter { setcolor backcolor .75 0 0 .5 }
+      	mouseExit { setcolor backcolor 0 0 .75 .5 }
+      	decoration 
+    	}
+
+itemDef {
+      	name back
+	style 3
+      	background "ui/assets/backarrow.tga"
+	rect 16 424 50 50 
+      	visible 1 
+      	action { close player_menu ; open main }
+	mouseEnter { hide back ; show back_alt ; show message_back }
+    	}
+
+itemDef {
+      	name back_alt
+      	style WINDOW_STYLE_SHADER
+	background "ui/assets/backarrow_alt.tga"
+	rect 14 422 54 54 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	visible 0
+	type ITEM_TYPE_BUTTON
+      	mouseExit { hide back_alt ; show back ; hide message_back }	  
+      	action { close player_menu ; open main }
+    	}
+
+//	MESSAGES	//
+itemDef {
+	name message_back
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textstyle 1
+	textalign 1
+	textalignx 0
+	textaligny 25
+	textscale .416
+	text "Return to Main Menu"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_name
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .416
+	text "Enter Player Name"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_handicap
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .416
+	text "Click to Change Handicap"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_effect
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .416
+	text "Select Bar to Change Effect Color"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_clan
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .416
+	text "Click to Cycle Clan Selection"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_type
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .416
+	text "Click to View Team Arena or Quake III Models"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_model
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .416
+	text "Click to Change Player Model"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+      	name clancinematic
+      	rect 238 157 170 133
+	group grparenatype
+	cvarTest "ui_q3model"
+	showCVar { "0" }	
+	ownerdraw UI_CLANCINEMATIC 
+      	visible 1
+	decoration
+    	}
+itemDef {
+      	name clancinematic
+	group grpquaketype
+	cvarTest "ui_q3model"
+	showCVar { "1" }	
+      	style 3	
+ 	background "ui/assets/q3imagepage.tga"
+	rect 238 157 170 133
+      	visible 1 
+	decoration
+    	}
+
+itemDef {
+      	name clancinematic
+      	style 3	
+ 	background "menuscreen"
+	rect 238 153 170 133
+      	visible 1 
+	decoration
+    	}
+
+itemDef {
+  	name menuback_g
+    	style WINDOW_STYLE_SHADER
+     	rect 195 120 255 202
+     	background "menuback_g"
+   	visible 1
+	decoration
+	}
+
+itemDef {
+      	name fadebox
+      	style WINDOW_STYLE_FILLED
+ 	background "ui/assets/fadebox.tga"
+	forecolor 0 0 0 1
+	backcolor 0 0 0 1
+	rect 0 0 640 480
+      	visible 1 
+	decoration
+    	}
+
+
+}
+
+
+}
+

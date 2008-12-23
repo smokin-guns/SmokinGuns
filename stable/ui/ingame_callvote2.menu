@@ -1,0 +1,192 @@
+#include "ui/menudef.h"
+
+{
+\\ CALL VOTE MENU \\
+
+menuDef {
+    	name "ingame_callvote"
+    	visible 0
+    	fullscreen 0
+    	rect 374 30 255 350
+	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+    	focusColor 1 .75 0 1
+    	style 1
+    	border 1
+
+	onOpen { uiScript loadArenas }
+
+
+itemDef {
+	name window
+	rect 0 0 255 350
+	style 1
+	border 1
+	bordercolor .5 .5 .5 1
+	backcolor 0 0 .75 .25
+	visible 1
+	decoration
+	}
+
+
+		
+		 
+itemDef {
+	name maprestart
+	text "Map Restart:"
+	type 11
+	textscale .25
+	cvar "map_restart"
+	rect 20 10 110 20
+	textalign 0
+	textalignx 0
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 1
+	}
+
+
+itemDef {
+	name maprestart
+	text "Next Map:"
+	type 11
+	textscale .25
+	cvar "nextmap"
+	rect 20 30 110 20
+	textalign 0
+	textalignx 0
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 1
+	action {  }
+	}
+itemDef {
+	name maprestart
+	text "Do Warmup:"
+	type 11
+	textscale .25
+	rect 20 50 110 20
+	textalign 0
+	textalignx 0
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 1
+	action { }
+	}
+
+itemDef {
+	name gametype
+	text "Gametype:"
+	style 0
+	textscale .25
+	ownerdraw UI_NETGAMETYPE
+	rect 20 70 110 20
+	textalign 0
+	textalignx 0
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 1
+	}
+
+itemDef {
+	name window
+	rect 0 92 255 120
+	style 0
+	border 1
+	bordercolor .5 .5 .5 1
+	visible 1
+	decoration
+	}
+
+itemDef {
+	name maprestart
+	text "Kick Player:"
+	textscale .25
+	rect 20 95 110 20
+	//ownerdraw UI_ALLMAPS_SELECTION 
+	textalign 0
+	textalignx 0
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 1
+	action { }
+	}
+itemDef {
+      	name playerlist
+       	rect 20 115 225 85
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_LISTBOX
+	elementwidth 120
+	elementheight 15
+	textscale .25
+	elementtype LISTBOX_TEXT
+	border 1
+	bordercolor .5 .5 .5 .5
+	forecolor 1 1 1 1
+	backcolor 0 0 .5 .25
+	outlinecolor .1 .1 .7 .5
+	visible 1
+	mouseEnter { fadein message_arena ; setitemcolor playerlist bordercolor .7 0 0 1 } 
+	mouseExit { fadeout message_arena ; setitemcolor playerlist bordercolor .5 .5 .5 1 }
+	}
+
+itemDef {
+	name maprestart
+	text "New Map:"
+	ownerdraw UI_ALLMAPS_SELECTION 
+	textscale .25
+	rect 20 215 110 20
+	textalign 0
+	textalignx 0
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 1
+	action { }
+	}
+itemDef {
+	name maplist
+      	rect 20 235 225 85
+	type ITEM_TYPE_LISTBOX
+	style WINDOW_STYLE_FILLED
+	elementwidth 120
+	elementheight 15
+	textscale .25
+	elementtype LISTBOX_TEXT
+	feeder FEEDER_MAPS
+	border 1
+	bordercolor .5 .5 .5 .5
+	forecolor 1 1 1 1
+	backcolor 0 0 .5 .25
+	outlinecolor .1 .1 .7 .5
+	visible 1
+	mouseEnter { fadein message_arena ; setitemcolor maplist bordercolor .7 0 0 1 } 
+	mouseExit { fadeout message_arena ; setitemcolor maplist bordercolor .5 .5 .5 .5 } 
+  	}
+
+
+
+itemDef {
+	name ok
+	text "OK"
+	textscale .25
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/button_red.tga"
+	rect 103 325 50 20
+	textalign 1
+	textalignx 25
+	textaligny 15
+	forecolor 1 1 1 1
+	visible 1
+	action { close ingame_callvote ; close ingame ; open ingame }
+	}
+
+
+	
+	
+	
+
+
+}
+
+
+}

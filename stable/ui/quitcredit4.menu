@@ -1,0 +1,371 @@
+#include "ui/menudef.h"
+
+{
+\\ QUIT CREDIT \\
+
+  menuDef {
+    	name "quitCredit4"
+    	visible 0
+    	fullscreen 1
+    	rect 0 0 640 480
+    	background "ui/bg/main.tga"
+    	focusColor 1 .75 0 1
+    	style 1
+    	border 1
+	onEsc { uiScript "quit" }
+	onOpen { show grpidcredit }
+
+itemDef {
+      	name demo_only
+      	style WINDOW_STYLE_EMPTY
+	rect 0 0 640 480
+	type 1
+      	visible 1 
+	action { play "sound/misc/menu1.wav" ; 
+	close quitCredit4 ;
+	uiScript "quit"  }
+    	}
+
+    
+
+// LEVEL SELECTION BAR	//
+
+itemDef {
+ 	name logo
+	style WINDOW_STYLE_SHADER
+	background "ui/wq3_assets/logo.tga"
+	rect 180 5 280 100
+	visible 1
+	decoration
+	}
+
+itemDef {
+ 	name ici_logo
+	style WINDOW_STYLE_SHADER
+	background "ui/wq3_assets/ici_logo.tga"
+	rect 5 427 48 48
+	visible 1
+	decoration
+	}
+
+
+
+// BETATESTERS
+
+itemDef {
+	name betatesters
+	group grpidcredit
+	style 0 
+	rect 0 120 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .3
+	text "BETATESTERS:"
+	forecolor  1 .75 0 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name betatesters
+	group grpidcredit
+	style 0 
+	rect 0 138 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .28
+	text "Mite, Zeroburn, Johan_90,"
+	forecolor  1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name betatesters
+	group grpidcredit
+	style 0 
+	rect 0 155 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .28
+	text "Ebola_D, KageMurai, Jussuf,"
+	forecolor  1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name betatesters
+	group grpidcredit
+	style 0 
+	rect 0 172 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .28
+	text "Abomb, RedNeckerson, Humbolt,"
+	forecolor  1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name betatesters
+	group grpidcredit
+	style 0 
+	rect 0 189 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .28
+	text "Crusty, Xanieth, Nixon, [Z]KrOno,"
+	forecolor  1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name betatesters
+	group grpidcredit
+	style 0 
+	rect 0 206 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .28
+	text "JazzD, Jack9911, Sonic, Xerxes,"
+	forecolor  1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name betatesters
+	group grpidcredit
+	style 0 
+	rect 0 223 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .28
+	text "Joshua, Zakk, Argonath,"
+	forecolor  1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name betatesters
+	group grpidcredit
+	style 0 
+	rect 0 240 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .28
+	text "Chico, nE9n, r1z1b1z1"
+	forecolor  1 1 1 1
+	decoration 
+	visible 0
+	}
+
+// SPECIAL THANKS
+itemDef {
+	name specialthanks
+	group grpidcredit
+	style 0 
+	rect 0 285 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .3
+	text "SPECIAL THANKS TO:"
+	forecolor  1 .75 0 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name specialthanks
+	group grpidcredit
+	style 0 
+	rect 0 302 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .28
+	text "'Werwurm' for modeling the S&W Schofield"
+	forecolor  1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name specialthanks
+	group grpidcredit
+	style 0 
+	rect 0 319 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .28
+	text "'Mr. Klumpen' for modeling the Colt Lightning and the Shotgun"
+	forecolor  1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name specialthanks
+	group grpidcredit
+	style 0 
+	rect 0 336 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .28
+	text "'Hawk' for modeling the Gatling Gun"
+	forecolor  1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name specialthanks
+	group grpidcredit
+	style 0 
+	rect 0 353 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .28
+	text "'Neil Toronto' for the release of his unlagging code"
+	forecolor  1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name specialthanks
+	group grpidcredit
+	style 0 
+	rect 0 370 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .28
+	text "'Heiko Munk' for doing the menu-music"
+	forecolor  1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name specialthanks
+	group grpidcredit
+	style 0 
+	rect 0 387 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .28
+	text "'Planet Multiplayer'(www.planet-multiplayer.de) for giving us a webserver"
+	forecolor  1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name specialthanks
+	group grpidcredit
+	style 0 
+	rect 0 403 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .28
+	text "'JOLT online gaming'(www.jolt.co.uk) for giving us a betatest-server"
+	forecolor  1 1 1 1
+	decoration 
+	visible 0
+	}
+
+// OTHER FUNCTIONS
+itemDef {
+	name exit
+      	group grpidcredit
+      	rect 50 130 130 26
+	type 1
+  	text "Press ESC to Exit"
+	style WINDOW_STYLE_FILLED
+	background "ui/wq3_assets/button.tga"
+	textalign 1   	
+	textscale .25
+	textalignx 65
+	textaligny 20
+      	visible 1
+	decoration
+	backcolor 1 1 1 1
+      	forecolor 1 1 1 1
+	action { play "sound/misc/menu1.wav" }
+	mouseEnter { show exit_alt }
+      	mouseExit { hide exit_alt }	
+	}
+itemDef {
+      	name exit_alt
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/wq3_assets/button_selected.tga"
+ 	rect 50 130 130 26
+      	visible 1
+	decoration	  
+    	}
+
+/*itemDef {
+      	name copyright
+      	text "Quake III: Team Arena Copyright 2000 Id Software, Inc. All rights reserved"
+      	style 0
+      	textscale .25
+      	rect 0 440 640 40
+      	textalign 1	
+      	textaligny 32
+      	textalignx 320 
+      	forecolor .75 0 0 .75
+      	visible 1 
+      	decoration 
+	}*/
+
+itemDef {
+      	name modtext
+      	text "Western Quake 3 Beta 2.00 (c) 2000-2003 Iron Claw Interactive"
+      	style 0
+      	textscale .25
+      	rect 0 425 640 40
+     	textalign 1	
+      	textaligny 32
+      	textalignx 320
+      	visible 1
+      	decoration 
+	}
+
+itemDef {
+      	name copyright
+      	text "Quake 3 Arena (c) 2000-2003 id software, inc. all rights reserved"
+      	style 0
+      	textscale .25
+      	rect 0 440 640 40
+     	textalign 1	
+      	textaligny 32
+      	textalignx 320
+      	visible 1
+      	decoration 
+	}
+
+
+
+
+
+}
+
+}

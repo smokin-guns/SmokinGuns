@@ -1,0 +1,770 @@
+#include "ui/menudef.h"
+
+{
+\\ Fight \\
+
+  menuDef {
+    	name "fight"
+    	visible 0
+    	fullscreen 1
+    	rect 0 0 640 480
+    	background uibackground4
+    	focusColor 1 .67 0 1
+    	style 1
+    	border 1
+	    
+  itemDef {
+      	name fight
+      	style WINDOW_STYLE_SHADER
+      	rect 0 45 512 128      
+      	visible 1
+      	background "fight"
+	decoration 
+	}
+
+
+  itemDef {
+      	name leftgrad
+      	style WINDOW_STYLE_SHADER
+      	background "ui/assets/halfgradleft.tga"
+      	rect 64 249 256 102
+	forecolor .75 0 0 0.5 
+      	visible 1 
+      	decoration 
+    	}	
+
+itemDef {
+      	name rightgrad
+      	style WINDOW_STYLE_SHADER
+      	background "ui/assets/halfgradright.tga"
+      	rect 320 249 256 102 
+	forecolor 0 0 .75 0.5
+      	visible 1 
+      	decoration 
+    }
+
+
+  itemDef {
+      name leftvertgrad
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/verticalgradient.tga"
+      rect 16 249 128 102 
+      forecolor .75 0 0 0.5
+      visible 1 
+      decoration 
+    }
+
+  itemDef {
+      	name rightvertgrad
+      	style WINDOW_STYLE_SHADER
+      	background "ui/assets/verticalgradient.tga"
+      	rect 496 249 128 102
+	forecolor 0 0 .75 0.5 
+      	textscale 0.4
+      	visible 1 
+      	decoration 
+    }
+
+
+
+
+
+
+
+
+// LEVEL SELECTION BAR	//
+
+
+// GAMETYPE BAR	//
+
+
+itemDef {
+      	name gametypebar
+      	style 2
+      	rect 0 5 640 40 
+      	textscale 0.4
+      	textalign 0		        // center
+      	textalignx 60       		// x alignment point for text
+                            		// use it to offset left/right text from the edge 
+                            		// or to center the text on a different point
+      	textaligny 21        
+      	style 2
+      	border 4
+      	bordercolor 0.5 0.5 0.5 0.5
+      	bordersize 2
+      	backcolor 0 0 .75 0.5
+      	visible 1 
+	mouseEnter { setcolor backcolor .75 0 0 .5 }
+      	mouseExit { setcolor backcolor 0 0 .75 .5 }
+      	decoration 
+}
+
+
+itemDef {
+      	name gametypefield
+      	style 0	
+	name tier
+ 	ownerdraw UI_TIER
+      	rect 0 10 320 31 
+      	textalign ITEM_ALIGN_LEFT		
+      	textalignx 20     
+      	textaligny 26    
+	textscale .4     
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 1
+	mouseEnter { fadein message_tier } 
+	mouseExit { fadeout message_tier } 
+    }
+
+itemDef {
+      	name gametypefield
+      	style 0	
+	ownerdraw UI_SKILL
+	text "Skill:"
+      	rect 320 10 320 31 
+      	textalign ITEM_ALIGN_LEFT		
+      	textalignx 90     
+      	textaligny 26    
+	textscale .4     
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 1
+	mouseEnter { fadein message_skill } 
+	mouseExit { fadeout message_skill }  
+    }
+
+
+// 	TEAM LOGO	//
+
+
+itemDef {
+      	name playerlogo
+        ownerdraw UI_PLAYERLOGO_METAL
+      	rect 28 250 100 100
+      	visible 1
+      	forecolor 1 .7 .7 1
+      	decoration 
+     }
+
+itemDef {
+      	name opposinglogo
+        ownerdraw UI_OPPONENTLOGO_METAL
+      	rect 488 250 100 100
+      	visible 1
+      	forecolor .7 .7 1 1
+      	decoration 
+}
+
+//	MAP INFO	//
+
+itemDef {
+	name window
+      	rect 14 247 612 105	
+	style WINDOW_STYLE_FILLED
+	border 1
+	bordercolor .5 .5 .5 .5
+	forecolor 1 1 1 1
+	backcolor 0 0 0 .25
+	visible 1
+	decoration
+}
+
+itemDef {
+      	name location
+	text "VS"
+      	textscale 1
+      	rect 192 325 256 30 
+      	textalign 1		// center
+      	textalignx 128		// x alignment point for text
+   				// use it to offset left/right text from the edge 
+            			// or to center the text on a different point
+      	textaligny 21        
+     	backcolor 0 0 0 0
+     	forecolor 1 1 1 .5
+      	decoration
+      	visible 1 	  
+    	}
+
+
+itemDef {
+      	name level_info
+	group grplevelinfo2
+	ownerdraw UI_TIER_MAPNAME
+      	textscale .35
+      	rect 14 220 222 20 
+      	textalign 0		
+      	textalignx 3 		// x alignment point for text
+   				// use it to offset left/right text from the edge 
+            			// or to center the text on a different point
+      	textaligny 18
+     	backcolor 0 0 0 0       
+     	forecolor 1 1 1 1
+      	decoration
+      	visible 1 	  
+    	}
+
+itemDef {
+	name level_info
+	group grplevelinfo2
+ 	ownerdraw UI_TIER_GAMETYPE
+	textscale .35	
+	rect 236 220 122 20 
+	textalign 0		
+	textalignx 3		// x alignment point for text
+   				// use it to offset left/right text from the edge 
+            			// or to center the text on a different point
+	textaligny 18        
+	backcolor 0 0 0 0     
+	forecolor 1 1 1 1
+	decoration
+	visible 1 	  
+	}
+
+itemDef {
+     	name level_info
+	group grplevelinfo2
+     	type ITEM_TYPE_NUMERICFIELD
+	text "Captures "
+	cvar "capturelimit"
+ 	rect 358 220 122 20 
+	textalign 0
+	textalignx 3
+	textaligny 18
+	textscale .35    
+	forecolor 1 1 1 1
+	visible 1 
+	decoration
+    	}
+
+    itemDef {
+      	name level_info
+	group grplevelinfo2
+      	type ITEM_TYPE_NUMERICFIELD
+	text "Time "
+	cvar "timelimit"
+      	rect 480 220 72 20
+      	textalign 0
+      	textalignx 3
+      	textaligny 18
+	textscale .35           
+      	forecolor 1 1 1 1
+      	visible 1 
+	decoration
+    	}
+
+    itemDef {
+      	name level_info
+	group grplevelinfo2
+      	type ITEM_TYPE_NUMERICFIELD
+	text "Frags "
+	cvar "fraglimit"
+      	rect 552 220 72 20
+     	textalign 0
+      	textalignx 3 
+      	textaligny 18
+	textscale .35            
+      	forecolor 1 1 1 1
+      	visible 1 
+	decoration
+    	}
+
+
+//	TEAM NAME	//
+
+itemDef {
+      	name playerteamname
+        ownerdraw UI_PLAYERLOGO_NAME
+      	rect 128 295 128 64	 
+      	decoration
+      	visible 1 	  
+}
+
+itemDef {
+      	name opposingteamname
+        ownerdraw UI_OPPONENTLOGO_NAME
+       	rect 388 295 128 64		 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	decoration
+      	visible 1 	  
+}
+
+
+
+
+
+
+
+//	PLAYER STATS	//
+
+itemDef {
+	name window
+      	rect 14 354 612 34	
+	style WINDOW_STYLE_FILLED
+	border 1
+	bordercolor .5 .5 .5 .5
+	forecolor 1 1 1 1
+	backcolor 0 0 0 .25
+	visible 1
+	decoration
+}
+
+itemDef {
+      	name name
+      	type ITEM_TYPE_EDITFIELD
+	style 0
+	text "Name:"
+	cvar "name"
+      	textscale .35
+      	style 0	
+      	rect 0 363 128 30 
+      	textalign 1		// center
+      	textalignx 64		// x alignment point for text
+   				// use it to offset left/right text from the edge 
+            			// or to center the text on a different point
+      	textaligny 17        
+      	backcolor 0 0 0 0
+  	forecolor 1 1 1 1
+      	decoration
+      	visible 1 	  
+    	}
+
+
+
+
+itemDef {
+      name score
+      text "Score:"
+      textscale .35
+      style 0	
+      rect 246 363 128 30 
+      textalign 3		// center
+      textalignx 16		// x alignment point for text
+   				// use it to offset left/right text from the edge 
+            			// or to center the text on a different point
+      textaligny 17        
+      backcolor 0 0 0 0
+	forecolor 1 1 1 1
+      decoration
+      visible 1 	  
+    }
+
+
+itemDef {
+      name wins
+      text "Wins:"
+      textscale .35
+      style 0	
+      rect 404 363 128 30 
+      textalign 1		// center
+      textalignx 64		// x alignment point for text
+   				// use it to offset left/right text from the edge 
+            			// or to center the text on a different point
+      textaligny 17        
+      backcolor 0 0 0 0
+      forecolor 1 1 1 1
+      decoration
+      visible 1 	  
+    }
+
+
+// AWARDS	//
+
+
+itemDef {
+	name window
+      	rect 14 390 612 38	
+	style WINDOW_STYLE_FILLED
+	border 1
+	bordercolor .5 .5 .5 .5
+	forecolor 1 1 1 1
+	backcolor 0 0 0 .25
+	visible 1
+	decoration
+}
+
+itemdef {
+	name medal_accuracy
+	style WINDOW_STYLE_SHADER
+      	rect 48 394 32 32
+      	background "ui/assets/medal_accuracy.tga"
+	forecolor 1 1 1 .25
+      	visible 1 
+	decoration
+}
+
+itemdef {
+	name medal_assist
+	style WINDOW_STYLE_SHADER
+      	rect 112 394 32 32
+      	background "ui/assets/medal_assist.tga"
+	forecolor 1 1 1 .25
+      	visible 1 
+      	decoration 
+
+}
+
+itemdef {
+	name medal_accuracy
+	style WINDOW_STYLE_SHADER
+      	rect 176 394 32 32
+      	background "ui/assets/medal_accuracy.tga"
+	forecolor 1 1 1 .25
+      	visible 1 
+      	decoration 
+
+}
+
+itemdef {
+	name medal_defend
+	style WINDOW_STYLE_SHADER
+      	rect 240 394 32 32
+      	background "ui/assets/medal_defend.tga"
+	forecolor 1 1 1 .25
+      	visible 1 
+      	decoration 
+
+}
+
+itemdef {
+	name medal_excellent
+	style WINDOW_STYLE_SHADER
+      	rect 304 394 32 32
+      	background "ui/assets/medal_excellent.tga"
+	forecolor 1 1 1 .25
+      	visible 1 
+      	decoration 
+
+}
+
+itemdef {
+	name medal_frags
+	style WINDOW_STYLE_SHADER
+      	rect 368 394 32 32
+      	background "ui/assets/medal_frags.tga"
+	forecolor 1 1 1 .25
+      	visible 1 
+      	decoration 
+
+}
+
+itemdef {
+	name medal_gauntlet
+	style WINDOW_STYLE_SHADER
+      	rect 432 394 32 32
+      	background "ui/assets/medal_gauntlet.tga"
+	forecolor 1 1 1 .25
+      	visible 1 
+      	decoration 
+
+}
+
+itemdef {
+	name medal_impressive
+	style WINDOW_STYLE_SHADER
+      	rect 496 394 32 32
+      	background "ui/assets/medal_impressive.tga"
+	forecolor 1 1 1 .25
+      	visible 1 
+      	decoration 
+
+}
+
+itemdef {
+	name medal_victory
+	style WINDOW_STYLE_SHADER
+      	rect 560 394 32 32
+      	background "ui/assets/medal_victory.tga"
+	forecolor 1 1 1 .25
+      	visible 1 
+      	decoration 
+}
+
+
+
+
+//	SCREEN SHOT	//
+
+itemDef {
+	name mapwindow
+    	rect 14 52 612 158	
+	style WINDOW_STYLE_FILLED
+	border 1
+	bordercolor .5 .5 .5 .5
+	forecolor 1 1 1 1
+	backcolor 0 0 0 .25
+	visible 1
+	decoration
+	mouseenter { setitemcolor mapwindow bordercolor .7 0 0 1 ; fadein message_arena }
+	mouseexit { setitemcolor mapwindow bordercolor .5 .5 .5 .5 ; fadeout message_arena }
+}
+
+itemdef {
+	name screen1
+   	rect 19 57 198 148
+	ownerdraw UI_TIERMAP1
+   	visible 1 
+	mouseenter { setitemcolor borderscreen1 backcolor .25 .25 .25 .25 }
+	mouseexit { setitemcolor borderscreen1 backcolor 0 0 0 0 }
+	action { setcvar ui_currentMap 0 ; setitemcolor grpborderscreen bordercolor .5 .5 .5 1 ; setitemcolor borderscreen1 bordercolor 1 0 0 1 }
+}
+
+
+itemdef {
+	name screen2
+    	rect 221 57 198 148
+	ownerdraw UI_TIERMAP2
+    	visible 1 
+	mouseenter { setitemcolor borderscreen2 backcolor .25 .25 .25 .25 }
+	mouseexit { setitemcolor borderscreen2 backcolor 0 0 0 0 }
+	action { setcvar ui_currentMap 1 ; setitemcolor grpborderscreen bordercolor .5 .5 .5 1 ; setitemcolor borderscreen2 bordercolor 1 0 0 1 }
+}
+
+
+itemdef {
+	name screen3
+	ownerdraw UI_TIERMAP3
+   	rect 423 57 198 148 
+   	visible 1 
+	mouseenter { setitemcolor borderscreen3 backcolor .25 .25 .25 .25 }
+	mouseexit { setitemcolor borderscreen3 backcolor 0 0 0 0 }
+	action { setcvar ui_currentMap 2 ; setitemcolor grpborderscreen bordercolor .5 .5 .5 1 ; setitemcolor borderscreen3 bordercolor 1 0 0 1 }
+}
+
+itemdef {
+	name borderscreen1
+	group grpborderscreen
+   	rect 18 56 200 150
+	style WINDOW_STYLE_FILLED
+	border 1
+	backcolor 0 0 0 0
+	bordercolor .5 .5 .5 1
+	decoration
+   	visible 1 
+}
+
+itemdef {
+	name borderscreen2
+	group grpborderscreen
+    	rect 220 56 200 150
+	style WINDOW_STYLE_FILLED
+	decoration
+	border 1
+	backcolor 0 0 0 0
+	bordercolor .5 .5 .5 1
+    	visible 1 
+	
+}
+
+
+itemdef {
+	name borderscreen3
+	group grpborderscreen
+	style WINDOW_STYLE_FILLED
+	border 1
+	bordercolor .5 .5 .5 1
+	backcolor 0 0 0 0
+	decoration
+   	rect 422 56 200 150
+   	visible 1 	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+// BACK BAR	//
+
+
+  itemDef {
+      name gotobar
+      style 2
+      rect 0 430 640 30 
+      textscale 0.4
+      textalign 0		        // center
+      textalignx 60        // x alignment point for text
+                            // use it to offset left/right text from the edge 
+                            // or to center the text on a different point
+      textaligny 21        
+      style 2
+      border 4
+      bordercolor 0.5 0.5 0.5 0.5
+      bordersize 2
+      backcolor 0 0 .75 0.5
+      visible 1 
+      mouseEnter { setcolor backcolor .75 0 0 .5 }
+      mouseExit { setcolor backcolor 0 0 .75 .5 }
+      decoration 
+    }
+
+    itemDef {
+      	name back
+	style 3
+      	background "ui/assets/backarrow.tga"
+	rect 16 424 50 50 
+      	visible 1 
+      	action { close fight ; open main }
+	mouseEnter { hide back ; show back_alt ; fadein message_back }
+    	}
+
+itemDef {
+      	name back_alt
+      	style WINDOW_STYLE_SHADER
+	background "ui/assets/backarrow_alt.tga"
+	rect 16 424 50 50 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	visible 0
+	type ITEM_TYPE_BUTTON
+      	mouseExit { hide back_alt ; show back ; fadeout message_back }	  
+      	action { close fight ; open main }	  
+	}
+
+
+
+
+itemDef {
+      	name accept
+      	style 3	
+     	rect 574 424 50 50 
+     	background "ui/assets/forwardarrow.tga"
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	visible 1 
+	mouseEnter { show lightning ; hide accept ; show accept_alt ; fadein message_accept }
+      	action { close fight ; uiScript SinglePlayerStart }
+  	}
+
+itemDef {
+      	name accept_alt
+      	style 3	
+     	rect 574 424 50 50 
+     	background "ui/assets/forwardarrow_alt.tga"
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	visible 0
+	type ITEM_TYPE_BUTTON   
+      	action { close fight ; uiScript SinglePlayerStart }
+      	mouseExit { hide lightning ; hide accept_alt ; show accept ; fadeout message_accept }	
+  	}
+
+ itemDef {
+      	name lightning
+      	style 3
+	background lightningkc
+      	rect 46 385 246 128     
+      	visible 0 
+      	decoration 
+    	}
+itemDef {
+      	name lightning
+      	style 3
+	background lightningkc
+      	rect 345 385 246 128     
+      	visible 0 
+      	decoration 
+    	}
+
+//	MESSAGES	//
+
+itemDef {
+	name message_back
+	style 0 
+	rect 320 430 128 30
+	textstyle 1
+	textalign 1
+	textalignx 0
+	textaligny 25
+	textscale .4
+	text "Exit to Main Menu"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_accept
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .4
+	text "Enter Arena"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_tier
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .4
+	text "Choose Tier"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_skill
+	style 0 
+	rect 320 430 128 30
+	textstyle 1
+	textalign 1
+	textalignx 0
+	textaligny 25
+	textscale .4
+	text "Set Skill Level"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_arena
+	style 0 
+	rect 320 430 128 30
+	textstyle 1
+	textalign 1
+	textalignx 0
+	textaligny 25
+	textscale .4
+	text "Choose Your Arena"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+
+
+}
+
+
+
+
+
+
+
+
+}
+
+}
+}

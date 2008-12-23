@@ -1,0 +1,71 @@
+#include "ui/menudef.h"
+
+{
+\\ SERVER INFO MENU \\
+
+menuDef {
+    	name "ingame_vote"
+    	visible 0
+    	fullscreen 0
+			outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+    	rect 387 30 210 64
+    	focusColor 1 .75 0 1
+    	style 1
+    	border 1
+
+itemDef {
+	name window
+	rect 0 0 210 64
+	style 1
+	border 1
+	bordercolor .5 .5 .5 1
+	backcolor 0 0 .75 .25
+	visible 1
+	decoration
+	}
+
+ 	
+itemDef {
+	name yes
+	text "Vote Yes"
+	type 1
+	textscale .25
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/button_red.tga"
+	rect 20 20 75 20
+	textalign 1
+	textalignx 37
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 1
+	action { exec "cmd vote yes" ; close ingame_vote  }
+	}
+
+
+itemDef {
+	name no
+	text "Vote No"
+	type 1
+	textscale .25
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/button_red.tga"
+	rect 115 20 75 20
+	textalign 1
+	textalignx 37
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 1
+	action { exec "cmd vote no" ; close ingame_vote  }
+	}
+}
+
+
+
+
+
+}
+
+
+}

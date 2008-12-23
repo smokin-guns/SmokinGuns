@@ -1,0 +1,306 @@
+#include "ui/menudef.h"
+
+// botselection menu
+{
+  menuDef {
+    name "BotSelection"
+    fullScreen MENU_FALSE
+    visible MENU_FALSE
+	rect 5 200 80 132
+	style WINDOW_STYLE_FILLED
+	backcolor 0 0 0.8 .25
+	border WINDOW_BORDER_FULL 
+	bordersize 1
+	bordercolor .5 .5 1 1
+
+	itemDef {
+      name 	"Possess"
+	  text "Possess"
+	  textaligny 10
+	  textalign ITEM_ALIGN_LEFT
+      rect 5 5 75 10 
+      visible 1
+	  textscale 0.22
+      mouseEnter { hide highlight ; show pbar }
+
+    }
+	itemDef {
+      name 	"pbar"
+	  group "highlight"
+	  style WINDOW_STYLE_FILLED
+      rect 0 5 79 13 
+      visible 0
+	  backcolor 0.8 0.8 0.8 0.3
+	  decoration
+    }
+	itemDef {
+      name 	"Follow"
+	  text "Follow"
+	  textaligny 10
+	  textalign ITEM_ALIGN_Left
+      rect 5 17 75 10 
+      visible 1
+	  textscale 0.22
+      mouseEnter { hide highlight ; show fbar }
+    }
+	itemDef {
+      name 	"fbar"
+	  group "highlight"
+	  style WINDOW_STYLE_FILLED
+      rect 0 17 79 13 
+      visible 0
+	  backcolor 0.8 0.8 0.8 0.3
+	  decoration
+    }
+	itemDef {
+      name 	"Go To"
+	  text "Go To"
+	  textaligny 10
+	  textalign ITEM_ALIGN_Left
+      rect 5 29 75 10 
+      visible 1
+	  textscale 0.22
+      mouseEnter { hide highlight ; show gbar }
+    }
+	itemDef {
+      name 	"gbar"
+	  group "highlight"
+	  style WINDOW_STYLE_FILLED
+      rect 0 29 79 13 
+      visible 0
+	  backcolor 0.8 0.8 0.8 0.3
+	  decoration
+    }
+	itemDef {
+      name 	"Get"
+	  text "Get"
+	  textaligny 10
+	  textalign ITEM_ALIGN_Left
+      rect 5 41 75 10 
+      visible 1
+	  textscale 0.22
+      mouseEnter { hide highlight ; show g2bar }
+	action { open getMenu }
+    }
+	itemDef {
+      name 	"g2bar"
+	  group "highlight"
+	  style WINDOW_STYLE_FILLED
+      rect 0 41 79 13 
+      visible 0
+	  backcolor 0.8 0.8 0.8 0.3
+	  decoration
+    }
+	itemDef {
+      name 	"Patrol From"
+	  text "Patrol From"
+	  textaligny 10
+	  textalign ITEM_ALIGN_Left
+      rect 5 53 75 10 
+      visible 1
+	  textscale 0.22
+      mouseEnter { hide highlight ; show p2bar }
+    }
+	itemDef {
+      name 	"p2bar"
+	  group "highlight"
+	  style WINDOW_STYLE_FILLED
+      rect 0 53 79 13 
+      visible 0
+	  backcolor 0.8 0.8 0.8 0.3
+	  decoration
+    }
+	itemDef {
+      name 	"Patrol To"
+	  text "Patrol To"
+	  textaligny 10
+	  textalign ITEM_ALIGN_Left
+      rect 5 65 75 10 
+      visible 1
+	  textscale 0.22
+      mouseEnter { hide highlight ; show p3bar }
+    }
+	itemDef {
+      name 	"p3bar"
+	  group "highlight"
+	  style WINDOW_STYLE_FILLED
+      rect 0 65 79 13 
+      visible 0
+	  backcolor 0.8 0.8 0.8 0.3
+	  decoration
+    }
+	itemDef {
+      name 	"Camp Near"
+	  text "Camp Near"
+	  textaligny 10
+	  textalign ITEM_ALIGN_Left
+      rect 5 77 75 10 
+      visible 1
+	  textscale 0.22
+      mouseEnter { hide highlight ; show cbar }
+    }
+	itemDef {
+      name 	"cbar"
+	  group "highlight"
+	  style WINDOW_STYLE_FILLED
+      rect 0 75 79 13 
+      visible 0
+	  backcolor 0.8 0.8 0.8 0.3
+	  decoration
+    }
+	itemDef {
+      name 	"Defend"
+	  text "Defend"
+	  textaligny 10
+	  textalign ITEM_ALIGN_Left
+      rect 5 89 75 10 
+      visible 1
+	  textscale 0.22
+      mouseEnter { hide highlight ; show dbar }
+    }
+	itemDef {
+      name 	"dbar"
+	  group "highlight"
+	  style WINDOW_STYLE_FILLED
+      rect 0 89 79 13 
+      visible 0
+	  backcolor 0.8 0.8 0.8 0.3
+	  decoration
+    }
+	itemDef {
+      name 	"Attack"
+	  text "Attack"
+	  textaligny 10
+	  textalign ITEM_ALIGN_Left
+      rect 5 101 75 10 
+      visible 1
+	  textscale 0.22
+      mouseEnter { hide highlight ; show abar }
+    }
+	itemDef {
+      name 	"abar"
+	  group "highlight"
+	  style WINDOW_STYLE_FILLED
+      rect 0 101 79 13 
+      visible 0
+	  backcolor 0.8 0.8 0.8 0.3
+	  decoration
+    }
+	itemDef {
+      name 	"Drop Command"
+	  text "Drop Command"
+	  textaligny 10
+	  textalign ITEM_ALIGN_Left
+      rect 5 113 75 10 
+      visible 1
+	  textscale 0.22
+      mouseEnter { hide highlight ; show dcbar }
+    }
+	itemDef {
+      name 	"dcbar"
+	  group "highlight"
+	  style WINDOW_STYLE_FILLED
+      rect 0 113 79 13 
+      visible 0
+	  backcolor 0.8 0.8 0.8 0.3
+	  decoration
+    }
+  }
+
+  menuDef {
+    name "getMenu"
+    fullScreen MENU_FALSE
+    visible MENU_FALSE
+	rect 86 238 85 35
+	style WINDOW_STYLE_FILLED
+	backcolor 0 0 0.8 .25
+	border WINDOW_BORDER_FULL 
+	bordersize 1
+	bordercolor .5 .5 1 1
+
+	itemDef {
+      name 	"Enemy Flag"
+	  text "Enemy Flag"
+	  textaligny 10
+	  textalign ITEM_ALIGN_LEFT
+      rect 5 3 80 10 
+      visible 1
+	  textscale 0.22
+      mouseEnter { hide highlight2 ; show efbar }
+	  action { close getMenu ; close teamMenu ; orders get flag }
+
+    }
+	itemDef {
+      name 	"efbar"
+	  group "highlight2"
+	  style WINDOW_STYLE_FILLED
+      rect 0 3 84 13 
+      visible 0
+	  backcolor 0.8 0.8 0.8 0.3
+	  decoration
+    }
+	itemDef {
+      name 	"Rocket Launcher"
+	  text "Rocket Launcher"
+	  textaligny 10
+	  textalign ITEM_ALIGN_LEFT
+      rect 5 17 80 10 
+      visible 1
+	  textscale 0.22
+      mouseEnter { hide highlight2 ; show rlbar }
+	  action { close getMenu ; close teamMenu ; orders get rocketlauncher }
+
+    }
+	itemDef {
+      name 	"rlbar"
+	  group "highlight2"
+	  style WINDOW_STYLE_FILLED
+      rect 0 17 84 13 
+      visible 0
+	  backcolor 0.8 0.8 0.8 0.3
+	  decoration
+    }
+  }
+
+  menuDef {
+    name "voiceMenu"
+    fullScreen MENU_FALSE
+    visible MENU_FALSE
+	rect 5 25 40 40
+	style WINDOW_STYLE_SHADER
+	background "console"
+	//backcolor 0 0 0.5 0.5
+	border WINDOW_BORDER_FULL 
+	bordersize 1
+	bordercolor .5 .5 .5 1
+
+	itemDef {
+		name "b"
+		rect 2 2 33 33
+    	visible 1
+		decoration
+		ownerdraw CG_SELECTEDPLAYER_HEAD
+	}
+
+  }
+
+  menuDef {
+    name "voteMenu"
+    fullScreen MENU_FALSE
+    visible MENU_FALSE
+	rect 5 25 40 40
+	style WINDOW_STYLE_SHADER
+	background "textures/base_wall/comp3"
+	backcolor 0 0 0.5 0.5
+	border WINDOW_BORDER_FULL 
+	bordersize 1
+	bordercolor 0 1 0 1
+
+  }
+
+
+
+
+}
+
+

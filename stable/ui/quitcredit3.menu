@@ -1,0 +1,373 @@
+#include "ui/menudef.h"
+
+{
+\\ QUIT CREDIT \\
+
+  menuDef {
+    	name "quitCredit3"
+    	visible 0
+    	fullscreen 1
+    	rect 0 0 640 480
+    	background "ui/bg/main.tga"
+    	focusColor 1 .75 0 1
+    	style 1
+    	border 1
+	onEsc { uiScript "quit" }
+	onOpen { show grpidcredit }
+
+itemDef {
+      	name demo_only
+      	style WINDOW_STYLE_EMPTY
+	rect 0 0 640 480
+	type 1
+      	visible 1 
+	action { play "sound/misc/menu1.wav" ;
+	close quitCredit3 ;
+	open quitCredit4  }
+    	}
+
+    
+
+// LEVEL SELECTION BAR	//
+
+itemDef {
+ 	name logo
+	style WINDOW_STYLE_SHADER
+	background "ui/wq3_assets/logo.tga"
+	rect 180 5 280 100
+	visible 1
+	decoration
+	}
+
+itemDef {
+ 	name ici_logo
+	style WINDOW_STYLE_SHADER
+	background "ui/wq3_assets/ici_logo.tga"
+	rect 5 427 48 48
+	visible 1
+	decoration
+	}
+
+
+
+// PROGRAMMING
+
+itemDef {
+	name programming
+	group grpidcredit
+	style 0 
+	rect 0 120 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .3
+	text "PROGRAMMING:"
+	forecolor  1 .75 0 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name programming
+	group grpidcredit
+	style 0 
+	rect 0 138 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .28
+	text "Daniel 'SPoon' Hofmann"
+	forecolor  1 1 1 1
+	decoration 
+	visible 0
+	}
+
+// LEVELDESIGN
+itemDef {
+	name levelDesign
+	group grpidcredit
+	style 0 
+	rect 0 163 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .3
+	text "LEVEL DESIGN:"
+	forecolor 1 .75 0 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name levelDesign
+	group grpidcredit
+	style 0 
+	rect 0 181 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .28
+	text "Pascal 'Lt. Frag' Liedtke,   Mario 'DeadKennedy' Messer"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+
+itemDef {
+	name levelDesign
+	group grpidcredit
+	style 0 
+	rect 0 198 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .28
+	text "Felix 'Lixus' Schittig,   Daniel 'SPoon' Hofmann"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+// 2d art
+itemDef {
+	name Art
+	group grpidcredit
+	style 0 
+	rect 0 223 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .3
+	text "TEXTURES/2D ART/SKINNING:"
+	forecolor 1 .75 0 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name Art
+	group grpidcredit
+	style 0 
+	rect 0 241 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .28
+	text "Fabian 'F4K3Y' Liedtke,   Daniel 'SPoon' Hofmann"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+// MODELLING
+itemDef {
+	name Modelling
+	group grpidcredit
+	style 0 
+	rect 0 266 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .3
+	text "MODELLING:"
+	forecolor 1 .75 0 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name Modelling
+	group grpidcredit
+	style 0 
+	rect 0 284 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .28
+	text "Daniel 'SPoon' Hofmann,   John 'Wildvertex' Smith"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+// SOUND
+itemDef {
+	name Sound
+	group grpidcredit
+	style 0 
+	rect 0 309 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .3
+	text "SOUND-ENGINEERING:"
+	forecolor 1 .75 0 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name Sound
+	group grpidcredit
+	style 0 
+	rect 0 327 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .28
+	text "Ronny 'KroKoFox' Baldauf"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+// web development
+itemDef {
+	name Web
+	group grpidcredit
+	style 0 
+	rect 0 352 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .3
+	text "WEB DEVELOPMENT & PUBLIC RELATIONS:"
+	forecolor 1 .75 0 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name Web
+	group grpidcredit
+	style 0 
+	rect 0 370 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .28
+	text "Julien 'Deimos' Clin"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name Web
+	group grpidcredit
+	style 0 
+	rect 0 385 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .28
+	text "Tim 'General Tso' Stetzer,   Christian 'Drakhon' Loos"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+// WEAPON INFO
+itemDef {
+	name Web
+	group grpidcredit
+	style 0 
+	rect 0 410 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .3
+	text "HISTORICAL  INFORMATION:"
+	forecolor 1 .75 0 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name Web
+	group grpidcredit
+	style 0 
+	rect 0 428 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .28
+	text "Tim 'General Tso' Stetzer"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name exit
+      	group grpidcredit
+      	rect 50 130 130 26
+	type 1
+  	text "Press ESC to Exit"
+	style WINDOW_STYLE_FILLED
+	background "ui/wq3_assets/button.tga"
+	textalign 1   	
+	textscale .25
+	textalignx 65
+	textaligny 20
+      	visible 1
+	decoration
+	backcolor 1 1 1 1
+      	forecolor 1 1 1 1
+	action { play "sound/misc/menu1.wav" }
+	mouseEnter { show exit_alt }
+      	mouseExit { hide exit_alt }	
+	}
+itemDef {
+      	name exit_alt
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/wq3_assets/button_selected.tga"
+ 	rect 50 130 130 26
+      	visible 1
+	decoration	  
+    	}
+
+/*itemDef {
+      	name copyright
+      	text "Quake III: Team Arena Copyright 2000 Id Software, Inc. All rights reserved"
+      	style 0
+      	textscale .25
+      	rect 0 440 640 40
+      	textalign 1	
+      	textaligny 32
+      	textalignx 320 
+      	forecolor .75 0 0 .75
+      	visible 1 
+      	decoration 
+	}*/
+
+itemDef {
+      	name modtext
+      	text "Western Quake 3 Beta 2.00 (c) 2000-2003 Iron Claw Interactive"
+      	style 0
+      	textscale .25
+      	rect 0 425 640 40
+     	textalign 1	
+      	textaligny 32
+      	textalignx 320
+      	visible 1
+      	decoration 
+	}
+
+itemDef {
+      	name copyright
+      	text "Quake 3 Arena (c) 2000-2003 id software, inc. all rights reserved"
+      	style 0
+      	textscale .25
+      	rect 0 440 640 40
+     	textalign 1	
+      	textaligny 32
+      	textalignx 320
+      	visible 1
+      	decoration 
+	}
+
+
+
+
+
+}
+
+}

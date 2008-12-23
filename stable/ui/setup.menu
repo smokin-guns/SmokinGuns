@@ -1,0 +1,513 @@
+#include "ui/menudef.h"
+
+{
+\\ SETUP MENU \\
+
+menuDef {
+    	name "setup_menu"
+    	visible 0
+    	fullscreen 1
+    	rect 186 0 454 480
+	background "menuback_a"
+    	focusColor 1 .75 0 1
+    	style 1
+    	border 1
+	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ; 
+		playlooped "music/fla_mp03.wav" ;
+		fadeout fadebox ;
+		hide back_alt ;
+		show back ;
+		hide grpmessage }
+	onEsc { close setup_menu ; open main }
+
+
+
+
+itemDef {
+      	name solid_box
+      	style 1 
+	rect 4 2 178 426
+      	border 1 
+      	bordersize 1
+      	bordercolor .5 .5 .5 .5
+      	backcolor 0 0 .75 .25
+      	visible 1 
+      	decoration 
+	mouseEnter { setcolor backcolor .75 0 0 .5 }
+      	mouseExit { setcolor backcolor 0 0 .75 .25 }
+	}
+
+
+
+
+
+// Control	//
+
+
+
+
+itemDef {
+	name controls
+	text "Controls"
+	textscale .5
+	style 0	
+	type 1
+	textstyle 6
+	rect 0 75 200 40 
+	textalign 3	 
+	textalignx 20  	
+       	textaligny 32        
+	backcolor 0 0 0 0
+	forecolor 1 1 1 1
+	visible 1 
+	action { play "sound/misc/kcaction.wav" ; 
+	close control_menu ; 
+	close system_menu ;
+	close options_menu ; 
+	close cdkey_menu ;
+	close default_menu ;   
+	close resetscore_menu ;   
+	open control_menu }
+	mouseenter { show message_controls }
+	mouseexit { hide message_controls }
+	}
+	
+
+
+
+
+
+// 	System		//
+
+itemDef {
+      	name system
+      	text "System"
+      	style 0
+	type 1
+	textstyle 6
+      	textscale .5	
+      	rect 0 125 200 40 
+      	textalign 3		// center
+      	textalignx 20  		// x alignment point for text
+          			// use it to offset left/right text from the edge 
+                   		// or to center the text on a different point
+	textaligny 32        
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/kcaction.wav" ; 
+	close control_menu ; 
+	close system_menu ;
+	close options_menu ; 
+	close cdkey_menu ;
+	close default_menu ;   
+	close resetscore_menu ;  
+	open system_menu }	
+	mouseenter { show message_system }
+	mouseexit { hide message_system }	
+	}
+
+
+
+// Game Options	//
+
+itemDef {
+      	name gameoptions
+      	text "Game Options"
+      	style 0
+	type 1
+	textstyle 6
+      	textscale .5	
+      	rect 0 175 200 40 
+      	textalign 3		// center
+      	textalignx 20  		// x alignment point for text
+          			// use it to offset left/right text from the edge 
+                   		// or to center the text on a different point
+       	textaligny 32        
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+	visible 1 
+	action { play "sound/misc/kcaction.wav" ; 
+	close control_menu ; 
+	close system_menu ;
+	close options_menu ; 
+	close cdkey_menu ;
+	close default_menu ;   
+	close resetscore_menu ;   
+	open options_menu }	
+	mouseenter { show message_gameoptions }
+	mouseexit { hide message_gameoptions }
+	}
+
+	
+
+
+// CD Key	//
+
+itemDef {
+      	name cdkey
+      	text "Enter CD Key"
+      	style 0	
+	type 1
+      	textscale .5
+	textstyle 6
+      	rect 0 225 200 40 
+      	textalign 3		// center
+      	textalignx 20  		// x alignment point for text
+          			// use it to offset left/right text from the edge 
+                   		// or to center the text on a different point
+	textaligny 32        
+	forecolor 1 1 1 1
+	visible 1 
+	mouseenter { show message_cdkey }
+	mouseexit { hide message_cdkey }
+	action { play "sound/misc/kcaction.wav" ; 
+	close control_menu ; 
+	close system_menu ;
+	close options_menu ; 
+	close cdkey_menu ;
+	close default_menu ;   
+	close resetscore_menu ;   
+	open cdkey_menu }
+	}
+
+
+
+// Reset Defaults	//
+
+itemDef {
+      	name defaults
+      	text "Defaults"
+      	style 0	
+	type 1
+	textstyle 6
+      	textscale .5
+      	rect 0 275 200 40 
+      	textalign 3		// center
+      	textalignx 20  		// x alignment point for text
+          			// use it to offset left/right text from the edge 
+                   		// or to center the text on a different point
+	textaligny 32        
+	forecolor 1 1 1 1
+	visible 1 
+	mouseenter { show message_default }
+	mouseexit { hide message_default }
+	action { play "sound/misc/kcaction.wav" ; 
+	close control_menu ; 
+	close system_menu ;
+	close options_menu ; 
+	close cdkey_menu ;
+	close default_menu ;   
+	close resetscore_menu ;    
+	open default_menu }
+	}
+
+// Reset Score	//
+
+
+itemDef {
+      	name scores
+      	text "Clear Scores"
+      	style 0	
+	type 1
+	textstyle 6
+      	textscale .5
+      	rect 0 325 200 40 
+      	textalign 3		// center
+      	textalignx 20  		// x alignment point for text
+          			// use it to offset left/right text from the edge 
+                   		// or to center the text on a different point
+	textaligny 32        
+	forecolor 1 1 1 1
+	visible 1 
+	mouseenter { show message_scores }
+	mouseexit { hide message_scores }
+	action { play "sound/misc/kcaction.wav" ; 
+	close control_menu ; 
+	close system_menu ;
+	close options_menu ; 
+	close cdkey_menu ;
+	close default_menu ;   
+	close resetscore_menu ; 
+	open resetscore_menu }
+	}
+
+
+
+// BACK BAR	//
+
+
+itemDef {
+      	name gotobar
+      	style 2
+      	rect 0 430 640 30 
+      	textscale 0.4
+      	textalign 0		// center
+      	textalignx 60        	// x alignment point for text
+                            	// use it to offset left/right text from the edge 
+                            	// or to center the text on a different point
+      	textaligny 21        
+      	style 2
+      	border 4
+      	bordercolor 0.5 0.5 0.5 0.5
+      	bordersize 2
+      	backcolor 0 0 .75 0.5
+      	visible 1 
+      	mouseEnter { setcolor backcolor .75 0 0 .5 }
+      	mouseExit { setcolor backcolor 0 0 .75 .5 }
+      	decoration 
+    	}
+
+    itemDef {
+      	name back
+	style 3
+      	background "ui/assets/backarrow.tga"
+	rect 16 424 50 50 
+      	visible 1 
+      	action { close setup_menu ; open main }
+	mouseEnter { hide back ; show back_alt ; show message_back }
+    	}
+
+itemDef {
+      	name back_alt
+      	style WINDOW_STYLE_SHADER
+	background "ui/assets/backarrow_alt.tga"
+	rect 14 422 54 54 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	visible 0
+	type ITEM_TYPE_BUTTON
+	action { hide grpControls ; 
+	close control_menu ; 
+	close setup_menu ; 
+	close system_menu ;
+	close options_menu ; 
+	close cdkey_menu ; 
+	close default_menu ; 
+	close resetscore_menu ;  
+	open main }  
+      	mouseExit { hide back_alt ; show back ; hide message_back }	  
+    	}
+
+
+//	MESSAGES	//
+
+itemDef {
+	name message_back
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textstyle 1
+	textalign 1
+	textalignx 0
+	textaligny 25
+	textscale .4
+	text "Exit to Main Menu"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_accept
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .4
+	text "Refresh Video"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_controls
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .4
+	text "Select to Edit Game Controls"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_nowork
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .4
+	text "Selection Isn't Implemented"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_look
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .4
+	text "Select to Edit View Controls"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_move
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .4
+	text "Select to Edit Movement Controls"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_shoot
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .4
+	text "Select to Edit Firing and Weapon Selection"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_misc
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .4
+	text "Select to Edit Chat and Mouse Functions"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_system
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .4
+	text "Edit System Settings"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_gameoptions
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .4
+	text "Edit Game Options"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_cdkey
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .4
+	text "Enter Encryption Key"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_default
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .4
+	text "Reset to Default Settings"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_scores
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .4
+	text "Clear High Scores to Zero"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+
+itemDef {
+      	name fadebox
+      	style WINDOW_STYLE_FILLED
+ 	background "ui/assets/fadebox.tga"
+	forecolor 0 0 0 1
+	backcolor 0 0 0 1
+	rect 0 0 640 480
+      	visible 1 
+	decoration
+    	}
+
+
+}
+
+
+}
