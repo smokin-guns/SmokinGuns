@@ -5,8 +5,6 @@
 	Name="renderer"
 	ProjectGUID="{AB424155-FBED-4D8D-B007-5B6CF93EA395}"
 	RootNamespace="renderer"
-	SccProjectName="&quot;$/MissionPack/code/renderer&quot;, EJBAAAAA"
-	SccLocalPath="."
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
