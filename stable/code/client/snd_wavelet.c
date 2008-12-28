@@ -30,7 +30,7 @@ long myftol( float f );
 #define C2 0.2241438680420134
 #define C3 -0.1294095225512604
 
-void daub4(float b[], unsigned long n, int isign)
+static void daub4(float b[], unsigned long n, int isign)
 {
 	float wksp[4097];
 	float	*a=b-1;						// numerical recipies so a[1] = b[0]
@@ -84,7 +84,7 @@ static unsigned char numBits[] = {
    8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,
 };
 
-byte MuLawEncode(short s) {
+static byte MuLawEncode(short s) {
 	unsigned long adjusted;
 	byte sign, exponent, mantissa;
 
@@ -99,7 +99,7 @@ byte MuLawEncode(short s) {
 	return ~(sign | (exponent<<4) | mantissa);
 }
 
-short MuLawDecode(byte uLaw) {
+static short MuLawDecode(byte uLaw) {
 	signed long adjusted;
 	byte exponent, mantissa;
 
@@ -115,11 +115,6 @@ short mulawToShort[256];
 static qboolean madeTable = qfalse;
 
 static	int	NXStreamCount;
-
-void NXPutc(NXStream *stream, char out) {
-	stream[NXStreamCount++] = out;
-}
-
 
 void encodeWavelet( sfx_t *sfx, short *packets) {
 	float	wksp[4097], temp;
@@ -238,17 +233,3 @@ void encodeMuLaw( sfx_t *sfx, short *packets) {
 		samples -= size;
 	}
 }
-
-void decodeMuLaw(sndBuffer *chunk, short *to) {
-	int				i;
-	byte			*out;
-
-	int size = chunk->size;
-
-	out = (byte *)chunk->sndChunk;
-	for(i=0;i<size;i++) {
-		to[i] = mulawToShort[out[i]];
-	}
-}
-
-

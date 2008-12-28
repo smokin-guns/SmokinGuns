@@ -73,6 +73,8 @@ typedef struct {
 
 #define START_SAMPLE_IMMEDIATE	0x7fffffff
 
+#define MAX_DOPPLER_SCALE 50.0f //arbitrary
+
 typedef struct loopSound_s {
 	vec3_t		origin;
 	vec3_t		velocity;
@@ -116,6 +118,38 @@ typedef struct {
 	int			dataofs;		// chunk starts this many bytes from file start
 } wavinfo_t;
 
+// Interface between Q3 sound "api" and the sound backend
+typedef struct
+{
+	void (*Shutdown)(void);
+	void (*StartSound)( vec3_t origin, int entnum, int entchannel, sfxHandle_t sfx );
+	void (*StartLocalSound)( sfxHandle_t sfx, int channelNum );
+	void (*StartBackgroundTrack)( const char *intro, const char *loop );
+	void (*StopBackgroundTrack)( void );
+	void (*RawSamples)(int stream, int samples, int rate, int width, int channels, const byte *data, float volume);
+	void (*StopAllSounds)( void );
+	void (*ClearLoopingSounds)( qboolean killall );
+	void (*AddLoopingSound)( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx );
+	void (*AddRealLoopingSound)( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx );
+	void (*StopLoopingSound)(int entityNum );
+	void (*Respatialize)( int entityNum, const vec3_t origin, vec3_t axis[3], int inwater );
+	void (*UpdateEntityPosition)( int entityNum, const vec3_t origin );
+	void (*Update)( void );
+	void (*DisableSounds)( void );
+	void (*BeginRegistration)( void );
+	sfxHandle_t (*RegisterSound)( const char *sample, qboolean compressed );
+	void (*ClearSoundBuffer)( void );
+	void (*SoundInfo)( void );
+	void (*SoundList)( void );
+#ifdef USE_VOIP
+	void (*StartCapture)( void );
+	int (*AvailableCaptureSamples)( void );
+	void (*Capture)( int samples, byte *data );
+	void (*StopCapture)( void );
+	void (*MasterGain)( float gain );
+#endif
+} soundInterface_t;
+
 
 /*
 ====================================================================
@@ -147,20 +181,23 @@ extern	channel_t   loop_channels[MAX_CHANNELS];
 extern	int		numLoopChannels;
 
 extern	int		s_paintedtime;
-extern	int		s_rawend;
 extern	vec3_t	listener_forward;
 extern	vec3_t	listener_right;
 extern	vec3_t	listener_up;
 extern	dma_t	dma;
 
 #define	MAX_RAW_SAMPLES	16384
-extern	portable_samplepair_t	s_rawsamples[MAX_RAW_SAMPLES];
+#define MAX_RAW_STREAMS 128
+extern	portable_samplepair_t s_rawsamples[MAX_RAW_STREAMS][MAX_RAW_SAMPLES];
+extern	int		s_rawend[MAX_RAW_STREAMS];
 
 extern cvar_t	*s_volume;
 extern cvar_t	*s_nosound;
 extern cvar_t	*s_khz;
 extern cvar_t	*s_show;
 extern cvar_t	*s_mixahead;
+extern cvar_t *s_musicVolume;
+extern cvar_t *s_doppler;
 
 extern cvar_t	*s_testsound;
 extern cvar_t	*s_separation;
@@ -203,3 +240,18 @@ extern short *sfxScratchBuffer;
 extern sfx_t *sfxScratchPointer;
 extern int	   sfxScratchIndex;
 
+qboolean S_Base_Init( soundInterface_t *si );
+
+// OpenAL stuff
+typedef enum
+{
+	SRCPRI_AMBIENT = 0,	// Ambient sound effects
+	SRCPRI_ENTITY,			// Entity sound effects
+	SRCPRI_ONESHOT,			// One-shot sounds
+	SRCPRI_LOCAL,				// Local sounds
+	SRCPRI_STREAM				// Streams (music, cutscenes)
+} alSrcPriority_t;
+
+typedef int srcHandle_t;
+
+qboolean S_AL_Init( soundInterface_t *si );

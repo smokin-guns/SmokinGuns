@@ -399,11 +399,18 @@ typedef unsigned char 		byte;
 
 typedef enum {qfalse, qtrue}	qboolean;
 
+typedef union {
+	float f;
+	int i;
+	unsigned int ui;
+} floatint_t;
+
 typedef int		qhandle_t;
 typedef int		sfxHandle_t;
 typedef int		fileHandle_t;
 typedef int		clipHandle_t;
 
+#define PAD(x,y) (((x)+(y)-1) & ~((y)-1))
 
 #ifndef NULL
 #define NULL ((void *)0)
@@ -869,6 +876,7 @@ void RotateVectorAroundVector( vec3_t origin, vec3_t angles, vec3_t point);
 void MatrixMultiply(float in1[3][3], float in2[3][3], float out[3][3]);
 void AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
 void PerpendicularVector( vec3_t dst, const vec3_t src );
+int Q_isnan( float x );
 
 
 //=============================================
