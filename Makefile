@@ -16,7 +16,7 @@ engine-debug:
 	cd ./code && perl ./unix/cons -- noso debug
 engine-pk3:
 	@echo "==> Making engine only PK3 for SG"
-	cd ./code/install/missionpack && zip vm/*.qvm ../sg_engine.pk3
+	cd ./code/install/missionpack && zip ../sg_engine.pk3 vm/*.qvm
 mod:
 	@echo "==> Making SG [RELEASE] (mod only)"
 	cd ./code && perl ./unix/cons -- vm noso nocore
