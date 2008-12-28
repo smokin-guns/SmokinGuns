@@ -274,7 +274,7 @@ if ($do_clean eq 1)
     print "  ==> Cleaning ./qvmtools ...\n";
     system("rm -rf ./qvmtools");
 	system("cd ../lcc; " . $MAKE . " clean");
-	system("cd ../q3asm; " . $MAKE . " clean");
+	system("cd ./tools/q3asm; " . $MAKE . " clean");
   }
   if (-d "./install")
   {
@@ -356,7 +356,7 @@ sub build_tools {
   }
   elsif (@_[0] eq 'q3asm')
   {
-    system("cd ../q3asm ; " . $MAKE . " ; cp q3asm ../code/qvmtools");
+    system("cd ./tools/q3asm ; " . $MAKE . " ; cp q3asm ../../qvmtools");
   }
   else
   {
