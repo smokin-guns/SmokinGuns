@@ -137,6 +137,10 @@ static void UI_ParseTeamInfo(const char *teamFile);
 static const char *UI_SelectedMap(int index, int *actual);
 static int UI_GetIndexFromSelection(int actual);
 
+// Tequila comment: Few api to handle list map feeder more friendly
+static int UI_GetMapByName(char *mapname);
+static void UI_FixMapIndex(int force_map);
+
 void Text_PaintCenter(float x, float y, float scale, vec4_t color, const char *text, float adjust);
 
 int ProcessNewUI( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6 );
@@ -2262,7 +2266,7 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 
 static void UI_DrawBotName(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
 	int value = uiInfo.botIndex;
-	int game = trap_Cvar_VariableValue("g_gametype");
+	//int game = trap_Cvar_VariableValue("g_gametype");
 	const char *text = "";
 	/*if (game >= GT_TEAM) {
 		if (value >= uiInfo.characterCount) {
@@ -2945,46 +2949,44 @@ static qboolean UI_GameType_HandleKey(int flags, float *special, int key, qboole
   return qfalse;
 }
 
-// GT_FFA, GT_DUEL, GT_TEAM, GT_RTP, GT_BR (GT_SINGLEPLAYER isn't included here)
-#define NUM_GT 3
-static int gt_remap[] = {0, 2, 3};
-static int gt_antiremap[] = {0, 0, 1, 2, 0};
-
-static const char *UI_FeederItemText(float feederID, int index, int column, qhandle_t *handle);
-
 static qboolean UI_NetGameType_HandleKey(int flags, float *special, int key) {
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
-	int gametype = gt_antiremap[ui_netGameType.integer];
-	char text[64];
-	int test;
-	qhandle_t handle;
+		int prevgt, gametype ;
+		prevgt = uiInfo.gameTypes[ui_netGameType.integer].gtEnum ;
 
-	// look if the current map is one with a static gametype
-	strcpy(text, UI_FeederItemText(FEEDER_ALLMAPS, ui_currentNetMap.integer, 0, &handle));
-	test = BG_MapPrefix(text, 0);
-
-	if(test)
-		return qfalse;
-
+		// hard coded mess here
 	if (key == K_MOUSE2) {
-		gametype--;
+			ui_netGameType.integer--;
+			if (ui_netGameType.integer < 0) {
+				ui_netGameType.integer = uiInfo.numGameTypes - 1;
+			}
 	} else {
-		gametype++;
+			ui_netGameType.integer++;
+			if (ui_netGameType.integer >= uiInfo.numGameTypes) {
+				ui_netGameType.integer = 0;
+			}
 	}
 
-    if (gametype < 0) {
-      gametype = NUM_GT - 1;
-	} else if (gametype >= NUM_GT) {
-      gametype = 0;
-    }
-
-	ui_netGameType.integer = gt_remap[gametype];
+		gametype = uiInfo.gameTypes[ui_netGameType.integer].gtEnum ;
 
   	trap_Cvar_Set( "ui_netGameType", va("%d", ui_netGameType.integer));
-  	trap_Cvar_Set( "ui_actualnetGameType", va("%d", uiInfo.gameTypes[ui_netGameType.integer].gtEnum));
-  	//trap_Cvar_Set( "ui_currentNetMap", "0");
+  		trap_Cvar_Set( "ui_actualnetGameType", va("%d", gametype));
+
 		UI_MapCountByGameType(qfalse);
-		//Menu_SetFeederSelection(NULL, FEEDER_ALLMAPS, 0, NULL);
+
+  		if (gametype != GT_DUEL) {
+  			UI_FixMapIndex(MAX_MAPS);
+
+		} else {
+			// Reset the list index to 0 for GT_DUEL
+  			ui_mapIndex.integer = 0 ;
+		}
+
+		// Update ui_mapIndex cvar to retreive it later
+  		trap_Cvar_Set( "ui_mapIndex", va("%d", ui_mapIndex));
+
+		Menu_SetFeederSelection(NULL, FEEDER_ALLMAPS, ui_mapIndex.integer, NULL);
+
     return qtrue;
   }
   return qfalse;
@@ -3153,7 +3155,7 @@ static qboolean UI_OpponentName_HandleKey(int flags, float *special, int key) {
 
 static qboolean UI_BotName_HandleKey(int flags, float *special, int key) {
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
-		int game = trap_Cvar_VariableValue("g_gametype");
+		//int game = trap_Cvar_VariableValue("g_gametype");
 		int value = uiInfo.botIndex;
 
 		if (key == K_MOUSE2) {
@@ -3890,7 +3892,11 @@ static void UI_RunMenuScript(char **args) {
 		} else if (Q_stricmp(name, "loadArenas") == 0) {
 			UI_LoadArenas();
 			UI_MapCountByGameType(qfalse);
-			Menu_SetFeederSelection(NULL, FEEDER_ALLMAPS, 0, "createserver");
+			// Tequila comment: fix selected ui_mapIndex
+			UI_FixMapIndex(MAX_MAPS);
+			Menu_SetFeederSelection(NULL, FEEDER_ALLMAPS, ui_mapIndex.integer, NULL);
+			//Com_Printf( "Loaded arenas: selected map: %s, gametype: %d vs %d\n",
+			//	uiInfo.mapList[ui_currentNetMap.integer].mapLoadName,ui_netGameType.integer,trap_Cvar_VariableValue("g_gametype"));
 		} else if (Q_stricmp(name, "saveControls") == 0) {
 			Controls_SetConfig(qtrue);
 		} else if (Q_stricmp(name, "loadControls") == 0) {
@@ -4279,22 +4285,12 @@ UI_MapCountByGameType
 static int UI_MapCountByGameType(qboolean singlePlayer) {
 	int i, c, game;
 	c = 0;
-	/*game = singlePlayer ? uiInfo.gameTypes[ui_gameType.integer].gtEnum : uiInfo.gameTypes[ui_netGameType.integer].gtEnum;
-	if (game == GT_SINGLE_PLAYER) {
-		game++;
-	}
-	if (game == GT_TEAM) {*/
-		game = GT_FFA;
-//	}
+
+	game = uiInfo.gameTypes[singlePlayer ? ui_gameType.integer : ui_netGameType.integer].gtEnum ;
 
 	for (i = 0; i < uiInfo.mapCount; i++) {
 		uiInfo.mapList[i].active = qfalse;
 		if ( uiInfo.mapList[i].typeBits & (1 << game)) {
-			if (singlePlayer) {
-				if (!(uiInfo.mapList[i].typeBits & (1 << GT_SINGLE_PLAYER))) {
-					continue;
-				}
-			}
 			c++;
 			uiInfo.mapList[i].active = qtrue;
 		}
@@ -4904,6 +4900,85 @@ static int UI_FeederCount(float feederID) {
 	return 0;
 }
 
+/*
+==================
+UI_GetMapByName
+==================
+*/
+static int UI_GetMapByName(char *mapname) {
+	int i;
+	char loadname[MAX_MAPNAMELENGTH+1];
+	//Com_Printf( "Getting map index for %s...\n",mapname);
+	for (i = 0; i < uiInfo.mapCount; i++) {
+		if (uiInfo.mapList[i].active) {
+			Com_sprintf(loadname, sizeof(loadname),"%s",uiInfo.mapList[i].mapLoadName);
+			//Com_Printf( "index %d. checking toward %s...\n",i,loadname);
+			// Compare map names after the prefix
+			if (Q_stricmp(&mapname[3],&loadname[3])==0) {
+				//Com_Printf( "Found %s as equivalent for %s\n",loadname,mapname);
+				return i;
+			}
+		}
+	}
+	return -1;
+}
+
+/*
+==================
+UI_FixMapIndex
+==================
+*/
+
+static void UI_FixMapIndex( int force_map ) {
+	int actual;
+	char mapname[MAX_MAPNAMELENGTH+1];
+
+	// Tequila comment: sharedMap will preserve shared map number
+	static sharedMap = MAX_MAPS ;
+
+	if (sharedMap<0) {
+		// Next time we will accept to be forced
+		sharedMap = -sharedMap;
+		if (force_map>=0 && force_map<uiInfo.mapCount)
+			return ;
+	}
+
+	// Don't fix map index if current gametype is GT_DUEL as maps are completly
+	// different and they are only 2 duels maps at the write of this comment
+  	if (uiInfo.gameTypes[ui_netGameType.integer].gtEnum == GT_DUEL)
+  		return ;
+
+	if (force_map>=0 && force_map<uiInfo.mapCount) {
+		sharedMap = force_map ;
+		//Com_Printf( "sharedMap forced to %d for %s\n",sharedMap,uiInfo.mapList[sharedMap].mapLoadName);
+		return ;
+	}
+
+  	// Try to update ui_sharedMapIndex to current map if set to first element
+  	// otherwise update it to find index of equivalent map (br_* <-> dm_*)
+  	if (sharedMap >= uiInfo.mapCount) {
+  		trap_Cvar_VariableStringBuffer("mapname",mapname,sizeof(mapname));
+	} else {
+		// This update shared index in the case prefix is different
+		//UI_SelectedMap(ui_mapIndex.integer,&actual);
+		Com_sprintf(mapname, sizeof(mapname),"%s",uiInfo.mapList[sharedMap].mapLoadName);
+	}
+	//Com_Printf( "Trying to fix sharedMap for map %s, was %d\n",mapname,sharedMap);
+	actual = UI_GetMapByName(mapname);
+	// Update new shared value for next call only if found one
+	if (actual>=0) {
+		sharedMap = actual ;
+		//Com_Printf( "sharedMap fixed to %d\n",actual);
+	} else {
+		actual = 0 ;
+		// negate shared map to avoid it to be forced on following deeper update
+		sharedMap = -sharedMap ;
+	}
+
+	// Fix ui_mapIndex with updated shared one found
+  	ui_mapIndex.integer = UI_GetIndexFromSelection(actual) ;
+}
+
 static const char *UI_SelectedMap(int index, int *actual) {
 	int i, c;
 	c = 0;
@@ -4912,7 +4987,8 @@ static const char *UI_SelectedMap(int index, int *actual) {
 		if (uiInfo.mapList[i].active) {
 			if (c == index) {
 				*actual = i;
-				return uiInfo.mapList[i].mapLoadName;//mapName;
+				//return uiInfo.mapList[i].mapLoadName;
+				return uiInfo.mapList[i].mapName;
 			} else {
 				c++;
 			}
@@ -5105,6 +5181,9 @@ static void UI_FeederSelection(float feederID, int index) {
 			trap_Cvar_Set("ui_opponentModel", uiInfo.mapList[ui_currentMap.integer].opponentName);
 			updateOpponentModel = qtrue;
 		} else {
+			// Tequila comment: Just fix shared map when new one is selected
+			// We pass here also when switching gametype now but that's supported
+			UI_FixMapIndex(actual);
 			ui_currentNetMap.integer = actual;
 			trap_Cvar_Set("ui_currentNetMap", va("%d", actual));
 	  	uiInfo.mapList[ui_currentNetMap.integer].cinematic = trap_CIN_PlayCinematic(va("%s.roq", uiInfo.mapList[ui_currentNetMap.integer].mapLoadName), 0, 0, 0, 0, (CIN_loop | CIN_silent) );
@@ -6360,28 +6439,5 @@ static void UI_StartServerRefresh(qboolean full)
 			trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %d full empty\n", i, (int)trap_Cvar_VariableValue( "protocol" ) ) );
 		}
 	}
-}
-
-
-void UI_SetNetGameType( int gametype){
-
-	if(gametype){
-		ui_netGameType.integer = gametype;
-
-		trap_Cvar_Set( "ui_netGameType", va("%d", ui_netGameType.integer));
-  		trap_Cvar_Set( "ui_actualnetGameType", va("%d", uiInfo.gameTypes[ui_netGameType.integer].gtEnum));
-	} else if(ui_netGameType.integer == 1 || ui_netGameType.integer == 4){
-		ui_netGameType.integer = 0;
-		trap_Cvar_Set( "ui_netGameType", va("%d", ui_netGameType.integer));
-  		trap_Cvar_Set( "ui_actualnetGameType", va("%d", uiInfo.gameTypes[ui_netGameType.integer].gtEnum));
-	}
-}
-
-int Get_ServerGametype(){
-	char		info[MAX_INFO_STRING];
-
-	trap_GetConfigString( CS_SERVERINFO, info, sizeof(info) );
-
-	return atoi(Info_ValueForKey(info, "g_gametype"));
 }
 

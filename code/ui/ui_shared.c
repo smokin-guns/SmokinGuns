@@ -1702,10 +1702,6 @@ qboolean Item_OwnerDraw_HandleKey(itemDef_t *item, int key) {
   return qfalse;
 }
 
-#ifndef VM_CGAME
-void UI_SetNetGameType( int gametype);
-#endif
-
 qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolean force) {
 	listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
 	int count = DC->feederCount(item->special);
@@ -3637,23 +3633,6 @@ void Item_ListBox_Paint(itemDef_t *item) {
 	qhandle_t optionalImage;
 	listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
 
-	// change the gametype if nessecary
-#ifndef VM_CGAME
-	if(item->special == FEEDER_ALLMAPS){
-		// GT_FFA, GT_DUEL, GT_TEAM, GT_RTP, GT_BR (GT_SINGLEPLAYER isn't included here)
-		static int gt_remap[] = {0, 1, 0, 0, 0, 4};
-
-		char text[64];
-		int gametype;
-		qhandle_t handle;
-
-		strcpy(text, DC->feederItemText(item->special, item->cursorPos, 0, &handle));
-		gametype = BG_MapPrefix(text, 0);
-
-		UI_SetNetGameType(gt_remap[gametype]);
-	}
-#endif
-
 	// the listbox is horizontal or vertical and has a fixed size scroll bar going either direction
 	// elements are enumerated from the DC and either text or image handles are acquired from the DC as well
 	// textscale is used to size the text, textalignx and textaligny are used to size image elements
@@ -4120,6 +4099,22 @@ void Menu_SetFeederSelection(menuDef_t *menu, int feeder, int index, const char 
 				}
 				menu->items[i]->cursorPos = index;
 				DC->feederSelection(menu->items[i]->special, menu->items[i]->cursorPos);
+				//Com_Printf("Setting feeder to index %d\n",index);
+				// Tequila comment: Update map list positions to show the selected item
+				if ( feeder == FEEDER_ALLMAPS || feeder == FEEDER_MAPS ) {
+					listBoxDef_t *listPtr = (listBoxDef_t*)menu->items[i]->typeData;
+					int count = DC->feederCount(feeder);
+					int max = Item_ListBox_MaxScroll(menu->items[i]);
+					int pad = (count - max) >> 1 ;
+					//Com_Printf("Focusing list on index %d (max for startPos %d, count %d, computed pad %d)\n",index,max,count,pad);
+					if ( index >= max )
+						listPtr->startPos = max ;
+					else if ( index > pad )
+						listPtr->startPos = index - pad ;
+					else
+						listPtr->startPos = 0 ;
+					//Com_Printf("startPos set to %d\n",listPtr->startPos);
+				}
 				return;
 			}
 		}
@@ -4670,21 +4665,6 @@ qboolean ItemParse_nofocusdraw( itemDef_t *item, int handle ) {
 	}
 	return qtrue;
 }
-
-#ifndef VM_CGAME
-int Get_ServerGametype();
-qboolean ItemParse_disabledm(itemDef_t *item, int handle) {
-	int i;
-
-	if (!PC_Int_Parse(handle, &i)) {
-		return qfalse;
-	}
-	if (i && Get_ServerGametype() < GT_TEAM) {
-		item->window.flags |= WINDOW_VISIBLE;
-	}
-	return qtrue;
-}
-#endif
 
 qboolean ItemParse_ownerdraw( itemDef_t *item, int handle ) {
 	if (!PC_Int_Parse(handle, &item->window.ownerDraw)) {
@@ -5272,10 +5252,13 @@ qboolean MenuParse_name( itemDef_t *item, int handle ) {
 }
 
 qboolean MenuParse_fullscreen( itemDef_t *item, int handle ) {
+	// Tequila comment: Fix compilation warning from incompatible pointer type
+	int i;
 	menuDef_t *menu = (menuDef_t*)item;
-	if (!PC_Int_Parse(handle, &menu->fullScreen)) {
+	if (!PC_Int_Parse(handle, &i)) {
 		return qfalse;
 	}
+	menu->fullScreen = i ? qtrue : qfalse ;
 	return qtrue;
 }
 
@@ -5307,22 +5290,6 @@ qboolean MenuParse_visible( itemDef_t *item, int handle ) {
 	}
 	return qtrue;
 }
-
-#ifndef VM_CGAME
-int Get_ServerGametype();
-qboolean MenuParse_disabledm(itemDef_t *item, int handle) {
-	int i;
-	menuDef_t *menu = (menuDef_t*)item;
-
-	if (!PC_Int_Parse(handle, &i)) {
-		return qfalse;
-	}
-	if (i && Get_ServerGametype() < GT_TEAM) {
-		menu->window.flags |= WINDOW_VISIBLE;
-	}
-	return qtrue;
-}
-#endif
 
 qboolean MenuParse_onOpen( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
