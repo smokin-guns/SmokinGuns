@@ -134,7 +134,7 @@ Library $nasm_env 'asmlib', 'ftol.nasm', 'snapvector.nasm';
 
 # compiling files with inlined assembly
 $env_inlined = new cons(
-  CFLAGS => '-DELF -x assembler-with-cpp'
+  CFLAGS => '-DELF -x assembler-with-cpp -m32'
   );
 
 Library $env_inlined 'inlinelib', '../unix/matha.s', '../unix/snd_mixa.s';
