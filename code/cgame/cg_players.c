@@ -3096,7 +3096,7 @@ void CG_Player( centity_t *cent ) {
 	int				h_pistol = -1; //biggest wp-num of holstered pistols
 	qboolean		addguns = cg_addguns.integer;
 
-	qboolean	hide = qfalse;
+//	qboolean	hide = qfalse;
 
 	// the client number is stored in clientNum.  It can't be derived
 	// from the entity number, because a single client may have
@@ -3179,15 +3179,15 @@ void CG_Player( centity_t *cent ) {
 	CG_PlayerSplash( cent );
 
 	// use the same origin for all
-#ifdef MISSIONPACK
+#ifndef MISSIONPACK
 	if( cgs.gametype == GT_HARVESTER ) {
 		CG_PlayerTokens( cent, renderfx );
 	}
 #endif
 
 	//hide player if not visible
-	if(hide)
-		return;
+	/*if(hide)
+		return;*/
 
 	//
 	// add the legs
