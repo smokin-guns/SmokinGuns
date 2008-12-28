@@ -20,7 +20,7 @@ IO on .zip files using portions of zlib
 -----------------------------------------------------------------------------
 lines	file(s)
 4299	code/qcommon/unzip.c
-4546	coda/libs/pak/unzip.cpp
+4546	code/libs/pak/unzip.cpp
 Copyright (C) 1998 Gilles Vollant
 zlib is Copyright (C) 1995-1998 Jean-loup Gailly and Mark Adler
 
@@ -177,7 +177,15 @@ the qvm batch files are in code/game code/cgame code/q3_ui code/ui ..
 COMPILING ON GNU/LINUX and OpenSolaris/Solaris
 ==================
 
-We are awaiting a source drop of updated makefiles
+A Makefile is available in the base source folder. Just run "make" to
+start compiling. As Scons is still used for the compilation, you will
+need the perl interpreter on your station.
+
+All needed tools will be compiled and you will found binaries and QVMs
+in the code/install folder.
+
+You can start after a good compilation "make pk3-engine" to have a pk3
+with only the QVMs engine in the code/install folder.
 
 COMPILING ON MAC
 ================
