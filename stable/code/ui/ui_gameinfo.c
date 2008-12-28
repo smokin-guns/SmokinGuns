@@ -188,7 +188,7 @@ void UI_LoadArenas( void ) {
 	char*		dirptr;
 	int			i, n;
 	int			dirlen;
-//	char		*type;
+	char		*type;
 
 	ui_numArenas = 0;
 	uiInfo.mapCount = 0;
@@ -230,30 +230,19 @@ void UI_LoadArenas( void ) {
 			uiInfo.mapList[uiInfo.mapCount].description[i] = String_Alloc(Info_ValueForKey(ui_arenaInfos[n], va("desc_line%i", i+1)));
 		}
 
-		/*type = Info_ValueForKey( ui_arenaInfos[n], "type" );
-		// if no type specified, it will be treated as "ffa"
-		if( *type ) {
-			if( strstr( type, "ffa" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_FFA);
-			}
-			if( strstr( type, "tourney" ) ) {
+		// Tequila comment: Set typeBits toward map name prefix convention
+		type = Info_ValueForKey( ui_arenaInfos[n], "map" );
+
+		// if no type specified in map name, it will be treated as "ffa"
+		if( *type && Q_stricmpn( type, "dm_", 3 ) == 0 ) {
+			uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_FFA) | (1 << GT_TEAM) | (1 << GT_RTP);
+		} else if( *type && Q_stricmpn( type, "du_", 3 ) == 0 ) {
 				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_DUEL);
+		} else if( *type && Q_stricmpn( type, "br_", 3 ) == 0 ) {
+			uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_BR);
+		} else {
+			uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_FFA) | (1 << GT_TEAM) | (1 << GT_RTP);
 			}
-			if( strstr( type, "ctf" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_CTF);
-			}
-			if( strstr( type, "oneflag" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_1FCTF);
-			}
-			if( strstr( type, "overload" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_OBELISK);
-			}
-			if( strstr( type, "harvester" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_HARVESTER);
-			}
-		} else {*/
-			uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_FFA);
-		//}
 
 		uiInfo.mapCount++;
 		if (uiInfo.mapCount >= MAX_MAPS) {
