@@ -1219,6 +1219,7 @@ float ConvertToRim(float angle){
 }
 
 void AddAnglesToBounds(const vec3_t angles, vec3_t dir, vec3_t rim_mins, vec3_t rim_maxs, vec3_t dir_mins, vec3_t dir_maxs) {
+	float angle = ConvertToRim(angles[PITCH]);
 
 	//x-axis
 	if(dir[0] < dir_mins[0]){
@@ -1484,4 +1485,20 @@ void PerpendicularVector( vec3_t dst, const vec3_t src )
 	VectorNormalize( dst );
 }
 
+/*
+================
+Q_isnan
 
+Don't pass doubles to this
+================
+*/
+int Q_isnan( float x )
+{
+	floatint_t fi;
+
+	fi.f = x;
+	fi.ui &= 0x7FFFFFFF;
+	fi.ui = 0x7F800000 - fi.ui;
+
+	return (int)( (unsigned int)fi.ui >> 31 );
+}
