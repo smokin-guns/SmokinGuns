@@ -29,11 +29,11 @@ Source: "C:\SG_installer\Smokin' Guns\*"; DestDir: "{app}"; Flags: ignoreversion
 Filename: "{app}\smokinguns.url"; Section: "InternetShortcut"; Key: "URL"; String: "http://www.smokin-guns.net"
 
 [Icons]
-Name: "{group}\Smokin' Guns"; Filename: "{app}\smokinguns.exe"
-Name: "{group}\Smokin' Guns Manual"; Filename: "{app}\smokinguns\manual\index.html"
+Name: "{group}\Smokin' Guns"; Filename: "{app}\smokinguns.exe"; WorkingDir: "{app}"
+Name: "{group}\Smokin' Guns Manual"; Filename: "{app}\manual\index.html"
 Name: "{group}\{cm:ProgramOnTheWeb,Smokin' Guns}"; Filename: "{app}\smokinguns.url"
 Name: "{group}\{cm:UninstallProgram,Smokin' Guns}"; Filename: "{uninstallexe}"
-Name: "{userdesktop}\Smokin' Guns"; Filename: "{app}\smokinguns.exe"; Tasks: desktopicon
+Name: "{userdesktop}\Smokin' Guns"; Filename: "{app}\smokinguns.exe"; WorkingDir: "{app}"; Tasks: desktopicon
 
 [Registry]
 Root: HKCU; Subkey: "Software\Smokin' Guns Productions"; Flags: uninsdeletekeyifempty
@@ -46,5 +46,8 @@ Root: HKLM; Subkey: "Software\Smokin' Guns Productions\Smokin' Guns"; ValueType:
 ;Filename: "{app}\smokinguns.exe"; Description: "{cm:LaunchProgram,Smokin' Guns}"; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]
+Type: files; Name: "{app}\smokinguns\botlib.log"
+Type: files; Name: "{app}\smokinguns\games.log"
+Type: files; Name: "{app}\qkey"
+Type: files; Name: "{app}\servercache.dat"
 Type: files; Name: "{app}\smokinguns.url"
-
