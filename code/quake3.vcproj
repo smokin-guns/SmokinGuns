@@ -16,7 +16,7 @@
 	</ToolFiles>
 	<Configurations>
 		<Configuration
-			Name="Release SSE|Win32"
+			Name="Release|Win32"
 			OutputDirectory=".\output"
 			IntermediateDirectory=".\output"
 			ConfigurationType="1"
@@ -24,7 +24,7 @@
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			DeleteExtensionsOnClean="*.htm;*.obj;*.ilk;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.pgc;*.pgd;*.meta;$(TargetPath)"
-			BuildLogFile="$(IntDir)\Release_SSE\BuildLog.htm"
+			BuildLogFile="$(IntDir)\BuildLog.htm"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -51,10 +51,10 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				EnableIntrinsicFunctions="false"
-				FavorSizeOrSpeed="0"
-				OmitFramePointers="false"
-				WholeProgramOptimization="false"
+				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="true"
+				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories="&quot;C:\Program Files (x86)\Microsoft DirectX SDK (November 2008)\Include&quot;"
 				PreprocessorDefinitions="_WIN32;WIN32;NDEBUG;_WINDOWS;USE_MUMBLE"
 				StringPooling="true"
@@ -62,11 +62,11 @@
 				EnableFunctionLevelLinking="true"
 				EnableEnhancedInstructionSet="1"
 				UsePrecompiledHeader="0"
-				PrecompiledHeaderFile=".\Release_TA/quake3.pch"
-				AssemblerListingLocation="$(OutDir)\Release_SSE\"
-				ObjectFile="$(OutDir)\Release_SSE\"
-				ProgramDataBaseFileName="$(OutDir)\Release_SSE\"
-				BrowseInformation="1"
+				PrecompiledHeaderFile="$(IntDir)/quake3.pch"
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
+				BrowseInformation="0"
 				WarningLevel="0"
 				SuppressStartupBanner="true"
 			/>
@@ -84,15 +84,16 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="winmm.lib wsock32.lib"
-				OutputFile="$(OutDir)\Release_SSE\smokinguns.exe"
+				OutputFile="$(OutDir)\Release\smokinguns.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				IgnoreDefaultLibraryNames="LIBCMTD"
-				ProgramDatabaseFile="$(OutDir)\Release_SSE\quake3.pdb"
+				ProgramDatabaseFile="$(IntDir)\quake3.pdb"
 				GenerateMapFile="true"
-				MapFileName="$(OutDir)\Release_SSE\quake3.map"
+				MapFileName="$(IntDir)\quake3.map"
 				SubSystem="2"
 				StackReserveSize="8388608"
+				LinkTimeCodeGeneration="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
@@ -122,15 +123,15 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release SSE2|Win32"
-			OutputDirectory=".\output"
-			IntermediateDirectory=".\output"
+			Name="Debug|Win32"
+			OutputDirectory="./output"
+			IntermediateDirectory="./output"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			DeleteExtensionsOnClean="*.htm;*.obj;*.ilk;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.pgc;*.pgd;*.meta;$(TargetPath)"
-			BuildLogFile="$(IntDir)\Release_SSE2\BuildLog.htm"
+			BuildLogFile="$(IntDir)\BuildLog.htm"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -155,26 +156,29 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="3"
-				InlineFunctionExpansion="2"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
+				Optimization="0"
+				InlineFunctionExpansion="1"
+				EnableIntrinsicFunctions="false"
+				FavorSizeOrSpeed="0"
+				OmitFramePointers="false"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="&quot;C:\Program Files (x86)\Microsoft DirectX SDK (November 2008)\Include&quot;"
-				PreprocessorDefinitions="_WIN32;WIN32;NDEBUG;_WINDOWS;USE_MUMBLE"
+				PreprocessorDefinitions="_WIN32;WIN32;_DEBUG;_WINDOWS;USE_MUMBLE"
 				StringPooling="true"
-				RuntimeLibrary="0"
+				RuntimeLibrary="1"
 				EnableFunctionLevelLinking="true"
-				EnableEnhancedInstructionSet="2"
+				EnableEnhancedInstructionSet="1"
 				UsePrecompiledHeader="0"
-				PrecompiledHeaderFile=".\Release_TA/quake3.pch"
-				AssemblerListingLocation="$(OutDir)\Release_SSE2\"
-				ObjectFile="$(OutDir)\Release_SSE2\"
-				ProgramDataBaseFileName="$(OutDir)\Release_SSE2\"
+				PrecompiledHeaderFile="$(IntDir)/quake3.pch"
+				ExpandAttributedSource="true"
+				AssemblerOutput="4"
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
 				BrowseInformation="1"
-				WarningLevel="0"
+				WarningLevel="2"
 				SuppressStartupBanner="true"
+				DebugInformationFormat="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -190,12 +194,16 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="winmm.lib wsock32.lib"
-				OutputFile="$(OutDir)\Release_SSE2\smokinguns.exe"
+				OutputFile="$(OutDir)\Debug\smokinguns.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				ProgramDatabaseFile="$(OutDir)\Release_SSE2\quake3.pdb"
+				IgnoreDefaultLibraryNames="LIBCMTD"
+				GenerateDebugInformation="true"
+				AssemblyDebug="1"
+				ProgramDatabaseFile="$(OutDir)\quake3.pdb"
 				GenerateMapFile="true"
-				MapFileName="$(OutDir)\Release_SSE2\quake3.map"
+				MapFileName="$(OutDir)\quake3.map"
+				MapExports="true"
 				SubSystem="2"
 				StackReserveSize="8388608"
 				RandomizedBaseAddress="1"
@@ -238,7 +246,7 @@
 				RelativePath="client\cl_cgame.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -248,7 +256,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -262,7 +270,7 @@
 				RelativePath="client\cl_cin.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -272,7 +280,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -286,7 +294,7 @@
 				RelativePath="client\cl_console.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -296,7 +304,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -310,7 +318,7 @@
 				RelativePath="client\cl_input.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -320,7 +328,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -334,7 +342,7 @@
 				RelativePath="client\cl_keys.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -344,7 +352,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -358,7 +366,7 @@
 				RelativePath="client\cl_main.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -368,7 +376,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -382,7 +390,7 @@
 				RelativePath="client\cl_net_chan.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -392,7 +400,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -406,7 +414,7 @@
 				RelativePath="client\cl_parse.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -416,7 +424,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -430,7 +438,7 @@
 				RelativePath="client\cl_scrn.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -440,7 +448,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -454,7 +462,7 @@
 				RelativePath="client\cl_ui.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -464,7 +472,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -478,7 +486,7 @@
 				RelativePath="qcommon\cm_load.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -488,7 +496,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -502,7 +510,7 @@
 				RelativePath="qcommon\cm_patch.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -512,7 +520,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -526,7 +534,7 @@
 				RelativePath="qcommon\cm_polylib.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -536,7 +544,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -550,7 +558,7 @@
 				RelativePath="qcommon\cm_test.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -560,7 +568,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -574,7 +582,7 @@
 				RelativePath="qcommon\cm_trace.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -584,7 +592,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -598,7 +606,7 @@
 				RelativePath="qcommon\cmd.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -608,7 +616,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -622,7 +630,7 @@
 				RelativePath="qcommon\common.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -632,7 +640,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -646,7 +654,7 @@
 				RelativePath="qcommon\cvar.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -656,7 +664,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -670,7 +678,7 @@
 				RelativePath="qcommon\files.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -680,7 +688,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -694,7 +702,7 @@
 				RelativePath="qcommon\huffman.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -704,7 +712,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -722,7 +730,7 @@
 				RelativePath="qcommon\md4.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -732,7 +740,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -750,7 +758,7 @@
 				RelativePath="qcommon\msg.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -760,7 +768,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -774,7 +782,7 @@
 				RelativePath="qcommon\net_chan.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -784,7 +792,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -798,7 +806,7 @@
 				RelativePath="game\q_math.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -808,7 +816,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -822,7 +830,7 @@
 				RelativePath="game\q_shared.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -832,7 +840,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -846,7 +854,7 @@
 				RelativePath="client\snd_adpcm.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -856,7 +864,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -870,7 +878,7 @@
 				RelativePath="client\snd_dma.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -880,7 +888,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -894,7 +902,7 @@
 				RelativePath="client\snd_mem.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -904,7 +912,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -918,7 +926,7 @@
 				RelativePath="client\snd_mix.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -928,7 +936,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -942,7 +950,7 @@
 				RelativePath="client\snd_wavelet.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -952,7 +960,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -966,7 +974,7 @@
 				RelativePath="server\sv_bot.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -976,7 +984,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -990,7 +998,7 @@
 				RelativePath="server\sv_ccmds.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1000,7 +1008,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1014,7 +1022,7 @@
 				RelativePath="server\sv_client.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1024,7 +1032,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1038,7 +1046,7 @@
 				RelativePath="server\sv_game.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1048,7 +1056,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1062,7 +1070,7 @@
 				RelativePath="server\sv_init.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1072,7 +1080,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1086,7 +1094,7 @@
 				RelativePath="server\sv_main.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1096,7 +1104,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1110,7 +1118,7 @@
 				RelativePath="server\sv_net_chan.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1120,7 +1128,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1134,7 +1142,7 @@
 				RelativePath="server\sv_snapshot.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1144,7 +1152,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1158,7 +1166,7 @@
 				RelativePath="server\sv_world.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1168,7 +1176,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1182,7 +1190,7 @@
 				RelativePath="qcommon\unzip.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1192,7 +1200,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1206,7 +1214,7 @@
 				RelativePath="qcommon\vm.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1216,7 +1224,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1230,7 +1238,7 @@
 				RelativePath="qcommon\vm_interpreted.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1240,7 +1248,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1254,7 +1262,7 @@
 				RelativePath="qcommon\vm_x86.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1264,7 +1272,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1278,7 +1286,7 @@
 				RelativePath="win32\win_input.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1288,7 +1296,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1302,7 +1310,7 @@
 				RelativePath="win32\win_main.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1312,7 +1320,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1326,7 +1334,7 @@
 				RelativePath="win32\win_net.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1336,7 +1344,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1350,7 +1358,7 @@
 				RelativePath="win32\win_shared.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1360,7 +1368,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1374,7 +1382,7 @@
 				RelativePath="win32\win_snd.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1384,7 +1392,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1398,7 +1406,7 @@
 				RelativePath="win32\win_syscon.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1408,7 +1416,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1422,7 +1430,7 @@
 				RelativePath="win32\win_wndproc.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1432,7 +1440,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1568,7 +1576,7 @@
 				RelativePath="win32\winquake.rc"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
@@ -1577,7 +1585,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
