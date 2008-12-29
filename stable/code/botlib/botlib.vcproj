@@ -25,7 +25,7 @@
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
 			DeleteExtensionsOnClean="*.htm;*.obj;*.ilk;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.pgc;*.pgd;*.meta;$(TargetPath)"
-			BuildLogFile="$(IntDir)\Debug\BuildLog.htm"
+			BuildLogFile="$(IntDir)\BuildLog.htm"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -46,18 +46,20 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;C:\Program Files (x86)\Microsoft DirectX SDK (November 2008)\Include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;BOTLIB;DEBUG"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;BOTLIB"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
-				PrecompiledHeaderFile=".\Debug_TA/botlib.pch"
-				AssemblerListingLocation="$(OutDir)\Debug\"
-				ObjectFile="$(OutDir)\Debug\"
-				ProgramDataBaseFileName="$(OutDir)\Debug\"
+				PrecompiledHeaderFile="$(IntDir)/botlib.pch"
+				ExpandAttributedSource="true"
+				AssemblerOutput="4"
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
 				BrowseInformation="1"
-				WarningLevel="0"
+				WarningLevel="2"
 				SuppressStartupBanner="true"
-				DebugInformationFormat="0"
+				DebugInformationFormat="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -72,7 +74,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\Debug\botlib.lib"
+				OutputFile="$(IntDir)\botlib.lib"
 				AdditionalLibraryDirectories="&quot;C:\Program Files (x86)\Microsoft DirectX SDK (November 2008)\Lib\x86&quot;"
 				SuppressStartupBanner="true"
 				IgnoreAllDefaultLibraries="false"
@@ -95,7 +97,7 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release SSE|Win32"
+			Name="Release|Win32"
 			OutputDirectory=".\output"
 			IntermediateDirectory=".\output"
 			ConfigurationType="4"
@@ -104,7 +106,7 @@
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
 			DeleteExtensionsOnClean="*.htm;*.obj;*.ilk;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.pgc;*.pgd;*.meta;$(TargetPath)"
-			BuildLogFile="$(IntDir)\Release_SSE\BuildLog.htm"
+			BuildLogFile="$(IntDir)\BuildLog.htm"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -125,10 +127,10 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				EnableIntrinsicFunctions="false"
-				FavorSizeOrSpeed="0"
+				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				WholeProgramOptimization="false"
+				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories="&quot;C:\Program Files (x86)\Microsoft DirectX SDK (November 2008)\Include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;BOTLIB"
 				StringPooling="true"
@@ -136,10 +138,10 @@
 				EnableFunctionLevelLinking="true"
 				EnableEnhancedInstructionSet="0"
 				UsePrecompiledHeader="0"
-				PrecompiledHeaderFile=".\Release_TA/botlib.pch"
-				AssemblerListingLocation="$(OutDir)\Release_SSE\"
-				ObjectFile="$(OutDir)\Release_SSE\"
-				ProgramDataBaseFileName="$(OutDir)\Release_SSE\"
+				PrecompiledHeaderFile="$(IntDir)/botlib.pch"
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
 				WarningLevel="0"
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="false"
@@ -157,89 +159,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\Release_SSE\botlib.lib"
-				SuppressStartupBanner="true"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release SSE2|Win32"
-			OutputDirectory=".\output"
-			IntermediateDirectory=".\output"
-			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			DeleteExtensionsOnClean="*.htm;*.obj;*.ilk;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.pgc;*.pgd;*.meta;$(TargetPath)"
-			BuildLogFile="$(IntDir)\Release_SSE2\BuildLog.htm"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="3"
-				InlineFunctionExpansion="2"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="&quot;C:\Program Files (x86)\Microsoft DirectX SDK (November 2008)\Include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;BOTLIB"
-				StringPooling="true"
-				RuntimeLibrary="0"
-				EnableFunctionLevelLinking="true"
-				EnableEnhancedInstructionSet="2"
-				UsePrecompiledHeader="0"
-				PrecompiledHeaderFile=".\Release_TA/botlib.pch"
-				AssemblerListingLocation="$(OutDir)\Release_SSE2\"
-				ObjectFile="$(OutDir)\Release_SSE2\"
-				ProgramDataBaseFileName="$(OutDir)\Release_SSE2\"
-				WarningLevel="0"
-				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="false"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\Release_SSE2\botlib.lib"
+				OutputFile="$(IntDir)\botlib.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -653,16 +573,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -735,16 +646,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -817,16 +719,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -899,16 +792,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -981,16 +865,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1063,16 +938,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1145,16 +1011,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1227,16 +1084,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1309,16 +1157,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1391,16 +1230,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1473,16 +1303,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1555,16 +1376,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1637,16 +1449,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1719,16 +1522,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1801,16 +1595,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1883,16 +1668,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1965,16 +1741,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2047,16 +1814,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2129,16 +1887,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2211,16 +1960,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2293,16 +2033,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2375,16 +2106,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2457,16 +2179,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2539,16 +2252,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2621,16 +2325,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2703,16 +2398,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2785,16 +2471,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2867,16 +2544,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
