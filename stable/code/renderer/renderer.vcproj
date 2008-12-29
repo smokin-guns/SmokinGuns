@@ -16,7 +16,7 @@
 	</ToolFiles>
 	<Configurations>
 		<Configuration
-			Name="Release SSE|Win32"
+			Name="Release|Win32"
 			OutputDirectory=".\output"
 			IntermediateDirectory=".\output"
 			ConfigurationType="4"
@@ -25,7 +25,7 @@
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
 			DeleteExtensionsOnClean="*.htm;*.obj;*.ilk;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.pgc;*.pgd;*.meta;$(TargetPath)"
-			BuildLogFile="$(IntDir)\Release_SSE\BuildLog.htm"
+			BuildLogFile="$(IntDir)\BuildLog.htm"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -46,10 +46,10 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				EnableIntrinsicFunctions="false"
-				FavorSizeOrSpeed="0"
-				OmitFramePointers="false"
-				WholeProgramOptimization="false"
+				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="true"
+				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories="&quot;C:\Program Files (x86)\Microsoft DirectX SDK (November 2008)\Include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="true"
@@ -57,10 +57,10 @@
 				EnableFunctionLevelLinking="true"
 				EnableEnhancedInstructionSet="1"
 				UsePrecompiledHeader="0"
-				PrecompiledHeaderFile=".\Release_TA/renderer.pch"
-				AssemblerListingLocation="$(OutDir)\Release_SSE\"
-				ObjectFile="$(OutDir)\Release_SSE\"
-				ProgramDataBaseFileName="$(OutDir)\Release_SSE\"
+				PrecompiledHeaderFile="$(IntDir)/renderer.pch"
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
 				WarningLevel="0"
 				SuppressStartupBanner="true"
 			/>
@@ -77,7 +77,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\Release_SSE\renderer.lib"
+				OutputFile="$(IntDir)\renderer.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -97,16 +97,16 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release SSE2|Win32"
-			OutputDirectory=".\output"
-			IntermediateDirectory=".\output"
+			Name="Debug|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
 			DeleteExtensionsOnClean="*.htm;*.obj;*.ilk;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.pgc;*.pgd;*.meta;$(TargetPath)"
-			BuildLogFile="$(IntDir)\Release_SSE2\BuildLog.htm"
+			BuildLogFile="$(IntDir)\BuildLog.htm"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -125,25 +125,28 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="3"
-				InlineFunctionExpansion="2"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
+				Optimization="0"
+				InlineFunctionExpansion="1"
+				EnableIntrinsicFunctions="false"
+				FavorSizeOrSpeed="0"
+				OmitFramePointers="false"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="&quot;C:\Program Files (x86)\Microsoft DirectX SDK (November 2008)\Include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;DEBUG"
 				StringPooling="true"
-				RuntimeLibrary="0"
+				RuntimeLibrary="1"
 				EnableFunctionLevelLinking="true"
-				EnableEnhancedInstructionSet="2"
+				EnableEnhancedInstructionSet="1"
 				UsePrecompiledHeader="0"
-				PrecompiledHeaderFile=".\Release_TA/renderer.pch"
-				AssemblerListingLocation="$(OutDir)\Release_SSE2\"
-				ObjectFile="$(OutDir)\Release_SSE2\"
-				ProgramDataBaseFileName="$(OutDir)\Release_SSE2\"
-				WarningLevel="0"
+				PrecompiledHeaderFile="$(IntDir)/renderer.pch"
+				ExpandAttributedSource="true"
+				AssemblerOutput="4"
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
+				WarningLevel="2"
 				SuppressStartupBanner="true"
+				DebugInformationFormat="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -158,7 +161,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\Release_SSE2\renderer.lib"
+				OutputFile="$(OutDir)\Release_SSE\renderer.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -193,7 +196,7 @@
 				RelativePath="tr_animation.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -202,7 +205,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -215,7 +218,7 @@
 				RelativePath="tr_backend.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -224,7 +227,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -237,7 +240,7 @@
 				RelativePath="tr_bsp.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -246,7 +249,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -259,7 +262,7 @@
 				RelativePath="tr_cmds.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -268,7 +271,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -281,7 +284,7 @@
 				RelativePath="tr_curve.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -290,7 +293,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -303,7 +306,7 @@
 				RelativePath="tr_flares.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -312,7 +315,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -325,7 +328,7 @@
 				RelativePath="tr_font.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -334,7 +337,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -347,7 +350,7 @@
 				RelativePath="tr_image.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -356,7 +359,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -369,7 +372,7 @@
 				RelativePath="tr_init.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -378,7 +381,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -391,7 +394,7 @@
 				RelativePath="tr_light.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -400,7 +403,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -413,7 +416,7 @@
 				RelativePath="tr_main.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -422,7 +425,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -435,7 +438,7 @@
 				RelativePath="tr_marks.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -444,7 +447,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -457,7 +460,7 @@
 				RelativePath="tr_mesh.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -466,7 +469,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -479,7 +482,7 @@
 				RelativePath="tr_model.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -488,7 +491,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -501,7 +504,7 @@
 				RelativePath="tr_noise.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -510,7 +513,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -523,7 +526,7 @@
 				RelativePath="tr_scene.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -532,7 +535,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -545,7 +548,7 @@
 				RelativePath="tr_shade.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -554,7 +557,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -567,7 +570,7 @@
 				RelativePath="tr_shade_calc.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -576,7 +579,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -589,7 +592,7 @@
 				RelativePath="tr_shader.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -598,7 +601,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -611,7 +614,7 @@
 				RelativePath="tr_shadows.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -620,7 +623,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -633,7 +636,7 @@
 				RelativePath="tr_sky.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -642,7 +645,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -655,7 +658,7 @@
 				RelativePath="tr_surface.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -664,7 +667,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -677,7 +680,7 @@
 				RelativePath="tr_world.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -686,7 +689,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -699,7 +702,7 @@
 				RelativePath="..\win32\win_gamma.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -708,7 +711,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -721,7 +724,7 @@
 				RelativePath="..\win32\win_glimp.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -730,7 +733,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -743,7 +746,7 @@
 				RelativePath="..\win32\win_qgl.c"
 				>
 				<FileConfiguration
-					Name="Release SSE|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -752,7 +755,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release SSE2|Win32"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -821,7 +824,7 @@
 					RelativePath="..\jpeg-6\jcapimin.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -830,7 +833,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -843,7 +846,7 @@
 					RelativePath="..\jpeg-6\jccoefct.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -852,7 +855,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -865,7 +868,7 @@
 					RelativePath="..\jpeg-6\jccolor.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -874,7 +877,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -887,7 +890,7 @@
 					RelativePath="..\jpeg-6\jcdctmgr.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -896,7 +899,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -909,7 +912,7 @@
 					RelativePath="..\jpeg-6\jchuff.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -918,7 +921,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -931,7 +934,7 @@
 					RelativePath="..\jpeg-6\jcinit.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -940,7 +943,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -953,7 +956,7 @@
 					RelativePath="..\jpeg-6\jcmainct.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -962,7 +965,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -975,7 +978,7 @@
 					RelativePath="..\jpeg-6\jcmarker.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -984,7 +987,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -997,7 +1000,7 @@
 					RelativePath="..\jpeg-6\jcmaster.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1006,7 +1009,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1019,7 +1022,7 @@
 					RelativePath="..\jpeg-6\jcomapi.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1028,7 +1031,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1041,7 +1044,7 @@
 					RelativePath="..\jpeg-6\jcparam.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1050,7 +1053,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1063,7 +1066,7 @@
 					RelativePath="..\jpeg-6\jcphuff.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1072,7 +1075,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1085,7 +1088,7 @@
 					RelativePath="..\jpeg-6\jcprepct.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1094,7 +1097,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1107,7 +1110,7 @@
 					RelativePath="..\jpeg-6\jcsample.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1116,7 +1119,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1129,7 +1132,7 @@
 					RelativePath="..\jpeg-6\jctrans.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1138,7 +1141,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1151,7 +1154,7 @@
 					RelativePath="..\jpeg-6\jdapimin.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1160,7 +1163,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1173,7 +1176,7 @@
 					RelativePath="..\jpeg-6\jdapistd.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1182,7 +1185,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1195,7 +1198,7 @@
 					RelativePath="..\jpeg-6\jdatadst.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1204,7 +1207,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1217,7 +1220,7 @@
 					RelativePath="..\jpeg-6\jdatasrc.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1226,7 +1229,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1239,7 +1242,7 @@
 					RelativePath="..\jpeg-6\jdcoefct.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1248,7 +1251,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1261,7 +1264,7 @@
 					RelativePath="..\jpeg-6\jdcolor.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1270,7 +1273,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1283,7 +1286,7 @@
 					RelativePath="..\jpeg-6\jddctmgr.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1292,7 +1295,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1305,7 +1308,7 @@
 					RelativePath="..\jpeg-6\jdhuff.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1314,7 +1317,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1327,7 +1330,7 @@
 					RelativePath="..\jpeg-6\jdinput.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1336,7 +1339,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1349,7 +1352,7 @@
 					RelativePath="..\jpeg-6\jdmainct.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1358,7 +1361,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1371,7 +1374,7 @@
 					RelativePath="..\jpeg-6\jdmarker.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1380,7 +1383,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1393,7 +1396,7 @@
 					RelativePath="..\jpeg-6\jdmaster.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1402,7 +1405,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1415,7 +1418,7 @@
 					RelativePath="..\jpeg-6\jdpostct.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1424,7 +1427,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1437,7 +1440,7 @@
 					RelativePath="..\jpeg-6\jdsample.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1446,7 +1449,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1459,7 +1462,7 @@
 					RelativePath="..\jpeg-6\jdtrans.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1468,7 +1471,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1481,7 +1484,7 @@
 					RelativePath="..\jpeg-6\jerror.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1490,7 +1493,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1503,7 +1506,7 @@
 					RelativePath="..\jpeg-6\jfdctflt.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1512,7 +1515,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1525,7 +1528,7 @@
 					RelativePath="..\jpeg-6\jidctflt.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1534,7 +1537,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1547,7 +1550,7 @@
 					RelativePath="..\jpeg-6\jmemmgr.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1556,7 +1559,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1569,7 +1572,7 @@
 					RelativePath="..\jpeg-6\jmemnobs.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1578,7 +1581,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1591,7 +1594,7 @@
 					RelativePath="..\jpeg-6\jutils.c"
 					>
 					<FileConfiguration
-						Name="Release SSE|Win32"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1600,7 +1603,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release SSE2|Win32"
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
