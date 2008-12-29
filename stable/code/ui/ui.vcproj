@@ -4,8 +4,6 @@
 	Version="9.00"
 	Name="ui"
 	ProjectGUID="{A8EAC38E-C7DA-42F8-811D-77FD092B9D19}"
-	SccProjectName="&quot;$/MissionPack/code/ui&quot;, AOBAAAAA"
-	SccLocalPath="."
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
