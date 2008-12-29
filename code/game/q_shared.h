@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
-#define	Q3_VERSION		"SG 1.33w05"
+#define	Q3_VERSION		"SG 1.0"
 // Smokin' Guns edition of Q3. Continuing 1.32 makes it 1.33, To not confuse it with any other continuation, we call it "w"
 
 // Game name that should match with the fs_game folder.
