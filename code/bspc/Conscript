@@ -1,6 +1,6 @@
 # bspc compile
 
-Import qw( BSPC_BASE_CFLAGS BUILD_DIR INSTALL_DIR CC CXX LINK );
+Import qw( BSPC_BASE_CFLAGS BUILD_DIR INSTALL_DIR CC CXX LINK force32bits );
 
 @BSPC_FILES = qw(
 	aas_areamerging.c
@@ -72,6 +72,8 @@ if ($OS eq "Linux")
 } else {
   $BASE_LDFLAGS = '-lm -pthread';
 }
+# Take care to build 32 bits by default when we're compiling on x86_64 systems
+$BASE_LDFLAGS .= ' -m32' if ( $force32bits );
 
 $env = new cons(
   CC => $CC,
@@ -82,5 +84,5 @@ $env = new cons(
 );
 
 Program $env 'bspc', @$BSPC_REF;
-# this should install to Q3 or something?
+# this install to SmokinGuns
 Install $env $INSTALL_DIR, 'bspc';

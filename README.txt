@@ -182,10 +182,10 @@ start compiling. As Scons is still used for the compilation, you will
 need the perl interpreter on your station.
 
 All needed tools will be compiled and you will found binaries and QVMs
-in the code/install folder.
+in the "install" subfolder.
 
-You can start after a good compilation "make pk3-engine" to have a pk3
-with only the QVMs engine in the code/install folder.
+You can also start "make mod-pk3" to have a pk3 with only the QVMs engine
+in the "install" subfolder.
 
 COMPILING ON MAC
 ================

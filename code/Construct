@@ -2,7 +2,8 @@
 # cons script for cgame game  ui .so and .qvm builds
 #
 # Oct. 2001 TTimo <ttimo@idsoftware.com>
-# 2005-2006 Smokin' Guns
+# 2005-2009 Smokin' Guns
+# Contributors: Hika, Tequila
 #
 
 # the top directory is
@@ -22,12 +23,13 @@ use Cons_gcc;
 # defaults
 $config = 'release';
 $do_smp = 0;
+$do_sse = 0;
+$force32bits = 0 ;
 $do_masterserver = 0;
 $do_authserver = 0;
 $do_authport = 0;
 $do_setup = 0;
 $do_bspc = 0;
-$do_sdk = 0;
 $do_pk3 = 0;
 $do_clean = 0;
 # those are exported
@@ -38,19 +40,16 @@ $CC='gcc';
 $CXX='g++';
 $MAKE='make';
 
-# detect an sdk build (don't attempt client build and other things)
-if ( -r 'unix/Conscript-client' )
-{
-  $no_core = 0;
-}
-else
-{
-  $no_core = 1;
-}
+# We build client by default
+$no_core = 0;
 
 # detection of CPU type
 $cpu = `uname -m`;
 chop ($cpu);
+
+# Will take care to build 32 bits by default in case we're compilling on x86_64 systems
+$force32bits = 1 if ( $cpu =~ /x86_64/ );
+
 if ($cpu +~ /i?86/)
 {
   $cpu = 'x86';
@@ -90,32 +89,31 @@ if ($DO_WIN32 eq 1)
 	if($config eq 'debug')
 	{
 	  $DIR = 'Debug';
-		system("cp -v $DIR/quake3.exe \$Q3BASE");
+		system("cp -v $DIR/smokinguns.exe \$Q3BASE");
 		system("cp -v $DIR/cgamex86.dll $DIR/qagamex86.dll $DIR/uix86.dll \$Q3BASE/baseq3");
 	}
-	elsif ($config eq 'debug-TA')
+	elsif ($config eq 'debug-SA')
 	{
-		$DIR = 'Debug_TA';
-		system("cp -v $DIR/quake3.exe \$Q3BASE");
+		$DIR = 'Debug_SA';
+		system("cp -v $DIR/smokinguns.exe \$Q3BASE");
 		system("cp -v $DIR/cgamex86.dll $DIR/qagamex86.dll $DIR/uix86.dll \$Q3BASE/missionpack");
 	}
-	elsif($config eq 'release-TA')
+	elsif($config eq 'release-SA')
 	{
-		$DIR = 'Release_TA';
-		# spank!
-		system("./spank.sh");
-		system("cp -v $DIR/quake3.exe \$Q3BASE");
+		$DIR = 'Release_SA';
+		system("cp -v $DIR/smokinguns.exe \$Q3BASE");
 	}
 	else
 	{
-		printf("ERROR: no config option (debug debug-TA release-TA)");
+		printf("ERROR: no config option (debug debug-SA release-SA)");
 		exit;
 	}
 
 	# copy selected stuff to shared media
-	$DESTDIR='/cygdrive/e/incoming/Id/q3-1.32';
-	system("cp -v $DIR/quake3.exe $DESTDIR");
-	system("cp -v /cygdrive/e/Q3SetupMedia/quake3/CHANGES-1.32.txt $DESTDIR");
+	if ( $DESTDIR and -d $DESTDIR )
+	{
+		system("cp -v $DIR/smokinguns.exe $DESTDIR");
+	}
 
 	exit;	
 }
@@ -174,6 +172,16 @@ if(@ARGV gt 0)
       $do_smp = 0;
       next;
     }
+    elsif(lc($cmdopt) eq 'sse')
+    {
+      $do_sse = 1;
+      next;
+    }
+    elsif(lc($cmdopt) eq 'sse2')
+    {
+      $do_sse = 2;
+      next;
+    }
     elsif(lc($cmdopt) =~ 'master_server=.*')
     {
       $do_masterserver = 1;
@@ -203,11 +211,6 @@ if(@ARGV gt 0)
     elsif(lc($cmdopt) =~ 'bspc')
     {
       $do_bspc = 1;
-      next;
-    }
-    elsif(lc($cmdopt) =~ 'sdk')
-    {
-      $do_sdk = 1;
       next;
     }
     elsif(lc($cmdopt) =~ 'pk3')
@@ -243,61 +246,63 @@ if (($do_setup eq 1) && ($config ne 'release'))
   exit;
 }
 
-# sdk
-if ($do_sdk eq 1)
-{
-  # extract the Q3 version from q_shared.h
-  $line = `cat game/q_shared.h | grep Q3_VERSION`;
-  chomp $line;
-  $line =~ s/.*Q3\ (.*)\"/$1/;
-  $Q3_VER = $line;
-  $SDK_NAME = "linuxq3a-sdk-$Q3_VER.x86.run";
-  Default "unix/$SDK_NAME";
-  Export qw( SDK_NAME Q3_VER );
-  Build 'unix/Conscript-sdk';
-  return;
-}
+$cpu .= ( $do_sse eq 2 ? '_sse2' : '_sse' )
+	if ( $do_sse );
 
 # build the config directory
-$CONFIG_DIR = $config . '-' . $cpu . '-' . $OS . '-' . $libc;
+$CONFIG_DIR = '../build/' . $config . '-' . $cpu . '-' . $OS . '-' . $libc ;
 
 # Remove the build directories
 if ($do_clean eq 1)
 {
   if (-d $CONFIG_DIR)
   {
-    print "  ==> Cleaning ./" . $CONFIG_DIR . " ...\n";
-    system("rm -rf ./" . $CONFIG_DIR);
+    print "  ==> Cleaning " . $config . "-* ...\n";
+    system("rm -rf ../" . $config . "-*" );
   }
-  if (-d "./qvmtools")
+  if (-d "../build/qvmtools")
   {
-    print "  ==> Cleaning ./qvmtools ...\n";
-    system("rm -rf ./qvmtools");
+    print "  ==> Cleaning qvmtools ...\n";
+    system("rm -rf ../build/qvmtools");
 	system("cd ../lcc; " . $MAKE . " clean");
 	system("cd ./tools/q3asm; " . $MAKE . " clean");
   }
-  if (-d "./install")
+  if (-d "../install")
   {
-    print "  ==> Cleaning ./install ...\n";
-    system("rm -rf ./install");
+    print "  ==> Cleaning install ...\n";
+    system("rm -rf ../install");
   }
   return;
 }
 
 $COMMON_CFLAGS = '-pipe -fsigned-char ';
 
+# Handle cpu tuning
+my $tune = 'i586' ;
+if ($do_sse)
+{
+	$tune = ( $do_sse eq 2 ) ? 'pentium4' : 'pentium3' ;
+	$COMMON_CFLAGS .= "-msse" . ( $do_sse eq 2 ? "2 " : " " );
+}
+# Take care to build 32 bits by default in case we're compilling on x86_64 systems
+$COMMON_CFLAGS .= '-m32 ' if ( $force32bits );
+
 if ($config eq 'debug')
 {
-  # use -Werror for better QA  
-  #$BASE_CFLAGS = $COMMON_CFLAGS . '-g -Wall -Werror -O ';
-  # Currently remove -Werror because there are still warnings, left.
-  $BASE_CFLAGS = $COMMON_CFLAGS . '-g -Wall -O ';
+	# use -Werror for better QA  
+	#$BASE_CFLAGS = $COMMON_CFLAGS . '-g -Wall -Werror -O ';
+	# Currently remove -Werror because there are still warnings, left.
+	$BASE_CFLAGS = $COMMON_CFLAGS . '-g -Wall -O ';
 	$BSPC_BASE_CFLAGS = $COMMON_CFLAGS . '-g -O -DLINUX -DBSPC -Dstricmp=strcasecmp ';
 }
 else
 {
-  $BASE_CFLAGS = $COMMON_CFLAGS . '-DNDEBUG -O6 -m32 -mtune=pentiumpro -march=pentium -fomit-frame-pointer -ffast-math -falign-loops=2 -falign-jumps=2 -falign-functions=2 -fno-strict-aliasing -fstrength-reduce ';
-	$BSPC_BASE_CFLAGS = $BASE_CFLAGS . '-DLINUX -DBSPC -Dstricmp=strcasecmp ';
+	$BASE_CFLAGS = $COMMON_CFLAGS . "-DNDEBUG -O3" .
+		" -mtune=$tune -march=$tune -DCPU_STRING='\"$cpu\"'" .
+		' -fomit-frame-pointer -ffast-math ' .
+		'-falign-loops=2 -falign-jumps=2 -falign-functions=2 ' .
+		'-fno-strict-aliasing -fstrength-reduce ';
+	$BSPC_BASE_CFLAGS = $BASE_CFLAGS . '-DLINUX -DBSPC -funroll-loops -Dstricmp=strcasecmp ';
 }
 
 if ($do_masterserver eq 1)
@@ -316,15 +321,17 @@ if ($do_authport eq 1)
 }
 if ($OS eq "Linux")
 {
-  $BASE_LDFLAGS = '-ldl -lm -m32';
+  $BASE_LDFLAGS = '-ldl -lm';
 } else {
   $BASE_LDFLAGS = '-lm';
 }
+# Take care to build 32 bits by default in case we're compiling on x86_64 systems
+$BASE_LDFLAGS .= ' -m32' if ( $force32bits );
 
 my @gcc_version = Cons_gcc::get_gcc_version($CC);
 print("GCC version: $gcc_version[1] - $gcc_version[2]\n");
-# with 2.95 you can link with gcc, this avoids nasty useless libstdc++ dependency
-if ($gcc_version[0] eq '2')
+# Since 2.95 you can link with gcc, this avoids nasty useless libstdc++ dependency
+if ($gcc_version[0] >= 2)
 {
 	$LINK = $CC;
 } else {
@@ -344,19 +351,19 @@ print "configured for " . $config . " build\n";
 print 'CFLAGS: ' . $BASE_CFLAGS . "\n";
 
 # install config
-$INSTALL_BASEDIR='#install';
+$INSTALL_BASEDIR='#../install';
 
 Default $INSTALL_BASEDIR;
 
 sub build_tools {
-  system("mkdir qvmtools 2>/dev/null");
+  system("mkdir -pv ../build/qvmtools");
   if (@_[0] eq 'q3lcc')
   {
-    system("cd ../lcc ; " . $MAKE . " all ; cp /tmp/lcc ../code/qvmtools/q3lcc ; cp /tmp/rcc ../code/qvmtools/q3rcc ; cp /tmp/cpp ../code/qvmtools/q3cpp");
+    system("cd ../lcc ; " . $MAKE . " all ; mv /tmp/lcc ../build/qvmtools/q3lcc ; mv /tmp/rcc ../build/qvmtools/q3rcc ; mv /tmp/cpp ../build/qvmtools/q3cpp");
   }
   elsif (@_[0] eq 'q3asm')
   {
-    system("cd ./tools/q3asm ; " . $MAKE . " ; cp q3asm ../../qvmtools");
+    system("cd ./tools/q3asm ; " . $MAKE . " ; mv -vf q3asm ../../../build/qvmtools");
   }
   else
   {
@@ -368,8 +375,8 @@ sub build_tools {
 
 # build tools
 $env_tools = new cons();
-Command $env_tools 'qvmtools/q3lcc', '[perl] &build_tools(\'q3lcc\')';
-Command $env_tools 'qvmtools/q3asm', '[perl] &build_tools(\'q3asm\')';
+Command $env_tools '../build/qvmtools/q3lcc', '[perl] &build_tools(\'q3lcc\')';
+Command $env_tools '../build/qvmtools/q3asm', '[perl] &build_tools(\'q3asm\')';
 
 if ($do_bspc eq 1)
 {
@@ -377,53 +384,34 @@ if ($do_bspc eq 1)
 	$BUILD_DIR = $CONFIG_DIR . '/bspc';
 	Link $BUILD_DIR => '.';
 	$INSTALL_DIR = $INSTALL_BASEDIR . '/utils';
-	Export qw( BSPC_BASE_CFLAGS BUILD_DIR INSTALL_DIR CC CXX LINK );
+	Export qw( BSPC_BASE_CFLAGS BUILD_DIR INSTALL_DIR CC CXX LINK force32bits );
 	Build $BUILD_DIR . '/bspc/Conscript';
 }
 
-## build vanilla Q3
-#$TARGET_DIR='Q3';
-#
-#$INSTALL_DIR = $INSTALL_BASEDIR . '/baseq3';
-#
-#$BUILD_DIR = $CONFIG_DIR . '/' . $TARGET_DIR . '/cgame';
-#Link $BUILD_DIR => '.';
-#Export qw( BASE_CFLAGS TARGET_DIR INSTALL_DIR NO_VM NO_SO CC CXX LINK );
-#Build $BUILD_DIR . '/cgame/Conscript';
-#
-#$BUILD_DIR = $CONFIG_DIR . '/' . $TARGET_DIR . '/game';
-#Link $BUILD_DIR => '.';
-#Export qw( BASE_CFLAGS TARGET_DIR INSTALL_DIR NO_VM NO_SO CC CXX LINK );
-#Build $BUILD_DIR . '/game/Conscript';
-#
-#$BUILD_DIR = $CONFIG_DIR . '/' . $TARGET_DIR . '/q3_ui';
-#Link $BUILD_DIR => '.';
-#Export qw( BASE_CFLAGS TARGET_DIR INSTALL_DIR NO_VM NO_SO CC CXX LINK );
-#Build $BUILD_DIR . '/q3_ui/Conscript';
-  
-# build TA
-$TARGET_DIR='TA';
+# build SA
+$TARGET_DIR='SA';
 
-$INSTALL_DIR = $INSTALL_BASEDIR . '/missionpack';
+$INSTALL_DIR = $INSTALL_BASEDIR . '/smokinguns';
 
 $hack = $BASE_CFLAGS; # hit me!
 # Added WQ3 "knob" to let "the code"
 # know if the mod or the engine is being built
+# FIXME that's SMOKINGUNS, not WQ3 now ;)
 $BASE_CFLAGS .= '-DWQ3 ';
 
-$BUILD_DIR = $CONFIG_DIR . "/" . $TARGET_DIR . '/cgame';
+$BUILD_DIR = $CONFIG_DIR . '/cgame';
 Link $BUILD_DIR => '.';
-Export qw( BASE_CFLAGS BASE_LDFLAGS TARGET_DIR INSTALL_DIR NO_VM NO_SO CC CXX LINK );
+Export qw( BASE_CFLAGS BASE_LDFLAGS INSTALL_DIR NO_VM NO_SO CC CXX LINK force32bits cpu );
 Build $BUILD_DIR . '/cgame/Conscript';
 
-$BUILD_DIR = $CONFIG_DIR . "/" . $TARGET_DIR . '/game';
+$BUILD_DIR = $CONFIG_DIR . '/game';
 Link $BUILD_DIR => '.';
-Export qw( BASE_CFLAGS BASE_LDFLAGS TARGET_DIR INSTALL_DIR NO_VM NO_SO CC CXX LINK );
+Export qw( BASE_CFLAGS BASE_LDFLAGS INSTALL_DIR NO_VM NO_SO CC CXX LINK force32bits cpu );
 Build $BUILD_DIR . '/game/Conscript';
 
-$BUILD_DIR = $CONFIG_DIR . '/' . $TARGET_DIR . '/ui';
+$BUILD_DIR = $CONFIG_DIR . '/ui';
 Link $BUILD_DIR => '.';
-Export qw( BASE_CFLAGS BASE_LDFLAGS TARGET_DIR INSTALL_DIR NO_VM NO_SO CC CXX LINK );
+Export qw( BASE_CFLAGS BASE_LDFLAGS INSTALL_DIR NO_VM NO_SO CC CXX LINK force32bits cpu );
 Build $BUILD_DIR . '/ui/Conscript';
 
 # Restore the BASE_CFLAGS
@@ -440,7 +428,7 @@ $BUILD_DIR = $CONFIG_DIR . '/core/dedicated';
 Link $BUILD_DIR => '.';
 $hack = $BASE_CFLAGS; # hit me!
 $BASE_CFLAGS .= '-DDEDICATED ';
-Export qw( BASE_CFLAGS BASE_LDFLAGS BUILD_DIR INSTALL_DIR CC CXX LINK );
+Export qw( BASE_CFLAGS BASE_LDFLAGS BUILD_DIR INSTALL_DIR CC CXX LINK cpu );
 Build $BUILD_DIR . '/unix/Conscript-dedicated';
 $BASE_CFLAGS = $hack;
 
@@ -450,22 +438,22 @@ if ($OS eq "OpenBSD")
   return;
 }
 
-$TARGETNAME = 'smokinguns';
+$TARGETNAME = 'smokinguns.' . $cpu ;
 $BUILD_DIR = $CONFIG_DIR . '/core/client';
 
 Link $BUILD_DIR => '.';
-Export qw( BASE_CFLAGS BASE_LDFLAGS BUILD_DIR INSTALL_DIR TARGETNAME CC CXX LINK );
+Export qw( BASE_CFLAGS BASE_LDFLAGS BUILD_DIR INSTALL_DIR TARGETNAME CC CXX LINK force32bits );
 Build $BUILD_DIR . '/unix/Conscript-client';
 
 if ($do_smp eq 1)
 {
-	$TARGETNAME = 'smokinguns-smp';
+	$TARGETNAME = 'smokinguns_smp.' . $cpu ;
 	$BUILD_DIR = $CONFIG_DIR . '/core/client-smp';
 	$BASE_CFLAGS .= '-DSMP ';
 	$BASE_LDFLAGS .= ' -lpthread ';
 	
   Link $BUILD_DIR => '.';
-  Export qw( BASE_CFLAGS BASE_LDFLAGS BUILD_DIR INSTALL_DIR TARGETNAME CC CXX LINK );
+  Export qw( BASE_CFLAGS BASE_LDFLAGS BUILD_DIR INSTALL_DIR TARGETNAME CC CXX LINK force32bits );
   Build $BUILD_DIR . '/unix/Conscript-client';	
 }
 
@@ -488,7 +476,7 @@ if ($do_setup eq 1)
 
 Help 
 "
-Usage: cons [-h] [ -- [release|debug] [vm] [so] [smp] [nocore] [master_server=<adr>] [auth_server=<adr>] [auth_port=<port>] [pk3] [bspc] [setup] [sdk]]
+Usage: cons [-h] [ -- [release|debug] [vm] [so] [smp] [nocore] [master_server=<adr>] [auth_server=<adr>] [auth_port=<port>] [pk3] [bspc] [setup]
 Default build type is Release, specifying '-- debug' on the
 command line builds a Debug version (NOTE that this option
 only affects the native libraries).
@@ -503,6 +491,5 @@ smp   : build the SMP-enabled version of the renderer
 pk3   : generate the pk3s on the fly (defined in unix/Conscript-pk3)
 bspc  : build bspc
 setup : build setup 
-sdk   : build the mod sdk
 "
 ;
