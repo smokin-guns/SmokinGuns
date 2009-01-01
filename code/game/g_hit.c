@@ -1068,7 +1068,7 @@ if(header.ident != HIT_IDENT){
 
 /*
 =================
-CG_LoadHitFiles
+G_LoadHitFiles
 by: Spoon
 18.8.2001
 =================
@@ -1107,7 +1107,7 @@ qboolean G_LoadHitFiles(hit_data_t *hit_data){
 ///////////////////////////////////////////////////////////////////////////////
 /*
 ===============
-CG_SetLerpFrameAnimation
+G_SetLerpFrameAnimation
 
 may include ANIM_TOGGLEBIT
 ===============
