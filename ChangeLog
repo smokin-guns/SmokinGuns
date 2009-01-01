@@ -1,7 +1,17 @@
+Changes in SG 1.0-20081231
+******************
+*** CHANGES ***
+- Updated Unix building process to support more processor kind
+- Updated Makefile to produce binary libraries for unix
+- Updated Makefile to produce sse, sse2 and smp binaries for unix
+- Updated Unix building process to keep install & build folder in the source base
+- Fix "OP_BLOCK_COPY not dword aligned" in the same way then an old ioQuake3 fix...
+
+
 Changes since sg 0.9
 ******************
 *** CHANGES ***
-- Added .mak, .bat, .lnt, .vprj, .Conscript, .Makefile files from Tequilla archive (Excluded a few)
+- Added .mak, .bat, .lnt, .vprj, .Conscript, .Makefile files from Tequila archive (Excluded a few)
 - Fixed buildvm.bat and cleanvm.bat which weren't working due to reorganization
 - Organized VC build solutions
 - Removed old VC build solutions
