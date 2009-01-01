@@ -14,11 +14,10 @@ sub get_gcc_version
   chop($version);
   my $machine=`$CC -dumpmachine`;
   chop($machine);
-  if($version =~ '2\.[0-9]*\.[0-9]*')
-  {
-    push @ret, '2';
+  if($version =~ '^[^0-9]*([0-9])\.[0-9]*\.[0-9]*') {
+    push @ret, $1;
   } else {
-    push @ret, '3';
+    push @ret, 3 ;
   }
   push @ret, $version;
   push @ret, $machine;
