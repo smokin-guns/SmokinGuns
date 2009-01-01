@@ -1014,7 +1014,7 @@ sub Precious {
     map($_->{precious} = 1, map($dir::cwd->lookup($_), @_));
 }
 
-
+
 # These methods are callable from Conscript files, via a cons
 # object. Procs beginning with _ are intended for internal use.
 package cons;
@@ -1284,7 +1284,7 @@ sub QuickScan {
     $dir::cwd->lookup($env->_subst($file))->{'srcscan',$env} =
 	find scan::quickscan($code, $env, $env->_subst($path));
 }
-
+
 # Generic builder module. Just a few default methods.  Every derivable
 # file must have a builder object of some sort attached.  Usually
 # builder objects are shared.
@@ -1311,7 +1311,7 @@ sub scriptsig { () }
 # Not compatible with any other builder, by default.
 sub compatible { 0 }
 
-
+
 # Builder module for the Install command.
 package build::install;
 
@@ -1335,7 +1335,7 @@ sub action {
     return 1;
 }
 
-
+
 # Builder module for generic UNIX commands.
 package build::command;
 
@@ -1385,7 +1385,7 @@ sub scriptsig {
     $_[0]->{act}->scriptsig
 }
 
-
+
 # Create a linked module.
 package build::command::link;
 
@@ -1538,7 +1538,7 @@ sub compatible {
     my($self, $other) = @_;
     ref($other) eq "build::command::linkedmodule";
 }
-
+
 # Builder for a C module
 package build::command::cc;
 
@@ -1563,7 +1563,7 @@ sub includes {
     my($self, $tgt) = @_;
     $self->{scanner}->includes($tgt, $tgt->{sources}[0]);
 }
-
+
 # Builder for a C++ module
 package build::command::cxx;
 
@@ -1588,7 +1588,7 @@ sub includes {
     my($self, $tgt) = @_;
     $self->{scanner}->includes($tgt, $tgt->{sources}[0]);
 }
-
+
 # Builder for a user command (cons::Command).  We assume that a user
 # command might be built and implement the appropriate dependencies on
 # the command itself (actually, just on the first word of the command
@@ -1643,7 +1643,7 @@ sub includes {
     return $self->{_comsig} . $sig
 }
 
-
+
 # Builder for a library module (archive).
 # We assume that a user command might be built and implement the
 # appropriate dependencies on the command itself.
@@ -1664,7 +1664,7 @@ sub compatible {
     my($self, $other) = @_;
     ref($other) eq "build::command::library";
 }
-
+
 # A multi-target builder.
 # This allows multiple targets to be associated with a single build
 # script, without forcing all the code to be aware of multiple targets.
@@ -1735,7 +1735,7 @@ sub action {
     # Status of action.
     $self->{built};
 }
-
+
 package action;
 
 sub new {
@@ -2129,7 +2129,7 @@ sub commands {
     return ();
 }
 
-
+
 # Generic scanning module.
 package scan;
 
@@ -2161,7 +2161,7 @@ sub includes {
     'sig'->collect(sort values %files)
 }
 
-
+
 # A simple scanner. This is used by the QuickScanfunction, to setup
 # one-time target and environment-independent scanning for a source
 # file. Only used for commands run by the Command method.
@@ -2213,7 +2213,7 @@ sub scan {
     @files
 }
 
-
+
 # CPP (C preprocessor) scanning module
 package scan::cpp;
 
@@ -2334,7 +2334,7 @@ sub iflags {
     }
     $iflags
 }
-
+
 package File::Spec;
 
 use vars qw( $_SEP $_MATCH_SEP $_MATCH_VOL );
@@ -2460,7 +2460,7 @@ sub updir {
 sub case_tolerant {
     return $main::_WIN32;
 }
-
+
 # Directory and file handling. Files/dirs are represented by objects.
 # Other packages are welcome to add component-specific attributes.
 package dir;
@@ -2851,7 +2851,7 @@ sub init {
     $cwd_vol = '' if ! defined $cwd_vol;
     $cwd_vol = uc($cwd_vol) if File::Spec->case_tolerant;
 }
-
+
 package file;
 
 use vars qw( @ISA $level );
@@ -3327,7 +3327,7 @@ sub stored {
     }
     return $_[0]->{stored};
 }
-
+
 # Generic entry (file or directory) handling.
 # This is an empty subclass for nodes that haven't
 # quite decided whether they're files or dirs.
@@ -3337,7 +3337,7 @@ package entry;
 use vars qw( @ISA );
 
 BEGIN { @ISA = qw(file) }
-
+
 # File utilities
 package futil;
 
@@ -3360,8 +3360,6 @@ sub dos2unix_copy {
     while (<IN>) {
         # Convert DOS to UNIX
         s/\r\n/\n/;
-        # While copying, apply Western Quake 3 specific source patch, if needed
-        futil::wq3_patch($src, \$_);
         print OUT;
     }
     close(IN);
@@ -3383,41 +3381,6 @@ sub dos2unix_copy {
         $ret = undef;
     }
     return $ret;
-}
-
-# $author: hika <hika@bsdmon.com>
-# Western Quake 3 specific source patch, when building Q3 VM
-# This sub is only called above (futil::dos2unix_copy)
-#
-# While copying source file to a working build source folder, some patches
-# can be applied only to make q3lcc happy ;)
-sub wq3_patch {
-  my ($fpath, $s) = @_;
-  if (ref $s ne "SCALAR") {
-      return;
-  }
-
-  if ($fpath eq "ui/ui_shared.h") {
-  # <console quote>
-  # cpp: ui/keycodes.h:3 <working folder>/TA/cgame/cgame/../ui/ui_shared.h:7 
-  #                      <working folder>/TA/cgame/cgame/cg_local.h:7
-  #                      <working folder>/TA/cgame/cgame/cg_main.c:4
-  # Syntax error in #ifdef/#ifndef
-  # </console quote>
-  #####
-  # Ever have the error, above ?
-  # This happened when building Q3 VM with q3lcc
-  #   -c <working folder>/TA/cgame/cgame/cg_main.c
-  #   -o <working folder>/TA/cgame/cgame/cg_main.asm
-  # q3lcc seems to include the wrong file when building cg_main.c.
-  # In the end, it included ui/keycodes.h *INSTEaD OF* 
-  # <working folder>/TA/cgame/cgame/../ui/keycodes.h
-  # 
-  # The following replacement will do the magic touch, hopefully ;)
-      if (${$s} eq "#include \"keycodes.h\"\n") {
-          ${$s} = "#include \"../ui/keycodes.h\"\n";
-      }
-  }
 }
 
 # Install one file as another.
@@ -3498,7 +3461,7 @@ sub mkdir {
     $_[0]->{'exists'} = 1;
 }
 
-
+
 # Signature package.
 package sig::hash;
 
@@ -3571,7 +3534,7 @@ sub END {
     }
 }
 
-
+
 # Derived file caching.
 package cache;
 
@@ -3628,7 +3591,7 @@ sub out {
     }
 }
 
-
+
 # Generic signature handling package.
 # This handles the higher-layer distinction between content and build
 # signatures, relying on an underlying calculation package like
@@ -3792,7 +3755,7 @@ sub fetch {
     $file->{'bsig'} = '' if $file->{'bsig'} eq '-';
     return $sig ne '';
 }
-
+
 # MD5-based signature package.
 package sig::md5;
 
@@ -3861,7 +3824,7 @@ sub cmdsig {
     my($self, $sig) = @_;
     return $sig
 }
-
+
 # Generic debug package for signature calculation.
 # Because of the way we're called by sig::select() and then use
 # the specified value to set up @ISA, this package is essentially a

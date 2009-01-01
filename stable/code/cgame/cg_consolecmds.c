@@ -29,7 +29,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //#endif
 
 #include "cg_local.h"
-#include "../ui/ui_shared.h"
+// Still included in cg_local.h
+//#include "../ui/ui_shared.h"
 #ifdef MISSIONPACK
 extern menuDef_t *menuScoreboard;
 extern menuDef_t *menuBuy;
