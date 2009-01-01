@@ -480,7 +480,8 @@ nextInstruction2:
 
 				src = (int *)&image[ r0&dataMask ];
 				dest = (int *)&image[ r1&dataMask ];
-#ifndef MACOS_X
+// Tequila: We got something wrong around there... That's need to checked
+#ifdef DEBUG_VM
 // avoid flooding console
 				if ( ( (int)src | (int)dest | count ) & 3 ) {
 					Com_Error( ERR_DROP, "OP_BLOCK_COPY not dword aligned" );
