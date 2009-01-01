@@ -2176,7 +2176,7 @@ gitem_t	*BG_FindItemForWeapon( weapon_t weapon ) {
 		}
 	}
 
-	Com_Printf/*Com_Error*/( /*ERR_DROP,*/ "Couldn't find item for weapon %i\nPlease report to spoon@westernquake3.com\n", weapon);
+	Com_Printf( "Couldn't find item for weapon %i\nPlease report on http://www.smokin-guns.net forum or http://sourceforge.net/projects/smokinguns\n", weapon);
 	return NULL;
 }
 
@@ -2195,7 +2195,7 @@ gitem_t	*BG_FindItemForAmmo( weapon_t ammo ) {
 		}
 	}
 
-	/*Com_Error*/Com_Printf( /*ERR_DROP,*/ "Couldn't find item for ammo %i\nPlease report to spoon@westernquake3.com\n", ammo);
+	Com_Printf( "Couldn't find item for ammo %i\nPlease report on http://www.smokin-guns.net forum or http://sourceforge.net/projects/smokinguns\n", ammo);
 	return NULL;
 }
 
