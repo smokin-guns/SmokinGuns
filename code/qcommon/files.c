@@ -2952,7 +2952,7 @@ static void FS_Startup( const char *gameName ) {
 		}
 		// if the user did not specify the cvar, we'll insert the automatically
 		// determined q3apath here. If the user did specify the cvar it's not a
-		// good idea to include the autmoatically determined one here, since it
+		// good idea to include the automatically determined one here, since it
 		// may be double.
 		if (!fs_q3ahomepath->string[0] && q3ahomePath[0] && Q_stricmp(q3ahomePath,fs_basepath->string)) {
 			FS_AddGameDirectory(q3ahomePath, fs_basegame->string);
@@ -3024,14 +3024,12 @@ Looks for product keys and restricts media add on ability
 if the full version is not found
 ===================
 */
+#ifdef __REMOVED__
 static void FS_SetRestrictions( void ) {
 	searchpath_t	*path;
 
 #ifndef PRE_RELEASE_DEMO
 	char	*productId;
-
-	// don't allow any restrictions - not needed at all for WQ3
-	return;
 
 	// if fs_restrict is set, don't even look for the id file,
 	// which allows the demo release to be tested even if
@@ -3078,6 +3076,7 @@ static void FS_SetRestrictions( void ) {
 		}
 	}
 }
+#endif
 
 /*
 =====================
@@ -3294,7 +3293,7 @@ const char *FS_ReferencedPakNames( void ) {
 		}
 	}
 
-//	Com_Printf( "\n \n Refernced Names %s \n \n \n", info );
+//	Com_Printf( "\n \n Referenced Names %s \n \n \n", info );
 	return info;
 }
 
@@ -3453,7 +3452,9 @@ void FS_InitFilesystem( void ) {
 	FS_Startup( BASEGAME );
 
 	// see if we are going to allow add-ons
+#ifdef __REMOVED__
 	FS_SetRestrictions();
+#endif
 
 	// if we can't find default.cfg, assume that the paths are
 	// busted and error out now, rather than getting an unreadable
@@ -3490,7 +3491,9 @@ void FS_Restart( int checksumFeed ) {
 	FS_Startup( BASEGAME );
 
 	// see if we are going to allow add-ons
+#ifdef __REMOVED__
 	FS_SetRestrictions();
+#endif
 
 	// if we can't find default.cfg, assume that the paths are
 	// busted and error out now, rather than getting an unreadable
