@@ -1,8 +1,8 @@
 # dedicated server build script
 
-Import qw( BASE_CFLAGS BASE_LDFLAGS BUILD_DIR INSTALL_DIR CC CXX LINK );
+Import qw( BASE_CFLAGS BASE_LDFLAGS BUILD_DIR INSTALL_DIR CC CXX LINK cpu );
 
-$DEDICATED_NAME = 'smokinguns_server';
+$DEDICATED_NAME = 'smokinguns_dedicated.' . $cpu;
 
 $env_botlib = new cons(
   CC => $CC,
@@ -110,7 +110,5 @@ $env = new cons(
    );
 $FILESREF = \@FILES;
 
-# DEDICATED_NAME is imported, holds the name of the target
-# wolfded.x86 usually
 Program $env $DEDICATED_NAME, '../qcommon/vm_x86.c', @$FILESREF;
 Install $env $INSTALL_DIR, $DEDICATED_NAME;

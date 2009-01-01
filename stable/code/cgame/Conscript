@@ -1,17 +1,16 @@
 # cgame building
-# builds the cgame for vanilla Q3 and TA
+# builds the cgame for Smokin' Guns SA
 
-# there are slight differences between Q3 and TA build:
+# there are slight differences between Q3 and SA build:
 #   -DMISSIONPACK
-#   TA has cg_newdraw.c and ../ui/ui_shared.c
-# the config is passed in the imported variable TARGET_DIR
+#   SA has cg_newdraw.c and ../ui/ui_shared.c
 
 # qvm building against native:
 # only native has cg_syscalls.c
 # only qvm has ../game/bg_lib.c
 # qvm uses a custom cg_syscalls.asm with equ stubs
 
-Import qw( BASE_CFLAGS TARGET_DIR INSTALL_DIR NO_VM NO_SO CC CXX LINK );
+Import qw( BASE_CFLAGS INSTALL_DIR NO_VM NO_SO CC CXX LINK force32bits cpu);
 
 $OS = `uname`;
 chomp($OS);
@@ -22,6 +21,8 @@ if ($OS eq 'Linux') {
 else {
   $_LDFLAGS = '-shared -lm';
 }
+# Take care to build 32 bits by default when we're compiling on x86_64 systems
+$_LDFLAGS .= ' -m32' if ( $force32bits );
 
 $env = new cons(
   # the code has the very bad habit of doing things like #include "../ui/ui_shared.h"
@@ -35,12 +36,12 @@ $env = new cons(
   LDFLAGS => $_LDFLAGS
 );
 
-# for TA, use -DMISSIONPACK
-%ta_env_hash = $env->copy(
+# for SA, use -DMISSIONPACK
+%sa_env_hash = $env->copy(
   CPPPATH => '#cgame:#game:#ui'
   );
-$ta_env_hash{CFLAGS} = '-DMISSIONPACK ' . $ta_env_hash{CFLAGS};
-$ta_env = new cons(%ta_env_hash);
+$sa_env_hash{CFLAGS} = '-DMISSIONPACK ' . $sa_env_hash{CFLAGS};
+$sa_env = new cons(%sa_env_hash);
 
 # qvm building
 # we heavily customize the cons environment
@@ -54,15 +55,15 @@ $vm_env = new cons(
   LINK => 'q3asm',
   CFLAGS => '-DQ3_VM -DVM_CGAME -S -Wf-target=bytecode -Wf-g',
   # need to know where to find the compiler tools
-  ENV => { PATH => $ENV{PATH} . ":./qvmtools", },
+  ENV => { PATH => $ENV{PATH} . ":../build/qvmtools", },
 );
 
-# TA qvm building
-%vm_ta_env_hash = $vm_env->copy(
+# SA qvm building
+%vm_sa_env_hash = $vm_env->copy(
   CPPPATH => '#cgame:#game:#ui'
   );
-$vm_ta_env_hash{CFLAGS} = '-DMISSIONPACK ' . $vm_ta_env_hash{CFLAGS};
-$vm_ta_env = new cons(%vm_ta_env_hash);
+$vm_sa_env_hash{CFLAGS} = '-DMISSIONPACK ' . $vm_sa_env_hash{CFLAGS};
+$vm_sa_env = new cons(%vm_sa_env_hash);
 
 # the file with vmMain function MUST be the first one of the list
 @FILES = qw(
@@ -108,49 +109,28 @@ $SO_FILESREF = \@SO_FILES;
   );
 $VM_FILESREF = \@VM_FILES;  
 
-# common additionals for TA
-@TA_FILES = qw(
+# common additionals for SA
+@SA_FILES = qw(
   cg_newDraw.c
   ../ui/ui_shared.c
   );
-$TA_FILESREF = \@TA_FILES;
+$SA_FILESREF = \@SA_FILES;
 
-# FIXME CPU string  
-if ($TARGET_DIR eq 'Q3')
+if ($NO_SO eq 0)
 {
-	if ($NO_SO eq 0)
-	{
-		Program $env 'cgamei386.so', @$FILESREF, @$SO_FILESREF;
-		Install $env $INSTALL_DIR, 'cgamei386.so';
-	}
-	if ($NO_VM eq 0)
-	{
-    ############################################################################
-    # q3lcc and q3asm should be in your PATH
-    ############################################################################
-    Depends $vm_env 'cgame.qvm', '#qvmtools/q3lcc';
-    Depends $vm_env 'cgame.qvm', '#qvmtools/q3asm';
-		Program $vm_env 'cgame.qvm', @$FILESREF, @$VM_FILESREF;
-		Install $vm_env $INSTALL_DIR . '/vm', 'cgame.qvm';
-	}
+	Program $sa_env "cgame$cpu.so",
+		@$FILESREF, @$SO_FILESREF, @$SA_FILESREF;
+	Install $sa_env $INSTALL_DIR, "cgame$cpu.so";
 }
-else
+
+if ($NO_VM eq 0)
 {
-	if ($NO_SO eq 0)
-	{
-		Program $ta_env 'cgamei386.so',
-			@$FILESREF, @$SO_FILESREF, @$TA_FILESREF;
-		Install $ta_env $INSTALL_DIR, 'cgamei386.so';
-	}
-	if ($NO_VM eq 0)
-	{
-    ############################################################################
-    # q3lcc and q3asm should be in your PATH
-    ############################################################################
-    Depends $vm_env 'cgame.qvm', '#qvmtools/q3lcc';
-    Depends $vm_env 'cgame.qvm', '#qvmtools/q3asm';
-		Program $vm_ta_env 'cgame.qvm', 
-			@$FILESREF, @$VM_FILESREF, @$TA_FILESREF;
-		Install $vm_ta_env $INSTALL_DIR . '/vm', 'cgame.qvm';
-	}	
-}
+	############################################################################
+	# q3lcc and q3asm should be in your PATH
+	############################################################################
+	Depends $vm_env 'cgame.qvm', '#../build/qvmtools/q3lcc';
+	Depends $vm_env 'cgame.qvm', '#../build/qvmtools/q3asm';
+	Program $vm_sa_env 'cgame.qvm', 
+		@$FILESREF, @$VM_FILESREF, @$SA_FILESREF;
+	Install $vm_sa_env $INSTALL_DIR . '/vm', 'cgame.qvm';
+}	

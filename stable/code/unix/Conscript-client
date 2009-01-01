@@ -1,6 +1,6 @@
 # full client build script
 
-Import qw( BASE_CFLAGS BASE_LDFLAGS INSTALL_DIR BUILD_DIR TARGETNAME CC CXX LINK );
+Import qw( BASE_CFLAGS BASE_LDFLAGS INSTALL_DIR BUILD_DIR TARGETNAME CC CXX LINK force32bits );
 
 # splines
 $env_splines = new cons(
@@ -134,7 +134,7 @@ Library $nasm_env 'asmlib', 'ftol.nasm', 'snapvector.nasm';
 
 # compiling files with inlined assembly
 $env_inlined = new cons(
-  CFLAGS => '-DELF -x assembler-with-cpp -m32'
+  CFLAGS => '-DELF -x assembler-with-cpp' . ( $force32bits ? ' -m32' : '' )
   );
 
 Library $env_inlined 'inlinelib', '../unix/matha.s', '../unix/snd_mixa.s';
@@ -149,7 +149,9 @@ $env = new cons(
 	ENV => { PATH => $ENV{PATH}, HOME => $ENV{HOME} },
 # For Mumble link support, use -DUSE_MUMBLE
 # Added openal define
-  CFLAGS => $BASE_CFLAGS  . ' -DUSE_OPENAL -DUSE_MUMBLE -DUSE_CODEC_VORBIS -I/usr/X11R6/include ' ,
+  CFLAGS => $BASE_CFLAGS  . ' -DUSE_OPENAL -DUSE_MUMBLE -I/usr/X11R6/include ' ,
+# The following replacement should be used if Ogg Vorbis coded is needed
+# CFLAGS => $BASE_CFLAGS  . ' -DUSE_OPENAL -DUSE_MUMBLE -DUSE_CODEC_VORBIS -I/usr/X11R6/include ' ,
   LIBS => ' ' . $BUILD_DIR . '/unix/splines.a ' 
   . $BUILD_DIR . '/unix/botlib.a ' 
   . $BUILD_DIR . '/unix/jpeglib.a '
@@ -157,7 +159,9 @@ $env = new cons(
   . $BUILD_DIR . '/unix/inlinelib.a '
 # -lrt is necessary to use shm_open for Mumble link support
 # Added openal librarie support
-  . '-L/usr/X11R6/lib -lX11 -lXext -lXxf86dga -lXxf86vm -lrt -lopenal -lvorbisfile -lvorbis -logg '
+  . '-L/usr/X11R6/lib -lX11 -lXext -lXxf86dga -lXxf86vm -lrt -lopenal '
+# The following replacement should be used if Ogg Vorbis coded is needed
+# . '-L/usr/X11R6/lib -lX11 -lXext -lXxf86dga -lXxf86vm -lrt -lopenal -lvorbisfile -lvorbis -logg '
   . $BASE_LDFLAGS
 );
 
