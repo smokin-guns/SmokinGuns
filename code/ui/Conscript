@@ -1,11 +1,11 @@
-# TA ui building
+# SA ui building
 
 # qvm building against native:
 # only native has ui_syscalls.c
 # qvm uses a custom ui_syscalls.asm with equ stubs
 # qvm has additional bg_lib.c
 
-Import qw( BASE_CFLAGS TARGET_DIR INSTALL_DIR NO_VM NO_SO CC CXX LINK );
+Import qw( BASE_CFLAGS INSTALL_DIR NO_VM NO_SO CC CXX LINK force32bits cpu );
 
 $OS = `uname`;
 chomp($OS);
@@ -16,6 +16,8 @@ if ($OS eq 'Linux') {
 else {
   $_LDFLAGS = '-shared -lm';
 }
+# Take care to build 32 bits by default when we're compiling on x86_64 systems
+$_LDFLAGS .= ' -m32' if ( $force32bits );
 
 $env = new cons(
   # the code has the very bad habit of doing things like #include "../ui/ui_shared.h"
@@ -41,7 +43,7 @@ $vm_env = new cons(
   LINK => 'q3asm',
   CFLAGS => '-DQ3_VM -DMISSIONPACK -S -Wf-target=bytecode -Wf-g',
   # need to know where to find the compiler tools
-  ENV => { PATH => $ENV{PATH} . ":./qvmtools", },
+  ENV => { PATH => $ENV{PATH} . ":../build/qvmtools", },
 );
 
 # the file with vmMain function MUST be the first one of the list
@@ -60,16 +62,16 @@ $FILESREF = \@FILES;
 
 if ($NO_SO eq 0)
 {
-	Program $env 'uii386.so', @$FILESREF, 'ui_syscalls.c';
-	Install $env $INSTALL_DIR, 'uii386.so';
+	Program $env "ui$cpu.so", @$FILESREF, 'ui_syscalls.c';
+	Install $env $INSTALL_DIR, "ui$cpu.so";
 }
 if ($NO_VM eq 0)
 {
-  ############################################################################
-  # q3lcc and q3asm should be in your PATH
-  ############################################################################
-  Depends $vm_env 'ui.qvm', '#qvmtools/q3lcc';
-  Depends $vm_env 'ui.qvm', '#qvmtools/q3asm';
+	############################################################################
+	# q3lcc and q3asm should be in your PATH
+	############################################################################
+	Depends $vm_env 'ui.qvm', '#../build/qvmtools/q3lcc';
+	Depends $vm_env 'ui.qvm', '#../build/qvmtools/q3asm';
 	Program $vm_env 'ui.qvm', @$FILESREF, '../game/bg_lib.c', 'ui_syscalls.asm';
 	Install $vm_env $INSTALL_DIR . '/vm', 'ui.qvm';
 }
