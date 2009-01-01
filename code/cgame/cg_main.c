@@ -25,7 +25,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_local.h"
 
 #ifdef MISSIONPACK
-#include "../ui/ui_shared.h"
+// Still included in cg_local.h
+//#include "../ui/ui_shared.h"
 // display context for new ui stuff
 displayContextDef_t cgDC;
 #endif
@@ -218,7 +219,7 @@ vmCvar_t	cg_enableBreath;
 
 /*
 ==========================
-wq³ Cvars // by Spoon
+SG Cvars // by Spoon
 ==========================
 */
 
@@ -377,7 +378,7 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_obeliskRespawnDelay, "g_obeliskRespawnDelay", "10", CVAR_SERVERINFO},
 	//{ &cg_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE},
 #endif
-	//added to wq3 <-
+	//added to SG <-
 	{ &cg_enableDust, "g_enableDust", "0", CVAR_SERVERINFO},
 	{ &cg_enableBreath, "g_enableBreath", "0", CVAR_SERVERINFO},
 
@@ -408,7 +409,7 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_latentCmds, "cg_latentCmds", "0", CVAR_USERINFO | CVAR_CHEAT },
 	{ &cg_plOut, "cg_plOut", "0", CVAR_USERINFO | CVAR_CHEAT },
 //unlagged - client options
-	//wq³ Cvars
+	//SG Cvars
 //	{ &cg_wq_lefthanded, "wq_lefthanded", "0", CVAR_ARCHIVE},
 
 	{ &cg_buydebug, "cg_buydebug", "0", CVAR_ARCHIVE },

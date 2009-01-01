@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_types.h"
 #include "../game/bg_public.h"
 #include "cg_public.h"
+// Avoid a trick from Hika in scons for unix build
+#include "../ui/keycodes.h"
 #include "../ui/ui_shared.h"
 
 
