@@ -751,17 +751,20 @@ void *Sys_LoadDll( const char *name, char *fqpath ,
   assert( name );
 
   getcwd(curpath, sizeof(curpath));
+#ifndef CPU_STRING
 #if defined __i386__
-  snprintf (fname, sizeof(fname), "%si386.so", name);
-#elif defined __powerpc__   //rcg010207 - PPC support.
-  snprintf (fname, sizeof(fname), "%sppc.so", name);
+#define CPU_STRING "i386"
+#elif defined __powerpc__
+#define CPU_STRING "ppc"
 #elif defined __axp__
-  snprintf (fname, sizeof(fname), "%saxp.so", name);
+#define CPU_STRING "axp"
 #elif defined __mips__
-  snprintf (fname, sizeof(fname), "%smips.so", name);
+#define CPU_STRING "mips"
 #else
 #error Unknown arch
 #endif
+#endif
+  snprintf (fname, sizeof(fname), "%s" CPU_STRING ".so", name);
 
 // bk001129 - was RTLD_LAZY 
 #define Q_RTLD    RTLD_NOW
