@@ -408,7 +408,7 @@ void Sys_SetDefaultInstallPath(const char *path)
 		NULL,
 	};
 
-	char *real_path[MAX_OSPATH];
+	char real_path[MAX_OSPATH];
 	char *wp, *hp;
 	char homedir[MAX_OSPATH];
 	int i;
