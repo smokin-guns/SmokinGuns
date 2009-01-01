@@ -15,7 +15,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Foobar; if not, write to the Free Software
+along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
@@ -316,7 +316,7 @@ char *ExpandArg (const char *path)
 char *ExpandPath (const char *path)
 {
 	static char full[1024];
-	if (!qdir)
+	if (!qdir[0])
 		Error ("ExpandPath called without qdir set");
 	if (path[0] == '/' || path[0] == '\\' || path[1] == ':') {
 		strcpy( full, path );
@@ -329,7 +329,7 @@ char *ExpandPath (const char *path)
 char *ExpandGamePath (const char *path)
 {
 	static char full[1024];
-	if (!qdir)
+	if (!qdir[0])
 		Error ("ExpandGamePath called without qdir set");
 	if (path[0] == '/' || path[0] == '\\' || path[1] == ':') {
 		strcpy( full, path );

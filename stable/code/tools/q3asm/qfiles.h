@@ -114,7 +114,7 @@ typedef struct _TargaHeader {
 #define MD3_VERSION			15
 
 // limits
-#define MD3_MAX_LODS		3
+#define MD3_MAX_LODS		4
 #define	MD3_MAX_TRIANGLES	8192	// per surface
 #define MD3_MAX_VERTS		4096	// per surface
 #define MD3_MAX_SHADERS		256		// per surface
@@ -222,13 +222,14 @@ MD4 file format
 
 typedef struct {
 	int			boneIndex;		// these are indexes into the boneReferences,
-	float		   boneWeight;		// not the global per-frame bone list
+	float		boneWeight;		// not the global per-frame bone list
 	vec3_t		offset;
 } md4Weight_t;
 
 typedef struct {
+	vec3_t		vertex;
 	vec3_t		normal;
-	vec2_t		texCoords;
+	float		texCoords[2];
 	int			numWeights;
 	md4Weight_t	weights[1];		// variable sized
 } md4Vertex_t;
@@ -290,6 +291,7 @@ typedef struct {
 	// frames and bones are shared by all levels of detail
 	int			numFrames;
 	int			numBones;
+	int			ofsBoneNames;		// char	name[ MAX_QPATH ]
 	int			ofsFrames;			// md4Frame_t[numFrames]
 
 	// each level of detail has completely separate sets of surfaces
@@ -352,6 +354,9 @@ typedef struct {
 #define	LIGHTMAP_WIDTH		128
 #define	LIGHTMAP_HEIGHT		128
 
+#define MIN_WORLD_COORD ( -65536 )
+#define	MAX_WORLD_COORD	( 65536 )
+#define WORLD_SIZE		( MAX_WORLD_COORD - MIN_WORLD_COORD )
 
 //=============================================================================
 
