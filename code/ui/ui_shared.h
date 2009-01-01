@@ -27,7 +27,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../game/q_shared.h"
 #include "../cgame/tr_types.h"
+// Avoid a trick from Hika in cons for unix build
+#ifndef __KEYCODES_H__
 #include "keycodes.h"
+#endif
 
 #include "../../ui/menudef.h"
 
