@@ -255,17 +255,16 @@ $CONFIG_DIR = '../build/' . $config . '-' . $cpu . '-' . $OS . '-' . $libc ;
 # Remove the build directories
 if ($do_clean eq 1)
 {
-  if (-d $CONFIG_DIR)
-  {
-    print "  ==> Cleaning " . $config . "-* ...\n";
-    system("rm -rf ../" . $config . "-*" );
-  }
   if (-d "../build/qvmtools")
   {
     print "  ==> Cleaning qvmtools ...\n";
-    system("rm -rf ../build/qvmtools");
 	system("cd ../lcc; " . $MAKE . " clean");
 	system("cd ./tools/q3asm; " . $MAKE . " clean");
+  }
+  if (-d "../build")
+  {
+    print "  ==> Cleaning build ...\n";
+    system("rm -rf ../build" );
   }
   if (-d "../install")
   {
