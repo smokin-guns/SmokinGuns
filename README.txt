@@ -187,6 +187,9 @@ in the "install" subfolder.
 You can also start "make mod-pk3" to have a pk3 with only the QVMs engine
 in the "install" subfolder.
 
+If you only need a statically linked dedicated server, you can also start
+"make engine-static"
+
 COMPILING ON MAC
 ================
 
