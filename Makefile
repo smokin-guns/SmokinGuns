@@ -23,6 +23,15 @@ engine-sse2:
 engine-smp:
 	@echo "==> Making SG [RELEASE] (engine only, with smp and sse2 support)"
 	cd ./code && perl ./unix/cons -- smp sse2
+engine-static:
+	@echo "==> Making SG [RELEASE] (static dedicated engine only)"
+	cd ./code && perl ./unix/cons -- static
+engine-sse-static:
+	@echo "==> Making SG [RELEASE] (static dedicated engine only, with sse support)"
+	cd ./code && perl ./unix/cons -- sse static
+engine-sse2-static:
+	@echo "==> Making SG [RELEASE] (static dedicated engine only, with sse2 support)"
+	cd ./code && perl ./unix/cons -- sse2 static
 mod:
 	@echo "==> Making SG [RELEASE] (mod only)"
 	cd ./code && perl ./unix/cons -- vm nocore

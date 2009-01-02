@@ -64,10 +64,11 @@ $env = new cons(
 	ENV => { PATH => $ENV{PATH}, HOME => $ENV{HOME} },
   # FIXME TTimo I'm not sure about what C_ONLY is for
   CFLAGS => $BASE_CFLAGS . '-DC_ONLY',
-  LDFLAGS => $BASE_LDFLAGS,
+  LDFLAGS => ' ' ,
+# Add BASE_LDFLAGS to LIBS to authorize static build
   LIBS => ' ' 
   . $BUILD_DIR . '/unix/botlib.a '
-  . $BUILD_DIR . '/unix/asmlib.a '
+  . $BUILD_DIR . '/unix/asmlib.a ' . $BASE_LDFLAGS
 );
 
 # list the files for the dedicated server
