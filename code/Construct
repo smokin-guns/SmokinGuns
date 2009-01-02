@@ -435,8 +435,7 @@ $BUILD_DIR = $CONFIG_DIR . '/core/dedicated';
 Link $BUILD_DIR => '.';
 $hack = $BASE_CFLAGS; # hit me!
 $BASE_CFLAGS .= '-DDEDICATED ';
-$cpu .= '-static' if ( $do_static );
-Export qw( BASE_CFLAGS BASE_LDFLAGS BUILD_DIR INSTALL_DIR CC CXX LINK cpu );
+Export qw( BASE_CFLAGS BASE_LDFLAGS BUILD_DIR INSTALL_DIR CC CXX LINK cpu do_static );
 Build $BUILD_DIR . '/unix/Conscript-dedicated';
 $BASE_CFLAGS = $hack;
 
