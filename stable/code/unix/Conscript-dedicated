@@ -1,15 +1,16 @@
 # dedicated server build script
 
-Import qw( BASE_CFLAGS BASE_LDFLAGS BUILD_DIR INSTALL_DIR CC CXX LINK cpu );
+Import qw( BASE_CFLAGS BASE_LDFLAGS BUILD_DIR INSTALL_DIR CC CXX LINK cpu do_static );
 
 $DEDICATED_NAME = 'smokinguns_dedicated.' . $cpu;
+$DEDICATED_NAME .= '-static' if ( $do_static );
 
 $env_botlib = new cons(
   CC => $CC,
   CXX => $CXX,
   LINK => $LINK,
 	ENV => { PATH => $ENV{PATH}, HOME => $ENV{HOME} },
-  CFLAGS => $BASE_CFLAGS . '-DBOTLIB '
+  CFLAGS => $BASE_CFLAGS . '-DBOTLIB'
 );
 
 @BOTLIB_FILES = qw(
@@ -66,7 +67,7 @@ $env = new cons(
   CFLAGS => $BASE_CFLAGS . '-DC_ONLY',
   LDFLAGS => ' ' ,
 # Add BASE_LDFLAGS to LIBS to authorize static build
-  LIBS => ' ' 
+  LIBS => ' '
   . $BUILD_DIR . '/unix/botlib.a '
   . $BUILD_DIR . '/unix/asmlib.a ' . $BASE_LDFLAGS
 );
