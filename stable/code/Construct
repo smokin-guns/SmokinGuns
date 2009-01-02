@@ -24,6 +24,7 @@ use Cons_gcc;
 $config = 'release';
 $do_smp = 0;
 $do_sse = 0;
+$do_static = 0;
 $force32bits = 0 ;
 $do_masterserver = 0;
 $do_authserver = 0;
@@ -182,6 +183,11 @@ if(@ARGV gt 0)
       $do_sse = 2;
       next;
     }
+    elsif(lc($cmdopt) eq 'static')
+    {
+      $do_static = 1;
+      next;
+    }
     elsif(lc($cmdopt) =~ 'master_server=.*')
     {
       $do_masterserver = 1;
@@ -285,6 +291,7 @@ if ($do_sse)
 }
 # Take care to build 32 bits by default in case we're compilling on x86_64 systems
 $COMMON_CFLAGS .= '-m32 ' if ( $force32bits );
+$COMMON_CFLAGS .= '-static ' if ( $do_static );
 
 if ($config eq 'debug')
 {
@@ -326,6 +333,7 @@ if ($OS eq "Linux")
 }
 # Take care to build 32 bits by default in case we're compiling on x86_64 systems
 $BASE_LDFLAGS .= ' -m32' if ( $force32bits );
+$BASE_LDFLAGS .= ' -static' if ( $do_static );
 
 my @gcc_version = Cons_gcc::get_gcc_version($CC);
 print("GCC version: $gcc_version[1] - $gcc_version[2]\n");
@@ -434,6 +442,12 @@ $BASE_CFLAGS = $hack;
 if ($OS eq "OpenBSD")
 {
   print("$0: Client not (yet) supported on OpenBSD\n");
+  return;
+}
+
+# Only build dedicated if static is required for now
+if ($do_static eq 1)
+{
   return;
 }
 
