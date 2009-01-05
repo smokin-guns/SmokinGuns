@@ -306,7 +306,7 @@ if ($config eq 'debug')
 else
 {
 	$BASE_CFLAGS = $COMMON_CFLAGS . "-DNDEBUG -O3" .
-		" -mtune=$tune -march=$tune -DCPU_STRING='\"$cpu\"'" .
+		" -mtune=$tune -march=$tune -DCPU_STRING=$cpu" .
 		' -fomit-frame-pointer -ffast-math ' .
 		'-falign-loops=2 -falign-jumps=2 -falign-functions=2 ' .
 		'-fno-strict-aliasing -fstrength-reduce ';

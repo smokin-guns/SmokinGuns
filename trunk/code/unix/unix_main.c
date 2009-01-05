@@ -753,18 +753,21 @@ void *Sys_LoadDll( const char *name, char *fqpath ,
   getcwd(curpath, sizeof(curpath));
 #ifndef CPU_STRING
 #if defined __i386__
-#define CPU_STRING "i386"
+#define CPU_STRING i386
 #elif defined __powerpc__
-#define CPU_STRING "ppc"
+#define CPU_STRING ppc
 #elif defined __axp__
-#define CPU_STRING "axp"
+#define CPU_STRING axp
 #elif defined __mips__
-#define CPU_STRING "mips"
+#define CPU_STRING mips
 #else
 #error Unknown arch
 #endif
 #endif
-  snprintf (fname, sizeof(fname), "%s" CPU_STRING ".so", name);
+
+#define string(x)  xstring(x)
+#define xstring(x)   #x
+  snprintf (fname, sizeof(fname), "%s" string(CPU_STRING) ".so", name);
 
 // bk001129 - was RTLD_LAZY 
 #define Q_RTLD    RTLD_NOW

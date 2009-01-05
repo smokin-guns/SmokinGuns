@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <sys/mman.h>
 #include <sys/time.h>
 #include <pwd.h>
+#include <libgen.h>
 
 #include "../game/q_shared.h"
 #include "../qcommon/qcommon.h"
@@ -455,7 +456,7 @@ void Sys_SetDefaultInstallPath(const char *path)
 		Q_strncpyz(installPath, dirname(real_path), sizeof(installPath));
 		return;
 	}
-	Q_strncpyz(installPath, dirname(path), sizeof(installPath));
+	Q_strncpyz(installPath, dirname((char *)path), sizeof(installPath));
 #endif
 }
 
