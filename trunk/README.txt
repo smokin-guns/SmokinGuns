@@ -190,6 +190,10 @@ in the "install" subfolder.
 If you only need a statically linked dedicated server, you can also start
 "make engine-static"
 
+Packagers, you can "export DEFAULT_BASEDIR" from the shell to setup a default
+basepath where you want the game installed by your package. Then the engine will
+search the game there before anywhere else.
+
 COMPILING ON MAC
 ================
 

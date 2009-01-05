@@ -398,6 +398,9 @@ void Sys_SetDefaultInstallPath(const char *path)
 #else
 	FILE *f;
 	const char *p[]= {
+#ifdef DEFAULT_BASEDIR
+		string(DEFAULT_BASEDIR),
+#endif
 		string(PREFIX) "/SmokinGuns",
 		"/usr/local/SmokinGuns",
 		"/opt/SmokinGuns",

@@ -9,6 +9,8 @@ Changes since SG 1.0-20081231
  - Mode 16: 1920x1080 (wide)
  - Mode 17: 1920x1200 (wide)
  - Mode 18: 2560x1600 (wide)
+- Add DEFAULT_BASEDIR support for packagers:
+ - you have to export DEFAULT_BASEDIR from the shell before to do a make
 *** CHANGES ***
 - Reloading bug fixed by Joe Kari
 
