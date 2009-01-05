@@ -2113,8 +2113,12 @@ static qboolean PM_ReloadStart( qboolean weapon2, int *weaponTime, int *weaponst
 		if (reloading) return qfalse;
 	} else {
 		all_at_once = qfalse;
-		// Prevent any reload, if the weapon is already full
-		if (reloading && pm->ps->ammo[ammo] + 1 >= bg_weaponlist[weapon].clipAmmo) return qfalse;
+		if (reloading) {
+			// Prevent any reload, if the weapon is already full
+			if (pm->ps->ammo[ammo] + 1 >= bg_weaponlist[weapon].clipAmmo) return qfalse;
+			// Prevent any reload if no ammo left
+			if (pm->ps->ammo[clip] <= 1) return qfalse;
+		}
 	}
 
 
