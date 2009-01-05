@@ -1,0 +1,1091 @@
+#include "ui/menudef.h"
+
+// team menu
+// 
+// defines from ui_shared.h
+
+{
+  assetGlobalDef {
+    	font "fonts/impact.ttf"				// font
+    	cursor "menu/art/3_cursor2"			// cursor	
+    	gradientBar "ui/assets/gradientbar2.tga"	// gradient bar
+    	fadeClamp 1.0					// sets the fadeup alpha
+	fadeCycle 1					// how often fade happens in milliseconds
+	fadeAmount 0.1					// amount to adjust alpha per cycle
+
+	shadowX  5					// x amount for shadow offset
+	shadowY  5					// y amount for shadow offset
+	shadowColor 0.1 0.1 0.1 0.25			// shadow color
+
+	hudShader "ui/assets/hudbar.tga"		// 
+
+  }
+
+
+//	POWERUP AREA	//
+
+menuDef {
+	name "powerup area"
+	fullScreen MENU_FALSE
+	visible MENU_TRUE
+	rect 570 220 50 100
+
+	ownerdrawflag CG_SHOW_CTF
+	itemDef {
+	name "powerupArea"
+	rect 0 0 40 40
+    	visible 1
+	decoration
+	ownerdraw CG_AREA_POWERUP
+	special 4			// spacing
+	align HUD_VERTICAL
+	}
+
+
+}
+
+
+
+//	SELECTED PLAYER		//
+							   
+menuDef {
+    	name "SelectedPlayer"
+    	fullScreen MENU_FALSE
+    	visible MENU_TRUE
+	rect 2 340 128 75
+	
+	
+
+	itemDef {
+	name "b"
+    	rect 0 0 125 75
+	style 4
+	visible 1
+	bordercolor 0 0 0 0
+	backcolor 0 0 0 0
+	mouseEnter { setcolor bordercolor 1 1 1 .5 ; setteamcolor ; show altSelectedPlayerRect }
+   	mouseExit { setcolor backcolor 0 0 0 0 ; setcolor bordercolor 0 0 0 0 ; hide altSelectedPlayerRect }
+	action { open teamMenu }
+	}
+
+	
+
+	itemDef {
+	name "altSelectedPlayerRect"
+    	rect 0 0 125 75
+	style 4
+	border 1
+	bordersize 1
+	visible 0
+	bordercolor 1 1 1 1
+	backcolor 0 0 0 0
+	}
+
+
+	itemDef {
+      	name "b"
+	rect 2 3 32 32
+    	visible 1
+	action { open teamMenu }
+	ownerdraw CG_SELECTEDPLAYER_HEAD
+	}
+
+	itemDef {
+      	name "b"
+        rect 65 5 22 11
+	visible 1
+	style 3
+	decoration
+	background "ui/assets/statusbar/selectedhealth.tga"
+	addColorRange -999 25 1 0 0 1
+	addColorRange 26 100 1 .75 0 1
+	addColorRange 101 999 1 1 1 1
+	ownerdraw CG_SELECTEDPLAYER_HEALTH
+	}
+
+	itemDef {
+      	name "b"
+        rect 65 18 22 11
+	visible 1
+	style 3
+	decoration
+	background "ui/assets/statusbar/selectedarmor.tga"
+	addColorRange -999 25 1 0 0 1
+	addColorRange 26 100 .3 .65 0 1
+	addColorRange 101 999 1 1 1 1
+	ownerdraw CG_SELECTEDPLAYER_ARMOR
+	}
+
+
+
+	itemDef {
+      	name "b"
+        rect 5 40 35 15
+	textscale 0.25
+	forecolor 1 1 1 1
+	visible 1
+	decoration
+	ownerdraw CG_SELECTEDPLAYER_NAME
+	}
+
+	itemDef {
+      	name "b"
+        rect 5 52 45 15
+	textscale 0.25
+	forecolor 1 1 1 1
+	visible 1
+	decoration
+	ownerdraw CG_SELECTEDPLAYER_LOCATION
+	}
+
+	itemDef {
+      	name "b"
+        rect 38 5 16 16
+	visible 1
+	decoration
+	ownerdraw CG_SELECTEDPLAYER_STATUS
+	}
+
+	itemDef {
+      	name "b"
+        rect 93 5 24 24
+	visible 1
+	decoration
+	ownerdraw CG_SELECTEDPLAYER_WEAPON
+	}
+
+	itemDef {
+      	name "b"
+        rect 38 22 16 16
+	visible 1
+	decoration
+	ownerdraw CG_SELECTEDPLAYER_POWERUP
+	}
+ 
+}
+
+
+
+//	PLAYER STATUS	//
+
+menuDef {
+    	name "playerStatus"
+    	fullScreen MENU_FALSE
+    	visible MENU_TRUE
+    	rect 0 416 128 64
+
+	itemDef {
+      	name "playerStatusRect"
+	rect 12 13 112 48
+	visible 1
+	style 4
+	//background "ui/assets/hudback.tga"
+	border 1
+	bordersize 1
+	mouseEnter { show playerStatusRectAlt }
+   	mouseExit { hide playerStatusRectAlt }
+
+}
+
+	itemDef {
+      	name "playerStatusRectAlt"
+	rect 12 13 112 48
+	visible 0
+	style 1
+	border 1
+	bordersize 1
+	bordercolor 1 1 1 1
+	backcolor 0 0 0 .0
+}
+
+	itemDef {
+      	name "playeritem"
+        rect 27 19 24 24 
+	visible 1
+	decoration
+	ownerdraw CG_PLAYER_ITEM  
+	}
+
+	itemDef {
+      	name "CTFPOWERUP"
+        rect 55 19 24 24
+	visible 1
+	decoration
+	ownerdraw CG_CTF_POWERUP
+ 
+	
+	}
+
+	itemDef {
+      	name "flag"
+        rect 85 15 40 40
+	visible 1
+	decoration
+	ownerdraw CG_PLAYER_HASFLAG 
+	}
+
+	itemDef {
+      	name "skulls"
+        rect 75 8 45 40
+		visible 1
+		decoration
+		textscale 0.5
+		ownerdraw CG_HARVESTER_SKULLS
+	}
+
+
+
+	itemDef {
+	name "statusscreen"
+	visible 1
+	style 3
+	background "menuscreen2"
+	rect 12 13 112 48
+	border 1
+	bordersize 1
+	bordercolor 1 1 1 1
+	backcolor 0 0 0 0
+	}
+
+
+itemDef {
+      	name "sback"
+        rect 0 0 128 64
+	visible 1
+	decoration
+	style 3
+	background "ui/assets/statusbar1.tga"
+	}
+
+  }
+
+
+
+
+
+//	AMMO	//
+
+menuDef {
+    	name "Ammo"
+    	fullScreen MENU_FALSE
+    	visible MENU_TRUE
+    	rect 129 416 128 64
+	
+
+	itemDef {
+	name "ammoRect"
+	visible 1
+	style 4
+	//background "ui/assets/hudback.tga"
+	rect 2 13 122 48
+	border 1
+	bordersize 1
+	mouseEnter { show ammoRectAlt }
+   	mouseExit { hide ammoRectAlt }
+	}
+
+	itemDef {
+	name "ammoRectAlt"
+	visible 0
+	style 1
+	rect 2 13 122 48
+	border 1
+	bordersize 1
+	bordercolor 1 1 1 1
+	backcolor 0 0 0 0
+	}
+
+	
+	itemDef {
+     	name "a"
+	rect 85 22 32 32
+	visible 1
+	decoration
+	ownerdraw CG_PLAYER_AMMO_ICON
+	}
+
+	itemDef {
+ 	name "a"
+	rect 10 40 63 12
+	visible 1
+	decoration
+	textscale .75
+	forecolor 1 1 1 1
+	ownerdraw CG_PLAYER_AMMO_VALUE
+	addColorRange -999 5 1 0 0 1
+	addColorRange 6 999 .3 .65 0 1
+	}
+
+	itemDef {
+	name "statusscreen"
+	visible 1
+	style 3
+	background "menuscreen2"
+	rect 2 13 122 48
+	border 1
+	bordersize 1
+	bordercolor 1 1 1 1
+	backcolor 0 0 0 0
+	}
+
+itemDef {
+      	name "sback"
+        rect 0 0 128 64
+	visible 1
+	decoration
+	style 3
+	background "ui/assets/statusbar2.tga"
+	}
+
+}
+
+
+
+
+
+
+//	PLAYER	//
+
+menuDef {
+    	name "Player"
+    	fullScreen MENU_FALSE
+    	visible MENU_TRUE
+   	rect 257 416 128 64
+
+
+	itemDef {
+	name "playerRect"
+	rect 2 2 122 60
+	style 4
+	//background "ui/assets/hudback.tga"
+	visible 1
+	border 1
+	bordersize 1
+	mouseEnter { show playerRectAlt }
+   	mouseExit { hide playerRectAlt }	
+	}
+
+	itemDef {
+	name "playerRectAlt"
+	rect 2 2 122 60
+	style 1
+	visible 0
+	border 1
+	bordersize 1
+	bordercolor 1 1 1 1
+	backcolor 0 0 0 0		
+	}
+
+
+	itemDef {
+      	name "b"
+        rect 10 40 63 12
+	visible 1
+	decoration
+	forecolor 1 1 1 1
+	textscale .75
+	ownerdraw CG_PLAYER_HEALTH
+	ownerdrawflag CG_SHOW_HEALTHOK
+	addColorRange -999 25 1 0 0 1
+	addColorRange 26 100 .3 .65 0 1
+	addColorRange 101 999 1 1 1 1
+	}
+
+	itemDef {
+      	name "b"
+        rect 10 40 63 12
+		visible 1
+		decoration
+		forecolor 1 0 0 1
+		textscale .75
+		textstyle ITEM_TEXTSTYLE_BLINK
+		ownerdraw CG_PLAYER_HEALTH
+		ownerdrawflag CG_SHOW_HEALTHCRITICAL
+	}
+
+
+	itemDef {
+      	name "b"
+	rect 75 10 50 50
+	visible 1
+    	decoration
+	ownerdraw CG_PLAYER_HEAD 
+	}
+
+	itemDef {
+	name "statusscreen"
+	visible 1
+	style 3
+	background "menuscreen2"
+	rect 2 13 122 48
+	border 1
+	bordersize 1
+	bordercolor 1 1 1 1
+	backcolor 0 0 0 0
+	}
+
+
+itemDef {
+      	name "sback"
+        rect 0 0 128 64
+	visible 1
+	decoration
+	style 3
+	background "ui/assets/statusbar3.tga"
+	}
+  }
+
+
+
+
+//	ARMOR	//
+
+menuDef {
+    	name "Armor"
+    	fullScreen MENU_FALSE
+    	visible MENU_TRUE	
+    	rect 385 416 128 64
+
+
+	itemDef {
+	name "armorRect"
+	rect 2 13 122 48
+	visible 1
+	style 4
+	//background "ui/assets/hudback.tga"
+	border 1
+	bordersize 1
+	mouseEnter { show armorRectAlt }
+   	mouseExit { hide armorRectAlt }	
+	}
+
+	itemDef {
+	name "armorRectAlt"
+	rect 2 13 122 48
+	visible 0
+	style 1
+	border 1
+	bordersize 1
+	bordercolor 1 1 1 1
+	backcolor 0 0 0 0
+	}	
+
+	itemDef {
+     	name "armor"
+	rect 75 -4 40 40
+	visible 1
+   	decoration
+	ownerdraw CG_PLAYER_ARMOR_ICON2D
+	}
+
+	itemDef {
+      	name "armor2"
+        rect 10 40 63 12
+	visible 1
+	decoration
+	textscale .75
+	ownerdraw CG_PLAYER_ARMOR_VALUE 
+	addColorRange -999 25 .67 0 0 1
+	addColorRange 26 100  .3 .65 0 1
+	addColorRange 101 999 .75 .75 .75 1
+	}
+
+	itemDef {
+	name "statusscreen"
+	visible 1
+	style 3
+	background "menuscreen2"
+	rect 2 13 122 48
+	border 1
+	bordersize 1
+	bordercolor 1 1 1 1
+	backcolor 0 0 0 0
+	}
+
+
+itemDef {
+      	name "sback"
+        rect 0 0 128 64
+	visible 1
+	decoration
+	style 3
+	background "ui/assets/statusbar4.tga"
+	}
+  }
+
+
+//	LOCATION	//
+
+menuDef {
+    	name "location"
+    	fullScreen MENU_FALSE
+	visible MENU_TRUE
+    	rect 513 380 128 22
+
+
+
+	itemDef {
+	name "locationRect"
+	visible MENU_TRUE
+	rect 0 0 128 22
+	style 4	
+	}
+
+	
+	itemDef {
+     	name "playerlocation"
+        rect 10 2 16 16    
+	visible 1
+	decoration
+	textscale .25	
+	ownerdraw CG_PLAYER_LOCATION
+	}
+}
+
+
+
+//	FLAGSTATUS	//
+
+menuDef {
+    	name "FlagStatus"
+    	fullScreen MENU_FALSE
+	visible MENU_TRUE
+    	rect 513 405 128 22
+
+
+
+	itemDef {
+	name "flagStatusRect"
+	visible MENU_TRUE
+	rect 0 0 128 22
+	style 4
+	//border 1
+	//bordersize 1
+	bordercolor 0 0 0 0
+	backcolor 0 0 0 0
+	mouseEnter { setcolor bordercolor 1 1 1 1 }
+   	mouseExit { setcolor bordercolor 0 0 0 0 }	
+	}
+
+	itemDef {
+	name "f"
+	rect 30 4 16 16
+	visible 1
+	bordercolor 1 1 1 .75
+	decoration	
+	style 3
+	background "ui/assets/bluechip.tga"
+	}
+
+	itemDef {
+     	name "f"
+        rect 4 4 16 16    
+	visible 1
+	decoration	
+	ownerdraw CG_ONEFLAG_STATUS
+	}
+
+	itemDef {
+     	name "f"
+        rect 30 4 16 16
+	visible 1
+	decoration	
+	ownerdraw CG_BLUE_FLAGSTATUS
+	}
+
+
+	itemDef {
+      	name "r"
+        rect 40 3 30 15
+	visible 1
+	decoration
+	forecolor 1 1 1 1
+	textscale 0.25
+	ownerdraw CG_BLUE_SCORE
+	}
+
+	itemDef {
+	name "f"
+	rect 72 4 16 16
+	visible 1
+	bordercolor 1 1 1 1
+	decoration	
+	style 3
+	background "ui/assets/redchip.tga"
+	}
+
+	itemDef {
+      	name "f"
+        rect 72 4 16 16
+	visible 1
+	decoration
+	ownerdraw CG_RED_FLAGSTATUS
+	}
+
+	itemDef {
+      	name "r"
+        rect 87 3 30 15
+	visible 1
+	decoration
+	forecolor 1 1 1 1
+	textscale 0.25
+	ownerdraw CG_RED_SCORE
+	}
+
+}
+
+
+//	GAMETYPE	//
+
+menuDef {
+    	name "GameType"
+    	fullScreen MENU_FALSE
+    	visible MENU_TRUE
+    	rect 513 354 128 22
+
+
+	itemDef {
+	name "gameTypeRect"
+	visible 1
+	rect 0 0 125 22
+	style 4
+	//background "ui/assets/hudback.tga"
+	visible 1
+	decoration
+	mouseEnter { show gameTypeRectAlt }
+   	mouseExit { hide gameTypeRectAlt }	
+	}
+
+	itemDef {
+	name "gameTypeRectAlt"
+	visible 0
+	rect 0 0 125 22
+	style 1
+	border 1
+	bordersize 1
+	bordercolor 1 1 1 1
+	backcolor 0 0 0 0
+	}
+
+	itemDef {
+	name "gameTypeName"
+	visible 1
+	rect 5 2 125 16
+	textscale .25
+	ownerdraw CG_GAME_TYPE
+	style 1
+	}
+
+
+}
+
+//	PLAYERSCORE	//
+
+menuDef {
+    	name "PlayerScore"
+    	fullScreen MENU_FALSE
+    	visible MENU_TRUE
+    	rect 513 416 128 64
+
+
+	itemDef {
+	name "playerScoreRect"
+	visible 1
+	rect 2 13 110 48
+	style 4
+	border 1
+	bordersize 1
+	mouseEnter { show playerScoreRectAlt }
+   	mouseExit { hide playerScoreRectAlt }	
+
+	}
+
+	itemDef {
+	name "playerScoreRectAlt"
+	visible 0
+	rect 2 13 110 48
+	style 1
+	border 1
+	bordersize 1
+	bordercolor 1 1 1 1
+	backcolor 0 0 0 0
+	}
+
+
+	itemDef {
+      	name "playerStatus"
+        rect 10 30 16 16
+	visible 1
+	decoration
+	ownerdraw CG_PLAYER_STATUS
+	}
+
+	itemDef {
+      	name "playerScore"
+        rect 10 32 125 12
+	visible 1
+    	decoration
+	forecolor .3 .65 0 1
+	textscale .35
+	ownerdraw CG_PLAYER_SCORE
+	}
+
+	itemDef {
+	name "statusscreen"
+	visible 1
+	style 3
+	background "menuscreen2"
+	rect 2 13 110 48
+	border 1
+	bordersize 1
+	bordercolor 1 1 1 1
+	backcolor 0 0 0 0
+	}
+
+
+itemDef {
+      	name "sback"
+        rect 0 0 128 64
+	visible 1
+	decoration
+	style 3
+	background "ui/assets/statusbar5.tga"
+	}
+
+  }
+}
+
+//	SCORESTATUS	//
+
+menuDef {
+    	name "ScoreStatus"
+    	fullScreen MENU_FALSE
+    	visible MENU_TRUE
+    	rect 513 428 125 50
+	style 4
+	//background "ui/assets/hudback.tga"
+	border 1
+	bordersize 1
+	bordercolor .5 .5 1 1
+	backcolor 0 0 1 .25
+
+
+itemDef {
+      	name "r"
+        rect 5 5 30 15
+	visible 1
+	decoration
+	forecolor 1 1 1 1
+	textscale 0.25
+	ownerdraw CG_BLUE_SCORE
+	}
+
+itemDef {
+      	name "r"
+        rect 42 5 30 15
+	visible 1
+	decoration
+	forecolor 0 0 1 1
+	textscale 0.25
+	ownerdraw CG_BLUE_NAME
+	}
+
+
+itemDef {
+      	name "r"
+        rect 5 25 30 15
+	visible 1
+	decoration
+	forecolor 1 1 1 1
+	textscale 0.25
+	ownerdraw CG_RED_SCORE
+	}
+
+	itemDef {
+      	name "r"
+        rect 42 25 30 15
+	visible 1
+	decoration
+	forecolor 1 0 0 1
+	textscale 0.25
+	ownerdraw CG_RED_NAME
+	}
+  }
+
+
+
+}
+
+// Close off other menu options //
+
+//	CROSSHAIR STATUS BAR	//
+							   
+menuDef {
+    	name "crosshairStatus"
+    	fullScreen MENU_FALSE
+    	visible MENU_TRUE
+    	rect 256 176 128 128
+	style 0
+
+itemDef {
+      	name "crosshairHealth"
+        rect 0 0 128 64
+	visible 1
+	decoration
+	forecolor 0 0 0 0
+	style 3
+	ownerdraw CG_PLAYER_HEALTH_VALUE
+	background "ui/assets/crosshair_health.tga"
+	addColorRange -999 25 1 0 0 .5
+	addColorRange 26 100 1 .75 0 .25
+	addColorRange 101 999 1 1 1 .1
+	}
+
+
+itemDef {
+      	name "crosshairAmmo"
+        rect 0 64 64 64
+	visible 1
+	decoration
+	style 3
+	forecolor 0 0 0 0
+	ownerdraw CG_PLAYER_AMMO_VALUE
+	background "ui/assets/crosshair_ammo.tga"
+	addColorRange -999 5 1 0 0 .5
+	addColorRange 6 999 1 .75 0 .25
+	}
+
+itemDef {
+      	name "crosshairArmor"
+        rect 64 64 64 64
+	visible 1
+	decoration
+	style 3
+	forecolor 1 1 1 .25
+	forecolor 0 0 0 0
+	ownerdraw CG_PLAYER_ARMOR_VALUE
+	background "ui/assets/crosshair_armor.tga"
+	addColorRange -999 25 1 0 0 .5
+	addColorRange 26 100 1 .75 0 .25
+	addColorRange 101 999 1 1 1 .1
+	}
+}
+
+
+
+
+
+
+//	MINI_STATUS	//
+
+menuDef {
+    	name "miniPlayerStatus"
+    	fullScreen MENU_FALSE
+    	visible MENU_TRUE
+	style 0
+    	rect 1 10 125 30
+	style 1
+	border 1
+	bordersize 1
+	bordercolor .5 .5 1 1
+	backcolor 0 0 1 .25
+
+itemDef {
+ 	name "miniAmmoValue"
+	rect 5 5 25 15
+	visible 1
+	decoration
+	textscale .33
+	forecolor 1 1 1 1
+	ownerdraw CG_PLAYER_AMMO_VALUE
+	addColorRange -999 5 1 0 0 1
+	addColorRange 6 999 1 .75 0 1
+	}
+
+
+itemDef {
+      	name "miniHealthValue"
+        rect 45 5 25 15
+	visible 1
+	decoration
+	forecolor 1 1 1 1
+	textscale .33
+	ownerdraw CG_PLAYER_HEALTH
+	addColorRange -999 25 1 0 0 1
+	addColorRange 26 100 1 .75 0 1
+	addColorRange 101 999 1 1 1 1
+	}
+
+itemDef {
+      	name "MiniArmorValue"
+        rect 90 5 25 15
+	visible 1
+	decoration
+	textscale .33
+	ownerdraw CG_PLAYER_ARMOR_VALUE
+	addColorRange -999 25 1 0 0 1
+	addColorRange 26 100 1 .75 0 1
+	addColorRange 101 999 1 1 1 1
+	}
+}
+
+//	MINI_CTF_STATUS	//
+
+menuDef {
+    	name "miniCTFStatus"
+    	fullScreen MENU_FALSE
+    	visible MENU_TRUE
+	style 0
+    	rect 129 10 125 30
+	style 1
+	border 1
+	bordersize 1
+	bordercolor .5 .5 1 1
+	backcolor 0 0 1 .25
+
+itemDef {
+     	name "miniFlagBlue"
+        rect 5 5 16 16    
+	visible 1
+	decoration	
+	ownerdraw CG_BLUE_FLAGSTATUS
+	}
+
+itemDef {
+      	name "miniBlueScore"
+        rect 10 5 30 15
+	visible 1
+	decoration
+	forecolor 1 1 1 1
+	textscale 0.33
+	ownerdraw CG_BLUE_SCORE
+	}
+
+itemDef {
+      	name "miniFlagRed"
+        rect 65 5 16 16
+	visible 1
+	decoration
+	ownerdraw CG_RED_FLAGSTATUS
+	}
+
+itemDef {
+      	name "miniRedScore"
+        rect 70 5 30 15
+	visible 1
+	decoration
+	forecolor 1 1 1 1
+	textscale 0.33
+	ownerdraw CG_RED_SCORE
+	}
+
+}
+
+
+//	MINI_SCORE	//
+
+menuDef {
+    	name "miniScore"
+    	fullScreen MENU_FALSE
+    	visible MENU_TRUE
+	style 0
+    	rect 257 10 125 30
+	style 1
+	border 1
+	bordersize 1
+	bordercolor .5 .5 1 1
+	backcolor 0 0 1 .25
+
+
+itemDef {
+      	name "b"
+        rect 5 5 16 16
+	visible 1
+	decoration
+	ownerdraw CG_SELECTEDPLAYER_STATUS
+	}
+
+itemDef {
+      	name "b"
+        rect 30 5 30 15
+	visible 1
+    	decoration
+	forecolor 1 1 1 1
+	textscale .33
+	ownerdraw CG_PLAYER_SCORE
+	}
+
+}
+
+
+
+//	MINI_LOCATION	//
+
+
+menuDef {
+    	name "miniLocation"
+    	fullScreen MENU_FALSE
+    	visible MENU_TRUE
+	style 0
+    	rect 385 10 125 30
+	style 1
+	border 1
+	bordersize 1
+	bordercolor .5 .5 1 1
+	backcolor 0 0 1 .25
+
+
+itemDef {
+      	name "b"
+        rect 5 5 30 15
+	visible 1
+	decoration
+	textscale .33
+	ownerdraw CG_PLAYER_LOCATION
+	}
+  }
+
+
+
+//	MINI_ITEM	//
+
+
+menuDef {
+    	name "miniItem"
+    	fullScreen MENU_FALSE
+    	visible MENU_TRUE
+	style 0
+    	rect 513 10 125 30
+	style 1
+	border 1
+	bordersize 1
+	bordercolor .5 .5 1 1
+	backcolor 0 0 1 .25
+
+
+itemDef {
+      	name "b"
+        rect 5 5 30 30
+	visible 1
+	decoration
+	ownerdraw CG_PLAYER_ITEM
+	}
+
+
+itemDef {
+      	name "b"
+        rect 5 50 30 30
+	visible 1
+	decoration
+	ownerdraw CG_CTF_POWERUP
+	}
+
+
+  }
+
+
+  }
+
+
+}
+

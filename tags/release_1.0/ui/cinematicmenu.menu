@@ -1,0 +1,308 @@
+#include "ui/menudef.h"
+
+{
+\\ CINEMATIC \\
+
+  menuDef {
+    	name "cinematicMenu"
+    	visible 0
+    	fullscreen 1
+    	rect 0 0 640 480
+    	background "menuback_a"
+    	focusColor 1 .67 0 1
+    	style 1
+    	border 1
+	onEsc { close cinematicMenu ; open main }
+	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ; 
+	play "sound/misc/kcswish.wav" ; 
+	playlooped "music/fla_mp03.wav" ;
+	fadeout fadebox ; 
+	transition mappreview 0 0 640 480 54 144 256 192 20 10 ; 
+	uiScript loadMovies ;
+	hide lightning ; 
+	hide accept_alt ; 
+	show accept ;
+	hide back_alt ;
+	show back ;
+	hide grpmessage }
+		 
+
+
+	
+itemDef {
+      	name menuback_e
+      	style WINDOW_STYLE_SHADER
+      	rect 0 163 640 155
+     	background "menuback_e"
+      	visible 1
+	decoration
+    	}
+
+									
+
+itemDef {
+      	name menuback_b
+     	style WINDOW_STYLE_SHADER
+     	rect 0 163 640 155
+     	visible 1
+     	background "menuback_b"
+     	bordercolor 0.5 0.5 0.5 .7
+    	decoration 
+	}
+
+itemDef {
+	name windowscreen
+	rect 0 0 640 240
+	style 3
+	background levelshotdetail
+	forecolor 0 0 0 0
+	visible 1
+	decoration
+	}
+itemDef {
+	name windowscreen
+	rect 0 240 640 240
+	style 3
+	background levelshotdetail
+	forecolor 0 0 0 0
+	visible 1
+	decoration
+	}
+
+
+
+// LEVEL SELECTION BAR	//
+
+
+  	itemDef {
+      	name levelbar
+	text "TEAM ARENA CINEMATICS"
+	textstyle 6
+      	style 2
+      	rect 0 16 640 40 
+      	textscale 0.416
+      	textalign 1		        // center
+      	textalignx 320        // x alignment point for text
+                            // use it to offset left/right text from the edge 
+                            // or to center the text on a different point
+      	textaligny 27        
+      	style 2
+      	border 4
+      	bordercolor 0.5 0.5 0.5 0.5
+      	bordersize 2
+      	backcolor 0 0 .75 0.5
+      	visible 1 
+      	decoration 
+    	}
+
+
+
+
+ 
+
+itemDef {
+	name cinematiclist
+      	rect 330 144 256 192
+	type ITEM_TYPE_LISTBOX
+	style WINDOW_STYLE_FILLED
+	elementwidth 120
+	elementheight 20
+	textscale .25
+	elementtype LISTBOX_TEXT
+	feeder FEEDER_CINEMATICS
+	doubleclick { uiScript playMovie }
+	textalign 3
+	textaligny 14
+	border 1
+	bordercolor .5 .5 .5 .5
+	forecolor 1 1 1 1
+	backcolor 0 0 .1 1
+	outlinecolor .1 .1 .7 .5
+	visible 1
+	mouseEnter { fadein message_cinematic ; setitemcolor cinematiclist bordercolor .7 0 0 1 } 
+	mouseExit { fadeout message_cinematic ; setitemcolor cinematiclist bordercolor .5 .5 .5 .5 } 
+  	}
+
+
+
+// BACK BAR	//
+
+
+  itemDef {
+	name gotobar
+      	style 2
+      	rect 0 430 640 30 
+      	textscale 0.4
+      	textalign 0		        // center
+      	textalignx 60        // x alignment point for text
+                            // use it to offset left/right text from the edge 
+                            // or to center the text on a different point
+      	textaligny 21        
+      	style 2
+      	border 4
+      	bordercolor 0.5 0.5 0.5 0.5
+      	bordersize 2
+      	backcolor 0 0 .75 0.5
+      	visible 1 
+      	mouseEnter { setcolor backcolor .75 0 0 .5 }
+      	mouseExit { setcolor backcolor 0 0 .75 .5 }
+      	decoration 
+    	}
+
+
+
+    itemDef {
+      	name back
+	style 3
+	background "ui/assets/backarrow.tga"
+	rect 16 424 50 50 
+      	visible 1 
+      	action { close cinematicMenu ; open main }
+	mouseEnter { hide back ; show back_alt ; fadein message_back }
+    	}
+
+itemDef {
+      	name back_alt
+      	style WINDOW_STYLE_SHADER
+	background "ui/assets/backarrow_alt.tga"
+	rect 14 422 54 54 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	visible 0
+	type ITEM_TYPE_BUTTON
+      	mouseExit { hide back_alt ; show back ; fadeout message_back }	  
+      	action { close cinematicMenu ; 	open main }	  
+	}
+
+itemDef {
+      	name accept
+      	style 3	
+     	rect 574 424 50 50 
+     	background "ui/assets/forwardarrow.tga"
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	visible 1 
+	mouseEnter { playlooped "sound/misc/loop_electricity_05.wav" ; show lightning ; hide accept ; show accept_alt ; fadein message_accept }
+      	action { close cinematicMenu ; uiScript playMovie }
+  	}
+
+itemDef {
+      	name accept_alt
+      	style 3	
+     	rect 572 422 54 54 
+     	background "ui/assets/forwardarrow_alt.tga"
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	visible 0
+	type ITEM_TYPE_BUTTON   
+      	action { close cinematicMenu ; uiScript playMovie }
+	mouseExit { hide lightning ; hide accept_alt ; show accept ; fadeout message_accept ; playlooped "music/fla_mp03.wav" }	
+  	}
+itemDef {
+      	name lightning
+      	style 3
+	background lightningkc
+      	rect 46 385 174 128     
+      	visible 0 
+      	decoration 
+    	}
+itemDef {
+      	name lightning
+      	style 3
+	background lightningkc
+      	rect 417 385 174 128     
+      	visible 0 
+      	decoration 
+    	}
+
+
+//	MESSAGES	//
+
+itemDef {
+	name message_back
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textstyle 1
+	textalign 1
+	textalignx 0
+	textaligny 25
+	textscale .416
+	text "Exit to Main Menu"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_cinematic
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .416
+	text "Select Cinematic to Play"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_accept
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .416
+	text "Select to Play Fullscreen"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name mappreview
+	ownerdraw UI_PREVIEWCINEMATIC
+	rect 54 144 256 192
+	backcolor 1 1 1 .25
+	border 1
+	bordersize 1
+	bordercolor .5 .5 .5 1
+	decoration
+	visible 1
+	}
+
+
+itemDef {
+      	name fadebox
+      	style WINDOW_STYLE_FILLED
+ 	background "ui/assets/fadebox.tga"
+	forecolor 0 0 0 1
+	backcolor 0 0 0 1
+	rect 0 0 640 480
+      	visible 1 
+	decoration
+    	}
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+}
+
+}
+}

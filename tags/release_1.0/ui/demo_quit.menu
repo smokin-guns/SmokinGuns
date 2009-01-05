@@ -1,0 +1,252 @@
+#include "ui/menudef.h"
+
+{
+\\ DEMO QUIT \\
+
+  menuDef {
+    	name "demo_quit"
+    	visible 0
+    	fullscreen 1
+    	rect 0 0 640 480
+    	background "menuback_a"
+    	focusColor 1 .67 0 1
+    	style 1
+    	border 1
+	onEsc { uiScript "quit" }
+	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ; 	
+	fadeout fadebox }
+	
+
+itemDef {
+      	name actionback
+      	style WINDOW_STYLE_EMPTY
+	rect 0 0 640 480
+	type 1
+      	visible 1 
+	action { play "sound/misc/nomenu.wav" ; 
+	uiScript "quit" }
+    	}
+    
+
+// LEVEL SELECTION BAR	//
+
+itemDef {
+      	name teamarenaart
+	group grpidcredit
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/teamarenaimage2.tga"
+      	rect 64 0 512 150
+      	visible 1 
+	decoration  	  
+    	}
+
+
+
+ 
+
+itemDef {
+	name demo
+	group grpidcredit
+	style 0 
+	rect 0 160 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .5
+	text ""
+	forecolor  1 1 1 1
+	decoration 
+	visible 1
+	}
+
+itemDef {
+	name artist
+	group grpidcredit
+	style 0 
+	rect 0 190 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .333
+	text "Thanks for playing the Quake III: Team Arena DEMO."
+	forecolor 1 1 1 1
+	decoration 
+	visible 1
+	}
+
+
+itemDef {
+	name levelDesign
+	group grpidcredit
+	style 0 
+	rect 0 220 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .333
+	text "For more information about Team Arena"
+	forecolor 1 1 1 1
+	decoration 
+	visible 1
+	}
+
+itemDef {
+	name gameDesign
+	group grpidcredit
+	style 0 
+	rect 0 250 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .333
+	text "check out the official Quake III website at"
+	forecolor 1 1 1 1
+	decoration 
+	visible 1
+	}
+
+itemDef {
+	name ceo
+	group grpidcredit
+	style 0 
+	rect 0 280 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .333
+	text "www.quake3world.com."
+	forecolor 1 1 1 1
+	decoration 
+	visible 1
+	}
+
+itemDef {
+	name bizDev
+	group grpidcredit
+	style 0 
+	rect 0 310 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .35
+	text ""
+	forecolor 1 1 1 1
+	decoration 
+	visible 1
+	}
+
+itemDef {
+	name idMom
+	group grpidcredit
+	style 0 
+	rect 0 340 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .333
+	text "Christmas 2000."
+	forecolor 1 1 1 1
+	decoration 
+	visible 1
+	}
+
+itemDef {
+	name devAssist
+	group grpidcredit
+	style 0 
+	rect 0 380 640 30
+	textalign 1
+	textalignx 320
+	textaligny 10
+	textscale .333
+	text "Full Version of Quake III is Required."
+	forecolor 1 1 1 1
+	decoration 
+	visible 1
+	}
+
+
+itemDef {
+	name exitbttn
+      	group grpidcredit
+      	rect 255 420 130 26
+	type 1
+  	text "Click to Exit"
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	textalign 1   	
+	textscale .25
+	textalignx 65
+	textaligny 20
+      	visible 1
+	decoration
+	backcolor .37 .1 .1 1
+      	forecolor 1 1 1 1
+	action { play "sound/misc/nomenu.wav" }
+	mouseEnter { setitemcolor exitbttn backcolor .1 .37 .1 1 }
+      	mouseExit { setitemcolor exitbttn backcolor .37 .1 .1 1 }	
+	}
+itemDef {
+      	name exitbttn
+	group grpidcredit
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/framebutton.tga"
+	rect 255 420 130 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name exitbttn
+	group grpidcredit
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/leftbutton.tga"
+      	rect 243 420 13 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name exitbttn
+	group grpidcredit
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rightbutton.tga"
+      	rect 384 420 13 26
+      	visible 1
+	decoration  	  
+    	}
+
+itemDef {
+      	name copyright
+      	text "Quake III: Team Arena Copyright 2000 Id Software, Inc. All rights reserved"
+      	style 0
+      	textscale .25
+      	rect 0 440 640 40
+      	textalign 1	
+      	textaligny 32
+      	textalignx 320 
+      	forecolor .75 0 0 .75
+      	visible 1 
+      	decoration 
+	}
+
+
+itemDef {
+      	name fadebox
+      	style WINDOW_STYLE_FILLED
+ 	background "ui/assets/fadebox.tga"
+	forecolor 0 0 0 1
+	backcolor 0 0 0 1
+	rect 0 0 640 480
+      	visible 1 
+	decoration
+    	}
+
+
+
+
+
+}
+
+}
+}

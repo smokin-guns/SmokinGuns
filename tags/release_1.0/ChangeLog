@@ -1,0 +1,120 @@
+Changes since sg 0.9
+******************
+*** CHANGES ***
+- Added .mak, .bat, .lnt, .vprj, .Conscript, .Makefile files from Tequilla archive (Excluded a few)
+- Fixed buildvm.bat and cleanvm.bat which weren't working due to reorganization
+- Organized VC build solutions
+- Removed old VC build solutions
+- Created SSE and SSE2 build profiles for each solution
+- Added lcc compiler toolchain back
+- Added AL and unix files
+
+Changes since sg 0.9
+******************
+*** CHANGES ***
+- Copyright updated.
+- Source license header audit completed.
+- Removed .mak, .bat, .lnt, .vprj, Construct, Makefile files (Waiting for "working" sets to be comitted)
+- Removed code/macosx (Old project was for pre-XCode and the current state of code excludes Intel)
+- Removed code/unix (Waiting for "working" sets to be comitted)
+- Updated Win32 project files for Visual Studio / C++ 2008 (VC9)
+
+Changes since wq3 b2.2
+******************
+
+*** NEW ***
+- Gamename is now "smokinguns"
+- guid & pickup item and damages are now logged (Thanks, Tequila)
+- g_allowVoteKick : New server side cvar to allow or not vote kick
+
+*** CHANGES ***
+- When opening the buy menu, the buy ($$) balloon tooltip is displayed instead
+of the chat (:>...) balloon tooltip.
+- Added "cg_boostfps" cvar to slightly improve FPS, concerning flares and particles.
+- Added a menu option to disable glowing flare effects.
+It might improve FPS for low CPU machine.
+- Added "g_spritelag" to disable "red lag icon" above each laggy player.
+This icon can be particularly annoying because it shows player position to others.
+- The InGame ServerInfo menu now shows values of the server you are connected to.
+- Added "g_breakspawndelay" to change breakable respawn delay.
+By default, 45 seconds (at least) are needed.
+- Added "g_forcebreakrespawn". A breakable will respawn no matter what, even if it
+is in one player's field of vision.
+
+*** FIXED ***
+- Max OSX users should no longer have the "OP_BLOCK_COPY not dword aligned" message.
+- You can no longer pick up more knives and dynamites, when you wear a belt and when
+you already have the max ammo (10 knives or dynamites).
+- Correct colors displayed in buy menu for throwing weapons when you've got a belt (Thanks, Aerasol).
+- By killing yourself and then quitting the game, all your items were dropped twice.
+- When you died and had two same pistols, the correct ammo will be kept for the second one.
+- No possible trick to reload Peacemaker, Colt Lightning and Winchester 1866 in a faster way.
+- No weapon drop from the sky, when spectating.
+- Fix 100% CPU usage on wq_train and wq_lake, when many bots played.
+- Pistols on holster are drawn correctly.
+- If a player hold two different pistols, draw and put them in the correct hands, when third person spectating.
+- Don't "extreme speed knife stab".
+- Prevent a Q3 engine bug in rendering special player shadows, allowing anybody
+to easily locate other players, and then cheat !
+If r_stencilbits >= 4 and cg_shadows == 2, then cg_shadows will be changed to 1.
+- Possibly fix some 3D font rendering on "say:" and kill message on top right screen.
+
+Changes since b2.1
+******************
+
+In addition to these changes, all of the textures and sounds from vanilla quake 3 that WQ3 was dependant on, have been replaced.  So some things in the game will look or sound different.  This is in preparation for a standalone release, to be announced at a later date.
+
+*** NEW ***
+- The delagging code is upgraded to Unlagged 2.01, giving several benefits.
+	- more reliable hitscan delagging
+	- better player movement smoothing
+	- new client cvars: cg_delag, cg_projectileNudge, cg_optimizePrediction, cg_cmdTimeNudge, cl_timeNudge
+	- new server cvars: g_delagHitscan, g_truePing, g_unlaggedVersion
+	- should lessen the client cpu load (set cg_optimizePrediction 1)
+- Ammo counts displayed in weapons choose menu.
+- Ability to select either one of two pistols of the same kind.
+- You can now go into spectator mode and then rejoin, without losing your score.
+- Refresh rate can now be set in the System menu.
+- Added a menu option for disabling or changing the talk sound.
+
+*** CHANGES ***
+- Deathcam now turns to follow your killer, and is hopefully less buggy.
+- Try to find spawnpoints at least 700 units away from enemy players.
+- Players don't drop the ammo belt when they die, because people don't like to pick up an empty belt.
+- The ammo belt will no longer enable the player to carry more of knives, molotovs, or dynamite.
+- Capped movement speed at 75% while reloading, to allow players to knife you more easily.
+- Made altfire for pistols about 12% faster, but increase spread multiplier from 1.6 to 3.
+- When doing a refresh, the ingame browser now checks only wq3 servers, should be a lot faster.
+- If dropping a pistol in akimbo mode, switch to the remaining pistol instead of highest ranked weapon.
+- FFA is now default gametype for wq_- maps in the 'Join' menu.
+- Made the server info popup in the Join menu larger.
+- Made it possible to disengage scoped mode while reloading the Sharps.
+- Drop knives, molotovs, and dynamite with the correct amount of ammo, instead of always just one.
+- Easier to move silently down stairs.
+- Tweaked weapon pricing.  Dynamite, molotov, and knives 50% cheaper.  Winchester '97 two dollars cheaper.
+- Can now replace both pistols with lesser ones without dropping the old ones.  If you have two Peacemakers, buying two Schofields to replace them will work without having to drop the last Peacemaker.
+- If you have two pistols of the same kind and press the dropweapon key, the one with the least ammo left will be dropped, instead of always the one in your left hand.
+- Bot behavior for the various skill levels have been tweaked.
+
+*** FIXED ***
+- Esc key shouldn't get stuck anymore.
+- Firebutton dead bug should show up less frequently.
+- Weapons won't be picked up if you don't have room to carry them.
+- Gatling falls down if standing on something that breaks.
+- Can now buy ammo for deployed gatling even if you are carrying a rifle or shotgun.
+- Won't get stuck with gatling under water, because you can't deploy it under water any longer.
+- Molotow now stops burning if you submerge while carrying it.
+- Make dynamite explode under water.
+- Can no longer light a dynamite or molotov while under water.
+- Fixed players with two guns of the same kind dropping only one of them when they die.
+- Fixed bots not being able to join when the server requires a password.
+- Don't try to load custom bots that are made for vanilla q3.
+- Directional smoke now works, thanks to Spoon.
+- Dynamite and molotovs will no longer disappear if you throw them when backed up to a wall.
+- No cocking sound when switching to an empty Remington shotgun.
+- The "team" command exploit that let you respawn in BR and RTP.
+- Bots can't see through doors anymore.
+- The individual score sometimes got reset in BR and RTP.
+- Don't play "no ammo" sound when you are out of dynamites.
+- Fixed a bug with weapon changing that would cause an infinite sound loop.
+- Weapon switching sound was wrong for other players than yourself.

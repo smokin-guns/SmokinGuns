@@ -1,0 +1,63 @@
+#include "ui/menudef.h"
+
+{
+\\ SERVER INFO MENU \\
+
+menuDef {
+    	name "ingame_serverinfo"
+    	visible 0
+    	fullscreen 0
+			outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+    	rect 352 30 256 300
+    	focusColor 1 .75 0 1
+    	style 1
+    	border 1
+
+itemDef {
+	name window
+	rect 0 0 256 300
+	style 1
+	border 1
+	bordercolor .5 .5 .5 1
+	backcolor 0 0 .75 .25
+	visible 1
+	decoration
+	}
+
+ 	
+itemDef {
+	name serverinfo
+	group serverinfo
+	rect 0 100 256 256	
+	text "Server Information" 
+	textalign 1
+	textscale .25
+	textalignx 128
+	textaligny 17
+	forecolor 1 1 1 1
+	visible 1
+	decoration
+	}
+itemDef {
+	name ok
+	text "OK"
+	textscale .25
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/button_red.tga"
+	rect 103 275 50 20
+	textalign 1
+	textalignx 25
+	textaligny 15
+	forecolor 1 1 1 1
+	visible 1
+	action { close ingame_serverinfo ; close ingame ; open ingame }
+	}
+
+
+
+
+}
+
+
+}

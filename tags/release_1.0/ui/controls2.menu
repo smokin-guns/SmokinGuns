@@ -1,0 +1,911 @@
+#include "ui/menudef.h"
+
+{
+\\ SETUP MENU \\
+
+menuDef {
+    	name "control_menu"
+    	visible 0
+    	fullscreen 0
+	rect 186 0 443 426
+    	focusColor 1 .75 0 1
+    	style 1
+    	border 1
+	onopen { hide grpControls ; show look }
+
+
+itemDef {
+      	name controls_shader
+	group grpControls
+      	style WINDOW_STYLE_SHADER
+      	rect 0 45 640 60      
+      	visible 0
+      	background "ui/assets/controls_shader1"
+      	decoration 
+	}
+
+itemDef {
+	name window
+	group grpControlbutton
+	rect 0 2 443 426	
+	style WINDOW_STYLE_FILLED
+	border 1
+	bordercolor .5 .5 .5 .5
+	forecolor 1 1 1 1
+	backcolor 0 0 0 .25
+	visible 1
+	decoration
+	}
+
+itemDef {
+      	name keyBindStatus
+      	rect 0 15 640 30 
+	ownerdraw UI_KEYBINDSTATUS
+	text " "      
+	forecolor 1 .75 0 1
+	textscale .25
+	textalignx 100
+	textalign 1
+	textaligny 20
+	visible 1
+      	decoration 
+	}
+
+itemDef {
+	name ctr_look
+	text "Look"
+	type 1
+	textscale .3
+	group grpControlbutton
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	rect 37 395 45 26
+	textalign 1
+	textalignx 22
+	textaligny 20
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1
+	visible 1
+	action { hide grpControls ; show look }
+	mouseEnter { show message_look ; setitemcolor ctr_look backcolor .1 .37 .1 1 } 
+	mouseExit { hide message_look ; setitemcolor ctr_look backcolor .37 .1 .1 1 } 
+	}
+itemDef {
+      	name ctr_look
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/framebutton.tga"
+ 	rect 37 395 45 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name ctr_look
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/leftbutton.tga"
+      	rect 25 395 13 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name ctr_look
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rightbutton.tga"
+      	rect 81 395 13 26
+      	visible 1 
+	decoration  	  
+    	}
+
+	itemDef {
+      		name look
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Look Down:"
+		cvar "+lookdown"
+		//rect 99 140 256 20
+		rect 99 135 256 20 
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128 
+      		textaligny 17       
+      		textscale .3        
+		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name look
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Mouse Look:"
+		cvar "+mlook"
+		rect 99 160 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 17
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+	
+	itemDef {
+      		name look
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Centerview:"
+		cvar "centerview"
+		rect 99 185 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 17
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name look
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "ZoomView:"
+		cvar "+zoom"
+		rect 99 210 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 17
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name look
+		group grpControls
+      		type ITEM_TYPE_YESNO
+		text "Free Look:"
+		cvar "cl_freelook"
+		rect 99 235 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 17
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+itemDef {
+	name ctr_move
+	text "Move"
+	type 1
+	textscale .3
+	group grpControlbutton
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	rect 116 395 45 26
+	textalign 1
+	textalignx 22
+	textaligny 20
+	forecolor 1 1 1 1 
+	backcolor .37 .1 .1 1
+	visible 1
+	action { hide grpControls ; show move }
+	mouseEnter { show message_move ; setitemcolor ctr_move backcolor .1 .37 .1 1  } 
+	mouseExit { hide message_move ; setitemcolor ctr_move backcolor .37 .1 .1 1 } 
+	}
+itemDef {
+      	name ctr_move
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/framebutton.tga"
+ 	rect 116 395 45 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name ctr_move
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/leftbutton.tga"
+      	rect 104 395 13 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name ctr_move
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rightbutton.tga"
+      	rect 160 395 13 26
+      	visible 1 
+	decoration  	  
+    	}
+
+
+itemDef {
+      		name move
+		group grpControls
+      		type ITEM_TYPE_YESNO
+		text "Always Run:"
+		cvar "+speed"
+		rect 99 50 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128 
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name move
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Forward:"
+		cvar "+forward"
+		rect 99 75 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name move
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Backpedal:"
+		cvar "+back"
+		rect 99 100 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3                
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+	
+	itemDef {
+      		name move
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Move Left:"
+		cvar "+moveleft"
+		rect 99 125 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name move
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Move Right:"
+		cvar "+moveright"
+		rect 99 150 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name move
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Jump:"
+		cvar "+moveup"
+		rect 99 175 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name move
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Crouch:"
+		cvar "+movedown"
+		rect 99 200 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name move
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Turn Left:"
+		cvar "+left"
+		rect 99 225 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name move
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Turn Right:"
+		cvar "+right"
+		rect 99 250 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+	
+	itemDef {
+      		name move
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Strafe:"
+		cvar "+strafe"
+		rect 99 275 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+
+
+itemDef {
+	name ctr_shoot
+	text "Shoot"
+	type 1
+	textscale .3
+	group grpControlbutton
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	rect 197 395 45 26
+	textalign 1
+	textalignx 22
+	textaligny 20
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1 
+	visible 1
+	action { hide grpControls ; show shoot }
+	mouseEnter { show message_shoot ; setitemcolor ctr_shoot backcolor .1 .37 .1 1 } 
+	mouseExit { hide message_shoot ; setitemcolor ctr_shoot backcolor .37 .1 .1 1 }
+	}
+ 
+itemDef {
+   	name ctr_shoot
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/framebutton.tga"
+ 	rect 197 395 45 26
+   	visible 1 
+	decoration  	  
+ 	}
+
+itemDef {
+      	name ctr_shoot
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/leftbutton.tga"
+      	rect 185 395 13 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name ctr_shoot
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rightbutton.tga"
+      	rect 241 395 13 26
+      	visible 1 
+	decoration  	  
+    	}
+	
+	
+	itemDef {
+      		name shoot				
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Attack:"
+		cvar "+attack"
+		rect 99 50 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128 
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name shoot
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Previous Weapon:"
+		cvar "weapprev"
+		rect 99 70 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name shoot
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Next Weapon:"
+		cvar "weapnext"
+		rect 99 90 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+	
+	itemDef {
+      		name shoot
+		group grpControls
+      		type ITEM_TYPE_YESNO
+		text "Autoswitch:"
+		cvar "cg_autoswitch"
+		rect 99 110 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name shoot
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Gauntlet:"
+		cvar "weapon 1"
+		rect 99 130 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name shoot
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Machinegun:"
+		cvar "weapon 2"
+		rect 99 150 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name shoot
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Shotgun:"
+		cvar "weapon 3"
+		rect 99 170 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name shoot
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Grenade Launcher:"
+		cvar "weapon 4"
+		rect 99 190 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name shoot
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Rocket Launcher:"
+		cvar "weapon 5"
+		rect 99 210 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+	
+	itemDef {
+      		name shoot
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Lightning Gun:"
+		cvar "weapon 6"
+		rect 99 230 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name shoot
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Railgun:"
+		cvar "Weapon 7"
+		rect 99 250 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+	itemDef {
+      		name shoot
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Plasma Gun:"
+		cvar "weapon 8"
+		rect 99 270 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+	itemDef {
+      		name shoot
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "BFG:"
+		cvar "weapon 9"
+		rect 99 290 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3                
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+	itemDef {
+      		name shoot
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Nail Gun:"
+		cvar "weapon 11"
+		rect 99 310 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+	itemDef {
+      		name shoot
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Proximity Mine:"
+		cvar "weapon 12"
+		rect 99 330 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+	itemDef {
+      		name shoot
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Chain Gun:"
+		cvar "weapon 13"
+		rect 99 350 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+itemDef {
+	name ctr_miscellaneous
+	text "Miscellaneous"
+	type 1
+	textscale .3
+	group grpControlbutton
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	rect 282 395 140 26
+	textalign 1
+	textalignx 70
+	textaligny 20
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1 
+	visible 1
+	action { hide grpControls ; show misc }
+	mouseEnter { show message_misc ; setitemcolor ctr_miscellaneous backcolor .1 .37 .1 1 } 
+	mouseExit { hide message_misc ; setitemcolor ctr_miscellaneous backcolor .37 .1 .1 1 } 
+	}
+
+itemDef {
+      	name ctr_miscellaneous
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/framebutton.tga"
+ 	rect 282 395 140 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name ctr_miscellaneous
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/leftbutton.tga"
+      	rect 270 395 13 26
+      	visible 1 
+	decoration  	  
+    	}
+
+itemDef {
+      	name ctr_miscellaneous
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rightbutton.tga"
+      	rect 421 395 13 26
+      	visible 1 
+	decoration  	  
+    	}
+
+	itemDef {
+      		name misc
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Show Scores:"
+		cvar "+scores"
+		rect 99 50 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128 
+      		textaligny 20
+		textscale .3                
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name misc
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Use Item:"
+		cvar "+button2"
+		rect 99 75 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name misc
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Gesture:"
+		cvar "+button3"
+		rect 99 100 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+	
+	itemDef {
+      		name misc
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Chat:"
+		cvar "messagemode"
+		rect 99 125 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name misc
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Team Chat:"
+		cvar "messagemode2"
+		rect 99 150 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name misc
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Target Chat:"
+		cvar "messagemode3"
+		rect 99 175 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name misc
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Attack Chat:"
+		cvar "messagemode4"
+		rect 99 200 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name misc
+		group grpControls
+      		type ITEM_TYPE_SLIDER
+		text "Senstivity:"
+		cvarfloat "sensitivity" 5 1 30
+		rect 99 225 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+	itemDef {
+      		name misc
+		group grpControls
+      		type ITEM_TYPE_YESNO
+		text "Invert Mouse:"
+		cvar "ui_mousePitch"
+		rect 99 250 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+			action { uiScript update mousePitch }
+    		}
+
+	itemDef {
+      		name misc
+		group grpControls
+      		type ITEM_TYPE_YESNO
+		text "Smooth Mouse:"
+		cvar "m_filter"
+		rect 99 275 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+	itemDef {
+      		name misc
+		group grpControls
+    		type ITEM_TYPE_BIND
+		text "Next Team Member:"
+		cvar "nextTeamMember"
+		rect 99 300 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+	itemDef {
+      		name misc
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Next Team Order:"
+		cvar "nextOrder"
+		rect 99 325 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .3        
+      		forecolor 1 1 1 1
+      		visible 0 
+    		}
+
+
+
+
+
+	
+
+
+
+}
+
+}
+
+}

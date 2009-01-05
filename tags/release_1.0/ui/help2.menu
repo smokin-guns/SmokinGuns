@@ -1,0 +1,721 @@
+#include "ui/menudef.h"
+
+{
+\\ Help\\
+
+  menuDef {
+    	name "help_menu"
+    	visible 0
+    	fullscreen 1
+    	rect 0 0 640 480
+    	background "menuback_a"
+    	focusColor 1 .75 0 1
+	outOfBoundsClick
+    	style 1
+    	border 1
+ 	onopen { hide grphelptext ; show help }
+
+
+
+// GAMETYPE BAR	//
+
+
+itemDef {
+      	name gametypebar
+      	style 2
+      	rect 0 16 640 40 
+      	textscale 0.4
+      	textalign 0		        // center
+      	textalignx 60       		// x alignment point for text
+                            		// use it to offset left/right text from the edge 
+                            		// or to center the text on a different point
+      	textaligny 21        
+      	style 2
+      	border 4
+      	bordercolor 0.5 0.5 0.5 0.5
+      	bordersize 2
+      	backcolor 0 0 .75 0.5
+      	visible 1 
+	mouseEnter { setcolor backcolor .75 0 0 .5 ; fadein message_help }
+      	mouseExit { setcolor backcolor 0 0 .75 .5 ; fadeout message_help }
+      	decoration 
+	}
+
+itemDef {
+      	name bar
+      	style 0	
+	text "CTF"
+      	rect 0 16 106 40
+      	textalign 1		
+      	textalignx 53
+	textaligny 31        
+	textscale .3     
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 1
+	action { hide grphelptext ; show ctf } 
+	}
+
+itemDef {
+      	name bar
+      	style 0	
+	text "One Flag"
+      	rect 106 16 128 40
+      	textalign 1		
+      	textalignx 53
+	textaligny 31        
+	textscale .3     
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 1 
+	action { hide grphelptext ; show onectf } 
+	}
+itemDef {
+      	name bar
+      	style 0	
+	text "Overload"
+      	rect 212 16 106 40
+      	textalign 1		
+      	textalignx 50
+	textaligny 31        
+	textscale .3     
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 1 
+	action { hide grphelptext ; show overload } 
+	}
+itemDef {
+      	name bar
+      	style 0	
+	text "Harvester"
+      	rect 318 16 106 40
+      	textalign 1		
+      	textalignx 50
+	textaligny 31        
+	textscale .3     
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 1 
+	action { hide grphelptext ; show harvester } 
+	}
+itemDef {
+      	name bar
+      	style 0	
+	text "Power-Ups"
+      	rect 424 16 106 40
+      	textalign 1		
+      	textalignx 50
+	textaligny 31        
+	textscale .3     
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 1 
+	action { hide grphelptext ; open powerup_menu } 
+	}
+itemDef {
+      	name bar
+      	style 0	
+	text "Orders"
+      	rect 530 16 106 40
+      	textalign 1		
+      	textalignx 50
+	textaligny 31        
+	textscale .3     
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 1 
+	action { hide grphelptext ; open ordersHelp_menu } 
+	}
+
+
+//	HELP TEXT	//
+
+//	CTF	//
+itemDef {
+      	name help
+	group grphelptext
+      	style 0	
+	wrapped
+	text "       For game rules, select one of the \r"
+	"  game types from the above menu bar, \r"
+	"    or select Power-ups for information \r"
+	"              about team power-ups and \r"
+	"                       new useable items."
+      	rect 160 140 600 40
+      	textalign 0		
+      	textalignx 0
+	textaligny 31        
+	textscale .3     
+      	forecolor 1 .67 0 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+
+itemDef {
+      	name ctf
+	group grphelptext
+      	style 0	
+	text "Capture the Flag"
+      	rect 280 94 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 31        
+	textscale .25     
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+itemDef {
+	name ctf
+	group grphelptext
+      	style 0	
+	wrapped
+	rect 280 124 500 20
+	text "To score a team point (often called a capture), the team must invade the \r"
+	"opposing team's base, run through (grab) the other team's flag, and carry \r"
+ 	"it back to their own flag.  For the capture to take place, the team's own \r"
+ 	"flag must still be in the base.  The flag carrier drops the flag when he or \r"
+	"she is fragged.  If the flag is not over void or death fog, it stays in play. \r"
+ 	"A player picks up a dropped flag when he or she runs through it. \r"
+ 	"This returns the player's own flag to base.  If the player runs through \r"
+ 	"the opposing team's flag, the player picks it up and runs with it."
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .25   
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+
+itemDef {
+	name ctf
+	group grphelptext
+      	style 3	
+	background "ui/assets/helpscreens/ctf/team_base.tga"
+      	rect 80 270 128 128
+      	border 1
+      	bordercolor .5 .5 .5 1
+      	visible 0
+	decoration
+	}
+itemDef {
+	name ctf
+	group grphelptext
+      	style 0	
+	text "Team Base"
+      	rect 80 405 128 30
+      	textalign 1		
+      	textalignx 64
+	textaligny 17        
+	textscale .3     
+      	forecolor 1 1 1 1
+      	visible 0
+	decoration
+	}
+itemDef {
+	name ctf
+	group grphelptext
+      	style 3	
+	background "ui/assets/helpscreens/ctf/flag_carrier.tga"
+      	rect 248 270 128 128
+      	border 1
+      	bordercolor .5 .5 .5 1
+      	visible 0
+	decoration
+	}
+itemDef {
+	name ctf
+	group grphelptext
+      	style 0	
+	text "Flag Carrier"
+      	rect 248 405 128 30
+      	textalign 1		
+      	textalignx 64
+	textaligny 17        
+	textscale .3     
+      	forecolor 1 1 1 1
+      	visible 0
+	decoration
+	}
+itemDef {
+	name ctf
+	group grphelptext
+      	style 3	
+	background "ui/assets/helpscreens/ctf/scoring_with_flag.tga"
+      	rect 416 270 128 128
+      	border 1
+      	bordercolor .5 .5 .5 1
+      	visible 0
+	decoration
+	}
+itemDef {
+	name ctf
+	group grphelptext
+      	style 0	
+	text "Scoring with the Flag"
+      	rect 416 405 128 30
+      	textalign 1		
+      	textalignx 64
+	textaligny 17        
+	textscale .3     
+      	forecolor 1 1 1 1
+      	visible 0
+	decoration
+	}
+
+
+// ONE FLAG CTF	//
+
+itemDef {
+      	name onectf
+	group grphelptext
+      	style 0	
+	text "One Flag Capture the Flag"
+      	rect 70 64 500 40
+      	textalign 0		
+      	textalignx 0
+	textaligny 31        
+	textscale .25     
+      	forecolor 1 1 1 1
+      	border 0
+	decoration
+      	bordercolor 0 0 0 0
+      	visible 0
+	}
+itemDef {
+	name onectf
+	group grphelptext
+      	style 0
+	wrapped
+	text "The team must run through (grab) the white flag at the center of the \r"
+	"arena and carry it to the opposing team's flag.  A team point, called a \r"
+	"capture, is scored each time a player successfully carries the flag \r"
+	"to the opposing base.  The flag carrier drops the flag when he or she \r"
+	"is fragged.  If the flag is not over a void or death fog, it stays in play \r"
+   	"and may be picked up by a player from either team.  A flag dropped \r"
+	"over a void or death fog returns to the center of the arena."
+	rect 70 104 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .25     
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+itemDef {
+	name onectf
+	group grphelptext
+      	style 3	
+	background "ui/assets/helpscreens/oneflag/white_flag.tga"
+      	rect 80 270 128 128
+      	border 1
+      	bordercolor .5 .5 .5 11
+      	visible 0
+	decoration
+	}
+itemDef {
+	name onectf
+	group grphelptext
+      	style 0	
+	text "White Flag"
+      	rect 80 405 128 30
+      	textalign 1		
+      	textalignx 64
+	textaligny 17        
+	textscale .3     
+      	forecolor 1 1 1 1
+      	visible 0
+	decoration
+	}
+itemDef {
+	name onectf
+	group grphelptext
+      	style 3	
+	background "ui/assets/helpscreens/oneflag/flag_carrier.tga"
+      	rect 248 270 128 128
+      	border 1
+      	bordercolor .5 .5 .5 1
+      	visible 0
+	decoration
+	}
+itemDef {
+	name onectf
+	group grphelptext
+      	style 0	
+	text "Flag Carrier"
+      	rect 248 405 128 30
+      	textalign 1		
+      	textalignx 64
+	textaligny 17        
+	textscale .3     
+      	forecolor 1 1 1 1
+      	visible 0
+	decoration
+	}
+itemDef {
+	name onectf
+	group grphelptext
+      	style 3	
+	background "ui/assets/helpscreens/oneflag/scoring_with_flag.tga"
+      	rect 416 270 128 128
+      	border 1
+      	bordercolor .5 .5 .5 1
+      	visible 0
+	decoration
+	}
+itemDef {
+	name onectf
+	group grphelptext
+      	style 0	
+	text "Scoring with the Flag"
+      	rect 416 405 128 30
+      	textalign 1		
+      	textalignx 64
+	textaligny 17        
+	textscale .3     
+      	forecolor 1 1 1 1
+      	visible 0
+	decoration
+	}
+
+
+
+//	OVERLOAD	//
+
+itemDef {
+      	name overload
+	group grphelptext
+      	style 0	
+	text "Overload"
+      	rect 70 64 500 40
+      	textalign 0		
+      	textalignx 0
+	textaligny 31        
+	textscale .25     
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+	decoration
+      	visible 0
+	}
+itemDef {
+	name overload
+	group grphelptext
+      	style 0
+	wrapped	
+	text "To score a team point, the players must invade their opponent's base \r"
+    	"and attack the skull portion of the goal obelisk until it explodes. \r"
+   	"As the skull takes damage, it slowly turns bright red. The skull \r"
+	"constantly regenerates and slowly heals itself."
+	rect 70 104 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .25     
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+itemDef {
+	name overload
+	group grphelptext
+      	style 3	
+	background "ui/assets/helpscreens/overload/obelisk.tga"
+      	rect 80 270 128 128
+      	border 1
+      	bordercolor .5 .5 .5 1
+      	visible 0
+	decoration
+	}
+itemDef {
+	name overload
+	group grphelptext
+      	style 0	
+	text "Obelisk"
+      	rect 80 405 128 30
+      	textalign 1		
+      	textalignx 64
+	textaligny 17        
+	textscale .3     
+      	forecolor 1 1 1 1
+      	visible 0
+	decoration
+	}
+itemDef {
+	name overload
+	group grphelptext
+      	style 3	
+	background "ui/assets/helpscreens/overload/damaged_obelisk.tga"
+      	rect 248 270 128 128
+      	border 1
+      	bordercolor .5 .5 .5 1
+      	visible 0
+	decoration
+	}
+itemDef {
+	name overload
+	group grphelptext
+      	style 0	
+	text "Damaged Obelisk"
+      	rect 248 405 128 30
+      	textalign 1		
+      	textalignx 64
+	textaligny 17        
+	textscale .3     
+      	forecolor 1 1 1 1
+      	visible 0
+	decoration
+	}
+itemDef {
+	name overload
+	group grphelptext
+      	style 3	
+	background "ui/assets/helpscreens/overload/exploded_obelisk_1.tga"
+      	rect 416 270 128 128
+      	border 1
+      	bordercolor .5 .5 .5 1
+      	visible 0
+	decoration
+	}
+itemDef {
+	name overload
+	group grphelptext
+      	style 0	
+	text "Exploded Obelisk"
+      	rect 416 405 128 30
+      	textalign 1		
+      	textalignx 64
+	textaligny 17        
+	textscale .3     
+      	forecolor 1 1 1 1
+      	visible 0
+	decoration
+	}
+
+//	HARVESTER	//
+itemDef {
+      	name harvester
+	group grphelptext
+      	style 0	
+	text "Harvester"
+      	rect 70 64 500 40
+      	textalign 0		
+      	textalignx 0
+	textaligny 31        
+	textscale .25     
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+itemDef {
+	name harvester
+	group grphelptext
+      	style 0	
+	wrapped
+	text "To score team points, the team must frag opposing team members. \r"
+	"Each time a player on either team is fragged, a crystal skull of their \r"
+	"team color pops out of the skull generator in the center of the arena. \r"
+	"Players harvest skulls of the opposing team's color by running \r"
+	"through them.  Skulls of their own team's color are removed from play \r"
+	"in the same manner.  Players must carry the skulls to the goal, \r"
+	"a skull receptacle in the opposing team's base.  When a player is \r"
+	"fragged, any carried skulls are lost."
+      	rect 70 104 500 20
+      	textalign 0		
+      	textalignx 0
+	textaligny 17        
+	textscale .25     
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 0
+	decoration
+	}
+itemDef {
+	name harvester
+	group grphelptext
+      	style 3	
+	background "ui/assets/helpscreens/harvester/skull_and_obelisk.tga"
+      	rect 80 270 128 128
+      	border 1
+      	bordercolor .5 .5 .5 1
+      	visible 0
+	decoration
+	}
+itemDef {
+	name harvester
+	group grphelptext
+      	style 0	
+	text "Skull Generator"
+      	rect 80 405 128 30
+      	textalign 1		
+      	textalignx 64
+	textaligny 17        
+	textscale .3     
+      	forecolor 1 1 1 1
+      	visible 0
+	decoration
+	}
+itemDef {
+	name harvester
+	group grphelptext
+      	style 3	
+	background "ui/assets/helpscreens/harvester/carrying_skulls.tga"
+      	rect 248 270 128 128
+      	border 1
+      	bordercolor .5 .5 .5 1
+      	visible 0
+	decoration
+	}
+itemDef {
+	name harvester
+	group grphelptext
+      	style 0	
+	text "Carrying Skulls"
+      	rect 248 405 128 30
+      	textalign 1		
+      	textalignx 64
+	textaligny 17        
+	textscale .3     
+      	forecolor 1 1 1 1
+      	visible 0
+	decoration
+	}
+itemDef {
+	name harvester
+	group grphelptext
+      	style 3	
+	background "ui/assets/helpscreens/harvester/scoring.tga"
+      	rect 416 270 128 128
+      	border 1
+      	bordercolor .5 .5 .5 1
+      	visible 0
+	decoration
+	}
+itemDef {
+	name harvester
+	group grphelptext
+      	style 0	
+	text "Scoring with the Skulls"
+      	rect 416 405 128 30
+      	textalign 1		
+      	textalignx 64
+	textaligny 17        
+	textscale .3     
+      	forecolor 1 1 1 1
+      	visible 0
+	decoration
+	}
+
+	
+
+// BACK BAR	//
+
+
+  itemDef {
+      name gotobar
+      style 2
+      rect 0 430 640 30 
+      textscale 0.4
+      textalign 0		        // center
+      textalignx 60        // x alignment point for text
+                            // use it to offset left/right text from the edge 
+                            // or to center the text on a different point
+      textaligny 21        
+      style 2
+      border 4
+      bordercolor 0.5 0.5 0.5 0.5
+      bordersize 2
+      backcolor 0 0 .75 0.5
+      visible 1 
+      mouseEnter { setcolor backcolor .75 0 0 .5 }
+      mouseExit { setcolor backcolor 0 0 .75 .5 }
+      decoration 
+    }
+
+    itemDef {
+      	name back
+	style 3
+      	background "ui/assets/backarrow.tga"
+	rect 16 424 50 50 
+      	visible 1 
+      	action { close help_menu ; open main }
+	mouseEnter { hide back ; show back_alt ; fadein message_back }
+    	}
+
+itemDef {
+      	name back_alt
+      	style WINDOW_STYLE_SHADER
+	background "ui/assets/backarrow_alt.tga"
+	rect 16 424 50 50 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	visible 0
+	type ITEM_TYPE_BUTTON
+      	mouseExit { hide back_alt ; show back ; fadeout message_back }	  
+      	action { close help_menu ; open main }	  
+	}
+
+
+//	MESSAGES	//
+
+itemDef {
+	name message_back
+	style 0 
+	rect 320 430 128 30
+	textstyle 1
+	textalign 1
+	textalignx 0
+	textaligny 25
+	textscale .4
+	text "Exit to Main Menu"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_help
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .4
+	text "Select for Description"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+
+
+}
+
+
+
+}
+
+
+

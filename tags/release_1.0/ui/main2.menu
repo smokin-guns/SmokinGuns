@@ -1,0 +1,686 @@
+#include "ui/menudef.h"
+
+{
+  assetGlobalDef {
+    font "fonts/impact.ttf" 16				// font
+    smallFont "fonts/impact.ttf" 12				// font
+    bigFont "fonts/impact.ttf" 20				// font
+	cursor "menu/art/3_cursor3"			// cursor	
+	gradientBar "ui/assets/gradientbar2.tga"	// gradient bar
+	//menuEnterSound "sound/misc/menu1.wav"		// sound for menu loading
+	//menuExitSound "sound/misc/menu3.wav"		// sound for menu exiting 
+	itemFocusSound "sound/misc/menu2.wav"		// sound for item getting focus (via keyboard or mouse )
+	//menuBuzzSound "sound/misc/menu4.wav"		// sound for menu buzzing
+
+    fadeClamp 1.0					// sets the fadeup alpha
+	fadeCycle 1					// how often fade happens in milliseconds
+	fadeAmount 0.1					// amount to adjust alpha per cycle
+
+	//shadowX  5					// x amount for shadow offset
+	//shadowY  5					// y amount for shadow offset
+	shadowColor 0.1 0.1 0.1 0.25			// shadow color
+  	}
+							   
+
+
+
+
+menuDef {
+    	name "main"
+	background "menuback_a"
+    	fullScreen MENU_TRUE
+	rect 0 0 640 480
+    	visible MENU_TRUE
+	focusColor 1 .75 0 1
+	soundLoop "music/fla_mp03.wav" 
+	onESC { open quit_popmenu }
+
+
+
+
+	
+itemDef {
+      	name menuback_e
+      	style WINDOW_STYLE_SHADER
+      	rect 0 163 640 155
+     	background "menuback_e"
+      	visible 1
+	decoration
+    	}
+
+									
+
+itemDef {
+      	name menuback_b
+     	style WINDOW_STYLE_SHADER
+     	rect 0 163 640 155
+     	visible 1
+     	background "menuback_b"
+     	bordercolor 0.5 0.5 0.5 .7
+    	decoration 
+	}
+
+
+
+
+
+itemDef {
+	name cinematic
+      	style 5
+	cinematic "mpintro.roq"
+	rect 390 163 250 155
+	backcolor 1 1 1 .25
+	decoration
+	visible 1
+	}
+
+
+
+
+itemDef {
+      	name menuback_d
+      	style WINDOW_STYLE_SHADER
+      	rect 0 163 255 155
+     	background "menuback_d"
+      	visible 1
+	decoration
+    }
+
+
+itemDef {
+      	name menuback_c
+      	style WINDOW_STYLE_SHADER
+      	rect 205 123 235 235
+     	background "menuback_c"
+      	visible 1
+	decoration
+    }
+
+itemDef {
+      	name selection
+      	style WINDOW_STYLE_SHADER
+      	rect 205 123 235 235
+     	background "ui/assets/mainpop.tga"
+	forecolor 1 1 1 .75
+      	visible 0
+	decoration
+    }
+
+itemDef {
+	name selection
+	rect 252 170 144 144 
+	style 3
+	background "centerconsole2"
+	visible 0
+	decoration
+	}
+
+
+
+
+
+
+
+//	GAMETYPE	// 
+ 
+itemDef {
+      	name gametypebar
+      	style 2
+      	rect 80 40 520 30 
+      	backcolor 0 0 .75 .25
+      	border 4
+      	bordercolor 0.5 0.5 0.5 1
+      	bordersize 1
+      	visible 1 
+      	mouseEnter { hide gametype ; show teamarena ; setcolor backcolor .75 0 0 .25 ; show selection }
+      	mouseExit { show gametype ; hide teamarena ; setcolor backcolor 0 0 .75 .25 ; hide selection ; hide grpMessage }	
+	decoration 	
+    	}
+
+
+
+itemDef {
+      	name gametype
+	type 1
+      	text "TEAM ARENA"
+      	style 0	
+	textstyle 6
+      	rect 0 40 640 30
+   	forecolor 1 1 1 1
+	textalignx 320
+	textaligny 23 
+      	textalign 1
+	textscale .416		
+      	visible 1 		  
+    	}
+
+itemDef {
+      	name teamarena
+	type 1
+      	text "Quake3"
+      	style 0	
+	textstyle 6
+      	rect 200 40 60 30 
+	textscale .333
+     	textalign 1
+	textalignx 30
+	textaligny 22		
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+	visible 0 
+	mouseenter { fadein message_quake }
+	mouseexit { fadeout message_quake }
+	action { open quake3_popmenu }
+}
+
+itemDef {
+      	name teamarena
+      	text "Rules"
+	type 1
+      	style 0	
+	textstyle 6
+     	rect 260 40 60 30
+	textscale .333
+	textalignx 30
+	textaligny 22	 
+      	textalign 1		
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1 
+	visible 0
+	mouseenter { fadein message_help }
+	mouseexit { fadeout message_help }
+	action { close main ; open help_menu } 
+	}
+
+itemDef {
+      	name teamarena
+      	text "Credits"
+	type 1
+	textstyle 6
+	textscale .333
+      	style 0	
+     	rect 320 40 60 30
+	textalignx 30
+	textaligny 22	 
+      	textalign 1		
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+	visible 0
+	mouseenter { fadein message_credits }
+	mouseexit { fadeout message_credits }
+	action { close main ; open credit } 
+	}
+
+	
+itemDef {
+     	name teamarena
+     	text "Mods"
+	type 1
+      	style 0	
+	textstyle 6
+	textscale .333
+      	rect 380 40 60 30 
+	textalignx 30
+	textaligny 22
+     	textalign 1		
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+	visible 0 
+	mouseenter { fadein message_mods }
+	mouseexit { fadeout message_mods }
+	action { close main ; open mod }
+     	}
+
+
+
+
+
+
+//	SINGLEPLAYER	// 
+
+itemDef {
+      	name singlebar
+      	style 2
+      	rect 0 80 640 30 
+      	backcolor 0 0 .75 .25
+      	border 4
+      	bordercolor 0.5 0.5 0.5 1
+      	bordersize 1
+      	visible 1 
+      	mouseEnter { setcolor backcolor .75 0 0 .25 ; hide play ; show playselection ; show selection  }
+      	mouseExit { setcolor backcolor 0 0 .75 .25 ; show play ; hide playselection ; hide selection ; hide grpMessage  }
+	decoration 	
+    	}
+
+
+itemDef {
+      	name play
+      	text "PLAY"
+	type 1
+      	style 0	
+	textstyle 6
+      	rect 0 80 640 30 
+      	textalign 1
+	textscale .416		
+	textalignx 320
+	textaligny 23
+   	forecolor 1 1 1 1
+	visible 1 
+	}
+	
+
+itemDef {
+      	name playselection
+      	text "SinglePlayer"
+	type 1
+      	textstyle 6	
+      	rect 170 80 100 30
+	textalignx 50
+	textaligny 22
+	textscale .333
+      	textalign 1		
+   	forecolor 1 1 1 1
+      	visible 0 
+	mouseenter { fadein message_singleplayer }
+	mouseexit { fadeout message_singleplayer }
+      	action { close main ; open Skirmish }
+    	}
+
+
+itemDef {
+      	name playselection
+      	text "MultiPlayer"
+	type 1
+      	style 0
+	textstyle 6	
+      	rect 270 80 100 30 
+      	textalign 1		// center
+	textalignx 50
+	textaligny 22
+	textscale .333
+   	forecolor 1 1 1 1 
+	visible 0 
+	mouseenter { fadein message_multiplayer }
+	mouseexit { fadeout message_multiplayer }
+	action { close main ; open joinserver }
+    	}
+
+	
+
+itemDef {
+      	name playselection
+      	text "StartServer"
+	type 1
+      	style 0	
+	textstyle 6
+      	rect 370 80 100 30 
+      	textalign 1		// center
+	textalignx 50
+	textaligny 22
+	textscale .333
+   	forecolor 1 1 1 1  
+	visible 0 
+	mouseenter { fadein message_startserver }
+	mouseexit { fadeout message_startserver }
+      	action { close main ; open createserver }
+    	}
+
+
+
+//	OPTIONS		// 
+itemDef {
+      	name optionbar
+      	style 2
+      	rect 0 360 640 30 
+      	backcolor 0 0 1 .25
+      	border 4
+      	bordercolor 0.5 0.5 0.5 1
+      	bordersize 1
+      	visible 1 
+      	mouseEnter { setcolor backcolor .75 0 0 .25 ; hide options ; show optionselection ; show selection }
+      	mouseExit { setcolor backcolor 0 0 .75 .25 ; show options ; hide optionselection ; hide selection ; hide grpMessage }
+      	decoration 
+    	}
+
+
+itemDef {
+      	name options
+      	text "OPTIONS"
+      	style 0	
+	type 1
+	textstyle 6
+      	rect 0 360 640 30
+	textalignx 320
+	textaligny 23 
+	textscale .416
+      	textalign 1	   
+   	forecolor 1 1 1 1
+      	visible 1 
+	mouseenter { fadein message_options }
+	mouseexit { fadeout message_options }
+    	}
+
+itemDef {
+      	name optionselection
+      	text "Player"
+      	style 0	
+	type 1
+	textstyle 6
+      	rect 170 360 100 30 
+	textalignx 50
+	textaligny 22
+	textscale .333
+      	textalign 1		
+   	forecolor 1 1 1 1
+      	visible 0 
+	mouseenter { fadein message_player }
+	mouseexit { fadeout message_player }
+      	action { close main ; open player_menu }
+    	}
+
+
+itemDef {
+	name optionselection
+	text "Setup"
+	type 1
+	style 0
+	textstyle 6	
+	rect 270 360 100 30 
+	textalignx 50
+	textaligny 22
+	textscale .333
+      	textalign 1		
+   	forecolor 1 1 1 1
+      	visible 0 
+	mouseenter { fadein message_setup }
+	mouseexit { fadeout message_setup }
+      	action { close main ; open setup_menu ; open control_menu }
+    	}
+
+itemDef {
+      	name optionselection
+      	text "Demos"
+	type 1
+      	style 0
+	textstyle 6	
+      	rect 370 360 100 30 
+	textalignx 50 
+	textaligny 22
+	textscale .333
+     	textalign 1	
+   	forecolor 1 1 1 1
+      	visible 0 
+	mouseenter { fadein message_demos }
+	mouseexit { fadeout message_demos }
+      	action { close main ; open demo }
+    	}
+
+//	QUIT	//
+
+itemDef {
+      	name quitbar
+      	style 2
+      	rect 0 404 640 30 
+      	backcolor 0 0 1 .25
+      	border 4
+      	bordercolor 0.5 0.5 0.5 1
+      	bordersize 1
+      	visible 1 
+      	decoration 
+    	}
+
+
+
+itemDef {
+      	name quit
+      	text "QUIT"
+      	style 0	
+	type 1
+	textstyle 6
+      	rect 0 404 640 30
+	textalignx 320
+	textaligny 23 
+	textscale .416
+      	textalign 1	   
+   	forecolor 1 1 1 1
+      	visible 1 
+  	action { open quit_popmenu }
+	mouseEnter { setitemcolor quitbar backcolor .75 0 0 .25 ; show selection ; show message_quit }
+      	mouseExit { setitemcolor quitbar backcolor 0 0 .75 .25 ; hide selection ; fadeout message_quit ; hide grpMessage  }
+   	}
+
+
+
+itemDef {
+      	name copyright
+      	text "Quake III Copyright 2000 id software, inc. All rights reserved"
+      	style 0
+      	textscale .25
+      	rect 0 440 640 40
+      	textalign 1	
+      	textaligny 32
+      	textalignx 320 
+      	forecolor .75 0 0 .75
+      	visible 1 
+      	decoration 
+	}
+
+//	MESSAGES	//
+
+itemDef {
+	name message_quake
+	group grpMessage
+	style 0 
+	rect 265 210 235 20
+	textalign 0
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	wrapped
+	textscale .333
+	text "Play the Original \r"
+	"Quake III Game."
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_help
+	group grpMessage
+	style 0 
+	rect 261 195 235 20
+	textalign 0
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	wrapped
+	textscale .333
+	text "       Rules for \r"
+	"New Gametytpes,\r"
+	"  Powerups, and\r"
+	"    Team Orders."
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_credits
+	group grpMessage
+	style 0 
+	rect 272 220 235 20
+	textalign 0
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	wrapped
+	textscale .333
+	text "    About Us."
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_mods
+	group grpMessage
+	style 0 
+	rect 256 210 235 20
+	textalign 0
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	wrapped
+	textscale .333
+	text "  Modifications of\r"
+	"Quake III by other \r"
+	"      Developers."
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_singleplayer
+	group grpMessage
+	style 0 
+	rect 260 205 235 20
+	textalign 0
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	wrapped
+	textscale .333
+	text "  Challenge Your\r"
+	"Skills Against the\r"
+	"       Computer."
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_multiplayer
+	group grpMessage
+	style 0 
+	rect 265 205 235 20
+	textalign 0
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	wrapped
+	textscale .333
+	text "Join other Team \r"
+	"Arena Games on\r"
+	" LAN or Internet."
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_startserver
+	group grpMessage
+	style 0 
+	rect 272 205 235 20
+	textalign 0
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	wrapped
+	textscale .333
+	text " Start a Game\r"
+	"  Server for\r"
+	"Others to Join."
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_player
+	group grpMessage
+	style 0 
+	rect 275 205 235 20
+	textalign 0
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	wrapped
+	textscale .333
+	text "  Select Your\r"
+	"Player Model\r"
+	"    and Clan."
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_setup
+	group grpMessage
+	style 0 
+	rect 257 205 235 20
+	textalign 0
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	wrapped
+	textscale .333
+	text "     Set Controls,\r"
+	"Game Options, and \r"
+	"  System Settings."
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_demos
+	group grpMessage
+	style 0 
+	rect 258 210 235 20
+	textalign 0
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	wrapped
+	textscale .333
+	text "   View Recorded\r"
+	"Team Arena Game."
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_quit
+	group grpMessage
+	style 0 
+	rect 258 225 235 20
+	textalign 0
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	wrapped
+	textscale .333
+	text "     Get to Work!"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+
+
+
+
+  }
+
+}
+
+
+
+
+}
+}
+}
+
+   }
+
+
+
+  }
+
+}
