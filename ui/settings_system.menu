@@ -118,7 +118,7 @@ itemDef {
    		type ITEM_TYPE_MULTI	
 		text "Video Mode:"
 		cvar "r_mode"
-		cvarFloatList { "320*240" 0 "400*300" 1 "512*384" 2 "640*480" 3 "800*600" 4 "960*720" 5 "1024*768" 6 "1152*864" 7 "1280*1024" 8 "1600*1200" 9 "2048*1536" 10 "856*480 Wide Screen" 11 }
+		cvarFloatList { "320*240" 0 "400*300" 1 "512*384" 2 "640*480" 3 "800*600" 4 "960*720" 5 "1024*768" 6 "1152*864" 7 "1280*1024" 8 "1600*1200" 9 "2048*1536" 10 "856*480 Wide Screen" 11 "1280*800 Wide Screen" 12 "1440*900 Wide Screen" 13 "1366*768 Wide Screen" 14 "1680*1050 Wide Screen" 15 "1920*1080 Wide Screen" 16 "1920*1200 Wide Screen" 17 "2560*1600 Wide Screen" 18 }
 		rect 192 80 256 18
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 128
