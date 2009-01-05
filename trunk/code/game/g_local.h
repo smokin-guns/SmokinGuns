@@ -362,7 +362,7 @@ struct gclient_s {
 	int			buttons;
 	int			oldbuttons;
 	int			latched_buttons;
-	int			oldupmove;			// wq3
+	int			oldupmove;			// smokinguns
 
 	vec3_t		oldOrigin;
 

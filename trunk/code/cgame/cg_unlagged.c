@@ -38,8 +38,8 @@ Draws predicted effects for the railgun, shotgun, and machinegun.  The
 lightning gun is done in CG_LightningBolt, since it was just a matter
 of setting the right origin and angles.
 
-WQ3 comment by torhu:
-This has not been adapted for wq3, since the hit calculations are much more complicated
+SG comment by torhu:
+This has not been adapted for sg, since the hit calculations are much more complicated
 than in vanilla q3, due to the locational damage etc.  So this function is not being used.
 I doesn't matter that much, since it doesn't affect the actual hitscan delagging, only weapon
 impact effects (bullet holes, possibly player anims and blood sprays).
@@ -238,7 +238,7 @@ CG_AddBoundingBox
 
 Draws a bounding box around a player.  Called from CG_Player.
 
-WQ3 comment by torhu:
+SG comment by torhu:
 Be aware that the bounding box drawn is not the hitbox.  It's the box used for
 movement calculations.  The actual hitbox is about twice the size.  And because
 of the locational damage, it wouldn't be that useful to see the hitbox anyway.

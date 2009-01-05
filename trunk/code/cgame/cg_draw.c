@@ -1736,7 +1736,7 @@ static float CG_DrawCameraInfo( float y ) {
 		y += TINYCHAR_HEIGHT + 5;
 	}
 
-	s = va("=== Frustum Plane%s ===", (sa_engine_inuse ? " (wQ3 engine)" : ""));
+	s = va("=== Frustum Plane%s ===", (sa_engine_inuse ? " (SG engine)" : ""));
 	CG_Text_Paint(X, y + 5 + TINYCHAR_HEIGHT, 0.2f, color, s, 0, 0, 3);
 	y += TINYCHAR_HEIGHT + 5;
 	for ( i = 0; i < 4; i++ ) {
