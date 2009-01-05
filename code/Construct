@@ -40,6 +40,8 @@ $NO_SO = 1;
 $CC='gcc';
 $CXX='g++';
 $MAKE='make';
+# Packages can set a default basedir
+$basedir = $ENV{"DEFAULT_BASEDIR"} || '' ;
 
 # We build client by default
 $no_core = 0;
@@ -325,6 +327,12 @@ if ($do_authport eq 1)
 {
 	$BASE_CFLAGS .= "-DPORT_AUTHORIZE=$auth_port ";
 }
+
+if ($basedir)
+{
+	$BASE_CFLAGS .= "-DDEFAULT_BASEDIR=$basedir ";
+}
+
 if ($OS eq "Linux")
 {
   $BASE_LDFLAGS = '-ldl -lm';
