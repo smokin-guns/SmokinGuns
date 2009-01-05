@@ -1819,7 +1819,7 @@ static pack_t *FS_LoadZipFile( char *zipfile, const char *basename )
 		if (    ( !Q_stricmp( pack->pakBasename , "pak0")   && (unsigned)pack->checksum == SA_PAK0_CHECKSUM )
                      || ( !Q_stricmp( pack->pakBasename , "sapak0") && (unsigned)pack->checksum == SA_PAK0_CHECKSUM )
                                                                                                                          ) {
-			Com_Printf( "Detected WQ3 %s - pretending it to be the retail pak0.\n", pack->pakBasename);
+			Com_Printf( "Detected SG %s - pretending it to be the retail pak0.\n", pack->pakBasename);
 			for (i=0; i < num_fs_headerCRCs_retail[fs_purifiedPak]; i++) {
 				fs_headerLongs_retail[i]=LittleLong(fs_headerCRCs_retail[fs_purifiedPak][i]);
 			}
@@ -2907,7 +2907,7 @@ static void FS_Startup( const char *gameName ) {
 	fs_restrict = Cvar_Get ("fs_restrict", "", CVAR_INIT );
 
 	// The Q3A home path will be added _only_ in combination with GAMENAME (not baseq3)
-	// since we only need wq3's q3config.cfg. It will also be searched
+	// since we only need smokinguns's q3config.cfg. It will also be searched
 	// by FS_SV_FOpenFileRead to find the old servercache and q3key if it should exist
 	// The Cvar defaults to "" so that the following logic can decide wether
 	// the user wants to force to use the Q3A config or not.

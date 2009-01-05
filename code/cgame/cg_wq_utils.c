@@ -20,7 +20,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-// cg_wq_utils.c -- wq³ functions
+// cg_wq_utils.c -- SG functions
 
 #include "cg_local.h"
 
@@ -93,7 +93,7 @@ localEntity_t *CG_CreateBulletHole( vec3_t origin, vec3_t dir, int surfaceFlags,
 
 /*
 ========================
-WQ3 CG_LaunchParticle
+SG CG_LaunchParticle
 by: dX
 date: 6.feb.2000
 

@@ -4415,11 +4415,11 @@ static void UI_BuildServerDisplayList(qboolean force) {
 		Menu_SetFeederSelection(NULL, FEEDER_SERVERS, 0, NULL);
 		// mark all servers as visible so we store ping updates for them
 		//trap_LAN_MarkServerVisible(ui_netSource.integer, -1, qtrue);
-		// Nope, in WQ3 we only mark current WQ3 servers visible.
+		// Nope, in SG we only mark current SG servers visible.
 		count = trap_LAN_GetServerCount(ui_netSource.integer);
 		for (i=0; i<count; i++) {
 			trap_LAN_GetServerInfo(ui_netSource.integer, i, info, MAX_STRING_CHARS);
-			// The second string of the comparison should translate in GAMENAME - and it does for normal WQ3
+			// The second string of the comparison should translate in GAMENAME - and it does for normal SG
 			if (!Q_stricmp(Info_ValueForKey(info, "game"), serverFilters[ui_serverFilterType.integer].basedir)) {
 				trap_LAN_MarkServerVisible(ui_netSource.integer, i, qtrue);
 			} else {

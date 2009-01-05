@@ -182,7 +182,7 @@ typedef enum {
 	GT_RTP,				// round teamplay
 	GT_BR,				// bank robbery
 
-	//all following gametypes are not valid in wq3
+	//all following gametypes are not valid in smokinguns
 	GT_CTF,				// capture the flag
 
 	GT_1FCTF,

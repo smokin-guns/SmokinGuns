@@ -48,7 +48,7 @@ static int				botBeginDelay;
 static botSpawnQueue_t	botSpawnQueue[BOT_SPAWN_QUEUE_DEPTH];
 
 vmCvar_t bot_minplayers;
-// wq3
+// smokinguns
 vmCvar_t bot_noBR; // no bots in BR
 vmCvar_t bot_noDuel; // no bots in duel
 
@@ -1009,7 +1009,7 @@ void G_InitBots( qboolean restart ) {
 	G_LoadArenas();
 
 	trap_Cvar_Register( &bot_minplayers, "bot_minplayers", "0", CVAR_SERVERINFO );
-	// wq3
+	// smokinguns
 	trap_Cvar_Register( &bot_noBR, "bot_noBR", "0", CVAR_ARCHIVE );
 	trap_Cvar_Register( &bot_noDuel, "bot_noDuel", "0", CVAR_ARCHIVE );
 

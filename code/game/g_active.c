@@ -1777,7 +1777,7 @@ void ClientEndFrame( gentity_t *ent ) {
 		if ( ent->client->ps.powerups[ i ] < level.time ) {
 			ent->client->ps.powerups[ i ] = 0;
 		}
-	}*/ //but not in wq3
+	}*/ //but not in smokinguns
 
 /*#ifdef MISSIONPACK
 	// set powerup for player animation
