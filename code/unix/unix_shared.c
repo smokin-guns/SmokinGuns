@@ -372,7 +372,7 @@ qboolean TestSysInstallPath(const char *path) {
 	char *testpath;
 	FILE *f;
 //	testpath = FS_BuildOSPath( path, "", basename(path) );
-	testpath = FS_BuildOSPath( path, "sg", "sg_pak0.pk3" );
+	testpath = FS_BuildOSPath( path, "smokinguns", "sg_pak0.pk3" );
 	f = fopen( testpath, "r" );
 	if (f) {
 		fclose( f );
