@@ -88,7 +88,7 @@ infoParm_t	infoParms[] = {
 	{"nodlight",	0,	SURF_NODLIGHT, 0 },			// don't ever add dynamic lights
 	{"dust",		0,	SURF_DUST, 0},			// leave dust trail when walking on this surface
 
-	//wq3-surface
+	//sg-surface
 	{ "wood",		0,	SURF_WOOD, 0},
 	{ "metal",		0,	SURF_METALSTEPS, 0},
 	{ "wood",		0,	SURF_WOOD, 0 },

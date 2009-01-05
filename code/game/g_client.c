@@ -1122,7 +1122,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	Q_strncpyz( model, Info_ValueForKey (userinfo, "model"), sizeof( model ) );
 	Q_strncpyz( headModel, Info_ValueForKey (userinfo, "headmodel"), sizeof( headModel ) );
 
-	// set hitbox, pay attention function makes wq3 crash in dll-mode
+	// set hitbox, pay attention function makes SG crash in dll-mode
 	//if(model[0])
 	//	WQ_SplitModelName(model, modelname, skinname);
 
