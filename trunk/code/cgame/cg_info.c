@@ -106,7 +106,7 @@ void CG_DrawLoadingStage(void){
 	CG_FillRect(DISTANCE+2*LINE, 480-DISTANCE-2*LINE-LOADING_HEIGHT, progress , LOADING_HEIGHT ,color);
 
 	//lines
-	color[4] = 0.6f;
+
 	//bottom
 	CG_FillRect(DISTANCE, 480-DISTANCE-LINE, 640-2*DISTANCE , LINE ,color);
 	//top
