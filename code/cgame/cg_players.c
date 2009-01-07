@@ -2059,11 +2059,8 @@ static void CG_PlayerTokens( centity_t *cent, int renderfx ) {
 CG_PlayerPowerups
 ===============
 */
-#ifdef NEW_ANIMS
-static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
-#else
+#ifndef SMOKINGUNS
 static void CG_PlayerPowerups( centity_t *cent ) {
-#endif
 	int		powerups;
 	clientInfo_t	*ci;
 
@@ -2073,18 +2070,18 @@ static void CG_PlayerPowerups( centity_t *cent ) {
 	}
 
 	// quad gives a dlight
-	/*if ( powerups & ( 1 << PW_QUAD ) ) {
+	if ( powerups & ( 1 << PW_QUAD ) ) {
 		trap_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 0.2f, 0.2f, 1 );
-	}*/
+	}
 
 	// flight plays a looped sound
-	/*if ( powerups & ( 1 << PW_FLIGHT ) ) {
+	if ( powerups & ( 1 << PW_FLIGHT ) ) {
 		trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.flightSound );
-	}*/
+	}
 
 	ci = &cgs.clientinfo[ cent->currentState.clientNum ];
 	// redflag
-	/*if ( powerups & ( 1 << PW_REDFLAG ) ) {
+	if ( powerups & ( 1 << PW_REDFLAG ) ) {
 		if (ci->newAnims) {
 			CG_PlayerFlag( cent, cgs.media.redFlagFlapSkin, torso );
 		}
@@ -2092,10 +2089,10 @@ static void CG_PlayerPowerups( centity_t *cent ) {
 			CG_TrailItem( cent, cgs.media.redFlagModel );
 		}
 		trap_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 1.0, 0.2f, 0.2f );
-	}*/
+	}
 
 	// blueflag
-	/*if ( powerups & ( 1 << PW_BLUEFLAG ) ) {
+	if ( powerups & ( 1 << PW_BLUEFLAG ) ) {
 		if (ci->newAnims){
 			CG_PlayerFlag( cent, cgs.media.blueFlagFlapSkin, torso );
 		}
@@ -2103,10 +2100,10 @@ static void CG_PlayerPowerups( centity_t *cent ) {
 			CG_TrailItem( cent, cgs.media.blueFlagModel );
 		}
 		trap_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 0.2f, 0.2f, 1.0 );
-	}*/
+	}
 
 	// neutralflag
-	/*if ( powerups & ( 1 << PW_NEUTRALFLAG ) ) {
+	if ( powerups & ( 1 << PW_NEUTRALFLAG ) ) {
 		if (ci->newAnims) {
 			CG_PlayerFlag( cent, cgs.media.neutralFlagFlapSkin, torso );
 		}
@@ -2114,13 +2111,14 @@ static void CG_PlayerPowerups( centity_t *cent ) {
 			CG_TrailItem( cent, cgs.media.neutralFlagModel );
 		}
 		trap_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 1.0, 1.0, 1.0 );
-	}*/
+	}
 
 	// haste leaves smoke trails
-	/*if ( powerups & ( 1 << PW_HASTE ) ) {
+	if ( powerups & ( 1 << PW_HASTE ) ) {
 		CG_HasteTrail( cent );
-	}*/
+	}
 }
+#endif
 
 
 /*
@@ -3167,7 +3165,7 @@ void CG_Player( centity_t *cent ) {
 	}
 #endif
 
-#ifndef NEW_ANIMS
+#ifndef SMOKINGUNS
 	// add powerups floating behind the player
 	CG_PlayerPowerups( cent );
 #endif
@@ -3179,7 +3177,7 @@ void CG_Player( centity_t *cent ) {
 	CG_PlayerSplash( cent );
 
 	// use the same origin for all
-#ifndef MISSIONPACK
+#ifndef SMOKINGUNS
 	if( cgs.gametype == GT_HARVESTER ) {
 		CG_PlayerTokens( cent, renderfx );
 	}
@@ -3682,7 +3680,7 @@ void CG_Player( centity_t *cent ) {
 	//
 	CG_AddPlayerWeapon( &torso, NULL, cent, ci->team );
 
-#ifdef NEW_ANIMS
+#ifndef SMOKINGUNS
 	// add powerups floating behind the player
 	CG_PlayerPowerups( cent, &torso );
 #endif

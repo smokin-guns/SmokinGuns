@@ -242,7 +242,7 @@ typedef enum {
 
 //----------------------------------------------
 // hika comments: this part Spoon added is only for the mod
-#if defined WQ3 || defined Q3_VM
+#if defined SMOKINGUNS_SO || defined Q3_VM
 
 //mapinfo ny Spoon
 

@@ -429,7 +429,7 @@ typedef int		clipHandle_t;
 // exceed MAX_STRING_CHARS
 #define	MAX_STRING_CHARS	1024	// max length of a string passed to Cmd_TokenizeString
 
-#if defined WQ3 || defined Q3_VM
+#if defined SMOKINGUNS_SO || defined Q3_VM
 #define	MAX_STRING_TOKENS	256		// max tokens resulting from Cmd_TokenizeString
 #else
 #define	MAX_STRING_TOKENS	1024	// max tokens resulting from Cmd_TokenizeString
@@ -499,8 +499,8 @@ typedef enum {
 
 #define PROP_GAP_WIDTH			3
 #define PROP_SPACE_WIDTH		8
-#if defined WQ3 || defined Q3_VM
-#define PROP_HEIGHT				24//27
+#if defined SMOKINGUNS_SO || defined Q3_VM
+#define PROP_HEIGHT				24
 #else
 #define PROP_HEIGHT				27
 #endif
@@ -1223,7 +1223,7 @@ typedef struct {
 
 //=========================================================
 
-#if defined WQ3 || defined Q3_VM
+#if defined SMOKINGUNS_SO || defined Q3_VM
 // bit field limits
 #define	MAX_STATS				16
 #define	MAX_PERSISTANT			10
@@ -1310,7 +1310,7 @@ typedef struct playerState_s {
 	int			persistant[MAX_PERSISTANT];	// stats that aren't cleared on death
 	int			powerups[MAX_POWERUPS];	// level.time that the powerup runs out
 	int			ammo[MAX_WEAPONS];
-#if defined WQ3 || defined Q3_VM	// Only used by wQ3 mod
+#if defined SMOKINGUNS_SO || defined Q3_VM	// Only used by SG mod
 	// stats for 2nd weapon
 	int			weapon2;
 	int			weapon2state;// important to be here because of PERS_SCORE
@@ -1321,16 +1321,16 @@ typedef struct playerState_s {
 #endif
 	int			generic1;
 	int			loopSound;
-#if !defined WQ3 && !defined Q3_VM	// Not used by wQ3 mod ? (Originally commented on wQ3 mod)
+#if ! defined SMOKINGUNS_SO && ! defined Q3_VM
 	int			jumppad_ent;	// jumppad entity hit this frame
 #endif
 	// not communicated over the net at all
 	int			ping;			// server to game info for scoreboard
-#if defined WQ3 || defined Q3_VM	// Only used by wQ3 mod
+#if defined SMOKINGUNS_SO || defined Q3_VM	// Only used by SG mod
 	int			oldbuttons;
 #endif
 	int			pmove_framecount;	// FIXME: don't transmit over the network
-#if !defined WQ3 && !defined Q3_VM	// Not used by wQ3 mod ? (Originally commented on wQ3 mod)
+#if ! defined SMOKINGUNS_SO && ! defined Q3_VM
 	int			jumppad_frame;		//free to be changed
 #endif
 	int			entityEventSequence;
@@ -1551,7 +1551,7 @@ typedef enum _flag_status {
 } flagStatus_t;
 
 
-#if defined WQ3 || defined Q3_VM
+#if defined SMOKINGUNS_SO || defined Q3_VM
 #define	MAX_GLOBAL_SERVERS			2048
 #define	MAX_OTHER_SERVERS			128
 #define MAX_PINGREQUESTS			16
