@@ -27,7 +27,7 @@ $env = new cons(
   CXX => $CXX,
   LINK => $LINK,
 	ENV => { PATH => $ENV{PATH}, HOME => $ENV{HOME} },
-  CFLAGS => $BASE_CFLAGS . '-DMISSIONPACK -fPIC',
+  CFLAGS => $BASE_CFLAGS . '-DMISSIONPACK -DSMOKINGUNS_SO -fPIC',
   LDFLAGS => $_LDFLAGS
 );
 
@@ -41,7 +41,7 @@ $vm_env = new cons(
   CCCOM => '%CC %CFLAGS %_IFLAGS -c %< -o %>',
   SUFOBJ => '.asm',
   LINK => 'q3asm',
-  CFLAGS => '-DQ3_VM -DMISSIONPACK -S -Wf-target=bytecode -Wf-g',
+  CFLAGS => '-DQ3_VM -DMISSIONPACK -DSMOKINGUNS -S -Wf-target=bytecode -Wf-g',
   # need to know where to find the compiler tools
   ENV => { PATH => $ENV{PATH} . ":../build/qvmtools", },
 );

@@ -429,7 +429,7 @@ typedef enum {
 } gameExport_t;
 
 // hika comments: this part Spoon added is only for the mod
-#if defined WQ3 || defined Q3_VM
+#if defined SMOKINGUNS_SO || defined Q3_VM
 typedef struct shaderInfo_s {
 	int			surfaceFlags;
 } shaderInfo_t;

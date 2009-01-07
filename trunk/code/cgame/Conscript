@@ -2,7 +2,7 @@
 # builds the cgame for Smokin' Guns SA
 
 # there are slight differences between Q3 and SA build:
-#   -DMISSIONPACK
+#   -DMISSIONPACK -DSMOKINGUNS and/or -DSMOKINGUNS_SO
 #   SA has cg_newdraw.c and ../ui/ui_shared.c
 
 # qvm building against native:
@@ -24,46 +24,29 @@ else {
 # Take care to build 32 bits by default when we're compiling on x86_64 systems
 $_LDFLAGS .= ' -m32' if ( $force32bits );
 
-$env = new cons(
-  # the code has the very bad habit of doing things like #include "../ui/ui_shared.h"
-  # this seems to confuse the dependency analysis, explicit toplevel includes seem to fix
-  CPPPATH => '#cgame:#game:#q3_ui',
+# for SA, use -DMISSIONPACK and -DSMOKINGUNS_SO
+$sa_env = new cons(
+  CPPPATH => '#cgame:#game:#ui',
   CC => $CC,
   CXX => $CXX,
   LINK => $LINK,
 	ENV => { PATH => $ENV{PATH}, HOME => $ENV{HOME} },
-  CFLAGS => $BASE_CFLAGS . '-fPIC',
+  CFLAGS => '-DMISSIONPACK -DSMOKINGUNS_SO ' . $BASE_CFLAGS . '-fPIC',
   LDFLAGS => $_LDFLAGS
 );
 
-# for SA, use -DMISSIONPACK
-%sa_env_hash = $env->copy(
-  CPPPATH => '#cgame:#game:#ui'
-  );
-$sa_env_hash{CFLAGS} = '-DMISSIONPACK ' . $sa_env_hash{CFLAGS};
-$sa_env = new cons(%sa_env_hash);
-
-# qvm building
+# SA qvm building
 # we heavily customize the cons environment
-$vm_env = new cons(
-  # the code has the very bad habit of doing things like #include "../ui/ui_shared.h"
-  # this seems to confuse the dependency analysis, explicit toplevel includes seem to fix
-  CPPPATH => '#cgame:#game:#q3_ui',
+$vm_sa_env = new cons(
+  CPPPATH => '#cgame:#game:#ui',
   CC => 'q3lcc',
   CCCOM => '%CC %CFLAGS %_IFLAGS -c %< -o %>',
   SUFOBJ => '.asm',
   LINK => 'q3asm',
-  CFLAGS => '-DQ3_VM -DVM_CGAME -S -Wf-target=bytecode -Wf-g',
+  CFLAGS => '-DMISSIONPACK -DSMOKINGUNS -DQ3_VM -DVM_CGAME -S -Wf-target=bytecode -Wf-g',
   # need to know where to find the compiler tools
   ENV => { PATH => $ENV{PATH} . ":../build/qvmtools", },
 );
-
-# SA qvm building
-%vm_sa_env_hash = $vm_env->copy(
-  CPPPATH => '#cgame:#game:#ui'
-  );
-$vm_sa_env_hash{CFLAGS} = '-DMISSIONPACK ' . $vm_sa_env_hash{CFLAGS};
-$vm_sa_env = new cons(%vm_sa_env_hash);
 
 # the file with vmMain function MUST be the first one of the list
 @FILES = qw(
@@ -128,8 +111,8 @@ if ($NO_VM eq 0)
 	############################################################################
 	# q3lcc and q3asm should be in your PATH
 	############################################################################
-	Depends $vm_env 'cgame.qvm', '#../build/qvmtools/q3lcc';
-	Depends $vm_env 'cgame.qvm', '#../build/qvmtools/q3asm';
+	Depends $vm_sa_env 'cgame.qvm', '#../build/qvmtools/q3lcc';
+	Depends $vm_sa_env 'cgame.qvm', '#../build/qvmtools/q3asm';
 	Program $vm_sa_env 'cgame.qvm', 
 		@$FILESREF, @$VM_FILESREF, @$SA_FILESREF;
 	Install $vm_sa_env $INSTALL_DIR . '/vm', 'cgame.qvm';
