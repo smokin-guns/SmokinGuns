@@ -3003,17 +3003,17 @@ int BG_AnimLength( int anim, int weapon) {
 //infoname, surfaceFlag, radius, weight, num, fallingfactor, thickness
 prefixInfo_t prefixInfo[NUM_PREFIXINFO] = {
 	{ "metal", SURF_METAL,		1.9f,	1.2f,	7,	1,	0.1f},
-	{ "wood", SURF_WOOD,		1.6f,	1,		10,	1,	1.0f},
-	{ "cloth", SURF_CLOTH,		1,		0.75f ,	7,	1,	0.2f},
-	{ "dirt", SURF_DIRT,		4,		1 ,		15, 1,	0.7f},
+	{ "wood", SURF_WOOD,		1.6f,	1,	10,	1,	1.0f},
+	{ "cloth", SURF_CLOTH,		1,	0.75f,	7,	1,	0.2f},
+	{ "dirt", SURF_DIRT,		4,	1 ,	15, 	1,	0.7f},
 	{ "glass", SURF_GLASS,		0.6f,	1.2f,	5,	1,	0.5f},
-	{ "plant", SURF_PLANT,		4,		1,		7,	1,	2.0f},
-	{ "sand", SURF_SAND,		0.6f,	0.85f,	25, 1,	0.3f},
-	{ "snow", SURF_SNOW,		4,		0.85f,	15, 1,	0.4f},
-	{ "stone", SURF_STONE,		4,		1,		15, 1,	0.3f},
-	{ "water", SURF_WATER,		0.6f,	1,		15, 1,	1.0f},
-	{ "grass", SURF_GRASS,		7,		0.9f,	7,	1,	2.0f},
-	{ "other", 0,				0.8f,	1,		10, 1,	0.5f}
+	{ "plant", SURF_PLANT,		4,	1,	7,	1,	2.0f},
+	{ "sand", SURF_SAND,		0.6f,	0.85f,	25, 	1,	0.3f},
+	{ "snow", SURF_SNOW,		4,	0.85f,	15, 	1,	0.4f},
+	{ "stone", SURF_STONE,		4,	1,	15, 	1,	0.3f},
+	{ "water", SURF_WATER,		0.6f,	1,	15, 	1,	1.0f},
+	{ "grass", SURF_GRASS,		7,	0.9f,	7,	1,	2.0f},
+	{ "other", 0,			0.8f,	1,	10, 	1,	0.5f}
 };
 
 // shoot-thru-walls code( STW wuahahahaha, damn shit)
