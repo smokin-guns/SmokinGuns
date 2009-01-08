@@ -1570,10 +1570,11 @@ void ClientSpawn(gentity_t *ent) {
 	gclient_t	*client;
 	gentity_t	*spawnPoint;
 	char		userinfo[MAX_INFO_STRING];
-	int			flags;
+	int		flags;
+	int		min_money = 0;
 	qboolean	player_died;
 	qboolean	specwatch = ent->client->specwatch;
-	int			i;
+	int		i;
 
 	index = ent - g_entities;
 	client = ent->client;
@@ -1770,8 +1771,24 @@ void ClientSpawn(gentity_t *ent) {
 
 	} else {
 
-		int min_money = (g_gametype.integer == GT_DUEL) ? DU_MIN_MONEY : MIN_MONEY;
-
+		if ( g_gametype.integer == GT_DUEL )  {
+			min_money = DU_MIN_MONEY ;
+		}
+		else  {
+			if ( g_moneyrespawn.integer == 1 ) {
+				// Joe Kari: new minimum money at respawn formula //
+				if ( ( g_gametype.integer == GT_BR ) || ( g_gametype.integer == GT_RTP ) ) {
+					min_money = MIN_MONEY + ( client->ps.stats[ STAT_MONEY ] - m_teamlose.integer ) / 4 ;
+				} else {
+					min_money = MIN_MONEY + client->ps.stats[ STAT_MONEY ] / 4 ;
+				}
+			}
+			if ( min_money < MIN_MONEY ) {
+				// former minimum money at respawn formula : //
+				min_money = MIN_MONEY ;
+			}
+		}
+		
 		// don't apply this in duel mode
 		if(g_gametype.integer != GT_DUEL){
 			// make sure the player doesn't interfere with KillBox
