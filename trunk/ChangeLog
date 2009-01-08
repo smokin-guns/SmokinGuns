@@ -11,9 +11,11 @@ Changes since SG 1.0-20081231
  - Mode 18: 2560x1600 (wide)
 - Add DEFAULT_BASEDIR support for packagers:
  - you have to export DEFAULT_BASEDIR from the shell before to do a make
+- Use SMOKINGUNS and SMOKINGUNS_SO define
+- Add SG_VERSION, SG_RELEASE & SG_SVN support
 *** CHANGES ***
 - Reloading bug fixed by Joe Kari
-
+- Fix game crash during game load when using cgame binary library
 
 Changes in SG 1.0-20081231
 ******************
