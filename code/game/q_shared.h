@@ -27,8 +27,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
-#define	Q3_VERSION		"SG 1.0"
-// Smokin' Guns edition of Q3. Continuing 1.32 makes it 1.33, To not confuse it with any other continuation, we call it "w"
+// SG_VERSION will be used for sg_version cvar
+#ifndef SG_VERSION
+#define SG_VERSION	"1.0"
+#endif
+#ifndef SG_RELEASE
+#define SG_RELEASE	"20081231"
+#endif
+
+// Q3_VERSION will be shown in logs, serverinfo panel and in console
+#ifndef SG_SVN
+#define	Q3_VERSION		"SG " SG_VERSION
+#else
+#define	Q3_VERSION		"SG " SG_VERSION " r" SG_SVN
+#endif
 
 // Game name that should match with the fs_game folder.
 // It is also used as a filter in the game server list.

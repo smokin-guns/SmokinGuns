@@ -260,7 +260,11 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &m_teamwin, "m_teamwin", ROUND_WIN_MONEY, CVAR_CHEAT, 0, qtrue },
 	{ &m_teamlose, "m_teamlose", ROUND_LOSE_MONEY, CVAR_CHEAT, 0, qtrue },
 
-	{ &g_version, "sg_version", "1.0 20081231", CVAR_ROM | CVAR_SERVERINFO, 0, qtrue },
+#ifndef SG_SVN
+	{ &g_version, "sg_version", SG_VERSION " " SG_RELEASE, CVAR_ROM | CVAR_SERVERINFO , 0, qtrue },
+#else
+	{ &g_version, "sg_version", SG_VERSION " " SG_RELEASE " r" SG_SVN, CVAR_ROM | CVAR_SERVERINFO , 0, qtrue },
+#endif
 
 	{ &g_url, "MOD_URL", "www.smokin-guns.net", CVAR_ROM | CVAR_SERVERINFO, 0, qtrue },
 

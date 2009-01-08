@@ -2512,6 +2512,11 @@ void CL_Init( void ) {
 	Cvar_Get ("teamtask", "0", CVAR_USERINFO );
 	Cvar_Get ("sex", "male", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("cl_anonymous", "0", CVAR_USERINFO | CVAR_ARCHIVE );
+#ifndef SG_SVN
+	Cvar_Get ("cl_version", SG_VERSION " " SG_RELEASE, CVAR_ROM | CVAR_USERINFO );
+#else
+	Cvar_Get ("cl_version", SG_VERSION " " SG_RELEASE " r" SG_SVN, CVAR_ROM | CVAR_USERINFO );
+#endif
 
 	Cvar_Get ("password", "", CVAR_USERINFO);
 	Cvar_Get ("cg_predictItems", "1", CVAR_USERINFO | CVAR_ARCHIVE );

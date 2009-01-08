@@ -1016,6 +1016,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	char	blueTeam[MAX_INFO_STRING];
 	char	userinfo[MAX_INFO_STRING];
 	char	guid[MAX_INFO_STRING];
+	char	version[MAX_INFO_STRING];
 	qboolean bot;
 
 	//G_Printf("clientuserinfochanged\n");
@@ -1231,6 +1232,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	strcpy(redTeam, Info_ValueForKey( userinfo, "g_redteamname" ));
 	strcpy(blueTeam, Info_ValueForKey( userinfo, "g_blueteamname" ));
 	strcpy(guid, Info_ValueForKey( userinfo, "cl_guid" ));
+	strcpy(version, Info_ValueForKey( userinfo, "cl_version" ));
 
 	// send over a subset of the userinfo keys so other clients can
 	// print scoreboards, display models, and play custom sounds
@@ -1240,14 +1242,14 @@ void ClientUserinfoChanged( int clientNum ) {
 			client->pers.maxHealth, client->sess.wins, client->sess.losses,
 			Info_ValueForKey( userinfo, "skill" ), teamTask, teamLeader);
 	} else if (*guid == 0) {
-		s = va("n\\%s\\t\\%i\\model\\%s\\g_redteam\\%s\\g_blueteam\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
+		s = va("n\\%s\\t\\%i\\model\\%s\\g_redteam\\%s\\g_blueteam\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d\\v\\%s",
 			client->pers.netname, client->sess.sessionTeam, model, redTeam, blueTeam,
-			client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader);
+			client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader, version);
 	} else {
-		s = va("guid\\%s\\n\\%s\\t\\%i\\model\\%s\\g_redteam\\%s\\g_blueteam\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
+		s = va("guid\\%s\\n\\%s\\t\\%i\\model\\%s\\g_redteam\\%s\\g_blueteam\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d\\v\\%s",
 			guid,
 			client->pers.netname, client->sess.sessionTeam, model, redTeam, blueTeam,
-			client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader);
+			client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader, version);
 	}
 
 	/*if ( bot ) {
