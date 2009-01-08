@@ -1135,7 +1135,7 @@ void BG_SurfaceFlags2Prefix(int surfaceFlags, char	*prefix);
 #define NUM_GIBS	9
 
 #define NUM_PREFIXINFO		12 //very important
-#define	MAX_TEXINFOFILE		5000
+#define	MAX_TEXINFOFILE		10000
 #define	MAX_BRUSHSIDES		200
 
 // ai nodes for the bots
