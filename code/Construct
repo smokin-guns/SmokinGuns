@@ -33,6 +33,7 @@ $do_setup = 0;
 $do_bspc = 0;
 $do_pk3 = 0;
 $do_clean = 0;
+$revision = 0 ;
 # those are exported
 $DO_WIN32 = 0;
 $NO_VM = 1;
@@ -42,6 +43,9 @@ $CXX='g++';
 $MAKE='make';
 # Packages can set a default basedir
 $basedir = $ENV{"DEFAULT_BASEDIR"} || '' ;
+# Packages can set a game version and release
+$sg_version = $ENV{"SG_VERSION"} || '' ;
+$sg_release = $ENV{"SG_RELEASE"} || '' ;
 
 # We build client by default
 $no_core = 0;
@@ -190,6 +194,12 @@ if(@ARGV gt 0)
       $do_static = 1;
       next;
     }
+    elsif(lc($cmdopt) =~ 'rev=.*')
+    {
+      $revision = lc($cmdopt);
+      $revision =~ s/rev=(.*)/\1/;
+      next;
+    }
     elsif(lc($cmdopt) =~ 'master_server=.*')
     {
       $do_masterserver = 1;
@@ -314,6 +324,21 @@ else
 		'-falign-loops=2 -falign-jumps=2 -falign-functions=2 ' .
 		'-fno-strict-aliasing -fstrength-reduce ';
 	$BSPC_BASE_CFLAGS = $BASE_CFLAGS . '-DLINUX -DBSPC -funroll-loops -Dstricmp=strcasecmp ';
+}
+
+if ($sg_version)
+{
+	$BASE_CFLAGS .= "-DSG_VERSION=\\\"$sg_version\\\" ";
+}
+
+if ($sg_release)
+{
+	$BASE_CFLAGS .= "-DSG_RELEASE=\\\"$sg_release\\\" ";
+}
+
+if ($revision)
+{
+	$BASE_CFLAGS .= "-DSG_SVN=\\\"$revision\\\" ";
 }
 
 if ($do_masterserver eq 1)
