@@ -52,6 +52,8 @@ int			g_roundstarttime;
 
 int			g_session;
 
+vmCvar_t	g_moneyrespawn;
+
 // bank robbery
 qboolean	g_goldescaped;
 qboolean	g_robbed;
@@ -81,6 +83,7 @@ vmCvar_t	g_splitChat;
 vmCvar_t	m_maxreward;
 vmCvar_t	m_teamwin;
 vmCvar_t	m_teamlose;
+
 
 vmCvar_t	g_duellimit;
 vmCvar_t	g_dmflags;
@@ -156,6 +159,9 @@ vmCvar_t	g_blueteam;
 vmCvar_t	du_enabletrio;
 vmCvar_t	du_forcetrio;
 
+// BR cvars
+vmCvar_t	br_teamrole;
+
 qboolean b_sWaitingForPlayers = qfalse;
 int i_sNextWaitPrint = 0;
 int i_sNextCount = 0;
@@ -185,6 +191,9 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &du_enabletrio, "du_enabletrio", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 	{ &du_forcetrio, "du_forcetrio", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+
+	{ &br_teamrole, "br_teamrole", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+  	{ &g_moneyrespawn, "g_moneyrespawn", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 
 	{ &g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse  },
 
@@ -1611,7 +1620,7 @@ ScoreIsTied
 */
 qboolean ScoreIsTied( void ) {
 	int		a, b;
-
+	
 	if ( level.numPlayingClients < 2 ) {
 		return qfalse;
 	}
@@ -1666,14 +1675,6 @@ void CheckExitRules( void ) {
 	if ( ScoreIsTied() ) {
 		// always wait for sudden death
 		return;
-	}
-
-	if ( g_timelimit.integer && (!level.warmupTime || g_gametype.integer >= GT_RTP)) {
-		if ( level.time - level.startTime >= g_timelimit.integer*60000 ) {
-			trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"");
-			LogExit( "Timelimit hit." );
-			return;
-		}
 	}
 
 	if ( level.numPlayingClients < 2 ) {
@@ -1756,7 +1757,23 @@ void CheckExitRules( void ) {
 			LogExit( "Scorelimit hit." );
 			return;
 		}
+		
+		// Joe Kari: don't check for Timelimit if the round has begun (more than 15 seconds)
+		if ( ( level.time > g_roundstarttime + 15000 ) && ( level.time < g_roundendtime ) ) {
+			return;
+		}
+		
 	}
+	
+	
+	if ( g_timelimit.integer && (!level.warmupTime || g_gametype.integer >= GT_RTP)) {
+		if ( level.time - level.startTime >= g_timelimit.integer*60000 ) {
+			trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"");
+			LogExit( "Timelimit hit." );
+			return;
+		}
+	}
+
 }
 
 
@@ -1891,8 +1908,23 @@ void SetSpawnPos(int *teamblue, int *teamred) {
 
 	} else if(g_gametype.integer == GT_BR){
 		if(!g_robteam && !g_defendteam){
-			g_robteam = (rand()%2)+1;
-			g_defendteam = g_robteam == TEAM_RED ? TEAM_BLUE : TEAM_RED;
+			switch ( br_teamrole.integer ) {
+				case 2:
+					// team red always defend
+					g_defendteam = TEAM_RED;
+					g_robteam = TEAM_BLUE;
+					break;
+				case 3:
+					// team blue always defend
+					g_defendteam = TEAM_BLUE;
+					g_robteam = TEAM_RED;
+					break;
+				case 1:
+				default:
+					g_robteam = (rand()%2)+1;
+					g_defendteam = g_robteam == TEAM_RED ? TEAM_BLUE : TEAM_RED;
+					break;
+			}
 		}
 	}
 }
@@ -2088,10 +2120,30 @@ static void BankRobbed( void ){
 							client->pers.savedMoney = MAX_MONEY;
 	}
 
-	//the bank was robbed other team is now robbers ( only if round hasn't been already set)
+	//the bank was robbed 
 	if(level.nextroundstart <= level.time){
-		g_robteam = g_defendteam == TEAM_RED ? TEAM_RED : TEAM_BLUE;
-		g_defendteam = g_robteam == TEAM_RED ? TEAM_BLUE : TEAM_RED;
+		switch ( br_teamrole.integer ) {
+			case 1:
+				// winner attack next round
+				g_robteam = g_robteam == TEAM_RED ? TEAM_RED : TEAM_BLUE;
+				g_defendteam = g_robteam == TEAM_RED ? TEAM_BLUE : TEAM_RED;
+				break;
+			case 2:
+				// team red always defend
+				g_defendteam = TEAM_RED;
+				g_robteam = TEAM_BLUE;
+				break;
+			case 3:
+				// team blue always defend
+				g_defendteam = TEAM_BLUE;
+				g_robteam = TEAM_RED;
+				break;
+			default:
+				// default behaviour: winner defend next round
+				g_robteam = g_robteam == TEAM_BLUE ? TEAM_RED : TEAM_BLUE;
+				g_defendteam = g_robteam == TEAM_RED ? TEAM_BLUE : TEAM_RED;
+				break;
+		}
 	}
 
 	// buffer time until the next round starts, set round now!!!
@@ -2102,6 +2154,8 @@ static void BankRobbed( void ){
 
 	trap_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
 }
+
+
 
 // countdown
 void Countdown(int endtime, int step){
@@ -2213,25 +2267,37 @@ void CheckRound(){
 	}
 
 	// check for stuff that has happened while we're playing
-	if (TeamCount( -1, TEAM_RED ) == 0 || TeamCount( -1, TEAM_BLUE) == 0 ||
+	if (TeamCount( -1, TEAM_RED ) == 0 || TeamCount( -1, TEAM_BLUE ) == 0 ||
 		(level.time >= g_roundendtime && g_roundendtime)){
 		// the round is finished
 		if (level.nextroundstart == -1 && level.warmupTime != -1) {	// the round has just been won
 			int loser = 0, winner = 0, i;
 			qboolean tied = qfalse, survivor = qfalse;
 			gclient_t *cl;
-
+			
+			
 			if (TeamCount( -1, TEAM_RED ) && !TeamCount( -1, TEAM_BLUE )){
 				winner = TEAM_RED;
 				loser = TEAM_BLUE;
 			} else if (TeamCount( -1, TEAM_BLUE ) && !TeamCount( -1, TEAM_RED )) {
 				winner = TEAM_BLUE;
 				loser = TEAM_RED;
-			} else
+			} else if ( !TeamCount( -1, TEAM_BLUE ) && !TeamCount( -1, TEAM_RED )) {
 				tied = qtrue;
-
+			} else {
+				// Joe Kari: defenders in BR should win if time run out 
+				// and people are still alive in both team
+				if (g_gametype.integer == GT_BR) {
+					winner = g_defendteam ;
+					loser = g_robteam ;
+				} else {
+					tied = qtrue;
+				}
+			}
+			
+			
 			if (!tied) {	// there is someone left in the game -- they won
-
+				/*
 				// find a winner-player
 				for ( i = 0 ; i < level.maxclients; i++) {
 
@@ -2249,71 +2315,80 @@ void CheckRound(){
 						break;
 					}
 				}
-
-				if ( survivor ) {
-					gentity_t	*tent;
-
-					AddScoreRTP(&g_entities[cl-level.clients], 1);
-					if(g_defendteam != winner){
-						if(winner == TEAM_BLUE){
-							trap_SendServerCommand( -1, va( "cp \"%s won.\"",g_blueteam.string, cl->pers.netname ) );
-							G_LogPrintf( "ROUND: Won: %s\n",g_blueteam.string);
-						} else {
-							trap_SendServerCommand( -1, va( "cp \"%s won.\"", g_redteam.string, cl->pers.netname ) );
-							G_LogPrintf( "ROUND: Won: %s\n", g_redteam.string);
-						}
+				*/
+				
+				//if ( survivor ) {
+					
+				gentity_t	*tent;
+				
+				//---
+				//AddScoreRTP(&g_entities[cl-level.clients], 1);
+				AddScoreRTPTeam(winner , 1);
+				//---
+				
+				if(g_defendteam != winner){
+					if(winner == TEAM_BLUE){
+						trap_SendServerCommand( -1, va( "cp \"%s won.\"",g_blueteam.string, cl->pers.netname ) );
+						G_LogPrintf( "ROUND: Won: %s\n",g_blueteam.string);
 					} else {
-						if(winner == TEAM_BLUE){
-							trap_SendServerCommand( -1, va( "cp \"%s defended the bank.\"",g_blueteam.string, cl->pers.netname ) );
-							G_LogPrintf( "ROUND: Won: %s\n", g_blueteam.string);
-						} else {
-							trap_SendServerCommand( -1, va( "cp \"%s defended the bank.\"", g_redteam.string, cl->pers.netname ) );
-							G_LogPrintf( "ROUND: Won: %s\n", g_redteam.string);
-						}
+						trap_SendServerCommand( -1, va( "cp \"%s won.\"", g_redteam.string, cl->pers.netname ) );
+						G_LogPrintf( "ROUND: Won: %s\n", g_redteam.string);
 					}
-					if(g_round%2){
-						tent = G_TempEntity( vec3_origin, EV_ROUND_TIME );
-						tent->s.eventParm = winner;
-						tent->r.svFlags |= SVF_BROADCAST;
-					}
-
-					//add won money
-					for (i = 0; i < level.maxclients; i++){
-						gclient_t *client= &level.clients[i];
-
-						if(client->ps.stats[STAT_MONEY] < MIN_MONEY)
-							client->ps.stats[STAT_MONEY] = MIN_MONEY;
-
-						if(client->sess.sessionTeam == winner ||
-							client->sess.sessionTeam == winner+3){
-
-							client->ps.stats[STAT_MONEY] += m_teamwin.integer;
-							client->pers.savedMoney += m_teamwin.integer;
-
-						} else if(client->sess.sessionTeam == loser ||
-							client->sess.sessionTeam == loser+3){
-
-							client->ps.stats[STAT_MONEY] += m_teamlose.integer;
-							client->pers.savedMoney += m_teamlose.integer;
-
-						}
-
-						if(client->ps.stats[STAT_MONEY] > MAX_MONEY)
-								client->ps.stats[STAT_MONEY] = MAX_MONEY;
-						if(client->pers.savedMoney > MAX_MONEY)
-							client->pers.savedMoney = MAX_MONEY;
+				} else {
+					if(winner == TEAM_BLUE){
+						trap_SendServerCommand( -1, va( "cp \"%s defended the bank.\"",g_blueteam.string, cl->pers.netname ) );
+						G_LogPrintf( "ROUND: Won: %s\n", g_blueteam.string);
+					} else {
+						trap_SendServerCommand( -1, va( "cp \"%s defended the bank.\"", g_redteam.string, cl->pers.netname ) );
+						G_LogPrintf( "ROUND: Won: %s\n", g_redteam.string);
 					}
 				}
+				if(g_round%2){
+					tent = G_TempEntity( vec3_origin, EV_ROUND_TIME );
+					tent->s.eventParm = winner;
+					tent->r.svFlags |= SVF_BROADCAST;
+				}
+
+				//add won money
+				for (i = 0; i < level.maxclients; i++){
+					gclient_t *client= &level.clients[i];
+
+					if(client->ps.stats[STAT_MONEY] < MIN_MONEY)
+						client->ps.stats[STAT_MONEY] = MIN_MONEY;
+
+					if(client->sess.sessionTeam == winner ||
+						client->sess.sessionTeam == winner+3){
+
+						client->ps.stats[STAT_MONEY] += m_teamwin.integer;
+						client->pers.savedMoney += m_teamwin.integer;
+
+					} else if(client->sess.sessionTeam == loser ||
+						client->sess.sessionTeam == loser+3){
+
+						client->ps.stats[STAT_MONEY] += m_teamlose.integer;
+						client->pers.savedMoney += m_teamlose.integer;
+
+					}
+
+					if(client->ps.stats[STAT_MONEY] > MAX_MONEY)
+							client->ps.stats[STAT_MONEY] = MAX_MONEY;
+					if(client->pers.savedMoney > MAX_MONEY)
+						client->pers.savedMoney = MAX_MONEY;
+				}
+				//}
+				
 			} else {
-				// no one left -- it was a tie
+				// it was a tie
+				//---
 				if(level.time >= g_roundendtime && g_roundendtime){
 					trap_SendServerCommand( -1, "cp \"Time Out\"" );
-				} else if( TeamCount( -1, TEAM_BLUE_SPECTATOR) && TeamCount( -1, TEAM_RED_SPECTATOR)) {
-					trap_SendServerCommand( -1, "cp \"Round was tied!\"" );
+				//} else if( TeamCount( -1, TEAM_BLUE_SPECTATOR) && TeamCount( -1, TEAM_RED_SPECTATOR)) {
 				} else {
-					return;
+					trap_SendServerCommand( -1, "cp \"Round was tied!\"" );
+					//return;
 				}
-
+				//---
+				
 				//add money
 				for (i = 0; i < level.maxclients; i++){
 					gclient_t *client= &level.clients[i];
@@ -2343,10 +2418,29 @@ void CheckRound(){
 
 			trap_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
 
-			if(g_gametype.integer == GT_BR && g_robteam == winner){
-				//the bank was "robbed" other team is now robbers, well not really robbed
-				g_robteam = g_defendteam == TEAM_RED ? TEAM_RED : TEAM_BLUE;
-				g_defendteam = g_robteam == TEAM_RED ? TEAM_BLUE : TEAM_RED;
+			if(g_gametype.integer == GT_BR) {
+				switch ( br_teamrole.integer ) {
+					case 1:
+						// winner attack next round
+						g_robteam = winner == TEAM_RED ? TEAM_RED : TEAM_BLUE;
+						g_defendteam = g_robteam == TEAM_RED ? TEAM_BLUE : TEAM_RED;
+						break;
+					case 2:
+						// team red always defend
+						g_defendteam = TEAM_RED;
+						g_robteam = TEAM_BLUE;
+						break;
+					case 3:
+						// team blue always defend
+						g_defendteam = TEAM_BLUE;
+						g_robteam = TEAM_RED;
+						break;
+					default:
+						// default behaviour: winner defend next round
+						g_robteam = winner == TEAM_BLUE ? TEAM_RED : TEAM_BLUE;
+						g_defendteam = g_robteam == TEAM_RED ? TEAM_BLUE : TEAM_RED;
+						break;
+				}
 			}
 
 		} else if(level.warmupTime == -1){
