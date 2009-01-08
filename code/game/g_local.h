@@ -915,6 +915,7 @@ extern	vmCvar_t	g_maxclients;			// allow this many total, including spectators
 extern	vmCvar_t	g_maxGameClients;		// allow this many active
 extern	vmCvar_t	g_restarted;
 
+extern	vmCvar_t	g_moneyrespawn;
 extern	vmCvar_t	g_duellimit;
 extern	vmCvar_t	g_dmflags;
 extern	vmCvar_t	g_fraglimit;
@@ -1035,6 +1036,7 @@ extern	vmCvar_t	wq_rtppoints;
 extern	vmCvar_t	g_specsareflies;
 
 extern	vmCvar_t	g_roundtime;
+extern	vmCvar_t	br_teamrole;
 
 extern	vmCvar_t	g_redteamcount;
 extern	vmCvar_t	g_blueteamcount;

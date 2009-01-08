@@ -634,7 +634,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	Team_FragBonuses(self, inflictor, attacker);
 
 
-	// if I committed suicide, the flag does not fall, it returns.
 #if 0
 	if (meansOfDeath == MOD_SUICIDE) {
 		if ( self->client->ps.powerups[PW_NEUTRALFLAG] ) {		// only happens in One Flag CTF
@@ -806,13 +805,21 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		rank = 1;
 
 		//if he didn't kill a mate ;)
-		if(victim->client->sess.sessionTeam == assaulter->client->sess.sessionTeam &&
-			g_gametype.integer >= GT_TEAM){
+		if(victim->client->sess.sessionTeam == assaulter->client->sess.sessionTeam && g_gametype.integer >= GT_TEAM) {
 
 			assaulter->client->ps.stats[STAT_MONEY] -= 2*LOSE_MONEY;
 
 			if(assaulter->client->ps.stats[STAT_MONEY] < 0){
+				if ( g_moneyrespawn.integer == 1 ) {
+					// Joe Kari: in the new money system, the teamkiller don't waste its money, 
+					// what he loses is a gift to his mate
+					victim->client->ps.stats[STAT_MONEY] += 2*LOSE_MONEY + assaulter->client->ps.stats[STAT_MONEY] ;
+				}
 				assaulter->client->ps.stats[STAT_MONEY] = 0;
+			} else if ( g_moneyrespawn.integer == 1 ) {
+				// Joe Kari: in the new money system, the teamkiller don't waste its money, 
+				// what he loses is a gift to his mate
+				victim->client->ps.stats[STAT_MONEY] += 2*LOSE_MONEY ;
 			}
 			return;
 		}
