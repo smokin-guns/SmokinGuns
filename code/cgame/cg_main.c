@@ -271,6 +271,9 @@ vmCvar_t		hit_model;
 
 vmCvar_t		cg_warmupmessage;
 
+// temp
+vmCvar_t		cg_exp_shotgunpattern;
+
 /*int				frame_lower;
 int				oldframe_lower;
 float			backlerp_lower;
@@ -284,12 +287,13 @@ typedef struct {
 	vmCvar_t	*vmCvar;
 	char		*cvarName;
 	char		*defaultString;
-	int			cvarFlags;
+	int		cvarFlags;
 } cvarTable_t;
 
 static cvarTable_t		cvarTable[] = {
 	{ &cg_ignore, "cg_ignore", "0", 0 },	// used for debugging
 //	{ &cg_autoswitch, "cg_autoswitch", "1", CVAR_ARCHIVE },
+	{ &cg_drawGun, "cg_drawGun", "1", CVAR_ARCHIVE },
 	{ &cg_drawGun, "cg_drawGun", "1", CVAR_ARCHIVE },
 //	{ &cg_zoomFov, "cg_zoomfov", "22.5", CVAR_CHEAT},
 	{ &cg_fov, "cg_fov", "90", CVAR_CHEAT },
@@ -382,6 +386,8 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_enableDust, "g_enableDust", "0", CVAR_SERVERINFO},
 	{ &cg_enableBreath, "g_enableBreath", "0", CVAR_SERVERINFO},
 
+	{ &cg_exp_shotgunpattern, "cg_exp_shotgunpattern", "0", CVAR_ROM},
+	
 	{ &cg_cameraOrbit, "cg_cameraOrbit", "0", CVAR_CHEAT},
 	{ &cg_cameraOrbitDelay, "cg_cameraOrbitDelay", "50", CVAR_ARCHIVE},
 	{ &cg_timescaleFadeEnd, "cg_timescaleFadeEnd", "1", 0},

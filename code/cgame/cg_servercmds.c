@@ -181,6 +181,10 @@ void CG_ParseServerinfo( void ) {
 	trap_Cvar_Set("g_blueTeamname", cgs.blueTeam);
 	cgs.deathcam = atoi( Info_ValueForKey( info, "g_deathcam" ) );
 
+	s = Info_ValueForKey( info, "g_exp_shotgunpattern" );
+	trap_Cvar_Set("cg_exp_shotgunpattern", s);
+	cgs.exp_shotgunpattern = cg_exp_shotgunpattern.integer;
+
 //unlagged - server options
 	// we'll need this for deciding whether or not to predict weapon effects
 	cgs.delagHitscan = atoi( Info_ValueForKey( info, "g_delagHitscan" ) );

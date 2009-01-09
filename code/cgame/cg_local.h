@@ -1396,6 +1396,9 @@ typedef struct {
 	char			redTeam[MAX_QPATH];
 	char			blueTeam[MAX_QPATH];
 
+
+	int				exp_shotgunpattern;
+
 	qboolean		specsareflies;
 	qboolean		deathcam;
 
@@ -1599,6 +1602,9 @@ extern	vmCvar_t		cg_plOut;
 //moved out of TA
 extern	vmCvar_t		cg_enableDust;
 extern	vmCvar_t		cg_enableBreath;
+
+
+extern	vmCvar_t		cg_exp_shotgunpattern;
 
 //wq³ Cvars
 //extern	vmCvar_t		cg_wq_lefthanded;

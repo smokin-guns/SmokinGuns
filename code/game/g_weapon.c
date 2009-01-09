@@ -785,8 +785,11 @@ wall:
 
 // this should match CG_ShotgunPattern
 int ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, qboolean altfire ) {
-	int			i;
+	int		i;
 	float		r, u;
+	float           spread_dist , spread_angle , angle_shift , current_angle_shift ;
+	float           max_spread_circle , current_spread_circle , extra_circle ;
+	int             current_spread_cell , pellet_per_circle , extra_center_pellet , current_pellet_per_circle ;
 	vec3_t		end;
 	vec3_t		forward, right, up;
 	qboolean	hitClient = qfalse;
@@ -835,27 +838,98 @@ int ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, qbo
 
 	// unlink player first
 	trap_UnlinkEntity(ent);
-
-	// generate the "random" spread pattern
-	for ( i = 0 ; i < count ; i++ ) {
-		qboolean last = (i==count-1);
-
-		r = Q_crandom( &seed ) * bg_weaponlist[ent->client->ps.weapon].spread * 16;
-		u = Q_crandom( &seed ) * bg_weaponlist[ent->client->ps.weapon].spread * 16;
-		VectorMA( origin, 8192 * 16, forward, end);
-		VectorMA (end, r, right, end);
-		VectorMA (end, u, up, end);
-
-//		G_LogPrintf("Pellet Start\n");
-
-		if( ShotgunPellet( r, u, origin, end, ent)){
-			if((i+1) < 16)
-				playerhitcount |= (1 << (i+1));
+	
+	if ( g_exp_shotgunpattern.integer ) {
+		
+		// Joe Kari: new experimental shotgun pattern //
+		
+		// generate the "random" spread pattern
+		
+		switch ( count )  {
+			case 14 :
+			case 28 :
+				pellet_per_circle = 7 ;
+				extra_center_pellet = 0 ;
+				break ;
+			case 6 :
+				pellet_per_circle = 5 ;
+				extra_center_pellet = 1 ;
+				break ;
+			default :
+				pellet_per_circle = 6 ;
+				extra_center_pellet = 0 ;
 		}
+		max_spread_circle = count / pellet_per_circle ;
+		if ( max_spread_circle < 1 )  max_spread_circle = 1 ;
+		angle_shift = Q_random( &seed ) * M_PI * 2.0f ;
+		if ( extra_center_pellet > 0 )  {
+			extra_circle = (float)extra_center_pellet / (float)pellet_per_circle ;
+			max_spread_circle += extra_circle ;
+		}
+		
+		for ( i = - extra_center_pellet ; i < count - extra_center_pellet ; i++ ) {
+			
+			if ( extra_center_pellet > 0 )  {
+				if ( i < 0 )  {
+					current_spread_circle = 0 ;
+					current_pellet_per_circle = extra_center_pellet ;
+				}
+				else  {
+					current_spread_circle = extra_circle + i / pellet_per_circle ;
+					current_pellet_per_circle = pellet_per_circle ;
+				}
+				current_spread_cell = i - current_spread_circle * current_pellet_per_circle ;
+			}
+			else  {
+				current_spread_circle = i / pellet_per_circle ;
+				current_pellet_per_circle = pellet_per_circle ;
+				current_spread_cell = i - current_spread_circle * current_pellet_per_circle ;
+			}
+			current_angle_shift = angle_shift + current_spread_circle * M_PI / (float)current_pellet_per_circle ;
+			
+			spread_dist = ( current_spread_circle + Q_random( &seed ) ) / max_spread_circle * bg_weaponlist[ent->client->ps.weapon].spread * 16 ;
+			// spread adjustement to keep the same spread feeling:
+			spread_dist *= 1.4 ;
+			
+			spread_angle = current_angle_shift + ( (float)current_spread_cell + Q_random( &seed ) ) * M_PI * 2.0f / (float)current_pellet_per_circle ;
+			
+			r = sin( spread_angle ) * spread_dist ;
+			u = cos( spread_angle ) * spread_dist ;
+			
+			VectorMA( origin, 8192 * 16, forward, end);
+			VectorMA (end, r, right, end);
+			VectorMA (end, u, up, end);
 
-//		G_LogPrintf("Pellet End\n");
+
+			if( ShotgunPellet( r, u, origin, end, ent)){
+				if((i+1) < 16)
+					playerhitcount |= (1 << (i+1));
+			}
+
+		}
+		
+		// End (Joe Kari) //
+		
+	} else {
+		// generate the "random" spread pattern
+		for ( i = 0 ; i < count ; i++ ) {
+			qboolean last = (i==count-1);
+			
+			r = Q_crandom( &seed ) * bg_weaponlist[ent->client->ps.weapon].spread * 16;
+			u = Q_crandom( &seed ) * bg_weaponlist[ent->client->ps.weapon].spread * 16;
+			VectorMA( origin, 8192 * 16, forward, end);
+			VectorMA (end, r, right, end);
+			VectorMA (end, u, up, end);
+			
+			if( ShotgunPellet( r, u, origin, end, ent)){
+				if((i+1) < 16)
+					playerhitcount |= (1 << (i+1));
+			}
+		
+		}
 	}
-
+	
+	
 	trap_LinkEntity(ent);
 
 	if(ent->s.angles2[0] != -1 &&

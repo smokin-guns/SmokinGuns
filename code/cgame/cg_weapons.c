@@ -2900,8 +2900,11 @@ hit splashes (FIXME: ranom seed isn't synce anymore)
 ================
 */
 static void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int otherEntNum, entityState_t *es ) {
-	int			i;
+	int		i;
 	float		r, u;
+	float           spread_dist , spread_angle , angle_shift , current_angle_shift ;
+	float           max_spread_circle , current_spread_circle , extra_circle ;
+	int             current_spread_cell , pellet_per_circle , extra_center_pellet , current_pellet_per_circle ;
 	vec3_t		end;
 	vec3_t		forward, right, up;
 	int count = bg_weaponlist[es->weapon].count;
@@ -2915,23 +2918,103 @@ static void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int otherEntNum, e
 	VectorNormalize2( origin2, forward );
 	PerpendicularVector( right, forward );
 	CrossProduct( forward, right, up );
+	
+	if ( cg_exp_shotgunpattern.integer ) {
+			
+		// Joe Kari: new experimental shotgun pattern //
 
-	// generate the "random" spread pattern
-	for ( i = 0 ; i < count ; i++ ) {
-		r = Q_crandom( &seed ) * bg_weaponlist[es->weapon].spread * 16;
-		u = Q_crandom( &seed ) * bg_weaponlist[es->weapon].spread * 16;
-		VectorMA( origin, 8192 * 16, forward, end);
-		VectorMA (end, r, right, end);
-		VectorMA (end, u, up, end);
+		// generate the "random" spread pattern
 
-		if((i+1) < 16 && ((int)es->angles[1] & (1 << (i+1)))){
-			vec3_t player;
+		switch ( count )  {
+			case 14 :
+			case 28 :
+				pellet_per_circle = 7 ;
+				extra_center_pellet = 0 ;
+				break ;
+			case 6 :
+				pellet_per_circle = 5 ;
+				extra_center_pellet = 1 ;
+				break ;
+			default :
+				pellet_per_circle = 6 ;
+				extra_center_pellet = 0 ;
+		}
+		max_spread_circle = count / pellet_per_circle ;
+		if ( max_spread_circle < 1 )  max_spread_circle = 1 ;
+		angle_shift = Q_random( &seed ) * M_PI * 2.0f ;
+		if ( extra_center_pellet > 0 )  {
+			extra_circle = (float)extra_center_pellet / (float)pellet_per_circle ;
+			max_spread_circle += extra_circle ;
+		}
 
-			VectorCopy(cg_entities[es->clientNum].lerpOrigin, player);
+		for ( i = - extra_center_pellet ; i < count - extra_center_pellet ; i++ ) {
 
-			CG_ShotgunPellet( origin, origin2, end, otherEntNum, es->clientNum, player, r, u, es->weapon );
-		} else
-			CG_ShotgunPellet( origin, origin2, end, otherEntNum, -1, origin, r, u, es->weapon );
+			if ( extra_center_pellet > 0 )  {
+				if ( i < 0 )  {
+					current_spread_circle = 0 ;
+					current_pellet_per_circle = extra_center_pellet ;
+				}
+				else  {
+					current_spread_circle = extra_circle + i / pellet_per_circle ;
+					current_pellet_per_circle = pellet_per_circle ;
+				}
+				current_spread_cell = i - current_spread_circle * current_pellet_per_circle ;
+			}
+			else  {
+				current_spread_circle = i / pellet_per_circle ;
+				current_pellet_per_circle = pellet_per_circle ;
+				current_spread_cell = i - current_spread_circle * current_pellet_per_circle ;
+			}
+			current_angle_shift = angle_shift + current_spread_circle * M_PI / (float)current_pellet_per_circle ;
+
+			spread_dist = ( current_spread_circle + Q_random( &seed ) ) / max_spread_circle * bg_weaponlist[es->weapon].spread * 16 ;
+			// spread adjustement to keep the same spread feeling:
+			spread_dist *= 1.4 ;
+			
+			spread_angle = current_angle_shift + ( (float)current_spread_cell + Q_random( &seed ) ) * M_PI * 2.0f / (float)current_pellet_per_circle ;
+
+			r = sin( spread_angle ) * spread_dist ;
+			u = cos( spread_angle ) * spread_dist ;
+
+			VectorMA( origin, 8192 * 16, forward, end);
+			VectorMA (end, r, right, end);
+			VectorMA (end, u, up, end);
+
+			if((i+1) < 16 && ((int)es->angles[1] & (1 << (i+1)))){
+				vec3_t player;
+
+				VectorCopy(cg_entities[es->clientNum].lerpOrigin, player);
+
+				CG_ShotgunPellet( origin, origin2, end, otherEntNum, es->clientNum, player, r, u, es->weapon );
+			} else {
+				CG_ShotgunPellet( origin, origin2, end, otherEntNum, -1, origin, r, u, es->weapon );
+			}
+		
+		}
+
+		// End (Joe Kari) //
+
+			
+	} else {
+		
+		// generate the "random" spread pattern
+		for ( i = 0 ; i < count ; i++ ) {
+			r = Q_crandom( &seed ) * bg_weaponlist[es->weapon].spread * 16;
+			u = Q_crandom( &seed ) * bg_weaponlist[es->weapon].spread * 16;
+			VectorMA( origin, 8192 * 16, forward, end);
+			VectorMA (end, r, right, end);
+			VectorMA (end, u, up, end);
+
+			if((i+1) < 16 && ((int)es->angles[1] & (1 << (i+1)))){
+				vec3_t player;
+
+				VectorCopy(cg_entities[es->clientNum].lerpOrigin, player);
+
+				CG_ShotgunPellet( origin, origin2, end, otherEntNum, es->clientNum, player, r, u, es->weapon );
+			} else {
+				CG_ShotgunPellet( origin, origin2, end, otherEntNum, -1, origin, r, u, es->weapon );
+			}
+		}
 	}
 }
 
