@@ -162,6 +162,11 @@ vmCvar_t	du_forcetrio;
 // BR cvars
 vmCvar_t	br_teamrole;
 
+
+// experimental cvars
+vmCvar_t	g_exp_shotgunpattern;
+
+
 qboolean b_sWaitingForPlayers = qfalse;
 int i_sNextWaitPrint = 0;
 int i_sNextCount = 0;
@@ -194,6 +199,8 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &br_teamrole, "br_teamrole", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
   	{ &g_moneyrespawn, "g_moneyrespawn", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+  	
+  	{ &g_exp_shotgunpattern, "g_exp_shotgunpattern", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 
 	{ &g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse  },
 
@@ -2299,34 +2306,10 @@ void CheckRound(){
 			
 			
 			if (!tied) {	// there is someone left in the game -- they won
-				/*
-				// find a winner-player
-				for ( i = 0 ; i < level.maxclients; i++) {
-
-					cl = &level.clients[i];
-
-					if(cl->sess.sessionTeam == winner){
-						break;
-					}
-				}
-				// find deads of the other team
-				for( i = 0; i < level.maxclients; i++ ){
-
-					if(level.clients[i].sess.sessionTeam == loser + 3) {
-						survivor = qtrue;
-						break;
-					}
-				}
-				*/
 				
-				//if ( survivor ) {
-					
 				gentity_t	*tent;
 				
-				//---
-				//AddScoreRTP(&g_entities[cl-level.clients], 1);
 				AddScoreRTPTeam(winner , 1);
-				//---
 				
 				if(g_defendteam != winner){
 					if(winner == TEAM_BLUE){
@@ -2377,19 +2360,14 @@ void CheckRound(){
 					if(client->pers.savedMoney > MAX_MONEY)
 						client->pers.savedMoney = MAX_MONEY;
 				}
-				//}
 				
 			} else {
-				// it was a tie
-				//---
+				
 				if(level.time >= g_roundendtime && g_roundendtime){
 					trap_SendServerCommand( -1, "cp \"Time Out\"" );
-				//} else if( TeamCount( -1, TEAM_BLUE_SPECTATOR) && TeamCount( -1, TEAM_RED_SPECTATOR)) {
 				} else {
 					trap_SendServerCommand( -1, "cp \"Round was tied!\"" );
-					//return;
 				}
-				//---
 				
 				//add money
 				for (i = 0; i < level.maxclients; i++){
@@ -2438,6 +2416,7 @@ void CheckRound(){
 						g_robteam = TEAM_RED;
 						break;
 					case 4:
+						// always swap defender and robbers
 						g_robteam = g_robteam == TEAM_BLUE ? TEAM_RED : TEAM_BLUE;
 						g_defendteam = g_robteam == TEAM_RED ? TEAM_BLUE : TEAM_RED;
 						break;
