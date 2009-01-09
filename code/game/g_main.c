@@ -1920,7 +1920,7 @@ void SetSpawnPos(int *teamblue, int *teamred) {
 					g_robteam = TEAM_RED;
 					break;
 				case 1:
-				case 5:
+				case 4:
 				default:
 					g_robteam = (rand()%2)+1;
 					g_defendteam = g_robteam == TEAM_RED ? TEAM_BLUE : TEAM_RED;
@@ -2139,7 +2139,7 @@ static void BankRobbed( void ){
 				g_defendteam = TEAM_BLUE;
 				g_robteam = TEAM_RED;
 				break;
-			case 5:
+			case 4:
 			default:
 				// default behaviour: winner defend next round
 				g_robteam = g_robteam == TEAM_BLUE ? TEAM_RED : TEAM_BLUE;
@@ -2437,7 +2437,7 @@ void CheckRound(){
 						g_defendteam = TEAM_BLUE;
 						g_robteam = TEAM_RED;
 						break;
-					case 5:
+					case 4:
 						g_robteam = g_robteam == TEAM_BLUE ? TEAM_RED : TEAM_BLUE;
 						g_defendteam = g_robteam == TEAM_RED ? TEAM_BLUE : TEAM_RED;
 						break;
