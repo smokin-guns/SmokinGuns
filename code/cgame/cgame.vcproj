@@ -56,7 +56,7 @@
 				FavorSizeOrSpeed="0"
 				OmitFramePointers="false"
 				WholeProgramOptimization="false"
-				PreprocessorDefinitions="VM_CGAME;WIN32;NDEBUG;_WINDOWS;MISSIONPACK;WQ3"
+				PreprocessorDefinitions="VM_CGAME;WIN32;_DEBUG;_WINDOWS;MISSIONPACK;SMOKINGUNS;SMOKINGUNS_SO"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -154,7 +154,7 @@
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
 				WholeProgramOptimization="true"
-				PreprocessorDefinitions="VM_CGAME;WIN32;NDEBUG;_WINDOWS;MISSIONPACK;WQ3"
+				PreprocessorDefinitions="VM_CGAME;WIN32;NDEBUG;_WINDOWS;MISSIONPACK;SMOKINGUNS;SMOKINGUNS_SO"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -217,6 +217,22 @@
 			<File
 				RelativePath="..\game\bg_lib.c"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\game\bg_misc.c"
