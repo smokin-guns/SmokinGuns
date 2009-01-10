@@ -851,6 +851,26 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\client\qal.c"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="client\snd_adpcm.c"
 				>
 				<FileConfiguration
@@ -875,6 +895,34 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\client\snd_codec.c"
+				>
+			</File>
+			<File
+				RelativePath=".\client\snd_codec_ogg.c"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\client\snd_codec_wav.c"
+				>
+			</File>
+			<File
 				RelativePath="client\snd_dma.c"
 				>
 				<FileConfiguration
@@ -897,6 +945,10 @@
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\client\snd_main.c"
+				>
 			</File>
 			<File
 				RelativePath="client\snd_mem.c"
@@ -945,6 +997,10 @@
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\client\snd_openal.c"
+				>
 			</File>
 			<File
 				RelativePath="client\snd_wavelet.c"
@@ -1504,6 +1560,26 @@
 				>
 			</File>
 			<File
+				RelativePath=".\client\qal.h"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="qcommon\qcommon.h"
 				>
 			</File>
@@ -1521,6 +1597,10 @@
 			</File>
 			<File
 				RelativePath="server\server.h"
+				>
+			</File>
+			<File
+				RelativePath=".\client\snd_codec.h"
 				>
 			</File>
 			<File
