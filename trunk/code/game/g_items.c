@@ -68,8 +68,7 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 
 //======================================================================
 
-#if 0
-//#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 	int		clientNum;
 	char	userinfo[MAX_INFO_STRING];
@@ -239,7 +238,8 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 		}
 
 		// dropped items and teamplay weapons always have full ammo
-		/*if ( ! (ent->flags & FL_DROPPED_ITEM) && g_gametype.integer != GT_TEAM ) {
+#ifndef SMOKINGUNS
+		if ( ! (ent->flags & FL_DROPPED_ITEM) && g_gametype.integer != GT_TEAM ) {
 			// respawning rules
 			// drop the quantity if the already have over the minimum
 			if ( other->client->ps.ammo[ ent->item->giTag ] < quantity ) {
@@ -247,7 +247,8 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 			} else {
 				quantity = 1;		// only add a single shot
 			}
-		}*/
+		}
+#endif
 	}
 
 	// if the weapon is the second the player owns(pistol)
@@ -258,16 +259,19 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 	} else {
 		// add the weapon
 		other->client->ps.stats[STAT_WEAPONS] |= ( 1 << ent->item->giTag );
+
 		Add_Ammo( other, ent->item->giTag, quantity );
 	}
 
-	/*if (ent->item->giTag == WP_GRAPPLING_HOOK)
-		other->client->ps.ammo[ent->item->giTag] = -1;*/ // unlimited ammo
+#ifndef SMOKINGUNS
+	if (ent->item->giTag == WP_GRAPPLING_HOOK)
+		other->client->ps.ammo[ent->item->giTag] = -1; // unlimited ammo
 
 	// team deathmatch has slow weapon respawns
-	/*if ( g_gametype.integer == GT_TEAM ) {
+	if ( g_gametype.integer == GT_TEAM ) {
 		return g_weaponTeamRespawn.integer;
-	}*/
+	}
+#endif
 
 	return g_weaponRespawn.integer;
 }
@@ -280,12 +284,12 @@ int Pickup_Health (gentity_t *ent, gentity_t *other) {
 	int			quantity;
 
 	// small and mega healths will go over the max
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 	if( other->client && bg_itemlist[other->client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD ) {
 		max = other->client->ps.stats[STAT_MAX_HEALTH];
 	}
 	else
-#endif*/
+#endif
 	if ( ent->item->quantity != 5 && ent->item->quantity != 100 ) {
 		max = other->client->ps.stats[STAT_MAX_HEALTH];
 	} else {
@@ -315,7 +319,7 @@ int Pickup_Health (gentity_t *ent, gentity_t *other) {
 //======================================================================
 
 int Pickup_Armor( gentity_t *ent, gentity_t *other ) {
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 	int		upperBound;
 
 	other->client->ps.stats[STAT_ARMOR] += ent->item->quantity;
@@ -330,7 +334,7 @@ int Pickup_Armor( gentity_t *ent, gentity_t *other ) {
 	if ( other->client->ps.stats[STAT_ARMOR] > upperBound ) {
 		other->client->ps.stats[STAT_ARMOR] = upperBound;
 	}
-#else*/
+#else
 	if(ent->count){
 		other->client->ps.stats[STAT_ARMOR] += ent->count;
 	} else {
@@ -339,7 +343,7 @@ int Pickup_Armor( gentity_t *ent, gentity_t *other ) {
 	if ( other->client->ps.stats[STAT_ARMOR] > BOILER_PLATE/*other->client->ps.stats[STAT_MAX_HEALTH] * 2*/ ) {
 		other->client->ps.stats[STAT_ARMOR] = BOILER_PLATE/*other->client->ps.stats[STAT_MAX_HEALTH] * 2*/;
 	}
-//#endif
+#endif
 
 	return RESPAWN_ARMOR;
 }
@@ -381,7 +385,8 @@ void RespawnItem( gentity_t *ent ) {
 	ent->r.svFlags &= ~SVF_NOCLIENT;
 	trap_LinkEntity (ent);
 
-	/*if ( ent->item->giType == IT_POWERUP ) {
+#ifndef SMOKINGUNS
+	if ( ent->item->giType == IT_POWERUP ) {
 		// play powerup spawn sound to all clients
 		gentity_t	*te;
 
@@ -409,7 +414,8 @@ void RespawnItem( gentity_t *ent ) {
 		}
 		te->s.eventParm = G_SoundIndex( "sound/items/kamikazerespawn.wav" );
 		te->r.svFlags |= SVF_BROADCAST;
-	}*/
+	}
+#endif
 
 	// play the normal respawn sound only to nearby clients
 	G_AddEvent( ent, EV_ITEM_RESPAWN, 0 );
@@ -437,7 +443,9 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		return;
 	}
 
-	G_LogPrintf( "Item: %i %s", other->s.number, ent->item->classname );
+#ifndef SMOKINGUNS
+	G_LogPrintf( "Item: %i %s\n", other->s.number, ent->item->classname );
+#endif
 
 	predict = other->client->pers.predictItemPickup;
 
@@ -461,11 +469,11 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		respawn = Pickup_Powerup(ent, other);
 		predict = qfalse;
 		break;
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 	case IT_PERSISTANT_POWERUP:
 		respawn = Pickup_PersistantPowerup(ent, other);
 		break;
-#endif*/
+#endif
 	case IT_TEAM:
 		respawn = Pickup_Team(ent, other);
 		break;
@@ -473,31 +481,44 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		respawn = Pickup_Holdable(ent, other);
 		break;
 	default:
+#ifdef SMOKINGUNS
+		G_LogPrintf( "Item: %i %s\n", other->s.number, ent->item->classname );
+#endif
 		return;
 	}
 
+#ifdef SMOKINGUNS
 	if(g_gametype.integer >= GT_RTP)
 		respawn = -1;
+#endif
 
 	if ( !respawn) {
+#ifdef SMOKINGUNS
+		G_LogPrintf( "Item: %i %s\n", other->s.number, ent->item->classname );
+#endif
 		return;
 	}
 
 	// play the normal pickup sound
 	if (predict) {
+#ifdef SMOKINGUNS
 		if(!Q_stricmp(ent->item->classname, "pickup_money"))
 			G_AddPredictableEvent( other, EV_MONEY_PICKUP, ent->count );
 		else
+#endif
 			G_AddPredictableEvent( other, EV_ITEM_PICKUP, ent->s.modelindex );
 	} else {
+#ifdef SMOKINGUNS
 		if(!Q_stricmp(ent->item->classname, "pickup_money"))
 			G_AddEvent( other, EV_MONEY_PICKUP, ent->count );
 		else
+#endif
 			G_AddEvent( other, EV_ITEM_PICKUP, ent->s.modelindex );
 	}
 
 	// powerup pickups are global broadcasts
-	/*if ( ent->item->giType == IT_POWERUP || ent->item->giType == IT_TEAM) {
+#ifndef SMOKINGUNS
+	if ( ent->item->giType == IT_POWERUP || ent->item->giType == IT_TEAM) {
 		// if we want the global sound to play
 		if (!ent->speed) {
 			gentity_t	*te;
@@ -514,7 +535,8 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 			te->r.svFlags |= SVF_SINGLECLIENT;
 			te->r.singleClient = other->s.number;
 		}
-	}*/
+	}
+#endif
 
 	// fire item targets
 	G_UseTargets (ent, other);
@@ -525,6 +547,9 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		ent->s.eFlags |= EF_NODRAW;
 		ent->r.contents = 0;
 		ent->unlinkAfterEvent = qtrue;
+#ifdef SMOKINGUNS
+		G_LogPrintf( "Item: %i %s\n", other->s.number, ent->item->classname );
+#endif
 		return;
 	}
 
@@ -564,13 +589,18 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		ent->nextthink = level.time + respawn * 1000;
 		ent->think = RespawnItem;
 	}
+#ifdef SMOKINGUNS
 	// Tequila comment: Check and report the buy case
 	if (ent->flags & FL_BUY_ITEM)
-		G_LogPrintf( " bought ($%i/$%i)\n", ent->item->prize, other->client->ps.stats[STAT_MONEY] );
+		G_LogPrintf( "Item: %i %s bought ($%i/$%i)\n", other->s.number,
+			ent->item->classname, ent->item->prize, other->client->ps.stats[STAT_MONEY] );
 	else if (!Q_stricmp(ent->item->classname, "pickup_money"))
-		G_LogPrintf( " (%i) picked up ($%i)\n", ent->count, other->client->ps.stats[STAT_MONEY] );
+		G_LogPrintf( "Item: %i %s (%i) picked up ($%i)\n", other->s.number,
+			ent->item->classname, ent->count, other->client->ps.stats[STAT_MONEY] );
 	else
-		G_LogPrintf( " (%i) picked up\n", ent->count );
+		G_LogPrintf( "Item: %i %s (%i) picked up\n", other->s.number,
+			ent->item->classname, ent->count );
+#endif
 	trap_LinkEntity( ent );
 }
 
@@ -611,11 +641,11 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int droppe
 	VectorCopy( velocity, dropped->s.pos.trDelta );
 
 	dropped->s.eFlags |= EF_BOUNCE_HALF;
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 	if ((g_gametype.integer == GT_CTF || g_gametype.integer == GT_1FCTF) && item->giType == IT_TEAM) { // Special case for CTF flags
-#else*/
+#else
 	if (g_gametype.integer == GT_CTF && item->giType == IT_TEAM) { // Special case for CTF flags
-//#endif
+#endif
 		dropped->think = Team_DroppedFlagThink;
 		dropped->nextthink = level.time + 30000;
 		Team_CheckDroppedItem( dropped );
@@ -770,10 +800,12 @@ void FinishSpawningItem( gentity_t *ent ) {
 		return;
 	}
 
-	/*if ( ent->spawnflags & 1 ) {
+#ifndef SMOKINGUNS
+	if ( ent->spawnflags & 1 ) {
 		// suspended
 		G_SetOrigin( ent, ent->s.origin );
-	} else {*/
+	} else {
+#endif
 		// drop to floor
 		VectorSet( dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096 );
 		trap_Trace_New( &tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID );
@@ -798,7 +830,9 @@ void FinishSpawningItem( gentity_t *ent ) {
 
 		VectorCopy(ent->r.currentOrigin, ent->s.pos.trBase);
 		VectorCopy(ent->r.currentAngles, ent->s.apos.trBase);
-	//}
+#ifndef SMOKINGUNS
+	}
+#endif
 
 	if(ent->item->giType == IT_POWERUP && ent->item->giTag == PW_GOLD){
 		if(g_gametype.integer != GT_BR){
@@ -818,7 +852,8 @@ void FinishSpawningItem( gentity_t *ent ) {
 	}
 
 	// powerups don't spawn in for a while
-	/*if ( ent->item->giType == IT_POWERUP ) {
+#ifndef SMOKINGUNS
+	if ( ent->item->giType == IT_POWERUP ) {
 		float	respawn;
 
 		respawn = 45 + crandom() * 15;
@@ -827,7 +862,8 @@ void FinishSpawningItem( gentity_t *ent ) {
 		ent->nextthink = level.time + respawn * 1000;
 		ent->think = RespawnItem;
 		return;
-	}*/
+	}
+#endif
 
 
 	trap_LinkEntity (ent);
@@ -859,7 +895,7 @@ void G_CheckTeamItems( void ) {
 			G_Printf( S_COLOR_YELLOW "WARNING: No team_CTF_blueflag in map" );
 		}
 	}
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 	if( g_gametype.integer == GT_1FCTF ) {
 		gitem_t	*item;
 
@@ -917,7 +953,7 @@ void G_CheckTeamItems( void ) {
 			G_Printf( S_COLOR_YELLOW "WARNING: No team_neutralobelisk in map" );
 		}
 	}
-#endif*/
+#endif
 }
 
 /*
@@ -926,6 +962,7 @@ ClearRegisteredItems
 ==============
 */
 void ClearRegisteredItems( void ) {
+#ifdef SMOKINGUNS
 	int i;
 	memset( itemRegistered, 0, sizeof( itemRegistered ) );
 
@@ -952,12 +989,19 @@ void ClearRegisteredItems( void ) {
 	else if(g_gametype.integer != GT_RTP)
 		RegisterItem( BG_FindItemForClassname( "pickup_money" ) );
 
-/*#ifdef MISSIONPACK
+#else
+	memset( itemRegistered, 0, sizeof( itemRegistered ) );
+
+	// players always start with the base weapon
+	RegisterItem( BG_FindItemForWeapon( WP_MACHINEGUN ) );
+	RegisterItem( BG_FindItemForWeapon( WP_GAUNTLET ) );
+#ifdef MISSIONPACK
 	if( g_gametype.integer == GT_HARVESTER ) {
 		RegisterItem( BG_FindItem( "Red Cube" ) );
 		RegisterItem( BG_FindItem( "Blue Cube" ) );
 	}
-#endif*/
+#endif
+#endif
 }
 
 /*
@@ -1052,11 +1096,11 @@ void G_SpawnItem (gentity_t *ent, gitem_t *item) {
 	}
 
 
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 	if ( item->giType == IT_PERSISTANT_POWERUP ) {
 		ent->s.generic1 = ent->spawnflags;
 	}
-#endif*/
+#endif
 
 }
 
