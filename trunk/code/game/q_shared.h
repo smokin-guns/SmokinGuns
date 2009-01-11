@@ -1472,6 +1472,11 @@ typedef struct entityState_s {
 	int		torsoAnim;		// mask off ANIM_TOGGLEBIT
 
 	int		generic1;
+	
+	// Joe Kari: attempt to add far clipping to entities
+	// for instance, the engine itself should be modified (msg.c)
+	//int		farclip_dist;
+	
 } entityState_t;
 
 typedef enum {
