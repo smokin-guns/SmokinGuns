@@ -459,7 +459,9 @@ SetMoverState
 void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
 	vec3_t			delta;
 	float			f;
-
+	
+	if ( ent->moverState == MOVER_STATIC )  return ;
+	
 	ent->moverState = moverState;
 
 	if(!Q_stricmp(ent->classname, "func_door_rotating")){
@@ -1986,11 +1988,62 @@ A bmodel that just sits there, doing nothing.  Can be used for conditional walls
 "color"		constantLight color
 "light"		constantLight radius
 */
-void SP_func_static( gentity_t *ent ) {
-	trap_SetBrushModel( ent, ent->model );
-	InitMover( ent );
-	VectorCopy( ent->s.origin, ent->s.pos.trBase );
-	VectorCopy( ent->s.origin, ent->r.currentOrigin );
+void SP_func_static( gentity_t *ent )
+{
+	
+	// Joe Kari: new func_static with far clipping support
+	// with reminder-style comment
+	
+	float		light;
+	vec3_t		color;
+	qboolean	lightSet, colorSet;
+	
+	// register brush model to physical engine
+	trap_SetBrushModel( ent , ent->model ) ;
+	
+	// because a func_static could have is own origin, this is needed to replace its coord in world coord
+	// (automatically made for game, but not for cgame)
+	VectorCopy( ent->r.currentOrigin , ent->s.origin ) ;
+	
+	// this is needed for CG_Mover() to display the element (yes func_static was used like a mover)
+	ent->s.eType = ET_MOVER ;
+	
+	// just a new value to ensure that the game will never perform "think" for this entity
+	ent->moverState = MOVER_STATIC;
+	
+	// if the "color" or "light" keys are set, setup constantLight
+	lightSet = G_SpawnFloat( "light" , "100" , &light ) ;
+	colorSet = G_SpawnVector( "color" , "1 1 1" , color ) ;
+	if ( lightSet || colorSet )
+	{
+		int r , g , b , i ;
+		r = color[0] * 255 ;
+		if ( r > 255 )  r = 255 ;
+		g = color[1] * 255 ;
+		if ( g > 255 )  g = 255 ;
+		b = color[2] * 255 ;
+		if ( b > 255 )  b = 255 ;
+		i = light / 4 ;
+		if ( i > 255 )  i = 255 ;
+		ent->s.constantLight = r | ( g << 8 ) | ( b << 16 ) | ( i << 24 ) ;
+	}
+	
+	// if the "model2" key is set, use a seperate model
+	// for drawing, but clip against the brushes
+	if ( ent->model2 )  ent->s.modelindex2 = G_ModelIndex( ent->model2 ) ;
+
+	// get the value for the key "farclip" and copy it to generic1 field
+	G_SpawnInt( "farclip", "0", &ent->s.generic1);
+	if ( ent->s.generic1 )
+	{
+		// generic1 has only 8 bits over network, so the far clip value is rounded to multiple of 100
+		ent->s.generic1 = ( ent->s.generic1 + 50 ) / 100 ;
+		if ( ent->s.generic1 < 1 )  ent->s.generic1 = 1 ;
+	}
+	
+	// should determinate in which cluster the entity is ??
+	trap_LinkEntity( ent ) ;
+	
 }
 
 

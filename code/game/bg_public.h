@@ -381,6 +381,9 @@ typedef enum {
 #define	EF_BUY				0x04000000
 #define	EF_ACTIVATE			0x08000000
 
+
+
+
 // NOTE: may not have more than 16
 typedef enum {
 	PW_NONE,

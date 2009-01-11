@@ -878,9 +878,13 @@ CG_Mover
 static void CG_Mover( centity_t *cent ) {
 	refEntity_t			ent;
 	entityState_t		*s1;
+	
+	// Joe Kari: farclip_dist
+	const int farclip_dist = cent->currentState.generic1 * 100;
 
 	s1 = &cent->currentState;
 
+	
 	// create the render entity
 	memset (&ent, 0, sizeof(ent));
 	VectorCopy( cent->lerpOrigin, ent.origin);
@@ -888,7 +892,11 @@ static void CG_Mover( centity_t *cent ) {
 	AnglesToAxis( cent->lerpAngles, ent.axis );
 
 	ent.renderfx = RF_NOSHADOW;
-
+	
+	// Joe Kari: for func_static (yes there are classified as mover)
+	// if a farclip is specified for this entity, then clip it !!!
+	if ( farclip_dist && ( Distance(s1->origin, cg.refdef.vieworg) > farclip_dist ) )  return;
+	
 	// flicker between two skins (FIXME?)
 	ent.skinNum = ( cg.time >> 6 ) & 1;
 
