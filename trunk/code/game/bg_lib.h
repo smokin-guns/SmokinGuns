@@ -70,6 +70,7 @@ double atof( const char *string );
 double _atof( const char **stringPtr );
 int atoi( const char *string );
 int _atoi( const char **stringPtr );
+int _atos( const char **stringPtr , char *dest , int limit );
 
 int vsprintf( char *buffer, const char *fmt, va_list argptr );
 int sscanf( const char *buffer, const char *fmt, ... );
