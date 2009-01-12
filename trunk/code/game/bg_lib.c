@@ -1450,11 +1450,11 @@ int _atos( const char **stringPtr , char *dest , int limit )
 		char_ptr++;
 	}
 
-	// add all alphanumerics chars (note that conversion should continue scanning even if it doesn't add char anymore)
+	// add all alphanumerics chars and '_' (note that conversion should continue scanning even if it doesn't add char anymore)
 	len = 0;
 	do
 	{
-		if ( ( *char_ptr >= '0' && *char_ptr <= '9' ) || ( *char_ptr >= 'a' && *char_ptr <= 'z' ) || ( *char_ptr >= 'A' && *char_ptr <= 'Z' ) )
+		if ( ( *char_ptr >= '0' && *char_ptr <= '9' ) || ( *char_ptr >= 'a' && *char_ptr <= 'z' ) || ( *char_ptr >= 'A' && *char_ptr <= 'Z' ) || ( *char_ptr == '_' ) )
 		{
 			if ( len < limit )
 			{

@@ -2238,3 +2238,39 @@ typedef struct {
 	float x;
 	float y;
 } coord_t;
+
+
+
+
+// Far clipping by Joe Kari //
+
+
+qboolean CG_Farclip_Sphere( vec3_t , vec3_t , float , float ) ;
+qboolean CG_Farclip_Cube( vec3_t , vec3_t , float , float ) ;
+qboolean CG_Farclip_Ellipse_Z( vec3_t , vec3_t , float , float ) ;
+qboolean CG_Farclip_Cylinder_Z( vec3_t , vec3_t , float , float ) ;
+qboolean CG_Farclip_Box_Z( vec3_t , vec3_t , float , float ) ;
+qboolean CG_Farclip_Circle_Infinite_Z( vec3_t , vec3_t , float , float ) ;
+qboolean CG_Farclip_Square_Infinite_Z( vec3_t , vec3_t , float , float ) ;
+qboolean CG_Farclip_Cone_Z( vec3_t , vec3_t , float , float ) ;
+qboolean CG_Farclip_Pyramid_Z( vec3_t , vec3_t , float , float ) ;
+
+qboolean CG_Farclip_Ellipse_X( vec3_t , vec3_t , float , float ) ;
+qboolean CG_Farclip_Cylinder_X( vec3_t , vec3_t , float , float ) ;
+qboolean CG_Farclip_Box_X( vec3_t , vec3_t , float , float ) ;
+qboolean CG_Farclip_Circle_Infinite_X( vec3_t , vec3_t , float , float ) ;
+qboolean CG_Farclip_Square_Infinite_X( vec3_t , vec3_t , float , float ) ;
+qboolean CG_Farclip_Cone_X( vec3_t , vec3_t , float , float ) ;
+qboolean CG_Farclip_Pyramid_X( vec3_t , vec3_t , float , float ) ;
+
+qboolean CG_Farclip_Ellipse_Y( vec3_t , vec3_t , float , float ) ;
+qboolean CG_Farclip_Cylinder_Y( vec3_t , vec3_t , float , float ) ;
+qboolean CG_Farclip_Box_Y( vec3_t , vec3_t , float , float ) ;
+qboolean CG_Farclip_Circle_Infinite_Y( vec3_t , vec3_t , float , float ) ;
+qboolean CG_Farclip_Square_Infinite_Y( vec3_t , vec3_t , float , float ) ;
+qboolean CG_Farclip_Cone_Y( vec3_t , vec3_t , float , float ) ;
+qboolean CG_Farclip_Pyramid_Y( vec3_t , vec3_t , float , float ) ;
+
+extern qboolean ( * CG_Farclip_Tester[] )( vec3_t , vec3_t , float , float ) ;
+extern int CG_Farclip_Tester_Table_Size ;
+

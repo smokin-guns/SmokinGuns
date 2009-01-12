@@ -1993,3 +1993,256 @@ void CG_AddBoundingBoxEntity(centity_t *cent) {
 	trap_R_AddPolyToScene( bboxShader_nocull, 4, verts );
 }
 
+
+
+/*
+=================
+CG_Farclip_*
+by: Joe Kari
+2009-1-12
+
+Function that match farclip_t type defined in bg_public.h, 
+returning qtrue if the entity should be clipped
+or qfalse if the entity should be add to the scene
+=================
+*/
+
+// function pointer array
+
+static qboolean ( * CG_Farclip_Tester[] )( vec3_t , vec3_t , float , float ) = {
+        NULL ,
+        CG_Farclip_Sphere ,
+        CG_Farclip_Ellipse_X ,
+        CG_Farclip_Ellipse_Y ,
+        CG_Farclip_Ellipse_Z ,
+        CG_Farclip_Cylinder_X ,
+        CG_Farclip_Cylinder_Y ,
+        CG_Farclip_Cylinder_Z ,
+        CG_Farclip_Cube ,
+        CG_Farclip_Box_X ,
+        CG_Farclip_Box_Y ,
+        CG_Farclip_Box_Z ,
+        CG_Farclip_Cone_X ,
+        CG_Farclip_Cone_Y ,
+        CG_Farclip_Cone_Z ,
+        CG_Farclip_Pyramid_X ,
+        CG_Farclip_Pyramid_Y ,
+        CG_Farclip_Pyramid_Z ,
+        CG_Farclip_Circle_Infinite_X ,
+        CG_Farclip_Circle_Infinite_Y ,
+        CG_Farclip_Circle_Infinite_Z ,
+        CG_Farclip_Square_Infinite_X ,
+        CG_Farclip_Square_Infinite_Y ,
+        CG_Farclip_Square_Infinite_Z
+} ;
+
+static int CG_Farclip_Tester_Table_Size = sizeof( CG_Farclip_Tester ) / sizeof( void* );
+
+
+qboolean CG_Farclip_Sphere( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
+{
+	float dx , dy , dz ;
+	dx = entite_vec3[0] - camera_vec3[0] ;
+	dy = entite_vec3[1] - camera_vec3[1] ;
+	dz = entite_vec3[2] - camera_vec3[2] ;
+	return ( dx * dx + dy * dy + dz * dz ) > ( farclip_dist * farclip_dist ) ;
+}
+
+qboolean CG_Farclip_Cube( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
+{
+	if ( abs( entite_vec3[0] - camera_vec3[0] ) > farclip_dist )  return qtrue ;
+	if ( abs( entite_vec3[1] - camera_vec3[1] ) > farclip_dist )  return qtrue ;
+	if ( abs( entite_vec3[2] - camera_vec3[2] ) > farclip_dist )  return qtrue ;
+	return qfalse ;
+}
+
+qboolean CG_Farclip_Ellipse_Z( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
+{
+	float dx , dy , dz ;
+	if ( ( farclip_alt_dist < 1 ) || ( farclip_dist < 1 ) )  return qtrue ;
+	dx = entite_vec3[0] - camera_vec3[0] ;
+	dy = entite_vec3[1] - camera_vec3[1] ;
+	dz = ( entite_vec3[2] - camera_vec3[2] ) * farclip_dist / farclip_alt_dist ;
+	return ( dx * dx + dy * dy + dz * dz ) > ( farclip_dist * farclip_dist ) ;
+}
+
+qboolean CG_Farclip_Cylinder_Z( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
+{
+	float dx , dy ;
+	if ( abs( entite_vec3[2] - camera_vec3[2] ) > farclip_alt_dist )  return qtrue ;
+	dx = entite_vec3[0] - camera_vec3[0] ;
+	dy = entite_vec3[1] - camera_vec3[1] ;
+	return ( dx * dx + dy * dy ) > ( farclip_dist * farclip_dist ) ;
+}
+
+qboolean CG_Farclip_Box_Z( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
+{
+	if ( abs( entite_vec3[0] - camera_vec3[0] ) > farclip_dist )  return qtrue ;
+	if ( abs( entite_vec3[1] - camera_vec3[1] ) > farclip_dist )  return qtrue ;
+	if ( abs( entite_vec3[2] - camera_vec3[2] ) > farclip_alt_dist )  return qtrue ;
+	return qfalse ;
+}
+
+qboolean CG_Farclip_Circle_Infinite_Z( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
+{
+	float dx , dy ;
+	dx = entite_vec3[0] - camera_vec3[0] ;
+	dy = entite_vec3[1] - camera_vec3[1] ;
+	return ( dx * dx + dy * dy ) > ( farclip_dist * farclip_dist ) ;
+}
+
+qboolean CG_Farclip_Square_Infinite_Z( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
+{
+	if ( abs( entite_vec3[0] - camera_vec3[0] ) > farclip_dist )  return qtrue ;
+	if ( abs( entite_vec3[1] - camera_vec3[1] ) > farclip_dist )  return qtrue ;
+	return qfalse ;
+}
+
+qboolean CG_Farclip_Cone_Z( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
+{
+	float dx , dy , dz ;
+	dx = entite_vec3[0] - camera_vec3[0] ;
+	dy = entite_vec3[1] - camera_vec3[1] ;
+	dz = abs( entite_vec3[2] - camera_vec3[2] ) + farclip_dist ;
+	return ( dx * dx + dy * dy ) > ( dz * dz ) ;
+}
+
+qboolean CG_Farclip_Pyramid_Z( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
+{
+	float dz ;
+	dz = abs( entite_vec3[2] - camera_vec3[2] ) + farclip_dist ;
+	if ( abs( entite_vec3[0] - camera_vec3[0] ) > dz )  return qtrue ;
+	if ( abs( entite_vec3[1] - camera_vec3[1] ) > dz )  return qtrue ;
+	return qfalse ;
+}
+
+
+
+
+qboolean CG_Farclip_Ellipse_X( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
+{
+	float dx , dy , dz ;
+	if ( ( farclip_alt_dist < 1 ) || ( farclip_dist < 1 ) )  return qtrue ;
+	dx = entite_vec3[0] - camera_vec3[0] * farclip_dist / farclip_alt_dist ;
+	dy = entite_vec3[1] - camera_vec3[1] ;
+	dz = ( entite_vec3[2] - camera_vec3[2] ) ;
+	return ( dx * dx + dy * dy + dz * dz ) > ( farclip_dist * farclip_dist ) ;
+}
+
+qboolean CG_Farclip_Cylinder_X( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
+{
+	float dy , dz ;
+	if ( abs( entite_vec3[0] - camera_vec3[0] ) > farclip_alt_dist )  return qtrue ;
+	dy = entite_vec3[1] - camera_vec3[1] ;
+	dz = entite_vec3[2] - camera_vec3[2] ;
+	return ( dy * dy + dz * dz ) > ( farclip_dist * farclip_dist ) ;
+}
+
+qboolean CG_Farclip_Box_X( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
+{
+	if ( abs( entite_vec3[0] - camera_vec3[0] ) > farclip_alt_dist )  return qtrue ;
+	if ( abs( entite_vec3[1] - camera_vec3[1] ) > farclip_dist )  return qtrue ;
+	if ( abs( entite_vec3[2] - camera_vec3[2] ) > farclip_dist )  return qtrue ;
+	return qfalse ;
+}
+
+qboolean CG_Farclip_Circle_Infinite_X( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
+{
+	float dy , dz ;
+	dy = entite_vec3[1] - camera_vec3[1] ;
+	dz = entite_vec3[2] - camera_vec3[2] ;
+	return ( dy * dy + dz * dz ) > ( farclip_dist * farclip_dist ) ;
+}
+
+qboolean CG_Farclip_Square_Infinite_X( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
+{
+	if ( abs( entite_vec3[1] - camera_vec3[1] ) > farclip_dist )  return qtrue ;
+	if ( abs( entite_vec3[2] - camera_vec3[2] ) > farclip_dist )  return qtrue ;
+	return qfalse ;
+}
+
+qboolean CG_Farclip_Cone_X( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
+{
+	float dx , dy , dz ;
+	dx = abs( entite_vec3[0] - camera_vec3[0] ) + farclip_dist ;
+	dy = entite_vec3[1] - camera_vec3[1] ;
+	dz = entite_vec3[2] - camera_vec3[2] ;
+	return ( dy * dy + dz * dz ) > ( dx * dx ) ;
+}
+
+qboolean CG_Farclip_Pyramid_X( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
+{
+	float dx ;
+	dx = abs( entite_vec3[0] - camera_vec3[0] ) + farclip_dist ;
+	if ( abs( entite_vec3[1] - camera_vec3[1] ) > dx )  return qtrue ;
+	if ( abs( entite_vec3[2] - camera_vec3[2] ) > dx )  return qtrue ;
+	return qfalse ;
+}
+
+
+
+
+qboolean CG_Farclip_Ellipse_Y( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
+{
+	float dx , dy , dz ;
+	if ( ( farclip_alt_dist < 1 ) || ( farclip_dist < 1 ) )  return qtrue ;
+	dx = entite_vec3[0] - camera_vec3[0] ;
+	dy = entite_vec3[1] - camera_vec3[1] * farclip_dist / farclip_alt_dist ;
+	dz = ( entite_vec3[2] - camera_vec3[2] ) ;
+	return ( dx * dx + dy * dy + dz * dz ) > ( farclip_dist * farclip_dist ) ;
+}
+
+qboolean CG_Farclip_Cylinder_Y( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
+{
+	float dx , dz ;
+	if ( abs( entite_vec3[1] - camera_vec3[1] ) > farclip_alt_dist )  return qtrue ;
+	dx = entite_vec3[0] - camera_vec3[0] ;
+	dz = entite_vec3[2] - camera_vec3[2] ;
+	return ( dx * dx + dz * dz ) > ( farclip_dist * farclip_dist ) ;
+}
+
+qboolean CG_Farclip_Box_Y( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
+{
+	if ( abs( entite_vec3[0] - camera_vec3[0] ) > farclip_dist )  return qtrue ;
+	if ( abs( entite_vec3[1] - camera_vec3[1] ) > farclip_alt_dist )  return qtrue ;
+	if ( abs( entite_vec3[2] - camera_vec3[2] ) > farclip_dist )  return qtrue ;
+	return qfalse ;
+}
+
+qboolean CG_Farclip_Circle_Infinite_Y( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
+{
+	float dx , dz ;
+	dx = entite_vec3[0] - camera_vec3[0] ;
+	dz = entite_vec3[2] - camera_vec3[2] ;
+	return ( dx * dx + dz * dz ) > ( farclip_dist * farclip_dist ) ;
+}
+
+qboolean CG_Farclip_Square_Infinite_Y( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
+{
+	if ( abs( entite_vec3[0] - camera_vec3[0] ) > farclip_dist )  return qtrue ;
+	if ( abs( entite_vec3[2] - camera_vec3[2] ) > farclip_dist )  return qtrue ;
+	return qfalse ;
+}
+
+qboolean CG_Farclip_Cone_Y( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
+{
+	float dx , dy , dz ;
+	dx = entite_vec3[0] - camera_vec3[0] ;
+	dy = abs( entite_vec3[1] - camera_vec3[1] ) + farclip_dist ;
+	dz = entite_vec3[2] - camera_vec3[2] ;
+	return ( dx * dx + dz * dz ) > ( dy * dy ) ;
+}
+
+qboolean CG_Farclip_Pyramid_Y( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
+{
+	float dy ;
+	dy = abs( entite_vec3[1] - camera_vec3[1] ) + farclip_dist ;
+	if ( abs( entite_vec3[0] - camera_vec3[0] ) > dy )  return qtrue ;
+	if ( abs( entite_vec3[2] - camera_vec3[2] ) > dy )  return qtrue ;
+	return qfalse ;
+}
+
+
+
+
+
