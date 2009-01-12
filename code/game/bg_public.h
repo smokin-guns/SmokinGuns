@@ -207,22 +207,25 @@ typedef enum {
         FARCLIP_ELLIPSE_X ,		// X-axis rescaled (using entity key "farclip_alt") sphere
         FARCLIP_ELLIPSE_Y ,		// Y-axis rescaled
         FARCLIP_ELLIPSE_Z ,		// Z-axis rescaled
+        FARCLIP_CYLINDER_X ,		// X-axis cylinder (using entity key "farclip_alt" for its axis length)
+        FARCLIP_CYLINDER_Y ,		// Y-axis 
+        FARCLIP_CYLINDER_Z ,		// Z-axis 
         FARCLIP_CUBE ,			// Cubic clipping (along axis), bounding-box clipping
         FARCLIP_BOX_X ,			// X-axis rescaled (using entity key "farclip_alt") cube
         FARCLIP_BOX_Y ,			
         FARCLIP_BOX_Z ,
-        FARCLIP_CIRCLE_INFINITE_X ,	// X-axis is not used while calculating distance (cylinder with infinite length)
-        FARCLIP_CIRCLE_INFINITE_Y ,
-        FARCLIP_CIRCLE_INFINITE_Z ,
-        FARCLIP_SQUARE_INFINITE_X ,	// X-axis is not used while calculating bounding box (box with infinite length on X-axis)
-        FARCLIP_SQUARE_INFINITE_Y ,
-        FARCLIP_SQUARE_INFINITE_Z ,
         FARCLIP_CONE_X ,		// distance along X-axis is substracted from YZ-axis distance calculation
         FARCLIP_CONE_Y ,
         FARCLIP_CONE_Z ,		// could be usefull for clipping grass brush/models
         FARCLIP_PYRAMID_X ,		// distance along X-axis is substracted from YZ-axis bounding box calculation
         FARCLIP_PYRAMID_Y ,
-        FARCLIP_PYRAMID_Z
+        FARCLIP_PYRAMID_Z ,
+        FARCLIP_CIRCLE_INFINITE_X ,	// X-axis is not used while calculating distance (cylinder with infinite length)
+        FARCLIP_CIRCLE_INFINITE_Y ,
+        FARCLIP_CIRCLE_INFINITE_Z ,
+        FARCLIP_SQUARE_INFINITE_X ,	// X-axis is not used while calculating bounding box (box with infinite length on X-axis)
+        FARCLIP_SQUARE_INFINITE_Y ,
+        FARCLIP_SQUARE_INFINITE_Z
 } farclip_t ;
 
 
