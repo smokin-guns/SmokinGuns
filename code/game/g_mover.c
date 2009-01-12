@@ -1994,9 +1994,11 @@ void SP_func_static( gentity_t *ent )
 	// Joe Kari: new func_static with far clipping support
 	// with reminder-style comment
 	
-	float		light;
-	vec3_t		color;
-	qboolean	lightSet, colorSet;
+	float		light ;
+	vec3_t		color ;
+	qboolean	lightSet , colorSet ;
+	char		*value ;
+	char		tmp_char[32] ;
 	
 	// register brush model to physical engine
 	trap_SetBrushModel( ent , ent->model ) ;
@@ -2032,13 +2034,52 @@ void SP_func_static( gentity_t *ent )
 	// for drawing, but clip against the brushes
 	if ( ent->model2 )  ent->s.modelindex2 = G_ModelIndex( ent->model2 ) ;
 
-	// get the value for the key "farclip" and copy it to generic1 field
-	G_SpawnInt( "farclip", "0", &ent->s.generic1);
-	if ( ent->s.generic1 )
+	// get the value for the key "farclip_*" and copy it to weapon, legsAnim and torsoAnim field
+	//G_SpawnInt( "farclip_type" , "0" , &ent->s.weapon ) ;
+	//G_SpawnInt( "farclip_dist" , "0" , &ent->s.legsAnim ) ;
+	//G_SpawnInt( "farclip_alt" , "0" , &ent->s.torsoAnim ) ;
+	
+	G_SpawnString( "farclip" , "none" , &value ) ;
+	sscanf( value , "%31s %i %i" , tmp_char , &ent->s.legsAnim , &ent->s.torsoAnim ) ;
+	
+	if ( !Q_stricmp( "none" , tmp_char ) )  ent->s.weapon = FARCLIP_NONE ;
+	else if ( !Q_stricmp( "sphere" , tmp_char ) )  ent->s.weapon = FARCLIP_SPHERE ;
+	else if ( !Q_stricmp( "cube" , tmp_char ) )  ent->s.weapon = FARCLIP_CUBE ;
+	else if ( !Q_stricmp( "ellipse_z" , tmp_char ) )  ent->s.weapon = FARCLIP_ELLIPSE_Z ;
+	else if ( !Q_stricmp( "cylinder_z" , tmp_char ) )  ent->s.weapon = FARCLIP_CYLINDER_Z ;
+	else if ( !Q_stricmp( "box_z" , tmp_char ) )  ent->s.weapon = FARCLIP_BOX_Z ;
+	else if ( !Q_stricmp( "cone_z" , tmp_char ) )  ent->s.weapon = FARCLIP_CONE_Z ;
+	else if ( !Q_stricmp( "pyramid_z" , tmp_char ) )  ent->s.weapon = FARCLIP_PYRAMID_Z ;
+	else if ( !Q_stricmp( "circle_infinite_z" , tmp_char ) )  ent->s.weapon = FARCLIP_CIRCLE_INFINITE_Z ;
+	else if ( !Q_stricmp( "square_infinite_z" , tmp_char ) )  ent->s.weapon = FARCLIP_SQUARE_INFINITE_Z ;
+	else if ( !Q_stricmp( "ellipse_x" , tmp_char ) )  ent->s.weapon = FARCLIP_ELLIPSE_X ;
+	else if ( !Q_stricmp( "cylinder_x" , tmp_char ) )  ent->s.weapon = FARCLIP_CYLINDER_X ;
+	else if ( !Q_stricmp( "box_x" , tmp_char ) )  ent->s.weapon = FARCLIP_BOX_X ;
+	else if ( !Q_stricmp( "cone_x" , tmp_char ) )  ent->s.weapon = FARCLIP_CONE_X ;
+	else if ( !Q_stricmp( "pyramid_x" , tmp_char ) )  ent->s.weapon = FARCLIP_PYRAMID_X ;
+	else if ( !Q_stricmp( "circle_infinite_x" , tmp_char ) )  ent->s.weapon = FARCLIP_CIRCLE_INFINITE_X ;
+	else if ( !Q_stricmp( "square_infinite_x" , tmp_char ) )  ent->s.weapon = FARCLIP_SQUARE_INFINITE_X ;
+	else if ( !Q_stricmp( "ellipse_y" , tmp_char ) )  ent->s.weapon = FARCLIP_ELLIPSE_Y ;
+	else if ( !Q_stricmp( "cylinder_y" , tmp_char ) )  ent->s.weapon = FARCLIP_CYLINDER_Y ;
+	else if ( !Q_stricmp( "box_y" , tmp_char ) )  ent->s.weapon = FARCLIP_BOX_Y ;
+	else if ( !Q_stricmp( "cone_y" , tmp_char ) )  ent->s.weapon = FARCLIP_CONE_Y ;
+	else if ( !Q_stricmp( "pyramid_y" , tmp_char ) )  ent->s.weapon = FARCLIP_PYRAMID_Y ;
+	else if ( !Q_stricmp( "circle_infinite_y" , tmp_char ) )  ent->s.weapon = FARCLIP_CIRCLE_INFINITE_Y ;
+	else if ( !Q_stricmp( "square_infinite_y" , tmp_char ) )  ent->s.weapon = FARCLIP_SQUARE_INFINITE_Y ;
+	else  ent->s.weapon = FARCLIP_NONE ;
+	
+	//G_Printf( "^4%s (%i) : %i - %i\n" , tmp_char , ent->s.weapon , ent->s.legsAnim , ent->s.torsoAnim ) ;
+	
+	
+	if ( ent->s.weapon )
 	{
-		// generic1 has only 8 bits over network, so the far clip value is rounded to multiple of 100
-		ent->s.generic1 = ( ent->s.generic1 + 50 ) / 100 ;
-		if ( ent->s.generic1 < 1 )  ent->s.generic1 = 1 ;
+		// "legsAnim" has only 8 bits over network, so the far clip value is rounded to multiple of 64
+		ent->s.legsAnim = ( ent->s.legsAnim + 32 ) / 64 ;
+		if ( ent->s.legsAnim < 1 )  ent->s.legsAnim = 1 ;
+		
+		// "torsoAnim" has only 8 bits over network, so the far clip value is rounded to multiple of 64
+		ent->s.torsoAnim = ( ent->s.torsoAnim + 32 ) / 64 ;
+		if ( ent->s.torsoAnim < 1 )  ent->s.torsoAnim = 1 ;
 	}
 	
 	// should determinate in which cluster the entity is ??
