@@ -1431,38 +1431,109 @@ done:
 }
 
 
+
+// Added by Joe Kari, used for a dummy support of the %s convert of sscanf
+// This is really dirty
+// Support only %123s syntax of sscanf to prevent segfault
+// Add a 'null' char at the end
+int _atos( const char **stringPtr , char *dest , int limit )
+{
+	int		len ;
+	const char	*char_ptr ;
+	
+	char_ptr = *stringPtr ;
+	
+	// skip whitespace
+	while ( *char_ptr <= ' ' )
+	{
+		if ( !*char_ptr ) return 0 ;
+		char_ptr++;
+	}
+
+	// add all alphanumerics chars (note that conversion should continue scanning even if it doesn't add char anymore)
+	len = 0;
+	do
+	{
+		if ( ( *char_ptr >= '0' && *char_ptr <= '9' ) || ( *char_ptr >= 'a' && *char_ptr <= 'z' ) || ( *char_ptr >= 'A' && *char_ptr <= 'Z' ) )
+		{
+			if ( len < limit )
+			{
+				*dest = *char_ptr ;
+				dest ++ ;
+				len ++ ;
+			}
+			char_ptr ++ ;
+		}
+		else
+		{
+			break;
+		}
+	} while ( 1 ) ;
+	
+	// add the null char (end of string):
+	*dest = 0 ;
+	
+	*stringPtr = char_ptr ;
+	
+	return len ;
+}
+
+
 /* this is really crappy */
+
+// New : Support the %123s format (added by Joe Kari)
+// Only alphanumerical char are supported by 's' conversion
+// Invoking a '%s' without specifying a length does nothing except filling the first char with null (prevent from segfault)
 int sscanf( const char *buffer, const char *fmt, ... ) {
-	int		cmd;
-	int		**arg;
-	int		count;
+	int		**arg ;
+	int		count ;
+	int		len ;
 
 	arg = (int **)&fmt + 1;
 	count = 0;
 
 	while ( *fmt ) {
-		if ( fmt[0] != '%' ) {
-			fmt++;
-			continue;
+		if ( *fmt != '%' ) {
+			fmt ++ ;
+			continue ;
 		}
 
-		cmd = fmt[1];
-		fmt += 2;
-
-		switch ( cmd ) {
-		case 'i':
-		case 'd':
-		case 'u':
-			**arg = _atoi( &buffer );
-			break;
-		case 'f':
-			*(float *)*arg = _atof( &buffer );
-			break;
+		fmt ++ ;
+		len = -1 ;
+		if ( *fmt > '0' && *fmt < '9' ) {
+			len = _atoi( &fmt ) ;
+			// _atoi eat too much char:
+			fmt -- ;
 		}
-		arg++;
+		
+		switch ( *fmt )
+		{
+			case 'i':
+			case 'd':
+			case 'u':
+				**arg = _atoi( &buffer ) ;
+				arg ++ ;
+				count ++ ;
+				break;
+			case 'f':
+				*(float *)*arg = _atof( &buffer ) ;
+				arg ++ ;
+				count ++ ;
+				break;
+			case 's':
+				_atos( &buffer , (char*)*arg , len ) ;
+				arg ++ ;
+				count ++ ;
+				break;
+			default:
+				break;
+		}
+		
+		fmt ++ ;
 	}
 
 	return count;
 }
+
 
 #endif
