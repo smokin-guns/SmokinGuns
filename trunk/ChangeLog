@@ -13,6 +13,11 @@ Changes since SG 1.0-20081231
  - you have to export DEFAULT_BASEDIR from the shell before to do a make
 - Use SMOKINGUNS and SMOKINGUNS_SO define
 - Add SG_VERSION, SG_RELEASE & SG_SVN support
+- new shotgun pattern (needs "g_exp_shotgunpattern 1") more uniform, and with homogenous radial density
+- new money system (needs "g_moneyrespawn 1")
+- customize teamrole in BR by setting cvar br_teamrole to 0 (default, winner defend next round), 1 (winner are robbers next round), 
+	2 (outlaws are always robbers), 3 (lawmen are always robbers) or 4 (robbers and defenders swap at every new round)
+- far-clipping (with a bunch of clipping-form) support for func_static entity
 *** CHANGES ***
 - Reloading bug fixed by Joe Kari
 - Fix game crash during game load when using cgame binary library
