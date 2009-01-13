@@ -1606,7 +1606,7 @@ extern	vmCvar_t		cg_enableBreath;
 
 extern	vmCvar_t		cg_exp_shotgunpattern;
 
-//wq³ Cvars
+// Smokin'Guns Cvars
 //extern	vmCvar_t		cg_wq_lefthanded;
 
 extern	vmCvar_t		cg_buydebug;
