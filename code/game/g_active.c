@@ -622,8 +622,8 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 
 	client->oldbuttons = client->buttons;
 	client->buttons = ucmd->buttons;
-#undef WIN32
-#ifndef WIN32 // chasecam leads to bugs in dll-builds
+
+	// chasecam may lead to bugs in dll-builds
 	// attack button cycles through spectators
 	if ( g_gametype.integer >= GT_RTP && g_chaseonly.integer){
 
@@ -657,7 +657,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 			    && !(g_gametype.integer == GT_DUEL && !client->realspec) ) {
 			ChaseCam_Start(ent, 1);
 		}
-#endif
+
 
 		if (( client->buttons & BUTTON_ALT_ATTACK ) && ! ( client->oldbuttons & BUTTON_ALT_ATTACK ) &&
 			du_nextroundstart < level.time) {
@@ -701,12 +701,10 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 				client->realspec = realspec;
 				client->player_died = qfalse;
 			}
-#ifndef WIN32
 			else
 				ChaseCam_Start(ent, -1);
-#endif
 		}
-#ifndef WIN32
+
 		if (ucmd->upmove > 0  && !(client->oldupmove > 0)) {
 			if (client->sess.spectatorState == SPECTATOR_FOLLOW) {
 				StopFollowing(ent);
@@ -722,7 +720,6 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 		ChaseCam_Change(ent);
 	}*/
 	client->oldupmove = ucmd->upmove;
-#endif
 }
 
 
