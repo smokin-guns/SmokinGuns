@@ -693,7 +693,7 @@ void G_InstantExplode(vec3_t orig, gentity_t *attacker);
 gentity_t *fire_blaster (gentity_t *self, vec3_t start, vec3_t aimdir);
 //gentity_t *fire_plasma (gentity_t *self, vec3_t start, vec3_t aimdir);
 gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t aimdir);
-//wq³-missiles
+// Smokin'Guns missiles
 gentity_t *fire_dynamite (gentity_t *self, vec3_t start, vec3_t dir, int speed);
 gentity_t *fire_molotov (gentity_t *self, vec3_t start, vec3_t dir, int speed);
 gentity_t *fire_alcohol (gentity_t *self, vec3_t start, vec3_t dir, int speed);
