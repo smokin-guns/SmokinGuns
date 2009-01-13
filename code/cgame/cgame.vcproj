@@ -154,7 +154,7 @@
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
 				WholeProgramOptimization="true"
-				PreprocessorDefinitions="VM_CGAME;WIN32;NDEBUG;_WINDOWS;MISSIONPACK;SMOKINGUNS;SMOKINGUNS_SO"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;MISSIONPACK;SMOKINGUNS;SMOKINGUNS_SO"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -182,6 +182,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)\Release\cgamex86.dll"
+				ModuleDefinitionFile="cgame.def"
 				LinkTimeCodeGeneration="1"
 			/>
 			<Tool
