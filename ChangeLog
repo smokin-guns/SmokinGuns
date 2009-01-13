@@ -21,6 +21,7 @@ Changes since SG 1.0-20081231
 *** CHANGES ***
 - Reloading bug fixed by Joe Kari
 - Fix game crash during game load when using cgame binary library
+- Fix server not hitting time limit when only bots are playing (thanks to ioQ3 code engine)
 
 Changes in SG 1.0-20081231
 ******************
