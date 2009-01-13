@@ -90,6 +90,7 @@ void SV_GetChallenge( netadr_t from ) {
 	}
 
 	// look up the authorize server's IP
+#ifndef SMOKINGUNS
 	if ( !svs.authorizeAddress.ip[0] && svs.authorizeAddress.type != NA_BAD ) {
 		Com_Printf( "Resolving %s\n", AUTHORIZE_SERVER_NAME );
 		if ( !NET_StringToAdr( AUTHORIZE_SERVER_NAME, &svs.authorizeAddress ) ) {
@@ -124,7 +125,7 @@ void SV_GetChallenge( netadr_t from ) {
 		Com_DPrintf( "sending getIpAuthorize for %s\n", NET_AdrToString( from ));
 
 		strcpy(game, BASEGAME);
-		fs_basegame = Cvar_Get ("fs_basegame", "sg", CVAR_INIT );
+		fs_basegame = Cvar_Get ("fs_basegame", "smokinguns", CVAR_INIT );
 		fs = Cvar_Get ("fs_game", fs_basegame->string, CVAR_INIT|CVAR_SYSTEMINFO );
 		if (fs && fs->string[0] != 0) {
 			strcpy(game, fs->string);
@@ -136,6 +137,7 @@ void SV_GetChallenge( netadr_t from ) {
 			"getIpAuthorize %i %i.%i.%i.%i %s 0 %s",  svs.challenges[i].challenge,
 			from.ip[0], from.ip[1], from.ip[2], from.ip[3], game, sv_strictAuth->string );
 	}
+#endif
 }
 
 /*

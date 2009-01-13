@@ -893,6 +893,7 @@ CL_RequestMotd
 
 ===================
 */
+#ifndef SMOKINGUNS
 void CL_RequestMotd( void ) {
 	char		info[MAX_INFO_STRING];
 
@@ -924,6 +925,7 @@ void CL_RequestMotd( void ) {
 
 	NET_OutOfBandPrint( NS_CLIENT, cls.updateServer, "getmotd \"%s\"\n", info );
 }
+#endif
 
 /*
 ===================
@@ -963,6 +965,7 @@ If no response is received from the authorize server after two tries, the client
 in anyway.
 ===================
 */
+#ifndef SMOKINGUNS
 void CL_RequestAuthorization( void ) {
 	char	nums[64];
 	int		i, j, l;
@@ -1016,6 +1019,7 @@ void CL_RequestAuthorization( void ) {
 	Com_Printf("authenticating with >%s<\n", nums);
 	NET_OutOfBandPrint(NS_CLIENT, cls.authorizeServer, va("getKeyAuthorize %i %s", fs->integer, nums) );
 }
+#endif
 
 /*
 ======================================================================
@@ -1123,8 +1127,10 @@ void CL_Connect_f( void ) {
 
 	Cvar_Set("ui_singlePlayerActive", "0");
 
+#ifndef SMOKINGUNS
 	// fire a message off to the motd server
 	CL_RequestMotd();
+#endif
 
 	// clear any previous "server full" type messages
 	clc.serverMessage[0] = 0;
@@ -1613,9 +1619,11 @@ void CL_CheckForResend( void ) {
 		// requesting a challenge
 		// this could be skipped alltogether, but then the function CL_ConnectionlessPacket
 		// has to be adjusted for the "print" case as is described there
+#ifndef SMOKINGUNS
 		if ( !Sys_IsLANAddress( clc.serverAddress ) ) {
 			CL_RequestAuthorization();
 		}
+#endif
 		NET_OutOfBandPrint(NS_CLIENT, clc.serverAddress, "getchallenge");
 		break;
 
@@ -1953,10 +1961,12 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 	}
 
 	// global MOTD from id
+#ifndef SMOKINGUNS
 	if ( !Q_stricmp(c, "motd") ) {
 		CL_MotdPacket( from );
 		return;
 	}
+#endif
 
 	// echo request from server
 	if ( !Q_stricmp(c, "print") ) {
