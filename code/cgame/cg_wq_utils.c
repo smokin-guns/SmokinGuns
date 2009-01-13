@@ -2009,7 +2009,7 @@ or qfalse if the entity should be add to the scene
 
 // function pointer array
 
-static qboolean ( * CG_Farclip_Tester[] )( vec3_t , vec3_t , float , float ) = {
+qboolean ( * CG_Farclip_Tester[] )( vec3_t , vec3_t , float , float ) = {
         NULL ,
         CG_Farclip_Sphere ,
         CG_Farclip_Ellipse_X ,
@@ -2036,7 +2036,7 @@ static qboolean ( * CG_Farclip_Tester[] )( vec3_t , vec3_t , float , float ) = {
         CG_Farclip_Square_Infinite_Z
 } ;
 
-static int CG_Farclip_Tester_Table_Size = sizeof( CG_Farclip_Tester ) / sizeof( void* );
+int CG_Farclip_Tester_Table_Size = sizeof( CG_Farclip_Tester ) / sizeof( void* );
 
 
 qboolean CG_Farclip_Sphere( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
