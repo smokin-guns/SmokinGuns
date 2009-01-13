@@ -56,7 +56,7 @@
 				FavorSizeOrSpeed="0"
 				OmitFramePointers="true"
 				WholeProgramOptimization="true"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;UI_EXPORTS;SMOKINGUNS;SMOKINGUNS_SO;WQ3"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;UI_EXPORTS;MISSIONPACK;SMOKINGUNS;SMOKINGUNS_SO"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -84,6 +84,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)\Release\uix86.dll"
+				ModuleDefinitionFile="ui.def"
 				LinkTimeCodeGeneration="1"
 			/>
 			<Tool

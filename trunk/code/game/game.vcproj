@@ -85,6 +85,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)\Release\qagamex86.dll"
+				ModuleDefinitionFile="game.def"
 				LinkTimeCodeGeneration="1"
 			/>
 			<Tool
