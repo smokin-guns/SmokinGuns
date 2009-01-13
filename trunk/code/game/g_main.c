@@ -133,7 +133,7 @@ vmCvar_t	g_version;
 vmCvar_t	g_url;
 vmCvar_t	g_breakspawndelay;
 vmCvar_t	g_forcebreakrespawn;
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 vmCvar_t	g_obeliskHealth;
 vmCvar_t	g_obeliskRegenPeriod;
 vmCvar_t	g_obeliskRegenAmount;
@@ -143,7 +143,7 @@ vmCvar_t	g_singlePlayer;
 vmCvar_t	g_enableDust;
 vmCvar_t	g_enableBreath;
 vmCvar_t	g_proxMineTimeout;
-#endif*/
+#endif
 
 //unlagged - server options
 vmCvar_t	g_delagHitscan;
@@ -424,8 +424,8 @@ void G_FindTeams( void ) {
 	G_Printf ("%i teams with %i entities\n", c, c2);
 }
 
-void G_RemapTeamShaders() {
-/*#ifdef MISSIONPACK
+void G_RemapTeamShaders( void ) {
+#ifndef SMOKINGUNS
 	char string[1024];
 	float f = level.time * 0.001;
 	Com_sprintf( string, sizeof(string), "team_icon/%s_red", g_redteam.string );
@@ -435,7 +435,7 @@ void G_RemapTeamShaders() {
 	AddRemap("textures/ctf2/blueteam01", string, f);
 	AddRemap("textures/ctf2/blueteam02", string, f);
 	trap_SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
-#endif*/
+#endif
 }
 
 
@@ -771,9 +771,11 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	G_FindTeams();
 
 	// make sure we have flags for CTF, etc
-	/*if( g_gametype.integer >= GT_TEAM ) {
+#ifndef SMOKINGUNS
+	if( g_gametype.integer >= GT_TEAM ) {
 		G_CheckTeamItems();
-	}*/
+	}
+#endif
 
 	SaveRegisteredItems();
 
@@ -792,6 +794,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	}
 
 	G_RemapTeamShaders();
+
 }
 
 
@@ -1316,25 +1319,27 @@ void BeginIntermission( void ) {
 	}
 
 	// if in tournement mode, change the wins / losses
-	/*if ( g_gametype.integer == GT_DUEL ) {
+#ifndef SMOKINGUNS
+	if ( g_gametype.integer == GT_TOURNAMENT ) {
 		AdjustTournamentScores();
-	}*/
+	}
+#endif
 
 	level.intermissiontime = level.time;
 	FindIntermissionPoint(0);
 
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 	if (g_singlePlayer.integer) {
 		trap_Cvar_Set("ui_singlePlayerActive", "0");
 		UpdateTournamentInfo();
 	}
-#else*/
+#else
 	// if single player game
 	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
 		UpdateTournamentInfo();
 		SpawnModelsOnVictoryPads();
 	}
-//#endif
+#endif
 
 	// move all clients to the intermission point
 	for (i=0 ; i< level.maxclients ; i++) {
@@ -1374,7 +1379,8 @@ void ExitLevel (void) {
 
 	// if we are running a tournement map, kick the loser to spectator status,
 	// which will automatically grab the next spectator and restart
-	/*if ( g_gametype.integer == GT_DUEL  ) {
+#ifndef SMOKINGUNS
+	if ( g_gametype.integer == GT_TOURNAMENT  ) {
 		if ( !level.restarted ) {
 			RemoveTournamentLoser();
 			trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
@@ -1383,7 +1389,8 @@ void ExitLevel (void) {
 			level.intermissiontime = 0;
 		}
 		return;
-	}*/
+	}
+#endif
 
 
 	trap_SendConsoleCommand( EXEC_APPEND, "vstr nextmap\n" );
@@ -1468,8 +1475,9 @@ Append information about this game to the log file
 void LogExit( const char *string ) {
 	int				i, numSorted;
 	gclient_t		*cl;
+#ifndef SMOKINGUNS
 	qboolean won = qtrue;
-
+#endif
 	G_LogPrintf( "Exit: %s\n", string );
 
 	level.intermissionQueued = level.time;
@@ -1504,24 +1512,24 @@ void LogExit( const char *string ) {
 		ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
 
 		G_LogPrintf( "score: %i  ping: %i  client: %i %s\n", cl->ps.persistant[PERS_SCORE], ping, level.sortedClients[i],	cl->pers.netname );
-/*#ifdef MISSIONPACK
-		if (g_singlePlayer.integer && g_gametype.integer == GT_DUEL) {
+#ifndef SMOKINGUNS
+		if (g_singlePlayer.integer && g_gametype.integer == GT_TOURNAMENT) {
 			if (g_entities[cl - level.clients].r.svFlags & SVF_BOT && cl->ps.persistant[PERS_RANK] == 0) {
 				won = qfalse;
 			}
 		}
-#endif*/
+#endif
 
 	}
 
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 	if (g_singlePlayer.integer) {
-		if (g_gametype.integer >= GT_RTP) {
+		if (g_gametype.integer >= GT_CTF) {
 			won = level.teamScores[TEAM_RED] > level.teamScores[TEAM_BLUE];
 		}
 		trap_SendConsoleCommand( EXEC_APPEND, (won) ? "spWin\n" : "spLose\n" );
 	}
-#endif*/
+#endif
 
 
 }
@@ -1663,18 +1671,18 @@ void CheckExitRules( void ) {
 	}
 
 	if ( level.intermissionQueued ) {
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 		int time = (g_singlePlayer.integer) ? SP_INTERMISSION_DELAY_TIME : INTERMISSION_DELAY_TIME;
 		if ( level.time - level.intermissionQueued >= time ) {
 			level.intermissionQueued = 0;
 			BeginIntermission();
 		}
-#else*/
+#else
 		if ( level.time - level.intermissionQueued >= INTERMISSION_DELAY_TIME ) {
 			level.intermissionQueued = 0;
 			BeginIntermission();
 		}
-//#endif
+#endif
 		return;
 	}
 
@@ -1682,6 +1690,14 @@ void CheckExitRules( void ) {
 	if ( ScoreIsTied() ) {
 		// always wait for sudden death
 		return;
+	}
+
+	if ( g_timelimit.integer && (!level.warmupTime || g_gametype.integer >= GT_RTP)) {
+		if ( level.time - level.startTime >= g_timelimit.integer*60000 ) {
+			trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"");
+			LogExit( "Timelimit hit." );
+			return;
+		}
 	}
 
 	if ( level.numPlayingClients < 2 ) {
@@ -1769,18 +1785,8 @@ void CheckExitRules( void ) {
 		if ( ( level.time > g_roundstarttime + 15000 ) && ( level.time < g_roundendtime ) ) {
 			return;
 		}
-		
-	}
 	
-	
-	if ( g_timelimit.integer && (!level.warmupTime || g_gametype.integer >= GT_RTP)) {
-		if ( level.time - level.startTime >= g_timelimit.integer*60000 ) {
-			trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"");
-			LogExit( "Timelimit hit." );
-			return;
-		}
 	}
-
 }
 
 
@@ -3235,7 +3241,8 @@ void CheckMapRestart( void ) {
 		return;
 	}
 
-	/*if ( g_gametype.integer == GT_DUEL ) {
+#ifndef SMOKINGUNS
+	if ( g_gametype.integer == GT_TOURNAMENT ) {
 
 		// pull in a spectator if needed
 		if ( level.numPlayingClients < 2 ) {
@@ -3280,7 +3287,8 @@ void CheckMapRestart( void ) {
 			level.restarted = qtrue;
 			return;
 		}
-	} else */
+	} else
+#endif
 	if ( g_gametype.integer != GT_SINGLE_PLAYER && level.warmupTime != 0 && g_gametype.integer <GT_RTP &&
 		g_gametype.integer != GT_DUEL) {
 		int		counts[TEAM_NUM_TEAMS];
@@ -3343,40 +3351,8 @@ CheckVote
 */
 void CheckVote( void ) {
 	if ( level.voteExecuteTime && level.voteExecuteTime < level.time ) {
-		char	string[64];
-
 		level.voteExecuteTime = 0;
 		trap_SendConsoleCommand( EXEC_APPEND, va("%s\n", level.voteString ) );
-
-		strcpy(string, level.voteString);
-		string[14] = '\0';
-		/*if(!Q_stricmp(string,"g_teammodelred")){
-			int	i;
-
-			strcpy(g_teammodelred.string, level.voteString + 15);
-
-			for (i = 0; i < level.maxclients; i++)
-			{
-				if(level.clients[i].sess.sessionTeam == TEAM_RED ||
-					level.clients[i].sess.sessionTeam == TEAM_RED_SPECTATOR)
-					ClientUserinfoChanged(level.clients[i].ps.clientNum);
-			}
-		}*/
-
-		strcpy(string, level.voteString);
-		string[15] = '\0';
-		/*if(!Q_stricmp(string,"g_teammodelblue")){
-			int	i;
-
-			strcpy(g_teammodelblue.string, level.voteString + 16);
-
-			for (i = 0; i < level.maxclients; i++)
-			{
-				if(level.clients[i].sess.sessionTeam == TEAM_BLUE ||
-					level.clients[i].sess.sessionTeam == TEAM_BLUE_SPECTATOR)
-					ClientUserinfoChanged(level.clients[i].ps.clientNum);
-			}
-		}*/
 	}
 	if ( !level.voteTime ) {
 		return;
@@ -3513,7 +3489,7 @@ void CheckTeamLeader( int team ) {
 					continue;
 				if (!(g_entities[i].r.svFlags & SVF_BOT)) {
 					level.clients[i].sess.teamLeader = qtrue;
-					return;;
+					return;
 				}
 			}
 			for ( i = 0 ; i < level.maxclients ; i++ ) {
@@ -3537,7 +3513,7 @@ void CheckTeamLeader( int team ) {
 					continue;
 				if (!(g_entities[i].r.svFlags & SVF_BOT)) {
 					level.clients[i].sess.teamLeader = qtrue;
-					return;;
+					return;
 				}
 			}
 			for ( i = 0 ; i < level.maxclients ; i++ ) {
