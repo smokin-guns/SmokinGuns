@@ -82,15 +82,18 @@ void SV_GetChallenge( netadr_t from ) {
 		i = oldest;
 	}
 
+// Tequila: with SmokinGuns we just have to send the challengeResponse immediately
+#ifndef SMOKINGUNS
 	// if they are on a lan address, send the challengeResponse immediately
 	if ( Sys_IsLANAddress( from ) ) {
+#endif
 		challenge->pingTime = svs.time;
 		NET_OutOfBandPrint( NS_SERVER, from, "challengeResponse %i", challenge->challenge );
+#ifndef SMOKINGUNS
 		return;
 	}
 
 	// look up the authorize server's IP
-#ifndef SMOKINGUNS
 	if ( !svs.authorizeAddress.ip[0] && svs.authorizeAddress.type != NA_BAD ) {
 		Com_Printf( "Resolving %s\n", AUTHORIZE_SERVER_NAME );
 		if ( !NET_StringToAdr( AUTHORIZE_SERVER_NAME, &svs.authorizeAddress ) ) {
