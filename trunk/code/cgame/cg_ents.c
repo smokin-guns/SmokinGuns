@@ -880,7 +880,7 @@ static void CG_Mover( centity_t *cent ) {
 	entityState_t		*s1;
 	
 	// Joe Kari: farclip_dist
-	const int farclip_type = cent->currentState.weapon ;
+	const int farclip_type = cent->currentState.powerups ;
 	// fast multiply by 64:
 	const float farclip_dist = (float)( cent->currentState.legsAnim << 6 ) ;
 	const float farclip_alt_dist = (float)( cent->currentState.torsoAnim << 6 ) ;
@@ -898,7 +898,6 @@ static void CG_Mover( centity_t *cent ) {
 	
 	// Joe Kari: for func_static (yes there are classified as mover)
 	// if a farclip is specified for this entity, then clip it !!!
-	// if ( farclip_dist && ( Distance(s1->origin, cg.refdef.vieworg) > farclip_dist ) )  return;
 	if ( ( farclip_type > FARCLIP_NONE ) && ( farclip_type < CG_Farclip_Tester_Table_Size ) && ( CG_Farclip_Tester[farclip_type]( s1->origin , cg.refdef.vieworg , farclip_dist , farclip_alt_dist ) ) )  return;
 	
 	// flicker between two skins (FIXME?)

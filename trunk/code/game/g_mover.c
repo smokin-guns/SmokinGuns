@@ -801,6 +801,9 @@ void InitMover( gentity_t *ent ) {
 	if ( G_SpawnString( "noise", "100", &sound ) ) {
 		ent->s.loopSound = G_SoundIndex( sound );
 	}
+	
+	// Joe Kari: this prevent from collision with func_static far clipping
+	ent->s.powerups = FARCLIP_NONE ;
 
 	// if the "color" or "light" keys are set, setup constantLight
 	lightSet = G_SpawnFloat( "light", "100", &light );
@@ -1228,6 +1231,7 @@ void func_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t *attac
 	self->r.contents = CONTENTS_MOVER;
 	self->takedamage = qfalse;
 	self->flags |= EF_BROKEN;
+	self->s.powerups = FARCLIP_NONE ;
 	// respawn breakable in deathmatch
 	if (g_breakspawndelay.integer > 0)
 		self->wait = level.time + g_breakspawndelay.integer * 1000;
@@ -1309,6 +1313,9 @@ void SP_func_breakable (gentity_t *ent){
 	}
 
 	trap_SetBrushModel( ent, ent->model );
+	
+	// Joe Kari: this prevent from collision with func_static far clipping
+	ent->s.powerups = FARCLIP_NONE ;
 
 	//set weapon by which it can be destroyed, 0 = every weapon
 	if(!ent->s.weapon){
@@ -2034,44 +2041,41 @@ void SP_func_static( gentity_t *ent )
 	// for drawing, but clip against the brushes
 	if ( ent->model2 )  ent->s.modelindex2 = G_ModelIndex( ent->model2 ) ;
 
-	// get the value for the key "farclip_*" and copy it to weapon, legsAnim and torsoAnim field
-	//G_SpawnInt( "farclip_type" , "0" , &ent->s.weapon ) ;
-	//G_SpawnInt( "farclip_dist" , "0" , &ent->s.legsAnim ) ;
-	//G_SpawnInt( "farclip_alt" , "0" , &ent->s.torsoAnim ) ;
+	// get the value for the key "farclip_*" and copy it to powerups, legsAnim and torsoAnim field
 	
 	G_SpawnString( "farclip" , "none" , &value ) ;
 	sscanf( value , "%31s %i %i" , tmp_char , &ent->s.legsAnim , &ent->s.torsoAnim ) ;
 	
-	if ( !Q_stricmp( "none" , tmp_char ) )  ent->s.weapon = FARCLIP_NONE ;
-	else if ( !Q_stricmp( "sphere" , tmp_char ) )  ent->s.weapon = FARCLIP_SPHERE ;
-	else if ( !Q_stricmp( "cube" , tmp_char ) )  ent->s.weapon = FARCLIP_CUBE ;
-	else if ( !Q_stricmp( "ellipse_z" , tmp_char ) )  ent->s.weapon = FARCLIP_ELLIPSE_Z ;
-	else if ( !Q_stricmp( "cylinder_z" , tmp_char ) )  ent->s.weapon = FARCLIP_CYLINDER_Z ;
-	else if ( !Q_stricmp( "box_z" , tmp_char ) )  ent->s.weapon = FARCLIP_BOX_Z ;
-	else if ( !Q_stricmp( "cone_z" , tmp_char ) )  ent->s.weapon = FARCLIP_CONE_Z ;
-	else if ( !Q_stricmp( "pyramid_z" , tmp_char ) )  ent->s.weapon = FARCLIP_PYRAMID_Z ;
-	else if ( !Q_stricmp( "circle_infinite_z" , tmp_char ) )  ent->s.weapon = FARCLIP_CIRCLE_INFINITE_Z ;
-	else if ( !Q_stricmp( "square_infinite_z" , tmp_char ) )  ent->s.weapon = FARCLIP_SQUARE_INFINITE_Z ;
-	else if ( !Q_stricmp( "ellipse_x" , tmp_char ) )  ent->s.weapon = FARCLIP_ELLIPSE_X ;
-	else if ( !Q_stricmp( "cylinder_x" , tmp_char ) )  ent->s.weapon = FARCLIP_CYLINDER_X ;
-	else if ( !Q_stricmp( "box_x" , tmp_char ) )  ent->s.weapon = FARCLIP_BOX_X ;
-	else if ( !Q_stricmp( "cone_x" , tmp_char ) )  ent->s.weapon = FARCLIP_CONE_X ;
-	else if ( !Q_stricmp( "pyramid_x" , tmp_char ) )  ent->s.weapon = FARCLIP_PYRAMID_X ;
-	else if ( !Q_stricmp( "circle_infinite_x" , tmp_char ) )  ent->s.weapon = FARCLIP_CIRCLE_INFINITE_X ;
-	else if ( !Q_stricmp( "square_infinite_x" , tmp_char ) )  ent->s.weapon = FARCLIP_SQUARE_INFINITE_X ;
-	else if ( !Q_stricmp( "ellipse_y" , tmp_char ) )  ent->s.weapon = FARCLIP_ELLIPSE_Y ;
-	else if ( !Q_stricmp( "cylinder_y" , tmp_char ) )  ent->s.weapon = FARCLIP_CYLINDER_Y ;
-	else if ( !Q_stricmp( "box_y" , tmp_char ) )  ent->s.weapon = FARCLIP_BOX_Y ;
-	else if ( !Q_stricmp( "cone_y" , tmp_char ) )  ent->s.weapon = FARCLIP_CONE_Y ;
-	else if ( !Q_stricmp( "pyramid_y" , tmp_char ) )  ent->s.weapon = FARCLIP_PYRAMID_Y ;
-	else if ( !Q_stricmp( "circle_infinite_y" , tmp_char ) )  ent->s.weapon = FARCLIP_CIRCLE_INFINITE_Y ;
-	else if ( !Q_stricmp( "square_infinite_y" , tmp_char ) )  ent->s.weapon = FARCLIP_SQUARE_INFINITE_Y ;
-	else  ent->s.weapon = FARCLIP_NONE ;
+	if ( !Q_stricmp( "none" , tmp_char ) )  ent->s.powerups = FARCLIP_NONE ;
+	else if ( !Q_stricmp( "sphere" , tmp_char ) )  ent->s.powerups = FARCLIP_SPHERE ;
+	else if ( !Q_stricmp( "cube" , tmp_char ) )  ent->s.powerups = FARCLIP_CUBE ;
+	else if ( !Q_stricmp( "ellipse_z" , tmp_char ) )  ent->s.powerups = FARCLIP_ELLIPSE_Z ;
+	else if ( !Q_stricmp( "cylinder_z" , tmp_char ) )  ent->s.powerups = FARCLIP_CYLINDER_Z ;
+	else if ( !Q_stricmp( "box_z" , tmp_char ) )  ent->s.powerups = FARCLIP_BOX_Z ;
+	else if ( !Q_stricmp( "cone_z" , tmp_char ) )  ent->s.powerups = FARCLIP_CONE_Z ;
+	else if ( !Q_stricmp( "pyramid_z" , tmp_char ) )  ent->s.powerups = FARCLIP_PYRAMID_Z ;
+	else if ( !Q_stricmp( "circle_infinite_z" , tmp_char ) )  ent->s.powerups = FARCLIP_CIRCLE_INFINITE_Z ;
+	else if ( !Q_stricmp( "square_infinite_z" , tmp_char ) )  ent->s.powerups = FARCLIP_SQUARE_INFINITE_Z ;
+	else if ( !Q_stricmp( "ellipse_x" , tmp_char ) )  ent->s.powerups = FARCLIP_ELLIPSE_X ;
+	else if ( !Q_stricmp( "cylinder_x" , tmp_char ) )  ent->s.powerups = FARCLIP_CYLINDER_X ;
+	else if ( !Q_stricmp( "box_x" , tmp_char ) )  ent->s.powerups = FARCLIP_BOX_X ;
+	else if ( !Q_stricmp( "cone_x" , tmp_char ) )  ent->s.powerups = FARCLIP_CONE_X ;
+	else if ( !Q_stricmp( "pyramid_x" , tmp_char ) )  ent->s.powerups = FARCLIP_PYRAMID_X ;
+	else if ( !Q_stricmp( "circle_infinite_x" , tmp_char ) )  ent->s.powerups = FARCLIP_CIRCLE_INFINITE_X ;
+	else if ( !Q_stricmp( "square_infinite_x" , tmp_char ) )  ent->s.powerups = FARCLIP_SQUARE_INFINITE_X ;
+	else if ( !Q_stricmp( "ellipse_y" , tmp_char ) )  ent->s.powerups = FARCLIP_ELLIPSE_Y ;
+	else if ( !Q_stricmp( "cylinder_y" , tmp_char ) )  ent->s.powerups = FARCLIP_CYLINDER_Y ;
+	else if ( !Q_stricmp( "box_y" , tmp_char ) )  ent->s.powerups = FARCLIP_BOX_Y ;
+	else if ( !Q_stricmp( "cone_y" , tmp_char ) )  ent->s.powerups = FARCLIP_CONE_Y ;
+	else if ( !Q_stricmp( "pyramid_y" , tmp_char ) )  ent->s.powerups = FARCLIP_PYRAMID_Y ;
+	else if ( !Q_stricmp( "circle_infinite_y" , tmp_char ) )  ent->s.powerups = FARCLIP_CIRCLE_INFINITE_Y ;
+	else if ( !Q_stricmp( "square_infinite_y" , tmp_char ) )  ent->s.powerups = FARCLIP_SQUARE_INFINITE_Y ;
+	else  ent->s.powerups = FARCLIP_NONE ;
 	
-	//G_Printf( "^4%s (%i) : %i - %i\n" , tmp_char , ent->s.weapon , ent->s.legsAnim , ent->s.torsoAnim ) ;
+	//G_Printf( "^4%s (%i) : %i - %i\n" , tmp_char , ent->s.powerups , ent->s.legsAnim , ent->s.torsoAnim ) ;
 	
 	
-	if ( ent->s.weapon )
+	if ( ent->s.powerups )
 	{
 		// "legsAnim" has only 8 bits over network, so the far clip value is rounded to multiple of 64
 		ent->s.legsAnim = ( ent->s.legsAnim + 32 ) / 64 ;
