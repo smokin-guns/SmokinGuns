@@ -1604,6 +1604,10 @@ extern	vmCvar_t		cg_enableDust;
 extern	vmCvar_t		cg_enableBreath;
 
 
+extern	vmCvar_t		cg_farclip;
+extern	vmCvar_t		cg_farclip_value;
+extern	vmCvar_t		cg_farclip_zoomvalue;
+
 extern	vmCvar_t		cg_exp_shotgunpattern;
 
 // Smokin'Guns Cvars

@@ -271,6 +271,10 @@ vmCvar_t		hit_model;
 
 vmCvar_t		cg_warmupmessage;
 
+vmCvar_t		cg_farclip;
+vmCvar_t		cg_farclip_value;
+vmCvar_t		cg_farclip_zoomvalue;
+
 // temp
 vmCvar_t		cg_exp_shotgunpattern;
 
@@ -386,6 +390,10 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_enableDust, "g_enableDust", "0", CVAR_SERVERINFO},
 	{ &cg_enableBreath, "g_enableBreath", "0", CVAR_SERVERINFO},
 
+	{ &cg_farclip, "cg_farclip", "1", CVAR_ARCHIVE},
+	{ &cg_farclip_value, "cg_farclip_value", "1", CVAR_ARCHIVE},
+	{ &cg_farclip_zoomvalue, "cg_farclip_zoomvalue", "3", CVAR_ARCHIVE},
+	
 	{ &cg_exp_shotgunpattern, "cg_exp_shotgunpattern", "0", CVAR_ROM},
 	
 	{ &cg_cameraOrbit, "cg_cameraOrbit", "0", CVAR_CHEAT},

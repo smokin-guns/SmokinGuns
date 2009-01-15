@@ -17,7 +17,10 @@ Changes since SG 1.0-20081231
 - new money system (needs "g_moneyrespawn 1")
 - customize teamrole in BR by setting cvar br_teamrole to 0 (default, winner defend next round), 1 (winner are robbers next round), 
 	2 (outlaws are always robbers), 3 (lawmen are always robbers) or 4 (robbers and defenders swap at every new round)
-- far-clipping (with a bunch of clipping-form) support for func_static entity
+- far-clipping (with a bunch of clipping-form) support for func_static entity, come with additionnal cvar: 
+	cg_farclip to turn on/off this feature (default: on), cg_farclip_value to scale it up (default: 1, value lesser than 1
+	are ignored - for cheat protection), and cg_farclip_zoomvalue for the sharp's zoom mode (default: 3, again: value 
+	lesser than 1 are ignored)
 *** CHANGES ***
 - Reloading bug fixed by Joe Kari
 - Fix game crash during game load when using cgame binary library
