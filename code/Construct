@@ -307,6 +307,7 @@ if ($do_sse)
 # Take care to build 32 bits by default in case we're compilling on x86_64 systems
 $COMMON_CFLAGS .= '-m32 ' if ( $force32bits );
 $COMMON_CFLAGS .= '-static ' if ( $do_static );
+$COMMON_CFLAGS .= "-DCPU_STRING=$cpu " ;
 
 if ($config eq 'debug')
 {
@@ -319,8 +320,7 @@ if ($config eq 'debug')
 else
 {
 	$BASE_CFLAGS = $COMMON_CFLAGS . "-DNDEBUG -O3" .
-		" -mtune=$tune -march=$tune -DCPU_STRING=$cpu" .
-		' -fomit-frame-pointer -ffast-math ' .
+		" -mtune=$tune -march=$tune -fomit-frame-pointer -ffast-math " .
 		'-falign-loops=2 -falign-jumps=2 -falign-functions=2 ' .
 		'-fno-strict-aliasing -fstrength-reduce ';
 	$BSPC_BASE_CFLAGS = $BASE_CFLAGS . '-DLINUX -DBSPC -funroll-loops -Dstricmp=strcasecmp ';
