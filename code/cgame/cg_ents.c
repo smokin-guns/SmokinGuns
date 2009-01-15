@@ -880,11 +880,26 @@ static void CG_Mover( centity_t *cent ) {
 	entityState_t		*s1;
 	
 	// Joe Kari: farclip_dist
-	const int farclip_type = cent->currentState.powerups ;
+	int farclip_type = cent->currentState.powerups ;
 	// fast multiply by 64:
-	const float farclip_dist = (float)( cent->currentState.legsAnim << 6 ) ;
-	const float farclip_alt_dist = (float)( cent->currentState.torsoAnim << 6 ) ;
-
+	float farclip_dist = (float)( cent->currentState.legsAnim << 6 ) ;
+	float farclip_alt_dist = (float)( cent->currentState.torsoAnim << 6 ) ;
+	float farclip_factor ;
+	
+	if ( !cg_farclip.integer )
+	{
+		farclip_type = FARCLIP_NONE ;
+	}
+	else
+	{
+		if ( cg.zoomed )  farclip_factor = cg_farclip_zoomvalue.value ;
+		else  farclip_factor = cg_farclip_value.value ;
+		if ( farclip_factor < 1 )  farclip_factor = 1 ;
+		farclip_dist *= farclip_factor ;
+		farclip_alt_dist *= farclip_factor ;
+	}
+	
+	
 	s1 = &cent->currentState;
 
 	
