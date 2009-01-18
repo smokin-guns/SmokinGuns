@@ -1244,7 +1244,7 @@ void Sys_PrintBinVersion( const char* name ) {
 #else
   fprintf( stdout, "%s SmokinGuns Full Executable  [%s %s]\n", os, date, time );  
 #endif
-  fprintf( stdout, " local install: %s\n", name );
+  fprintf( stdout, Q3_VERSION "\nRelease " SG_RELEASE "\nLocal install: %s\n", name );
   fprintf( stdout, "%s\n\n", sep );
 }
 
