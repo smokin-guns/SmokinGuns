@@ -110,6 +110,8 @@ void SP_trigger_multiple( gentity_t *ent ) {
 
 void Touch_Escape( gentity_t *self, gentity_t *other, trace_t *trace ){
 
+	int reward ;
+	
 	if(!other->client)
 		return;
 
@@ -118,8 +120,15 @@ void Touch_Escape( gentity_t *self, gentity_t *other, trace_t *trace ){
 
 	/*if(level.nextroundstart >= level.time)
 		return;*/
-
+	
+	// Reward for the one who rob the bank, added by Joe Kari:
+	if ( g_goldescaped )  return ;
+	
 	g_goldescaped = qtrue;
+	reward = g_robber_reward.integer ;
+	if ( reward < MIN_POINT_ROBBER_REWARD )  reward = MIN_POINT_ROBBER_REWARD ;
+	else if ( reward > MAX_POINT_ROBBER_REWARD )  reward = MAX_POINT_ROBBER_REWARD ;
+	AddScore( other , other->r.currentOrigin , reward ) ;
 }
 
 void SP_trigger_escape( gentity_t *ent ) {

@@ -60,6 +60,8 @@ qboolean	g_robbed;
 int			g_robteam;
 int			g_defendteam;
 
+vmCvar_t	g_robber_reward;
+
 vmCvar_t	g_redteamcount;
 vmCvar_t	g_blueteamcount;
 
@@ -269,6 +271,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_redteamcount, "g_redteamcount", "0", CVAR_SERVERINFO, 0, qfalse  },
 	{ &g_blueteamcount, "g_blueteamcount", "0", CVAR_SERVERINFO, 0, qfalse  },
 
+	{ &g_robber_reward, "g_robber_reward", "1", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qfalse  },
+	
 	{ &g_redteamscore, "g_redteamscore", "0", CVAR_SERVERINFO, 0, qfalse  },
 	{ &g_blueteamscore, "g_blueteamscore", "0", CVAR_SERVERINFO, 0, qfalse  },
 
