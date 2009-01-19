@@ -17,6 +17,7 @@ Changes since SG 1.0-20081231
 - new money system (needs "g_moneyrespawn 1")
 - customize teamrole in BR by setting cvar br_teamrole to 0 (default, winner defend next round), 1 (winner are robbers next round), 
 	2 (outlaws are always robbers), 3 (lawmen are always robbers) or 4 (robbers and defenders swap at every new round)
+- the player who rob the bank now get one point, this is customizable by admin through the cvar: g_robber_reward (value between 0 and 5)
 - far-clipping (with a bunch of clipping-form) support for func_static entity, come with additionnal cvar: 
 	cg_farclip to turn on/off this feature (default: on), cg_farclip_value to scale it up (default: 1, value lesser than 1
 	are ignored - for cheat protection), and cg_farclip_zoomvalue for the sharp's zoom mode (default: 3, again: value 
