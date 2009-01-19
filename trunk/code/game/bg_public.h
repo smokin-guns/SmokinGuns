@@ -112,6 +112,11 @@ by Spoon
 
 //money-system end
 
+// Reward for player who rob the bank (added by Joe Kari)
+#define MAX_POINT_ROBBER_REWARD			5
+#define MIN_POINT_ROBBER_REWARD			0
+
+
 
 #define	ITEM_RADIUS			15		// item sizes are needed for client side pickup detection
 

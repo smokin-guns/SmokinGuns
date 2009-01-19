@@ -1046,6 +1046,8 @@ extern	vmCvar_t	g_blueteamcount;
 extern	vmCvar_t	g_redteamscore;
 extern	vmCvar_t	g_blueteamscore;
 
+extern	vmCvar_t	g_robber_reward;
+
 extern	vmCvar_t	g_splitChat;
 
 
