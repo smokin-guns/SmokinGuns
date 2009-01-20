@@ -117,7 +117,6 @@ static char* netnames[] = {
 	NULL
 };
 
-static char quake3worldMessage[] = "Visit www.quake3world.com - News, Community, Events, Files";
 
 static int gamecodetoui[] = {4,2,3,0,5,1,6};
 static int uitogamecode[] = {4,6,2,3,1,5,7};
@@ -133,7 +132,7 @@ static void UI_BuildFindPlayerList(qboolean force);
 static int QDECL UI_ServersQsortCompare( const void *arg1, const void *arg2 );
 static int UI_MapCountByGameType(qboolean singlePlayer);
 static void UI_ParseGameInfo(const char *teamFile);
-static void UI_ParseTeamInfo(const char *teamFile);
+//static void UI_ParseTeamInfo(const char *teamFile);
 static const char *UI_SelectedMap(int index, int *actual);
 static int UI_GetIndexFromSelection(int actual);
 
@@ -358,7 +357,7 @@ void Send_KeyBindings(void){
 
 
 void AssetCache() {
-	int n;
+	//int n;
 	//if (Assets.textFont == NULL) {
 	//}
 	//Assets.background = trap_R_RegisterShaderNoMip( ASSET_BACKGROUND );
@@ -739,7 +738,7 @@ int Text_Width(const char *text, float scale, int limit) {
 				s += 2;
 				continue;
 			} else {
-				glyph = &font->glyphs[*s];
+				glyph = &font->glyphs[(int)*s];
 				out += glyph->xSkip;
 				s++;
 				count++;
@@ -774,7 +773,7 @@ int Text_Height(const char *text, float scale, int limit) {
 				s += 2;
 				continue;
 			} else {
-				glyph = &font->glyphs[*s];
+				glyph = &font->glyphs[(int)*s];
 	      if (max < glyph->height) {
 		      max = glyph->height;
 			  }
@@ -816,7 +815,7 @@ void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, f
 		}
 		count = 0;
 		while (s && *s && count < len) {
-			glyph = &font->glyphs[*s];
+			glyph = &font->glyphs[(int)*s];
       //int yadj = Assets.textFont.glyphs[text[i]].bottom + Assets.textFont.glyphs[text[i]].top;
       //float yadj = scale * (Assets.textFont.glyphs[text[i]].imageHeight - Assets.textFont.glyphs[text[i]].height);
 			if ( Q_IsColorString( s ) ) {
@@ -884,9 +883,9 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const cha
 			len = limit;
 		}
 		count = 0;
-		glyph2 = &font->glyphs[cursor];
+		glyph2 = &font->glyphs[(int)cursor];
 		while (s && *s && count < len) {
-			glyph = &font->glyphs[*s];
+			glyph = &font->glyphs[(int)*s];
       //int yadj = Assets.textFont.glyphs[text[i]].bottom + Assets.textFont.glyphs[text[i]].top;
       //float yadj = scale * (Assets.textFont.glyphs[text[i]].imageHeight - Assets.textFont.glyphs[text[i]].height);
 			if ( Q_IsColorString( s ) ) {
@@ -985,7 +984,7 @@ static void Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4_t 
 		}
 		count = 0;
 		while (s && *s && count < len) {
-			glyph = &font->glyphs[*s];
+			glyph = &font->glyphs[(int)*s];
 			if ( Q_IsColorString( s ) ) {
 				memcpy( newColor, g_color_table[ColorIndex(*(s+1))], sizeof( newColor ) );
 				newColor[3] = color[3];
@@ -1452,7 +1451,7 @@ void UI_Load() {
 }
 
 static const char *handicapValues[] = {"None","95","90","85","80","75","70","65","60","55","50","45","40","35","30","25","20","15","10","5",NULL};
-static int numHandicaps = sizeof(handicapValues) / sizeof(const char*);
+//static int numHandicaps = sizeof(handicapValues) / sizeof(const char*);
 
 static void UI_DrawHandicap(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
   int i, h;
@@ -1901,10 +1900,12 @@ static void UI_DrawTierGameType(rectDef_t *rect, float scale, vec4_t color, int 
 }
 
 
+#ifndef SMOKINGUNS
 static const char *UI_OpponentLeaderName() {
   int i = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_opponentName"));
 	return uiInfo.teamList[i].teamMembers[0];
 }
+#endif
 
 static const char *UI_AIFromName(const char *name) {
 	int j;
@@ -1916,6 +1917,7 @@ static const char *UI_AIFromName(const char *name) {
 	return "James";
 }
 
+#ifndef SMOKINGUNS
 static const int UI_AIIndex(const char *name) {
 	int j;
 	for (j = 0; j < uiInfo.characterCount; j++) {
@@ -1957,6 +1959,7 @@ static const char *UI_OpponentLeaderModel() {
 	}
 	return "James";
 }
+#endif
 
 
 static qboolean updateOpponentModel = qtrue;
@@ -2452,7 +2455,6 @@ static void UI_DrawServerMOTD(rectDef_t *rect, float scale, vec4_t color) {
 }
 
 static void UI_DrawKeyBindStatus(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
-	int ofs = 0;
 	if (Display_KeyBindPending()) {
 		Text_Paint(rect->x, rect->y, scale, color, "Waiting for new key... Press ESCAPE to cancel", 0, 0, textStyle);
 	} else {
@@ -3444,6 +3446,7 @@ static void UI_LoadMods() {
 UI_LoadTeams
 ===============
 */
+#ifndef SMOKINGUNS
 static void UI_LoadTeams() {
 	char	teamList[4096];
 	char	*teamName;
@@ -3461,6 +3464,7 @@ static void UI_LoadTeams() {
 	}
 
 }
+#endif
 
 
 /*
@@ -4383,7 +4387,6 @@ UI_BuildServerDisplayList
 static void UI_BuildServerDisplayList(qboolean force) {
 	int i, count, clients, maxClients, ping, game, len, visible;
 	char info[MAX_STRING_CHARS];
-	qboolean startRefresh = qtrue;
 	static int numinvisible;
 
 	if (!(force || uiInfo.uiDC.realTime > uiInfo.serverStatus.nextDisplayRefresh)) {
@@ -4501,10 +4504,12 @@ static void UI_BuildServerDisplayList(qboolean force) {
 	uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime;
 
 	// if there were no servers visible for ping updates
+#ifndef SMOKINGUNS
 	if (!visible) {
-//		UI_StopServerRefresh();
-//		uiInfo.serverStatus.nextDisplayRefresh = 0;
+		UI_StopServerRefresh();
+		uiInfo.serverStatus.nextDisplayRefresh = 0;
 	}
+#endif
 }
 
 typedef struct
@@ -4697,7 +4702,7 @@ UI_BuildFindPlayerList
 ==================
 */
 static void UI_BuildFindPlayerList(qboolean force) {
-	static numFound, numTimeOuts;
+	static int numFound, numTimeOuts;
 	int i, j, resend;
 	serverStatusInfo_t info;
 	char name[MAX_NAME_LENGTH+2];
@@ -4934,7 +4939,7 @@ static void UI_FixMapIndex( int force_map ) {
 	char mapname[MAX_MAPNAMELENGTH+1];
 
 	// Tequila comment: sharedMap will preserve shared map number
-	static sharedMap = MAX_MAPS ;
+	static int sharedMap = MAX_MAPS ;
 
 	if (sharedMap<0) {
 		// Next time we will accept to be forced
@@ -5022,8 +5027,8 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
 	static char info[MAX_STRING_CHARS];
 	static char hostname[1024];
 	static char clientBuff[32];
-	static lastColumn = -1;
-	static lastTime = 0;
+	static int lastColumn = -1;
+	static int lastTime = 0;
 	*handle = -1;
 	if (feederID == FEEDER_HEADS) {
 		if (index >= 0 && index < uiInfo.characterCount) {
@@ -5230,6 +5235,7 @@ static void UI_FeederSelection(float feederID, int index) {
 	}
 }
 
+#ifndef SMOKINGUNS
 static qboolean Team_Parse(char **p) {
   char *token;
   const char *tempStr;
@@ -5437,6 +5443,7 @@ static void UI_ParseTeamInfo(const char *teamFile) {
   }
 
 }
+#endif
 
 
 static qboolean GameType_Parse(char **p, qboolean join) {
@@ -5500,6 +5507,7 @@ static qboolean GameType_Parse(char **p, qboolean join) {
 	return qfalse;
 }
 
+#ifndef SMOKINGUNS
 static qboolean MapList_Parse(char **p) {
 	char *token;
 
@@ -5563,13 +5571,12 @@ static qboolean MapList_Parse(char **p) {
 	}
 	return qfalse;
 }
+#endif
 
 static void UI_ParseGameInfo(const char *teamFile) {
 	char	*token;
 	char *p;
 	char *buff = NULL;
-	int mode = 0;
-	int	count = 0;
 
 	buff = GetMenuBuffer(teamFile);
 	if (!buff) {
@@ -5627,9 +5634,11 @@ static void UI_Pause(qboolean b) {
 	}
 }
 
+#ifndef SMOKINGUNS
 static int UI_OwnerDraw_Width(int ownerDraw) {
 	return 0;
 }
+#endif
 
 static int UI_PlayCinematic(const char *name, float x, float y, float w, float h) {
   return trap_CIN_PlayCinematic(name, x, y, w, h, (CIN_loop | CIN_silent));
@@ -6334,6 +6343,7 @@ static void UI_StopServerRefresh( void )
 ArenaServers_MaxPing
 =================
 */
+#ifndef SMOKINGUNS
 static int ArenaServers_MaxPing( void ) {
 	int		maxPing;
 
@@ -6343,6 +6353,7 @@ static int ArenaServers_MaxPing( void ) {
 	}
 	return maxPing;
 }
+#endif
 
 /*
 =================

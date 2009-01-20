@@ -673,7 +673,7 @@ typedef enum {
 	EV_GIB_PLAYER,			// gib a previously living player
 	EV_SCOREPLUM,			// score plum
 
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 	EV_PROXIMITY_MINE_STICK,
 	EV_PROXIMITY_MINE_TRIGGER,
 	EV_KAMIKAZE,			// kamikaze explodes
@@ -689,7 +689,7 @@ typedef enum {
 	EV_TAUNT_GETFLAG,
 	EV_TAUNT_GUARDBASE,
 	EV_TAUNT_PATROL,
-#endif*/
+#endif
 
 	EV_DEBUG_LINE,
 	EV_STOPLOOPINGSOUND,
@@ -973,13 +973,13 @@ typedef enum {
 	MOD_SUICIDE,
 	MOD_TARGET_LASER,
 	MOD_TRIGGER_HURT,
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 	MOD_NAIL,
 	MOD_CHAINGUN,
 	MOD_PROXIMITY_MINE,
 	MOD_KAMIKAZE,
 	MOD_JUICED,
-#endif*/
+#endif
 	MOD_BOILER //just to check if the boilerplate was hit
 } meansOfDeath_t;
 
@@ -997,7 +997,9 @@ typedef enum {
 							// EFX: rotate + external ring that rotates
 	IT_HOLDABLE,			// single use, holdable item
 							// EFX: rotate + bob
+#ifndef SMOKINGUNS
 	IT_PERSISTANT_POWERUP,
+#endif
 	IT_TEAM
 } itemType_t;
 

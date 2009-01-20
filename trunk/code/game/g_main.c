@@ -428,8 +428,8 @@ void G_FindTeams( void ) {
 	G_Printf ("%i teams with %i entities\n", c, c2);
 }
 
-void G_RemapTeamShaders( void ) {
 #ifndef SMOKINGUNS
+void G_RemapTeamShaders( void ) {
 	char string[1024];
 	float f = level.time * 0.001;
 	Com_sprintf( string, sizeof(string), "team_icon/%s_red", g_redteam.string );
@@ -451,7 +451,9 @@ G_RegisterCvars
 void G_RegisterCvars( void ) {
 	int			i;
 	cvarTable_t	*cv;
+#ifndef SMOKINGUNS
 	qboolean remapped = qfalse;
+#endif
 
 	for ( i = 0, cv = gameCvarTable ; i < gameCvarTableSize ; i++, cv++ ) {
 		trap_Cvar_Register( cv->vmCvar, cv->cvarName,
@@ -459,14 +461,18 @@ void G_RegisterCvars( void ) {
 		if ( cv->vmCvar )
 			cv->modificationCount = cv->vmCvar->modificationCount;
 
+#ifndef SMOKINGUNS
 		if (cv->teamShader) {
 			remapped = qtrue;
 		}
+#endif
 	}
 
+#ifndef SMOKINGUNS
 	if (remapped) {
 		G_RemapTeamShaders();
 	}
+#endif
 
 	// check some things
 	if ( g_gametype.integer < 0 || g_gametype.integer >= GT_MAX_GAME_TYPE ) {
@@ -485,7 +491,9 @@ G_UpdateCvars
 void G_UpdateCvars( void ) {
 	int			i;
 	cvarTable_t	*cv;
+#ifndef SMOKINGUNS
 	qboolean remapped = qfalse;
+#endif
 
 	for ( i = 0, cv = gameCvarTable ; i < gameCvarTableSize ; i++, cv++ ) {
 		if ( cv->vmCvar ) {
@@ -499,16 +507,20 @@ void G_UpdateCvars( void ) {
 						cv->cvarName, cv->vmCvar->string ) );
 				}
 
+#ifndef SMOKINGUNS
 				if (cv->teamShader) {
 					remapped = qtrue;
 				}
+#endif
 			}
 		}
 	}
 
+#ifndef SMOKINGUNS
 	if (remapped) {
 		G_RemapTeamShaders();
 	}
+#endif
 }
 
 shaderInfo_t shaderInfo[MAX_BRUSHSIDES];

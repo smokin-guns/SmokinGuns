@@ -1219,7 +1219,7 @@ float ConvertToRim(float angle){
 }
 
 void AddAnglesToBounds(const vec3_t angles, vec3_t dir, vec3_t rim_mins, vec3_t rim_maxs, vec3_t dir_mins, vec3_t dir_maxs) {
-	float angle = ConvertToRim(angles[PITCH]);
+	//float angle = ConvertToRim(angles[PITCH]);
 
 	//x-axis
 	if(dir[0] < dir_mins[0]){
