@@ -841,11 +841,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			// will be played at prediction time
 			/*if ( item->giType == IT_POWERUP || item->giType == IT_TEAM) {
 				trap_S_StartSound (NULL, es->number, CHAN_AUTO,	cgs.media.n_healthSound );
-			} else */if (item->giType == IT_PERSISTANT_POWERUP) {
+			} else if (item->giType == IT_PERSISTANT_POWERUP) {
 
-			} else {
+			} else {*/
 				trap_S_StartSound (NULL, es->number, CHAN_AUTO,	trap_S_RegisterSound( item->pickup_sound, qfalse ) );
-			}
+			//}
 
 			// show icon and name on status bar
 			if ( es->number == cg.snap->ps.clientNum ) {

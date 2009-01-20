@@ -132,6 +132,7 @@ static void UI_ForceLegsAnim( playerInfo_t *pi, int anim ) {
 UI_SetLegsAnim
 ===============
 */
+#ifndef SMOKINGUNS
 static void UI_SetLegsAnim( playerInfo_t *pi, int anim ) {
 	if ( pi->pendingLegsAnim ) {
 		anim = pi->pendingLegsAnim;
@@ -139,7 +140,7 @@ static void UI_SetLegsAnim( playerInfo_t *pi, int anim ) {
 	}
 	UI_ForceLegsAnim( pi, anim );
 }
-
+#endif
 
 /*
 ===============

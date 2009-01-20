@@ -2361,7 +2361,7 @@ qboolean Item_HandleKey(itemDef_t *item, int key, qboolean down) {
 		captureFunc = NULL;
 		captureData = NULL;
 	} else {
-		if (down && key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3) {
+		if (down && (key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3)) {
 			Item_StartCapture(item, key);
 		}
 	}
@@ -2615,7 +2615,7 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 		// see if the mouse is within the window bounds and if so is this a mouse click
 	if (down && !(menu->window.flags & WINDOW_POPUP) && !Rect_ContainsPoint(&menu->window.rect, DC->cursorx, DC->cursory)) {
 		static qboolean inHandleKey = qfalse;
-		if (!inHandleKey && key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3) {
+		if (!inHandleKey && (key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3)) {
 			inHandleKey = qtrue;
 			Menus_HandleOOBClick(menu, key, down);
 			inHandleKey = qfalse;
@@ -3178,18 +3178,6 @@ static bind_t g_bindings[] =
 
 static const int g_bindCount = sizeof(g_bindings) / sizeof(bind_t);
 
-static configcvar_t g_configcvars[] =
-{
-	{"cl_run",			0,					0},
-	{"m_pitch",			0,					0},
-//	{"cg_autoswitch",	0,					0},
-	{"sensitivity",		0,					0},
-	{"in_joystick",		0,					0},
-	{"joy_threshold",	0,					0},
-	{"m_filter",		0,					0},
-	{"cl_freelook",		0,					0},
-	{NULL,				0,					0}
-};
 
 /*
 =================
@@ -3360,7 +3348,7 @@ void BindingFromName(const char *cvar) {
 void Item_Slider_Paint(itemDef_t *item) {
 	vec4_t newColor;//, lowLight;
 	float x, y, value;
-	menuDef_t *parent = (menuDef_t*)item->parent;
+	//menuDef_t *parent = (menuDef_t*)item->parent;
 
 	value = (item->cvar) ? DC->getCVarValue(item->cvar) : 0;
 
@@ -5661,8 +5649,6 @@ displayContextDef_t *Display_GetContext() {
 	return DC;
 }
 
-static float captureX;
-static float captureY;
 
 void *Display_CaptureItem(int x, int y) {
 	int i;
