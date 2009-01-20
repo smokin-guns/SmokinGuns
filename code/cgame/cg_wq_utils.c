@@ -2103,14 +2103,16 @@ qboolean CG_Farclip_Cone_Z( vec3_t entite_vec3 , vec3_t camera_vec3 , float farc
 	float dx , dy , dz ;
 	dx = entite_vec3[0] - camera_vec3[0] ;
 	dy = entite_vec3[1] - camera_vec3[1] ;
-	dz = abs( entite_vec3[2] - camera_vec3[2] ) + farclip_dist ;
+	// not usefull to test if farclip_dist > 0, cause it have been tested before calling this function
+	dz = abs( entite_vec3[2] - camera_vec3[2] ) * farclip_alt_dist / farclip_dist + farclip_dist ;
 	return ( dx * dx + dy * dy ) > ( dz * dz ) ;
 }
 
 qboolean CG_Farclip_Pyramid_Z( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
 {
 	float dz ;
-	dz = abs( entite_vec3[2] - camera_vec3[2] ) + farclip_dist ;
+	// not usefull to test if farclip_dist > 0, cause it have been tested before calling this function
+	dz = abs( entite_vec3[2] - camera_vec3[2] ) * farclip_alt_dist / farclip_dist + farclip_dist ;
 	if ( abs( entite_vec3[0] - camera_vec3[0] ) > dz )  return qtrue ;
 	if ( abs( entite_vec3[1] - camera_vec3[1] ) > dz )  return qtrue ;
 	return qfalse ;
@@ -2164,7 +2166,8 @@ qboolean CG_Farclip_Square_Infinite_X( vec3_t entite_vec3 , vec3_t camera_vec3 ,
 qboolean CG_Farclip_Cone_X( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
 {
 	float dx , dy , dz ;
-	dx = abs( entite_vec3[0] - camera_vec3[0] ) + farclip_dist ;
+	// not usefull to test if farclip_dist > 0, cause it have been tested before calling this function
+	dx = abs( entite_vec3[0] - camera_vec3[0] ) * farclip_alt_dist / farclip_dist + farclip_dist ;
 	dy = entite_vec3[1] - camera_vec3[1] ;
 	dz = entite_vec3[2] - camera_vec3[2] ;
 	return ( dy * dy + dz * dz ) > ( dx * dx ) ;
@@ -2173,7 +2176,8 @@ qboolean CG_Farclip_Cone_X( vec3_t entite_vec3 , vec3_t camera_vec3 , float farc
 qboolean CG_Farclip_Pyramid_X( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
 {
 	float dx ;
-	dx = abs( entite_vec3[0] - camera_vec3[0] ) + farclip_dist ;
+	// not usefull to test if farclip_dist > 0, cause it have been tested before calling this function
+	dx = abs( entite_vec3[0] - camera_vec3[0] ) * farclip_alt_dist / farclip_dist + farclip_dist ;
 	if ( abs( entite_vec3[1] - camera_vec3[1] ) > dx )  return qtrue ;
 	if ( abs( entite_vec3[2] - camera_vec3[2] ) > dx )  return qtrue ;
 	return qfalse ;
@@ -2228,7 +2232,8 @@ qboolean CG_Farclip_Cone_Y( vec3_t entite_vec3 , vec3_t camera_vec3 , float farc
 {
 	float dx , dy , dz ;
 	dx = entite_vec3[0] - camera_vec3[0] ;
-	dy = abs( entite_vec3[1] - camera_vec3[1] ) + farclip_dist ;
+	// not usefull to test if farclip_dist > 0, cause it have been tested before calling this function
+	dy = abs( entite_vec3[1] - camera_vec3[1] ) * farclip_alt_dist / farclip_dist + farclip_dist ;
 	dz = entite_vec3[2] - camera_vec3[2] ;
 	return ( dx * dx + dz * dz ) > ( dy * dy ) ;
 }
@@ -2236,7 +2241,8 @@ qboolean CG_Farclip_Cone_Y( vec3_t entite_vec3 , vec3_t camera_vec3 , float farc
 qboolean CG_Farclip_Pyramid_Y( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
 {
 	float dy ;
-	dy = abs( entite_vec3[1] - camera_vec3[1] ) + farclip_dist ;
+	// not usefull to test if farclip_dist > 0, cause it have been tested before calling this function
+	dy = abs( entite_vec3[1] - camera_vec3[1] ) * farclip_alt_dist / farclip_dist + farclip_dist ;
 	if ( abs( entite_vec3[0] - camera_vec3[0] ) > dy )  return qtrue ;
 	if ( abs( entite_vec3[2] - camera_vec3[2] ) > dy )  return qtrue ;
 	return qfalse ;
