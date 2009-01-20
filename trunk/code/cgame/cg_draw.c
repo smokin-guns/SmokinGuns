@@ -576,18 +576,22 @@ void CG_DrawFlagModel( float x, float y, float w, float h, int team, qboolean fo
 	} else if ( cg_drawIcons.integer ) {
 //		gitem_t *item;
 
-		/*if( team == TEAM_RED ) {
+#ifdef SMOKINGUNS
+			return;
+#else
+		if( team == TEAM_RED ) {
 			item = BG_FindItemForPowerup( PW_REDFLAG );
 		} else if( team == TEAM_BLUE ) {
 			item = BG_FindItemForPowerup( PW_BLUEFLAG );
 		} else if( team == TEAM_FREE ) {
 			item = BG_FindItemForPowerup( PW_NEUTRALFLAG );
-		} else {*/
+		} else {
 			return;
-		//}
-		/*if (item) {
+		}
+		if (item) {
 		  CG_DrawPic( x, y, w, h, cg_items[ ITEM_INDEX(item) ].icon );
-		}*/
+		}
+#endif
 	}
 }
 
@@ -1260,6 +1264,7 @@ CG_DrawTeamOverlay
 =================
 */
 
+#ifndef SMOKINGUNS
 static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 	int x, w, h, xx;
 	int i, j, len;
@@ -1424,8 +1429,8 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 	}
 
 	return ret_y;
-//#endif
 }
+#endif
 
 
 /*
@@ -1760,9 +1765,11 @@ static void CG_DrawUpperRight( void ) {
 
 	y = 0;
 
-	/*if ( cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 1 ) {
+#ifndef SMOKINGUNS
+	if ( cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 1 ) {
 		y = CG_DrawTeamOverlay( y, qtrue, qtrue );
-	} */
+	}
+#endif
 	if ( cg_drawSnapshot.integer ) {
 		y = CG_DrawSnapshot( y );
 	}
@@ -1835,7 +1842,8 @@ static float CG_DrawScores( float y ) {
 		}
 		CG_DrawBigString( x + 4, y, s, 1.0F);
 
-		/*if ( cgs.gametype == GT_CTF ) {
+#ifndef SMOKINGUNS
+		if ( cgs.gametype == GT_CTF ) {
 			// Display flag status
 			item = BG_FindItemForPowerup( PW_BLUEFLAG );
 
@@ -1845,7 +1853,8 @@ static float CG_DrawScores( float y ) {
 					CG_DrawPic( x, y1-4, w, BIGCHAR_HEIGHT+8, cgs.media.blueFlagShader[cgs.blueflag] );
 				}
 			}
-		}*/
+		}
+#endif
 
 		color[0] = 1;
 		color[1] = 0;
@@ -1860,7 +1869,8 @@ static float CG_DrawScores( float y ) {
 		}
 		CG_DrawBigString( x + 4, y, s, 1.0F);
 
-		/*if ( cgs.gametype == GT_CTF ) {
+#ifndef SMOKINGUNS
+		if ( cgs.gametype == GT_CTF ) {
 			// Display flag status
 			item = BG_FindItemForPowerup( PW_REDFLAG );
 
@@ -1870,9 +1880,10 @@ static float CG_DrawScores( float y ) {
 					CG_DrawPic( x, y1-4, w, BIGCHAR_HEIGHT+8, cgs.media.redFlagShader[cgs.redflag] );
 				}
 			}
-		}*/
+		}
+#endif
 
-#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 		if ( cgs.gametype == GT_1FCTF ) {
 			// Display flag status
 			item = BG_FindItemForPowerup( PW_NEUTRALFLAG );
@@ -1971,7 +1982,7 @@ static float CG_DrawScores( float y ) {
 CG_DrawPowerups
 ================
 */
-#ifndef MISSIONPACK
+#ifndef SMOKINGUNS
 static float CG_DrawPowerups( float y ) {
 	int		sorted[MAX_POWERUPS];
 	int		sortedTime[MAX_POWERUPS];
@@ -2071,15 +2082,15 @@ CG_DrawLowerRight
 
 =====================
 */
-#ifndef MISSIONPACK
+#ifndef SMOKINGUNS
 static void CG_DrawLowerRight( void ) {
 	float	y;
 
 	y = 480 - ICON_SIZE;
 
-	/*if ( cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 2 ) {
+	if ( cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 2 ) {
 		y = CG_DrawTeamOverlay( y, qtrue, qfalse );
-	} */
+	}
 
 	//y = CG_DrawScores( y );
 	y = CG_DrawPowerups( y );
@@ -2091,7 +2102,7 @@ static void CG_DrawLowerRight( void ) {
 CG_DrawPickupItem
 ===================
 */
-//#ifndef MISSIONPACK
+#ifdef SMOKINGUNS
 static int CG_DrawPickupItem( int y ) {
 	int		value;
 	int		quantity;
@@ -2148,7 +2159,7 @@ static int CG_DrawPickupItem( int y ) {
 
 	return y;
 }
-//#endif
+#endif
 
 /*
 =====================
@@ -2156,19 +2167,21 @@ CG_DrawLowerLeft
 
 =====================
 */
-//#ifndef MISSIONPACK
+#ifdef SMOKINGUNS
 static void CG_DrawLowerLeft( void ) {
 	float	y;
 
 	y = 480 - ICON_SIZE;
 
-	/*if ( cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 3 ) {
+#ifndef SMOKINGUNS
+	if ( cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 3 ) {
 		y = CG_DrawTeamOverlay( y, qfalse, qfalse );
-	}*/
+	}
+#endif
 
 	y = CG_DrawPickupItem( y );
 }
-//#endif
+#endif
 
 
 //===========================================================================================

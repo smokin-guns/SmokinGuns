@@ -39,7 +39,7 @@ mod:
 	cd ./code && perl ./unix/cons -- vm nocore rev=$(REVISION)
 mod-pk3: mod
 	@echo "==> Making engine only PK3 for SG"
-	cd ./code/install/smokinguns && zip -0 ../sg_engine.pk3 vm/*.qvm
+	cd ./install/smokinguns && zip -0 sg_engine.pk3 vm/*.qvm
 mod-debug:
 	@echo "==> Making SG [DEBUG] (mod only)"
 	cd ./code && perl ./unix/cons -- vm nocore debug rev=$(REVISION)

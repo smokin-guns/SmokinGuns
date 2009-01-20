@@ -2125,6 +2125,7 @@ int		bg_numItems = sizeof(bg_itemlist) / sizeof(bg_itemlist[0]) - 1;
 BG_FindItemForPowerup
 ==============
 */
+#ifndef SMOKINGUNS
 gitem_t	*BG_FindItemForPowerup( powerup_t pw ) {
 	int		i;
 
@@ -2139,6 +2140,7 @@ gitem_t	*BG_FindItemForPowerup( powerup_t pw ) {
 
 	return NULL;
 }
+#endif
 
 
 /*

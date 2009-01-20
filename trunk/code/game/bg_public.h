@@ -1072,7 +1072,9 @@ gitem_t	*BG_FindItem( const char *pickupName );
 gitem_t	*BG_FindItemForClassname( const char *classname );
 gitem_t	*BG_FindItemForWeapon( weapon_t weapon );
 gitem_t	*BG_FindItemForAmmo( weapon_t ammo ) ;
+#ifndef SMOKINGUNS
 gitem_t	*BG_FindItemForPowerup( powerup_t pw );
+#endif
 gitem_t	*BG_FindItemForHoldable( holdable_t pw );
 int	BG_FindPlayerWeapon( int firstweapon, int lastweapon, playerState_t	*ps);
 #define	ITEM_INDEX(x) ((x)-bg_itemlist)
