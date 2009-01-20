@@ -886,7 +886,7 @@ static void CG_Mover( centity_t *cent ) {
 	float farclip_alt_dist = (float)( cent->currentState.torsoAnim << 6 ) ;
 	float farclip_factor ;
 	
-	if ( !cg_farclip.integer )
+	if ( !cg_farclip.integer || farclip_dist < 1 )
 	{
 		farclip_type = FARCLIP_NONE ;
 	}
