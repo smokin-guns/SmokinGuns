@@ -187,7 +187,11 @@ void TossClientItems( gentity_t *self ) {
 				if(i == PW_GOLD)
 					item = BG_FindItemForClassname("item_money");
 				else
+#ifdef SMOKINGUNS
+					continue;
+#else
 					item = BG_FindItemForPowerup( i );
+#endif
 				if ( !item ) {
 					continue;
 				}

@@ -982,7 +982,8 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			item = NULL;
 			j = 0;
 
-			/*if ( ent->client->ps.powerups[ PW_REDFLAG ] ) {
+#ifndef SMOKINGUNS
+			if ( ent->client->ps.powerups[ PW_REDFLAG ] ) {
 				item = BG_FindItemForPowerup( PW_REDFLAG );
 				j = PW_REDFLAG;
 			} else if ( ent->client->ps.powerups[ PW_BLUEFLAG ] ) {
@@ -991,7 +992,8 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			} else if ( ent->client->ps.powerups[ PW_NEUTRALFLAG ] ) {
 				item = BG_FindItemForPowerup( PW_NEUTRALFLAG );
 				j = PW_NEUTRALFLAG;
-			}*/
+			}
+#endif
 
 			if ( item ) {
 				drop = Drop_Item( ent, item, 0 );
@@ -1004,7 +1006,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 				ent->client->ps.powerups[ j ] = 0;
 			}
 
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 			if ( g_gametype.integer == GT_HARVESTER ) {
 				if ( ent->client->ps.generic1 > 0 ) {
 					if ( ent->client->sess.sessionTeam == TEAM_RED ) {
@@ -1025,7 +1027,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 					ent->client->ps.generic1 = 0;
 				}
 			}
-#endif*/
+#endif
 			SelectSpawnPoint( ent->client->ps.origin, origin, angles , ent->mappart, ent->client);
 			TeleportPlayer( ent, origin, angles );
 			break;
