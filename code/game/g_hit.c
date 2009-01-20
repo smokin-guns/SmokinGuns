@@ -827,7 +827,7 @@ qboolean G_ParseHitFile(hit_data_t *hit_data, int part){
 	char			buf[MAX_HITFILE];
 
 	char			name[64];
-	int				filecount = 0;
+//	int				filecount = 0;
 
 	int				pos = 0;
 
@@ -906,7 +906,6 @@ if(header.ident != HIT_IDENT){
 
 	if(part != PART_HEAD){
 		for(f = 0; f < header.numFrames; f++){
-			int j;
 
 			if(part==PART_UPPER)
 				ptag = &hit_data->tag_head[f];
@@ -924,6 +923,7 @@ if(header.ident != HIT_IDENT){
 
 			BG_StringRead((char*)ptag, (char*)(buf+pos), sizeof(hit_tag_t));
 #if defined Q3_VM || !defined LittleFloat	// QVM or SO on a big endian processor
+			int j;
 			for (j = 0; j < 3; j++) { // fix endianness
 				ptag->angles[j] = LittleFloat((const float *)&ptag->angles[j]);
 				ptag->origin[j] = LittleFloat((const float *)&ptag->origin[j]);
@@ -940,7 +940,7 @@ if(header.ident != HIT_IDENT){
 	//
 
 	for( i = 0; i < header.numMeshes; i++){
-		int j, k, hit_num = -1;
+		int j, hit_num = -1;
 		mesh_header_t m_header;
 
 		// load next file
@@ -1007,6 +1007,7 @@ if(header.ident != HIT_IDENT){
 
 		BG_StringRead((char*)&m_header.dir1, (char*)(buf+pos), 3*sizeof(short));
 #if defined Q3_VM || !defined LittleShort	// QVM or SO on a big endian processor
+		int k ;
 		for (k = 0; k < 3; k++)
 			m_header.dir1[k] = LittleShort(m_header.dir1[k]);
 #endif

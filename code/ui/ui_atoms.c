@@ -82,6 +82,7 @@ void UI_StartDemoLoop( void ) {
 }
 
 
+#ifndef SMOKINGUNS
 static void NeedCDAction( qboolean result ) {
 	if ( !result ) {
 		trap_Cmd_ExecuteText( EXEC_APPEND, "quit\n" );
@@ -93,6 +94,7 @@ static void NeedCDKeyAction( qboolean result ) {
 		trap_Cmd_ExecuteText( EXEC_APPEND, "quit\n" );
 	}
 }
+#endif
 
 
 char *UI_Argv( int arg ) {
