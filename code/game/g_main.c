@@ -439,8 +439,8 @@ void G_RemapTeamShaders( void ) {
 	AddRemap("textures/ctf2/blueteam01", string, f);
 	AddRemap("textures/ctf2/blueteam02", string, f);
 	trap_SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
-#endif
 }
+#endif
 
 
 /*
@@ -809,7 +809,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		G_InitBots( restart );
 	}
 
+#ifndef SMOKINGUNS
 	G_RemapTeamShaders();
+#endif
 
 }
 
