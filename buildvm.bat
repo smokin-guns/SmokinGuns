@@ -13,8 +13,8 @@ cd code\output\asm
 @set PATH_CGAME=..\..\cgame
 @set PATH_UI=..\..\ui
 
-@set CC=lcc -DQ3_VM -DMISSIONPACK -DSMOKINGUNS -DSMOKINGUNS_SO -S -Wf-target=bytecode -Wf-g -I%PATH_CGAME% -I%PATH_GAME% -I%PATH_UI% %1
-@set CC_CGAME=lcc -DQ3_VM -DVM_CGAME -DMISSIONPACK -S -DSMOKINGUNS -DSMOKINGUNS_SO -Wf-target=bytecode -Wf-g -I%PATH_CGAME% -I%PATH_GAME% -I%PATH_UI% %1
+@set CC=lcc -DQ3_VM -DMISSIONPACK -DSMOKINGUNS -S -Wf-target=bytecode -Wf-g -I%PATH_CGAME% -I%PATH_GAME% -I%PATH_UI% %1
+@set CC_CGAME=lcc -DQ3_VM -DVM_CGAME -DMISSIONPACK -S -DSMOKINGUNS -Wf-target=bytecode -Wf-g -I%PATH_CGAME% -I%PATH_GAME% -I%PATH_UI% %1
 @set Q3ASM=q3asm
 
 @echo Building game ...
