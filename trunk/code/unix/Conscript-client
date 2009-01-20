@@ -2,28 +2,6 @@
 
 Import qw( BASE_CFLAGS BASE_LDFLAGS INSTALL_DIR BUILD_DIR TARGETNAME CC CXX LINK force32bits );
 
-# splines
-$env_splines = new cons(
-  CC => $CC,
-  CXX => $CXX,
-  LINK => $LINK,
-	ENV => { PATH => $ENV{PATH}, HOME => $ENV{HOME} }
-  );
-
-@SPLINES_FILES = qw(
-  ../splines/math_angles.cpp
-  ../splines/math_matrix.cpp
-  ../splines/math_quaternion.cpp
-  ../splines/math_vector.cpp
-  ../splines/q_parse.cpp
-  ../splines/q_shared.cpp
-  ../splines/splines.cpp
-  ../splines/util_str.cpp  
-  );
-$SPLINES_FILESREF = \@SPLINES_FILES;
-  
-Library $env_splines 'splines', @$SPLINES_FILESREF;  
-
 # botlib
 # FIXME TTimo
 # we already deal with botlib on dedicated target
@@ -152,8 +130,7 @@ $env = new cons(
   CFLAGS => $BASE_CFLAGS  . ' -DUSE_OPENAL -DUSE_MUMBLE -I/usr/X11R6/include ' ,
 # The following replacement should be used if Ogg Vorbis coded is needed
 # CFLAGS => $BASE_CFLAGS  . ' -DUSE_OPENAL -DUSE_MUMBLE -DUSE_CODEC_VORBIS -I/usr/X11R6/include ' ,
-  LIBS => ' ' . $BUILD_DIR . '/unix/splines.a ' 
-  . $BUILD_DIR . '/unix/botlib.a ' 
+  LIBS => ' ' . $BUILD_DIR . '/unix/botlib.a ' 
   . $BUILD_DIR . '/unix/jpeglib.a '
   . $BUILD_DIR . '/unix/asmlib.a '
   . $BUILD_DIR . '/unix/inlinelib.a '
