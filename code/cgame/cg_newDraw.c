@@ -1447,6 +1447,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vec4_t color, qhandle_t shader) {
 	if (cg.spectatorLen) {
 		float maxX;
+		vec4_t newColor ;
 
 		if (cg.spectatorWidth == -1) {
 			cg.spectatorWidth = 0;
@@ -1458,14 +1459,26 @@ void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vec4_t color, qhandle_t
 			cg.spectatorOffset = 0;
 			cg.spectatorPaintX = rect->x + 1;
 			cg.spectatorPaintX2 = -1;
+			Vector4Copy( color, cg.spectatorCurrentColor );
 		}
 
 		if (cg.time > cg.spectatorTime) {
 			cg.spectatorTime = cg.time + 10;
-			if (cg.spectatorPaintX <= rect->x + 2) {
+			if (cg.spectatorPaintX <= rect->x + 2) { // Left border is reached
 				if (cg.spectatorOffset < cg.spectatorLen) {
-					cg.spectatorPaintX += CG_Text_Width(&cg.spectatorList[cg.spectatorOffset], scale, 1) - 1;
-					cg.spectatorOffset++;
+					// A spectator name is about to be shrinked
+					while ( Q_IsColorString( &cg.spectatorList[cg.spectatorOffset])
+						&& cg.spectatorOffset+2 < cg.spectatorLen ) {
+						// Handle found colors
+						memcpy( newColor, g_color_table[ColorIndex(cg.spectatorList[cg.spectatorOffset+1])], sizeof( newColor ) );
+						newColor[3] = color[3];
+						Vector4Copy( newColor, cg.spectatorCurrentColor );
+						cg.spectatorOffset+=2;
+					}
+					if (cg.spectatorOffset < cg.spectatorLen) {
+						cg.spectatorPaintX += CG_Text_Width(&cg.spectatorList[cg.spectatorOffset], scale, 1) - 1;
+						cg.spectatorOffset++;
+					}
 				} else {
 					cg.spectatorOffset = 0;
 					if (cg.spectatorPaintX2 >= 0) {
@@ -1474,8 +1487,10 @@ void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vec4_t color, qhandle_t
 						cg.spectatorPaintX = rect->x + rect->w - 2;
 					}
 					cg.spectatorPaintX2 = -1;
+					Vector4Copy( color, cg.spectatorCurrentColor );
 				}
 			} else {
+				// Move list to the left
 				cg.spectatorPaintX--;
 				if (cg.spectatorPaintX2 >= 0) {
 					cg.spectatorPaintX2--;
@@ -1484,7 +1499,7 @@ void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vec4_t color, qhandle_t
 		}
 
 		maxX = rect->x + rect->w - 2;
-		CG_Text_Paint_Limit(&maxX, cg.spectatorPaintX, rect->y + rect->h - 3, scale, color, &cg.spectatorList[cg.spectatorOffset], 0, 0);
+		CG_Text_Paint_Limit(&maxX, cg.spectatorPaintX, rect->y + rect->h - 3, scale, cg.spectatorCurrentColor, &cg.spectatorList[cg.spectatorOffset], 0, 0);
 		if (cg.spectatorPaintX2 >= 0) {
 			float maxX2 = rect->x + rect->w - 2;
 			CG_Text_Paint_Limit(&maxX2, cg.spectatorPaintX2, rect->y + rect->h - 3, scale, color, cg.spectatorList, 0, cg.spectatorOffset);

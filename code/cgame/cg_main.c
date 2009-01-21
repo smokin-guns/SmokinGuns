@@ -1637,6 +1637,7 @@ void CG_BuildSpectatorString() {
 	if (i != cg.spectatorLen) {
 		cg.spectatorLen = i;
 		cg.spectatorWidth = -1;
+		Vector4Copy( colorWhite, cg.spectatorCurrentColor );
 	}
 }
 
