@@ -653,6 +653,8 @@ typedef struct {
 	qboolean	scoreBoardShowing;
 	int			scoreFadeTime;
 	char		killerName[MAX_NAME_LENGTH];
+	
+	// Spectating field in scoreboard
 	char			spectatorList[MAX_STRING_CHARS];		// list of names
 	int				spectatorLen;												// length of list
 	float			spectatorWidth;											// width in device units
@@ -661,6 +663,7 @@ typedef struct {
 	int				spectatorPaintX2;										// current paint x
 	int				spectatorOffset;										// current offset from start
 	int				spectatorPaintLen; 									// current offset from start
+	vec4_t		spectatorCurrentColor;									// current color from start
 
 	// skull trails
 	skulltrail_t	skulltrails[MAX_CLIENTS];
