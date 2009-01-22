@@ -58,7 +58,7 @@ void	SND_free(sndBuffer *v) {
 	inUse += sizeof(sndBuffer);
 }
 
-sndBuffer*	SND_malloc() {
+sndBuffer*	SND_malloc(void) {
 	sndBuffer *v;
 redo:
 	if (freelist == NULL) {
@@ -75,7 +75,7 @@ redo:
 	return v;
 }
 
-void SND_setup() {
+void SND_setup(void) {
 	sndBuffer *p, *q;
 	cvar_t	*cv;
 	int scs;
@@ -186,7 +186,6 @@ static int ResampleSfxRaw( short *sfx, int inrate, int inwidth, int samples, byt
 	return outcount;
 }
 
-
 //=============================================================================
 
 /*
@@ -202,6 +201,7 @@ qboolean S_LoadSound( sfx_t *sfx )
 	byte	*data;
 	short	*samples;
 	snd_info_t	info;
+//	int		size;
 
 	// player specific sounds are never directly loaded
 	if ( sfx->soundName[0] == '*') {
@@ -234,7 +234,7 @@ qboolean S_LoadSound( sfx_t *sfx )
 	if( sfx->soundCompressed == qtrue) {
 		sfx->soundCompressionMethod = 1;
 		sfx->soundData = NULL;
-		sfx->soundLength = ResampleSfxRaw( samples, info.rate, info.width, info.samples, (data + info.dataofs) );
+		sfx->soundLength = ResampleSfxRaw( samples, info.rate, info.width, info.samples, data + info.dataofs );
 		S_AdpcmEncodeSound(sfx, samples);
 #if 0
 	} else if (info.samples>(SND_CHUNK_SIZE*16) && info.width >1) {
@@ -261,6 +261,6 @@ qboolean S_LoadSound( sfx_t *sfx )
 	return qtrue;
 }
 
-void S_DisplayFreeMemory() {
+void S_DisplayFreeMemory(void) {
 	Com_Printf("%d bytes free sound buffer memory, %d total used\n", inUse, totalInUse);
 }
