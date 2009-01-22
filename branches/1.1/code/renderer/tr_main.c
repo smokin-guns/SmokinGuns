@@ -24,8 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_local.h"
 
-#include <string.h> // memcpy
-
 trGlobals_t		tr;
 
 static float	s_flipMatrix[16] = {
@@ -117,7 +115,6 @@ Smokin' Guns specific function, made available for the mod.
 Returns CULL_IN, CULL_CLIP, or CULL_OUT
 =================
 */
-#ifdef SMOKINGUNS
 int R_CullBox (vec3_t transformedBounds[8]) {
 	int		i, j;
 	float	dists[8];
@@ -159,7 +156,6 @@ int R_CullBox (vec3_t transformedBounds[8]) {
 
 	return CULL_CLIP;		// partially clipped
 }
-#endif
 
 /*
 ** R_CullLocalPointAndRadius
@@ -436,7 +432,7 @@ void R_RotateForViewer (void)
 /*
 ** SetFarClip
 */
-static void R_SetFarClip( void )
+static void SetFarClip( void )
 {
 	float	farthestCornerDistance = 0;
 	int		i;
@@ -497,143 +493,96 @@ static void R_SetFarClip( void )
 	tr.viewParms.zFar = sqrt( farthestCornerDistance );
 }
 
-/*
-=================
-R_SetupFrustum
-
-Set up the culling frustum planes for the current view using the results we got from computing the first two rows of
-the projection matrix.
-=================
-*/
-void R_SetupFrustum (viewParms_t *dest, float xmin, float xmax, float ymax, float zProj, float stereoSep)
-{
-	vec3_t ofsorigin;
-	float oppleg, adjleg, length;
-	int i;
-	
-	if(stereoSep == 0 && xmin != -xmax)
-	{
-		// symmetric case can be simplified
-		VectorCopy(dest->or.origin, ofsorigin);
-
-		length = sqrt(xmax * xmax + zProj * zProj);
-		oppleg = xmax / length;
-		adjleg = zProj / length;
-
-		VectorScale(dest->or.axis[0], oppleg, dest->frustum[0].normal);
-		VectorMA(dest->frustum[0].normal, adjleg, dest->or.axis[1], dest->frustum[0].normal);
-
-		VectorScale(dest->or.axis[0], oppleg, dest->frustum[1].normal);
-		VectorMA(dest->frustum[1].normal, -adjleg, dest->or.axis[1], dest->frustum[1].normal);
-	}
-	else
-	{
-		// In stereo rendering, due to the modification of the projection matrix, dest->or.origin is not the
-		// actual origin that we're rendering so offset the tip of the view pyramid.
-		VectorMA(dest->or.origin, stereoSep, dest->or.axis[1], ofsorigin);
-	
-		oppleg = xmax + stereoSep;
-		length = sqrt(oppleg * oppleg + zProj * zProj);
-		VectorScale(dest->or.axis[0], oppleg / length, dest->frustum[0].normal);
-		VectorMA(dest->frustum[0].normal, zProj / length, dest->or.axis[1], dest->frustum[0].normal);
-
-		oppleg = xmin + stereoSep;
-		length = sqrt(oppleg * oppleg + zProj * zProj);
-		VectorScale(dest->or.axis[0], -oppleg / length, dest->frustum[1].normal);
-		VectorMA(dest->frustum[1].normal, -zProj / length, dest->or.axis[1], dest->frustum[1].normal);
-	}
-
-	length = sqrt(ymax * ymax + zProj * zProj);
-	oppleg = ymax / length;
-	adjleg = zProj / length;
-
-	VectorScale(dest->or.axis[0], oppleg, dest->frustum[2].normal);
-	VectorMA(dest->frustum[2].normal, adjleg, dest->or.axis[2], dest->frustum[2].normal);
-
-	VectorScale(dest->or.axis[0], oppleg, dest->frustum[3].normal);
-	VectorMA(dest->frustum[3].normal, -adjleg, dest->or.axis[2], dest->frustum[3].normal);
-	
-	for (i=0 ; i<4 ; i++) {
-		dest->frustum[i].type = PLANE_NON_AXIAL;
-		dest->frustum[i].dist = DotProduct (ofsorigin, dest->frustum[i].normal);
-		SetPlaneSignbits( &dest->frustum[i] );
-	}
-}
 
 /*
 ===============
 R_SetupProjection
 ===============
 */
-void R_SetupProjection(viewParms_t *dest, float zProj, qboolean computeFrustum)
-{
+void R_SetupProjection( void ) {
 	float	xmin, xmax, ymin, ymax;
-	float	width, height, stereoSep = r_stereoSeparation->value;
+	float	width, height, depth;
+	float	zNear, zFar;
 
-	/*
-	 * offset the view origin of the viewer for stereo rendering 
-	 * by setting the projection matrix appropriately.
-	 */
+	// dynamically compute far clip plane distance
+	SetFarClip();
 
-	if(stereoSep != 0)
-	{
-		if(dest->stereoFrame == STEREO_LEFT)
-			stereoSep = zProj / r_stereoSeparation->value;
-		else if(dest->stereoFrame == STEREO_RIGHT)
-			stereoSep = zProj / -r_stereoSeparation->value;
-		else
-			stereoSep = 0;
-	}
+	//
+	// set up projection matrix
+	//
+	zNear	= r_znear->value;
+	zFar	= tr.viewParms.zFar;
 
-	ymax = zProj * tan(dest->fovY * M_PI / 360.0f);
+	ymax = zNear * tan( tr.refdef.fov_y * M_PI / 360.0f );
 	ymin = -ymax;
 
-	xmax = zProj * tan(dest->fovX * M_PI / 360.0f);
+	xmax = zNear * tan( tr.refdef.fov_x * M_PI / 360.0f );
 	xmin = -xmax;
 
 	width = xmax - xmin;
 	height = ymax - ymin;
+	depth = zFar - zNear;
 
-	dest->projectionMatrix[0] = 2 * zProj / width;
-	dest->projectionMatrix[4] = 0;
-	dest->projectionMatrix[8] = (xmax + xmin + 2 * stereoSep) / width;
-	dest->projectionMatrix[12] = 2 * zProj * stereoSep / width;
+	tr.viewParms.projectionMatrix[0] = 2 * zNear / width;
+	tr.viewParms.projectionMatrix[4] = 0;
+	tr.viewParms.projectionMatrix[8] = ( xmax + xmin ) / width;	// normally 0
+	tr.viewParms.projectionMatrix[12] = 0;
 
-	dest->projectionMatrix[1] = 0;
-	dest->projectionMatrix[5] = 2 * zProj / height;
-	dest->projectionMatrix[9] = ( ymax + ymin ) / height;	// normally 0
-	dest->projectionMatrix[13] = 0;
+	tr.viewParms.projectionMatrix[1] = 0;
+	tr.viewParms.projectionMatrix[5] = 2 * zNear / height;
+	tr.viewParms.projectionMatrix[9] = ( ymax + ymin ) / height;	// normally 0
+	tr.viewParms.projectionMatrix[13] = 0;
 
-	dest->projectionMatrix[3] = 0;
-	dest->projectionMatrix[7] = 0;
-	dest->projectionMatrix[11] = -1;
-	dest->projectionMatrix[15] = 0;
-	
-	// Now that we have all the data for the projection matrix we can also setup the view frustum.
-	if(computeFrustum)
-		R_SetupFrustum(dest, xmin, xmax, ymax, zProj, stereoSep);
+	tr.viewParms.projectionMatrix[2] = 0;
+	tr.viewParms.projectionMatrix[6] = 0;
+	tr.viewParms.projectionMatrix[10] = -( zFar + zNear ) / depth;
+	tr.viewParms.projectionMatrix[14] = -2 * zFar * zNear / depth;
+
+	tr.viewParms.projectionMatrix[3] = 0;
+	tr.viewParms.projectionMatrix[7] = 0;
+	tr.viewParms.projectionMatrix[11] = -1;
+	tr.viewParms.projectionMatrix[15] = 0;
 }
 
 /*
-===============
-R_SetupProjectionZ
+=================
+R_SetupFrustum
 
-Sets the z-component transformation part in the projection matrix
-===============
+Setup that culling frustum planes for the current view
+=================
 */
-void R_SetupProjectionZ(viewParms_t *dest)
-{
-	float zNear, zFar, depth;
-	
-	zNear	= r_znear->value;
-	zFar	= dest->zFar;	
-	depth	= zFar - zNear;
+void R_SetupFrustum (void) {
+	int		i;
+	float	xs, xc;
+	float	ang;
 
-	dest->projectionMatrix[2] = 0;
-	dest->projectionMatrix[6] = 0;
-	dest->projectionMatrix[10] = -( zFar + zNear ) / depth;
-	dest->projectionMatrix[14] = -2 * zFar * zNear / depth;
+	ang = tr.viewParms.fovX / 180 * M_PI * 0.5f;
+	xs = sin( ang );
+	xc = cos( ang );
+
+	VectorScale( tr.viewParms.or.axis[0], xs, tr.viewParms.frustum[0].normal );
+	VectorMA( tr.viewParms.frustum[0].normal, xc, tr.viewParms.or.axis[1], tr.viewParms.frustum[0].normal );
+
+	VectorScale( tr.viewParms.or.axis[0], xs, tr.viewParms.frustum[1].normal );
+	VectorMA( tr.viewParms.frustum[1].normal, -xc, tr.viewParms.or.axis[1], tr.viewParms.frustum[1].normal );
+
+	ang = tr.viewParms.fovY / 180 * M_PI * 0.5f;
+	xs = sin( ang );
+	xc = cos( ang );
+
+	VectorScale( tr.viewParms.or.axis[0], xs, tr.viewParms.frustum[2].normal );
+	VectorMA( tr.viewParms.frustum[2].normal, xc, tr.viewParms.or.axis[2], tr.viewParms.frustum[2].normal );
+
+	VectorScale( tr.viewParms.or.axis[0], xs, tr.viewParms.frustum[3].normal );
+	VectorMA( tr.viewParms.frustum[3].normal, -xc, tr.viewParms.or.axis[2], tr.viewParms.frustum[3].normal );
+
+	for (i=0 ; i<4 ; i++) {
+		tr.viewParms.frustum[i].type = PLANE_NON_AXIAL;
+		tr.viewParms.frustum[i].dist = DotProduct (tr.viewParms.or.origin, tr.viewParms.frustum[i].normal);
+		SetPlaneSignbits( &tr.viewParms.frustum[i] );
+	}
 }
+
 
 /*
 =================
@@ -641,11 +590,9 @@ R_GetFrustumPlane
 Smokin' Guns specific function, made available for the mod.
 =================
 */
-#ifdef SMOKINGUNS
 void R_GetFrustumPlane( cplane_t frustum[4] ) {
 	Com_Memcpy( frustum, tr.viewParms.frustum, sizeof(cplane_t) * 4 );
 }
-#endif
 
 /*
 =================
@@ -1114,55 +1061,197 @@ DRAWSURF SORTING
 */
 
 /*
-===============
-R_Radix
-===============
+=================
+qsort replacement
+
+=================
 */
-static ID_INLINE void R_Radix( int byte, int size, drawSurf_t *source, drawSurf_t *dest )
-{
-  int           count[ 256 ] = { 0 };
-  int           index[ 256 ];
-  int           i;
-  unsigned char *sortKey = NULL;
-  unsigned char *end = NULL;
+#define	SWAP_DRAW_SURF(a,b) temp=((int *)a)[0];((int *)a)[0]=((int *)b)[0];((int *)b)[0]=temp; temp=((int *)a)[1];((int *)a)[1]=((int *)b)[1];((int *)b)[1]=temp;
 
-  sortKey = ( (unsigned char *)&source[ 0 ].sort ) + byte;
-  end = sortKey + ( size * sizeof( drawSurf_t ) );
-  for( ; sortKey < end; sortKey += sizeof( drawSurf_t ) )
-    ++count[ *sortKey ];
+/* this parameter defines the cutoff between using quick sort and
+   insertion sort for arrays; arrays with lengths shorter or equal to the
+   below value use insertion sort */
 
-  index[ 0 ] = 0;
+#define CUTOFF 8            /* testing shows that this is good value */
 
-  for( i = 1; i < 256; ++i )
-    index[ i ] = index[ i - 1 ] + count[ i - 1 ];
+static void shortsort( drawSurf_t *lo, drawSurf_t *hi ) {
+    drawSurf_t	*p, *max;
+	int			temp;
 
-  sortKey = ( (unsigned char *)&source[ 0 ].sort ) + byte;
-  for( i = 0; i < size; ++i, sortKey += sizeof( drawSurf_t ) )
-    dest[ index[ *sortKey ]++ ] = source[ i ];
+    while (hi > lo) {
+        max = lo;
+        for (p = lo + 1; p <= hi; p++ ) {
+            if ( p->sort > max->sort ) {
+                max = p;
+            }
+        }
+        SWAP_DRAW_SURF(max, hi);
+        hi--;
+    }
 }
 
-/*
-===============
-R_RadixSort
 
-Radix sort with 4 byte size buckets
-===============
-*/
-static void R_RadixSort( drawSurf_t *source, int size )
+/* sort the array between lo and hi (inclusive)
+FIXME: this was lifted and modified from the microsoft lib source...
+ */
+
+void qsortFast (
+    void *base,
+    unsigned num,
+    unsigned width
+    )
 {
-  static drawSurf_t scratch[ MAX_DRAWSURFS ];
-#ifdef Q3_LITTLE_ENDIAN
-  R_Radix( 0, size, source, scratch );
-  R_Radix( 1, size, scratch, source );
-  R_Radix( 2, size, source, scratch );
-  R_Radix( 3, size, scratch, source );
-#else
-  R_Radix( 3, size, source, scratch );
-  R_Radix( 2, size, scratch, source );
-  R_Radix( 1, size, source, scratch );
-  R_Radix( 0, size, scratch, source );
-#endif //Q3_LITTLE_ENDIAN
+    char *lo, *hi;              /* ends of sub-array currently sorting */
+    char *mid;                  /* points to middle of subarray */
+    char *loguy, *higuy;        /* traveling pointers for partition step */
+    unsigned size;              /* size of the sub-array */
+    char *lostk[30], *histk[30];
+    int stkptr;                 /* stack for saving sub-array to be processed */
+	int	temp;
+
+	if ( sizeof(drawSurf_t) != 8 ) {
+		ri.Error( ERR_DROP, "change SWAP_DRAW_SURF macro" );
+	}
+
+    /* Note: the number of stack entries required is no more than
+       1 + log2(size), so 30 is sufficient for any array */
+
+    if (num < 2 || width == 0)
+        return;                 /* nothing to do */
+
+    stkptr = 0;                 /* initialize stack */
+
+    lo = base;
+    hi = (char *)base + width * (num-1);        /* initialize limits */
+
+    /* this entry point is for pseudo-recursion calling: setting
+       lo and hi and jumping to here is like recursion, but stkptr is
+       prserved, locals aren't, so we preserve stuff on the stack */
+recurse:
+
+    size = (hi - lo) / width + 1;        /* number of el's to sort */
+
+    /* below a certain size, it is faster to use a O(n^2) sorting method */
+    if (size <= CUTOFF) {
+         shortsort((drawSurf_t *)lo, (drawSurf_t *)hi);
+    }
+    else {
+        /* First we pick a partititioning element.  The efficiency of the
+           algorithm demands that we find one that is approximately the
+           median of the values, but also that we select one fast.  Using
+           the first one produces bad performace if the array is already
+           sorted, so we use the middle one, which would require a very
+           wierdly arranged array for worst case performance.  Testing shows
+           that a median-of-three algorithm does not, in general, increase
+           performance. */
+
+        mid = lo + (size / 2) * width;      /* find middle element */
+        SWAP_DRAW_SURF(mid, lo);               /* swap it to beginning of array */
+
+        /* We now wish to partition the array into three pieces, one
+           consisiting of elements <= partition element, one of elements
+           equal to the parition element, and one of element >= to it.  This
+           is done below; comments indicate conditions established at every
+           step. */
+
+        loguy = lo;
+        higuy = hi + width;
+
+        /* Note that higuy decreases and loguy increases on every iteration,
+           so loop must terminate. */
+        for (;;) {
+            /* lo <= loguy < hi, lo < higuy <= hi + 1,
+               A[i] <= A[lo] for lo <= i <= loguy,
+               A[i] >= A[lo] for higuy <= i <= hi */
+
+            do  {
+                loguy += width;
+            } while (loguy <= hi &&
+				( ((drawSurf_t *)loguy)->sort <= ((drawSurf_t *)lo)->sort ) );
+
+            /* lo < loguy <= hi+1, A[i] <= A[lo] for lo <= i < loguy,
+               either loguy > hi or A[loguy] > A[lo] */
+
+            do  {
+                higuy -= width;
+            } while (higuy > lo &&
+				( ((drawSurf_t *)higuy)->sort >= ((drawSurf_t *)lo)->sort ) );
+
+            /* lo-1 <= higuy <= hi, A[i] >= A[lo] for higuy < i <= hi,
+               either higuy <= lo or A[higuy] < A[lo] */
+
+            if (higuy < loguy)
+                break;
+
+            /* if loguy > hi or higuy <= lo, then we would have exited, so
+               A[loguy] > A[lo], A[higuy] < A[lo],
+               loguy < hi, highy > lo */
+
+            SWAP_DRAW_SURF(loguy, higuy);
+
+            /* A[loguy] < A[lo], A[higuy] > A[lo]; so condition at top
+               of loop is re-established */
+        }
+
+        /*     A[i] >= A[lo] for higuy < i <= hi,
+               A[i] <= A[lo] for lo <= i < loguy,
+               higuy < loguy, lo <= higuy <= hi
+           implying:
+               A[i] >= A[lo] for loguy <= i <= hi,
+               A[i] <= A[lo] for lo <= i <= higuy,
+               A[i] = A[lo] for higuy < i < loguy */
+
+        SWAP_DRAW_SURF(lo, higuy);     /* put partition element in place */
+
+        /* OK, now we have the following:
+              A[i] >= A[higuy] for loguy <= i <= hi,
+              A[i] <= A[higuy] for lo <= i < higuy
+              A[i] = A[lo] for higuy <= i < loguy    */
+
+        /* We've finished the partition, now we want to sort the subarrays
+           [lo, higuy-1] and [loguy, hi].
+           We do the smaller one first to minimize stack usage.
+           We only sort arrays of length 2 or more.*/
+
+        if ( higuy - 1 - lo >= hi - loguy ) {
+            if (lo + width < higuy) {
+                lostk[stkptr] = lo;
+                histk[stkptr] = higuy - width;
+                ++stkptr;
+            }                           /* save big recursion for later */
+
+            if (loguy < hi) {
+                lo = loguy;
+                goto recurse;           /* do small recursion */
+            }
+        }
+        else {
+            if (loguy < hi) {
+                lostk[stkptr] = loguy;
+                histk[stkptr] = hi;
+                ++stkptr;               /* save big recursion for later */
+            }
+
+            if (lo + width < higuy) {
+                hi = higuy - width;
+                goto recurse;           /* do small recursion */
+            }
+        }
+    }
+
+    /* We have sorted the array, except for any pending sorts on the stack.
+       Check if there are any, and do them. */
+
+    --stkptr;
+    if (stkptr >= 0) {
+        lo = lostk[stkptr];
+        hi = histk[stkptr];
+        goto recurse;           /* pop subarray from stack */
+    }
+    else
+        return;                 /* all subarrays done */
 }
+
 
 //==========================================================================================
 
@@ -1226,7 +1315,7 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	}
 
 	// sort the drawsurfs by sort type, then orientation, then shader
-	R_RadixSort( drawSurfs, numDrawSurfs );
+	qsortFast (drawSurfs, numDrawSurfs, sizeof(drawSurf_t) );
 
 	// check for any pass through drawing, which
 	// may cause another view to be rendered first
@@ -1321,11 +1410,6 @@ void R_AddEntitySurfaces (void) {
 				case MOD_MD4:
 					R_AddAnimSurfaces( ent );
 					break;
-#ifdef RAVENMD4
-				case MOD_MDR:
-					R_MDRAddAnimSurfaces( ent );
-					break;
-#endif
 				case MOD_BRUSH:
 					R_AddBrushModelSurfaces( ent );
 					break;
@@ -1365,12 +1449,7 @@ void R_GenerateDrawSurfs( void ) {
 	// this needs to be done before entities are
 	// added, because they use the projection
 	// matrix for lod calculation
-
-	// dynamically compute far clip plane distance
-	R_SetFarClip();
-
-	// we know the size of the clipping volume. Now set the rest of the projection matrix.
-	R_SetupProjectionZ (&tr.viewParms);
+	R_SetupProjection ();
 
 	R_AddEntitySurfaces ();
 }
@@ -1455,7 +1534,7 @@ void R_RenderView (viewParms_t *parms) {
 	// set viewParms.world
 	R_RotateForViewer ();
 
-	R_SetupProjection(&tr.viewParms, r_zproj->value, qtrue);
+	R_SetupFrustum ();
 
 	R_GenerateDrawSurfs();
 

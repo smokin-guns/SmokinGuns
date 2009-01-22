@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "server.h"
 
-#include "../botlib/botlib.h"
+#include "../game/botlib.h"
 
 botlib_export_t	*botlib_export;
 
@@ -289,9 +289,14 @@ void SV_GetUsercmd( int clientNum, usercmd_t *cmd ) {
 //==============================================
 
 static int	FloatAsInt( float f ) {
-	floatint_t fi;
-	fi.f = f;
-	return fi.i;
+	union
+	{
+	    int i;
+	    float f;
+	} temp;
+
+	temp.f = f;
+	return temp.i;
 }
 
 /*
@@ -301,13 +306,22 @@ SV_GameSystemCalls
 The module is making a system call
 ====================
 */
-intptr_t SV_GameSystemCalls( intptr_t *args ) {
+//rcg010207 - see my comments in VM_DllSyscall(), in qcommon/vm.c ...
+#if ((defined __linux__) && (defined __powerpc__))
+#define VMA(x) ((void *) args[x])
+#else
+#define	VMA(x) VM_ArgPtr(args[x])
+#endif
+
+#define	VMF(x)	((float *)args)[x]
+
+int SV_GameSystemCalls( int *args ) {
 	switch( args[0] ) {
 	case G_PRINT:
-		Com_Printf( "%s", (const char*)VMA(1) );
+		Com_Printf( "%s", VMA(1) );
 		return 0;
 	case G_ERROR:
-		Com_Error( ERR_DROP, "%s", (const char*)VMA(1) );
+		Com_Error( ERR_DROP, "%s", VMA(1) );
 		return 0;
 	case G_MILLISECONDS:
 		return Sys_Milliseconds();
@@ -815,8 +829,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		return 0;
 
 	case TRAP_STRNCPY:
-		strncpy( VMA(1), VMA(2), args[3] );
-		return args[1];
+		return (int)strncpy( VMA(1), VMA(2), args[3] );
 
 	case TRAP_SIN:
 		return FloatAsInt( sin( VMF(1) ) );
@@ -850,7 +863,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 
 
 	default:
-		Com_Error( ERR_DROP, "Bad game system trap: %ld", (long int) args[0] );
+		Com_Error( ERR_DROP, "Bad game system trap: %i", args[0] );
 	}
 	return -1;
 }
@@ -894,7 +907,7 @@ static void SV_InitGameVM( qboolean restart ) {
 
 	// use the current msec count for a random seed
 	// init for this gamestate
-	VM_Call (gvm, GAME_INIT, sv.time, Com_Milliseconds(), restart);
+	VM_Call( gvm, GAME_INIT, sv.time, Com_Milliseconds(), restart );
 }
 
 
@@ -914,7 +927,7 @@ void SV_RestartGameProgs( void ) {
 
 	// do a restart instead of a free
 	gvm = VM_Restart( gvm );
-	if ( !gvm ) {
+	if ( !gvm ) { // bk001212 - as done below
 		Com_Error( ERR_FATAL, "VM_Restart on game failed" );
 	}
 

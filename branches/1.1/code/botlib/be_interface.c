@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 /*****************************************************************************
-* name:		be_interface.c
+* name:		be_interface.c // bk010221 - FIXME - DEAD code elimination
 *
 * desc:		bot library interface
 *
@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 *
 *****************************************************************************/
 
-#include "../qcommon/q_shared.h"
+#include "../game/q_shared.h"
 #include "l_memory.h"
 #include "l_log.h"
 #include "l_libvar.h"
@@ -38,20 +38,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "l_precomp.h"
 #include "l_struct.h"
 #include "aasfile.h"
-#include "botlib.h"
-#include "be_aas.h"
+#include "../game/botlib.h"
+#include "../game/be_aas.h"
 #include "be_aas_funcs.h"
 #include "be_aas_def.h"
 #include "be_interface.h"
 
-#include "be_ea.h"
+#include "../game/be_ea.h"
 #include "be_ai_weight.h"
-#include "be_ai_goal.h"
-#include "be_ai_move.h"
-#include "be_ai_weap.h"
-#include "be_ai_chat.h"
-#include "be_ai_char.h"
-#include "be_ai_gen.h"
+#include "../game/be_ai_goal.h"
+#include "../game/be_ai_move.h"
+#include "../game/be_ai_weap.h"
+#include "../game/be_ai_chat.h"
+#include "../game/be_ai_char.h"
+#include "../game/be_ai_gen.h"
 
 //library globals in a structure
 botlib_globals_t botlibglobals;
@@ -137,26 +137,15 @@ qboolean BotLibSetup(char *str)
 int Export_BotLibSetup(void)
 {
 	int		errnum;
-	char		logfilename[MAX_OSPATH];
-	char		*homedir, *gamedir;
+	char botliblogfile[MAX_OSPATH];
 
 	bot_developer = LibVarGetValue("bot_developer");
- 	memset( &botlibglobals, 0, sizeof(botlibglobals) );
+	memset( &botlibglobals, 0, sizeof(botlibglobals) ); // bk001207 - init
 	//initialize byte swapping (litte endian etc.)
 //	Swap_Init();
-	homedir = LibVarGetString("homedir");
-	gamedir = LibVarGetString("gamedir");
-	if (homedir[0]) {
-		if (gamedir[0]) {
-			Com_sprintf(logfilename, sizeof(logfilename), "%s%c%s%cbotlib.log", homedir, PATH_SEP, gamedir, PATH_SEP);
-		}
-		else {
-			Com_sprintf(logfilename, sizeof(logfilename), "%s%c" BASEGAME "%cbotlib.log", homedir, PATH_SEP, PATH_SEP);
-		}
-	} else {
-		Com_sprintf(logfilename, sizeof(logfilename), "botlib.log");
-	}
-	Log_Open(logfilename);
+	Com_sprintf(botliblogfile, sizeof(botliblogfile), "%s%c%s%cbotlib.log",
+		LibVarGetString("homedir"), PATH_SEP, LibVarGetString("gamedir"), PATH_SEP);
+	Log_Open(botliblogfile);
 	//
 	botimport.Print(PRT_MESSAGE, "------- BotLib Initialization -------\n");
 	//
@@ -861,9 +850,9 @@ GetBotLibAPI
 ============
 */
 botlib_export_t *GetBotLibAPI(int apiVersion, botlib_import_t *import) {
-	assert(import);
-	botimport = *import;
-	assert(botimport.Print);
+	assert(import);   // bk001129 - this wasn't set for baseq3/
+  botimport = *import;
+  assert(botimport.Print);   // bk001129 - pars pro toto
 
 	Com_Memset( &be_botlib_export, 0, sizeof( be_botlib_export ) );
 

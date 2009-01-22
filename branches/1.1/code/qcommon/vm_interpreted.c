@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "vm_local.h"
 
-//#define	DEBUG_VM
-#ifdef DEBUG_VM
+#ifdef DEBUG_VM // bk001204
 static char	*opnames[256] = {
 	"OP_UNDEF",
 
@@ -114,32 +113,18 @@ static char	*opnames[256] = {
 #endif
 
 #if idppc
-
-//FIXME: these, um... look the same to me
     #if defined(__GNUC__)
-static ID_INLINE unsigned int loadWord(void *addr) {
+        static inline unsigned int loadWord(void *addr) {
             unsigned int word;
 
             asm("lwbrx %0,0,%1" : "=r" (word) : "r" (addr));
             return word;
         }
     #else
-static ID_INLINE unsigned int __lwbrx(register void *addr,
-		register int offset) {
-	register unsigned int word;
-
-	asm("lwbrx %0,%2,%1" : "=r" (word) : "r" (addr), "b" (offset));
-	return word;
-}
-#define loadWord(addr) __lwbrx(addr,0)
-#endif
-
+	#define loadWord(addr) __lwbrx(addr,0)
+    #endif
 #else
-    static ID_INLINE int loadWord(void *addr) {
-	int word;
-	memcpy(&word, addr, 4);
-	return LittleLong(word);
-    }
+	#define	loadWord(addr) *((int *)addr)
 #endif
 
 char *VM_Indent( vm_t *vm ) {
@@ -322,6 +307,7 @@ locals from sp
 */
 #define	MAX_STACK	256
 #define	STACK_MASK	(MAX_STACK-1)
+//#define	DEBUG_VM
 
 #define	DEBUGSTR va("%s%i", VM_Indent(vm), opStack-stack )
 
@@ -377,6 +363,8 @@ int	VM_CallInterpreted( vm_t *vm, int *args ) {
 	*(int *)&image[ programStack + 4 ] = 0;	// return stack
 	*(int *)&image[ programStack ] = -1;	// will terminate the loop on return
 
+	vm->callLevel = 0;
+
 	VM_Debug(0);
 
 //	vm_debugLevel=2;
@@ -393,8 +381,9 @@ nextInstruction:
 		r0 = ((int *)opStack)[0];
 		r1 = ((int *)opStack)[-1];
 nextInstruction2:
+		opcode = codeImage[ programCounter++ ];
 #ifdef DEBUG_VM
-		if ( (unsigned)programCounter >= vm->codeLength ) {
+		if ( (unsigned)programCounter > vm->codeLength ) {
 			Com_Error( ERR_DROP, "VM pc out of range" );
 		}
 
@@ -418,7 +407,6 @@ nextInstruction2:
 		}
 		profileSymbol->profileCount++;
 #endif
-		opcode = codeImage[ programCounter++ ];
 
 		switch ( opcode ) {
 #ifdef DEBUG_VM
@@ -481,7 +469,7 @@ nextInstruction2:
 		case OP_BLOCK_COPY:
 			{
 				int		*src, *dest;
-				int		count, srci, desti;
+				int		i, count, srci, desti;
 
 				count = r2;
 				// MrE: copy range check
@@ -490,10 +478,19 @@ nextInstruction2:
 				count = ((srci + count) & dataMask) - srci;
 				count = ((desti + count) & dataMask) - desti;
 
-				src = (int *)&image[ srci ];
-				dest = (int *)&image[ desti ];
-				
-				memcpy(dest, src, count);
+				src = (int *)&image[ r0&dataMask ];
+				dest = (int *)&image[ r1&dataMask ];
+// Tequila: We got something wrong around there... That's need to checked
+#ifdef DEBUG_VM
+// avoid flooding console
+				if ( ( (int)src | (int)dest | count ) & 3 ) {
+					Com_Error( ERR_DROP, "OP_BLOCK_COPY not dword aligned" );
+				}
+#endif
+				count >>= 2;
+				for ( i = count-1 ; i>= 0 ; i-- ) {
+					dest[i] = src[i];
+				}
 				programCounter += 4;
 				opStack -= 2;
 			}
@@ -509,7 +506,7 @@ nextInstruction2:
 			if ( programCounter < 0 ) {
 				// system call
 				int		r;
-//				int		temp;
+				int		temp;
 #ifdef DEBUG_VM
 				int		stomped;
 
@@ -518,7 +515,7 @@ nextInstruction2:
 				}
 #endif
 				// save the stack to allow recursive VM entry
-//				temp = vm->callLevel;
+				temp = vm->callLevel;
 				vm->programStack = programStack - 4;
 #ifdef DEBUG_VM
 				stomped = *(int *)&image[ programStack + 4 ];
@@ -526,20 +523,7 @@ nextInstruction2:
 				*(int *)&image[ programStack + 4 ] = -1 - programCounter;
 
 //VM_LogSyscalls( (int *)&image[ programStack + 4 ] );
-				{
-					intptr_t* argptr = (intptr_t *)&image[ programStack + 4 ];
-				#if __WORDSIZE == 64
-				// the vm has ints on the stack, we expect
-				// longs so we have to convert it
-					intptr_t argarr[16];
-					int i;
-					for (i = 0; i < 16; ++i) {
-						argarr[i] = *(int*)&image[ programStack + 4 + 4*i ];
-					}
-					argptr = argarr;
-				#endif
-					r = vm->systemCall( argptr );
-				}
+				r = vm->systemCall( (int *)&image[ programStack + 4 ] );
 
 #ifdef DEBUG_VM
 				// this is just our stack frame pointer, only needed
@@ -551,14 +535,12 @@ nextInstruction2:
 				opStack++;
 				*opStack = r;
 				programCounter = *(int *)&image[ programStack ];
-//				vm->callLevel = temp;
+				vm->callLevel = temp;
 #ifdef DEBUG_VM
 				if ( vm_debugLevel ) {
 					Com_Printf( "%s<--- %s\n", DEBUGSTR, VM_ValueToSymbol( vm, programCounter ) );
 				}
 #endif
-			} else if ( (unsigned)programCounter >= vm->codeLength ) {
-				Com_Error( ERR_DROP, "VM program counter out of range in OP_CALL" );
 			} else {
 				programCounter = vm->instructionPointers[ programCounter ];
 			}
@@ -592,7 +574,7 @@ nextInstruction2:
 //					vm_debugLevel = 2;
 //					VM_StackTrace( vm, programCounter, programStack );
 				}
-//				vm->callLevel++;
+				vm->callLevel++;
 			}
 #endif
 			goto nextInstruction;
@@ -607,15 +589,13 @@ nextInstruction2:
 #ifdef DEBUG_VM
 			profileSymbol = VM_ValueToFunctionSymbol( vm, programCounter );
 			if ( vm_debugLevel ) {
-//				vm->callLevel--;
+				vm->callLevel--;
 				Com_Printf( "%s<--- %s\n", DEBUGSTR, VM_ValueToSymbol( vm, programCounter ) );
 			}
 #endif
 			// check for leaving the VM
 			if ( programCounter == -1 ) {
 				goto done;
-			} else if ( (unsigned)programCounter >= vm->codeLength ) {
-				Com_Error( ERR_DROP, "VM program counter out of range in OP_LEAVE" );
 			}
 			goto nextInstruction;
 
@@ -849,7 +829,7 @@ nextInstruction2:
 			opStack--;
 			goto nextInstruction;
 		case OP_BCOM:
-			*opStack = ~ ((unsigned)r0);
+			opStack[-1] = ~ ((unsigned)r0);
 			goto nextInstruction;
 
 		case OP_LSH:
@@ -904,7 +884,7 @@ done:
 	vm->currentlyInterpreting = qfalse;
 
 	if ( opStack != &stack[1] ) {
-		Com_Error( ERR_DROP, "Interpreter error: opStack = %ld", (long int) (opStack - stack) );
+		Com_Error( ERR_DROP, "Interpreter error: opStack = %i", opStack - stack );
 	}
 
 	vm->programStack = stackOnEntry;
