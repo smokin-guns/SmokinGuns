@@ -1,12 +1,6 @@
-/*
-===========================================================================
-  libmumblelink.c -- mumble link interface
+/* libmumblelink.h -- mumble link interface
 
   Copyright (C) 2008 Ludwig Nussel <ludwig.nussel@suse.de>
-  Copyright (C) 2008 Smokin' Guns
-
-  This file is part of Smokin' Guns, but all credits are accorded to
-  Ludwig Nussel.
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -24,7 +18,6 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 
-===========================================================================
 */
 
 int mumble_link(const char* name);
