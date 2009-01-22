@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // snd_local.h -- private sound definations
 
 
-#include "../game/q_shared.h"
+#include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 #include "snd_public.h"
 
@@ -191,27 +191,21 @@ extern	dma_t	dma;
 extern	portable_samplepair_t s_rawsamples[MAX_RAW_STREAMS][MAX_RAW_SAMPLES];
 extern	int		s_rawend[MAX_RAW_STREAMS];
 
-extern cvar_t	*s_volume;
-extern cvar_t	*s_nosound;
-extern cvar_t	*s_khz;
-extern cvar_t	*s_show;
-extern cvar_t	*s_mixahead;
+extern cvar_t *s_volume;
 extern cvar_t *s_musicVolume;
 extern cvar_t *s_doppler;
 
-extern cvar_t	*s_testsound;
-extern cvar_t	*s_separation;
+extern cvar_t *s_testsound;
 
 qboolean S_LoadSound( sfx_t *sfx );
 
 void		SND_free(sndBuffer *v);
-sndBuffer*	SND_malloc();
-void		SND_setup();
+sndBuffer*	SND_malloc( void );
+void		SND_setup( void );
 
 void S_PaintChannels(int endtime);
 
 void S_memoryLoad(sfx_t *sfx);
-portable_samplepair_t *S_GetRawSamplePointer();
 
 // spatializes a channel
 void S_Spatialize(channel_t *ch);
@@ -226,7 +220,7 @@ void S_AdpcmGetSamples(sndBuffer *chunk, short *to);
 #define SENTINEL_MULAW_ZERO_RUN 127
 #define SENTINEL_MULAW_FOUR_BIT_RUN 126
 
-void S_FreeOldestSound();
+void S_FreeOldestSound( void );
 
 #define	NXStream byte
 

@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // cmd.c -- Quake script command processing module
 
-#include "../game/q_shared.h"
+#include "q_shared.h"
 #include "qcommon.h"
 
 #define	MAX_CMD_BUFFER	16384
@@ -145,9 +145,11 @@ void Cbuf_ExecuteText (int exec_when, const char *text)
 	{
 	case EXEC_NOW:
 		if (text && strlen(text) > 0) {
+			Com_DPrintf(S_COLOR_YELLOW "EXEC_NOW %s\n", text);
 			Cmd_ExecuteString (text);
 		} else {
 			Cbuf_Execute();
+			Com_DPrintf(S_COLOR_YELLOW "EXEC_NOW %s\n", cmd_text.data);
 		}
 		break;
 	case EXEC_INSERT:
@@ -238,7 +240,10 @@ Cmd_Exec_f
 ===============
 */
 void Cmd_Exec_f( void ) {
-	char	*f;
+	union {
+		char	*c;
+		void	*v;
+	} f;
 	int		len;
 	char	filename[MAX_QPATH];
 
@@ -249,16 +254,16 @@ void Cmd_Exec_f( void ) {
 
 	Q_strncpyz( filename, Cmd_Argv(1), sizeof( filename ) );
 	COM_DefaultExtension( filename, sizeof( filename ), ".cfg" );
-	len = FS_ReadFile( filename, (void **)&f);
-	if (!f) {
+	len = FS_ReadFile( filename, &f.v);
+	if (!f.c) {
 		Com_Printf ("couldn't exec %s\n",Cmd_Argv(1));
 		return;
 	}
 	Com_Printf ("execing %s\n",Cmd_Argv(1));
 
-	Cbuf_InsertText (f);
+	Cbuf_InsertText (f.c);
 
-	FS_FreeFile (f);
+	FS_FreeFile (f.v);
 }
 
 
@@ -312,6 +317,7 @@ typedef struct cmd_function_s
 	struct cmd_function_s	*next;
 	char					*name;
 	xcommand_t				function;
+	completionFunc_t	complete;
 } cmd_function_t;
 
 
@@ -423,9 +429,25 @@ For rcon use when you want to transmit without altering quoting
 https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=543
 ============
 */
-char *Cmd_Cmd()
+char *Cmd_Cmd(void)
 {
 	return cmd_cmd;
+}
+
+/*
+   Replace command separators with space to prevent interpretation
+   This is a hack to protect buggy qvms
+   https://bugzilla.icculus.org/show_bug.cgi?id=3593
+*/
+void Cmd_Args_Sanitize( void ) {
+	int i;
+	for ( i = 1 ; i < cmd_argc ; i++ ) {
+		char* c = cmd_argv[i];
+		while ((c = strpbrk(c, "\n\r;"))) {
+			*c = ' ';
+			++c;
+		}
+	}
 }
 
 /*
@@ -440,7 +462,7 @@ will point into this temporary buffer.
 */
 // NOTE TTimo define that to track tokenization issues
 //#define TKN_DBG
-void Cmd_TokenizeString( const char *text_in ) {
+static void Cmd_TokenizeString2( const char *text_in, qboolean ignoreQuotes ) {
 	const char	*text;
 	char	*textOut;
 
@@ -496,7 +518,7 @@ void Cmd_TokenizeString( const char *text_in ) {
 
 		// handle quoted strings
     // NOTE TTimo this doesn't handle \" escaping
-		if ( *text == '"' ) {
+		if ( !ignoreQuotes && *text == '"' ) {
 			cmd_argv[cmd_argc] = textOut;
 			cmd_argc++;
 			text++;
@@ -517,7 +539,7 @@ void Cmd_TokenizeString( const char *text_in ) {
 
 		// skip until whitespace, quote, or command
 		while ( *text > ' ' ) {
-			if ( text[0] == '"' ) {
+			if ( !ignoreQuotes && text[0] == '"' ) {
 				break;
 			}
 
@@ -542,6 +564,23 @@ void Cmd_TokenizeString( const char *text_in ) {
 
 }
 
+/*
+============
+Cmd_TokenizeString
+============
+*/
+void Cmd_TokenizeString( const char *text_in ) {
+	Cmd_TokenizeString2( text_in, qfalse );
+}
+
+/*
+============
+Cmd_TokenizeStringIgnoreQuotes
+============
+*/
+void Cmd_TokenizeStringIgnoreQuotes( const char *text_in ) {
+	Cmd_TokenizeString2( text_in, qtrue );
+}
 
 /*
 ============
@@ -566,8 +605,24 @@ void	Cmd_AddCommand( const char *cmd_name, xcommand_t function ) {
 	cmd = S_Malloc (sizeof(cmd_function_t));
 	cmd->name = CopyString( cmd_name );
 	cmd->function = function;
+	cmd->complete = NULL;
 	cmd->next = cmd_functions;
 	cmd_functions = cmd;
+}
+
+/*
+============
+Cmd_SetCommandCompletionFunc
+============
+*/
+void Cmd_SetCommandCompletionFunc( const char *command, completionFunc_t complete ) {
+	cmd_function_t	*cmd;
+
+	for( cmd = cmd_functions; cmd; cmd = cmd->next ) {
+		if( !Q_stricmp( command, cmd->name ) ) {
+			cmd->complete = complete;
+		}
+	}
 }
 
 /*
@@ -608,6 +663,21 @@ void	Cmd_CommandCompletion( void(*callback)(const char *s) ) {
 
 	for (cmd=cmd_functions ; cmd ; cmd=cmd->next) {
 		callback( cmd->name );
+	}
+}
+
+/*
+============
+Cmd_CompleteArgument
+============
+*/
+void Cmd_CompleteArgument( const char *command, char *args, int argNum ) {
+	cmd_function_t	*cmd;
+
+	for( cmd = cmd_functions; cmd; cmd = cmd->next ) {
+		if( !Q_stricmp( command, cmd->name ) && cmd->complete ) {
+			cmd->complete( args, argNum );
+		}
 	}
 }
 
@@ -702,6 +772,17 @@ void Cmd_List_f (void)
 }
 
 /*
+==================
+Cmd_CompleteCfgName
+==================
+*/
+void Cmd_CompleteCfgName( char *args, int argNum ) {
+	if( argNum == 2 ) {
+		Field_CompleteFilename( "", "cfg", qfalse );
+	}
+}
+
+/*
 ============
 Cmd_Init
 ============
@@ -709,7 +790,9 @@ Cmd_Init
 void Cmd_Init (void) {
 	Cmd_AddCommand ("cmdlist",Cmd_List_f);
 	Cmd_AddCommand ("exec",Cmd_Exec_f);
+	Cmd_SetCommandCompletionFunc( "exec", Cmd_CompleteCfgName );
 	Cmd_AddCommand ("vstr",Cmd_Vstr_f);
+	Cmd_SetCommandCompletionFunc( "vstr", Cvar_CompleteCvarName );
 	Cmd_AddCommand ("echo",Cmd_Echo_f);
 	Cmd_AddCommand ("wait", Cmd_Wait_f);
 }

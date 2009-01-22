@@ -1,12 +1,6 @@
-/*
-===========================================================================
-  libmumblelink.c -- mumble link interface
+/* libmumblelink.c -- mumble link interface
 
   Copyright (C) 2008 Ludwig Nussel <ludwig.nussel@suse.de>
-  Copyright (C) 2008 Smokin' Guns
-
-  This file is part of Smokin' Guns, but all credits are accorded to
-  Ludwig Nussel.
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -24,8 +18,8 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 
-===========================================================================
 */
+
 #ifdef WIN32
 #include <windows.h>
 #define uint32_t UINT32
@@ -38,12 +32,7 @@
 #endif
 
 #include <fcntl.h>
-#if _MSC_VER < 1310
-// Need inttypes.h for Visual Studio C++ prior to version .NET 2003 ?
-// We might change that if compiling with another Visual Studio C++ version
 #include <inttypes.h>
-#endif
-
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
