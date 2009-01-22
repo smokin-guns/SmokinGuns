@@ -104,6 +104,10 @@ void S_Base_SoundInfo(void) {
 	if (!s_soundStarted) {
 		Com_Printf ("sound system not started\n");
 	} else {
+		if ( s_soundMuted ) {
+			Com_Printf ("sound system is muted\n");
+		}
+
 		Com_Printf("%5d stereo\n", dma.channels - 1);
 		Com_Printf("%5d samples\n", dma.samples);
 		Com_Printf("%5d samplebits\n", dma.samplebits);
@@ -121,38 +125,6 @@ void S_Base_SoundInfo(void) {
 }
 
 
-#ifdef USE_VOIP
-static
-void S_Base_StartCapture( void )
-{
-	// !!! FIXME: write me.
-}
-
-static
-int S_Base_AvailableCaptureSamples( void )
-{
-	// !!! FIXME: write me.
-	return 0;
-}
-
-static
-void S_Base_Capture( int samples, byte *data )
-{
-	// !!! FIXME: write me.
-}
-
-static
-void S_Base_StopCapture( void )
-{
-	// !!! FIXME: write me.
-}
-
-static
-void S_Base_MasterGain( float val )
-{
-	// !!! FIXME: write me.
-}
-#endif
 
 
 
@@ -185,15 +157,13 @@ void S_Base_SoundList( void ) {
 	S_DisplayFreeMemory();
 }
 
-
-
 void S_ChannelFree(channel_t *v) {
 	v->thesfx = NULL;
 	*(channel_t **)v = freelist;
 	freelist = (channel_t*)v;
 }
 
-channel_t*	S_ChannelMalloc( void ) {
+channel_t*	S_ChannelMalloc() {
 	channel_t *v;
 	if (freelist == NULL) {
 		return NULL;
@@ -204,7 +174,7 @@ channel_t*	S_ChannelMalloc( void ) {
 	return v;
 }
 
-void S_ChannelSetup( void ) {
+void S_ChannelSetup() {
 	channel_t *p, *q;
 
 	// clear all the sounds so they don't
@@ -1174,12 +1144,6 @@ void S_GetSoundtime(void)
 
 	fullsamples = dma.samples / dma.channels;
 
-	if( CL_VideoRecording( ) )
-	{
-		s_soundtime += (int)ceil( dma.speed / cl_aviFrameRate->value );
-		return;
-	}
-
 	// it is possible to miscount buffers if it has wrapped twice between
 	// calls to S_Update.  Oh well.
 	samplepos = SNDDMA_GetDMAPos();
@@ -1417,7 +1381,6 @@ void S_UpdateBackgroundTrack( void ) {
 				return;
 			}
 		}
-
 	}
 }
 
@@ -1428,7 +1391,7 @@ S_FreeOldestSound
 ======================
 */
 
-void S_FreeOldestSound( void ) {
+void S_FreeOldestSound() {
 	int	i, oldest, used;
 	sfx_t	*sfx;
 	sndBuffer	*buffer, *nbuffer;
@@ -1529,14 +1492,6 @@ qboolean S_Base_Init( soundInterface_t *si ) {
 	si->ClearSoundBuffer = S_Base_ClearSoundBuffer;
 	si->SoundInfo = S_Base_SoundInfo;
 	si->SoundList = S_Base_SoundList;
-
-#ifdef USE_VOIP
-	si->StartCapture = S_Base_StartCapture;
-	si->AvailableCaptureSamples = S_Base_AvailableCaptureSamples;
-	si->Capture = S_Base_Capture;
-	si->StopCapture = S_Base_StopCapture;
-	si->MasterGain = S_Base_MasterGain;
-#endif
 
 	return qtrue;
 }

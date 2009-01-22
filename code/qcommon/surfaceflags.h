@@ -1,27 +1,3 @@
-/*
-===========================================================================
-Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
-
-This file is part of Smokin' Guns.
-
-Smokin' Guns is free software; you can redistribute it
-and/or modify it under the terms of the GNU General Public License as
-published by the Free Software Foundation; either version 2 of the License,
-or (at your option) any later version.
-
-Smokin' Guns is distributed in the hope that it will be
-useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Smokin' Guns; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-===========================================================================
-*/
-//
 // This file must be identical in the quake and utils directories
 
 // contents flags are seperate bits
@@ -30,20 +6,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // these definitions also need to be in q_shared.h!
 
 #define	CONTENTS_SOLID			1		// an eye is never valid in a solid
-
-#ifdef SMOKINGUNS
-//make dynamite shootable
-#define CONTENTS_TRIGGER2		2
-#endif
-
 #define	CONTENTS_LAVA			8
 #define	CONTENTS_SLIME			16
 #define	CONTENTS_WATER			32
 #define	CONTENTS_FOG			64
-
-#define CONTENTS_NOTTEAM1		0x0080
-#define CONTENTS_NOTTEAM2		0x0100
-#define CONTENTS_NOBOTCLIP		0x0200
 
 #define	CONTENTS_AREAPORTAL		0x8000
 
@@ -54,8 +20,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	CONTENTS_JUMPPAD		0x80000
 #define CONTENTS_CLUSTERPORTAL	0x100000
 #define CONTENTS_DONOTENTER		0x200000
-#define CONTENTS_BOTCLIP		0x400000
-#define CONTENTS_MOVER			0x800000
 
 #define	CONTENTS_ORIGIN			0x1000000	// removed before bsping an entity
 
@@ -79,32 +43,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	SURF_SKIP				0x200	// completely ignore, allowing non-closed brushes
 #define	SURF_NOLIGHTMAP			0x400	// surface doesn't need a lightmap
 #define	SURF_POINTLIGHT			0x800	// generate lighting info at vertexes
-#ifdef SMOKINGUNS
 #define	SURF_METAL				0x1000	// clanking footsteps
-// hika comments: Keep SURF_METALSTEPS for the engine !
-#endif
-#define	SURF_METALSTEPS			0x1000	// clanking footsteps
 #define	SURF_NOSTEPS			0x2000	// no footstep sounds
 #define	SURF_NONSOLID			0x4000	// don't collide against curves with this set
-#define	SURF_LIGHTFILTER		0x8000	// act as a light filter during q3map -light
+#define SURF_LIGHTFILTER		0x8000	// act as a light filter during q3map -light
 #define	SURF_ALPHASHADOW		0x10000	// do per-pixel light shadow casting in q3map
-#define	SURF_NODLIGHT			0x20000	// don't dlight even if solid (solid lava, skies)
-#define SURF_DUST				0x40000 // leave a dust trail when walking on this surface
-
-#ifdef SMOKINGUNS
-//smokinguns surfs
-#define	SURF_WOOD				0x80000 //wood
-#define	SURF_CLOTH				0x100000
-#define SURF_DIRT				0x200000
-#define	SURF_GLASS				0x400000
-#define	SURF_PLANT				0x800000
-#define SURF_SAND				0x1000000
-#define	SURF_SNOW				0x2000000
-#define	SURF_STONE				0x4000000
-#define	SURF_WATER				0x8000000
-#define	SURF_GRASS				0x10000000
-#define	SURF_BREAKABLE			0x20000000
-
-//for creating the tex-files and reading them
-#define	MAX_LINES 400
-#endif
+#define	SURF_NODLIGHT			0x20000	// never add dynamic lights

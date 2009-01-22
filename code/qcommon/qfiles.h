@@ -1,24 +1,3 @@
-/*
-===========================================================================
-Copyright (C) 1999-2005 Id Software, Inc.
-
-This file is part of Quake III Arena source code.
-
-Quake III Arena source code is free software; you can redistribute it
-and/or modify it under the terms of the GNU General Public License as
-published by the Free Software Foundation; either version 2 of the License,
-or (at your option) any later version.
-
-Quake III Arena source code is distributed in the hope that it will be
-useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Quake III Arena source code; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-===========================================================================
-*/
 #ifndef __QFILES_H__
 #define __QFILES_H__
 
@@ -27,19 +6,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // This file must be identical in the quake and utils directories
 //
 
-//Ignore __attribute__ on non-gcc platforms
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
 // surface geometry should not exceed these limits
 #define	SHADER_MAX_VERTEXES	1000
 #define	SHADER_MAX_INDEXES	(6*SHADER_MAX_VERTEXES)
 
 
-// the maximum size of game relative pathnames
+// the maximum size of game reletive pathnames
 #define	MAX_QPATH		64
 
 /*
@@ -50,8 +22,7 @@ QVM files
 ========================================================================
 */
 
-#define	VM_MAGIC			0x12721444
-#define	VM_MAGIC_VER2	0x12721445
+#define	VM_MAGIC	0x12721444
 typedef struct {
 	int		vmMagic;
 
@@ -64,10 +35,51 @@ typedef struct {
 	int		dataLength;
 	int		litLength;			// ( dataLength - litLength ) should be byteswapped on load
 	int		bssLength;			// zero filled memory appended to datalength
-
-	//!!! below here is VM_MAGIC_VER2 !!!
-	int		jtrgLength;			// number of jump table targets
 } vmHeader_t;
+
+
+/*
+========================================================================
+
+PCX files are used for 8 bit images
+
+========================================================================
+*/
+
+typedef struct {
+    char	manufacturer;
+    char	version;
+    char	encoding;
+    char	bits_per_pixel;
+    unsigned short	xmin,ymin,xmax,ymax;
+    unsigned short	hres,vres;
+    unsigned char	palette[48];
+    char	reserved;
+    char	color_planes;
+    unsigned short	bytes_per_line;
+    unsigned short	palette_type;
+    char	filler[58];
+    unsigned char	data;			// unbounded
+} pcx_t;
+
+
+/*
+========================================================================
+
+TGA files are used for 24/32 bit images
+
+========================================================================
+*/
+
+typedef struct _TargaHeader {
+	unsigned char 	id_length, colormap_type, image_type;
+	unsigned short	colormap_index, colormap_length;
+	unsigned char	colormap_size;
+	unsigned short	x_origin, y_origin, width, height;
+	unsigned char	pixel_size, attributes;
+} TargaHeader;
+
+
 
 /*
 ========================================================================
@@ -81,7 +93,7 @@ typedef struct {
 #define MD3_VERSION			15
 
 // limits
-#define MD3_MAX_LODS		3
+#define MD3_MAX_LODS		4
 #define	MD3_MAX_TRIANGLES	8192	// per surface
 #define MD3_MAX_VERTS		4096	// per surface
 #define MD3_MAX_SHADERS		256		// per surface
@@ -194,8 +206,9 @@ typedef struct {
 } md4Weight_t;
 
 typedef struct {
+	vec3_t		vertex;
 	vec3_t		normal;
-	vec2_t		texCoords;
+	float		texCoords[2];
 	int			numWeights;
 	md4Weight_t	weights[1];		// variable sized
 } md4Vertex_t;
@@ -238,6 +251,7 @@ typedef struct {
 	vec3_t		bounds[2];			// bounds of all surfaces of all LOD's for this frame
 	vec3_t		localOrigin;		// midpoint of bounds, used for sphere cull
 	float		radius;				// dist from localOrigin to corner
+	char		name[16];
 	md4Bone_t	bones[1];			// [numBones]
 } md4Frame_t;
 
@@ -266,130 +280,6 @@ typedef struct {
 	int			ofsEnd;				// end of file
 } md4Header_t;
 
-/*
- * Here are the definitions for Ravensoft's model format of md4. Raven stores their
- * playermodels in .mdr files, in some games, which are pretty much like the md4
- * format implemented by ID soft. It seems like ID's original md4 stuff is not used at all.
- * MDR is being used in EliteForce, JediKnight2 and Soldiers of Fortune2 (I think).
- * So this comes in handy for anyone who wants to make it possible to load player
- * models from these games.
- * This format has bone tags, which is similar to the thing you have in md3 I suppose.
- * Raven has released their version of md3view under GPL enabling me to add support
- * to this codebase. Thanks to Steven Howes aka Skinner for helping with example
- * source code.
- *
- * - Thilo Schulz (arny@ats.s.bawue.de)
- */
-
-// If you want to enable support for Raven's .mdr / md4 format, uncomment the next
-// line.
-//#define RAVENMD4
-
-#ifdef RAVENMD4
-
-#define MDR_IDENT	(('5'<<24)+('M'<<16)+('D'<<8)+'R')
-#define MDR_VERSION	2
-#define	MDR_MAX_BONES	128
-
-typedef struct {
-	int			boneIndex;	// these are indexes into the boneReferences,
-	float		   boneWeight;		// not the global per-frame bone list
-	vec3_t		offset;
-} mdrWeight_t;
-
-typedef struct {
-	vec3_t		normal;
-	vec2_t		texCoords;
-	int			numWeights;
-	mdrWeight_t	weights[1];		// variable sized
-} mdrVertex_t;
-
-typedef struct {
-	int			indexes[3];
-} mdrTriangle_t;
-
-typedef struct {
-	int			ident;
-
-	char		name[MAX_QPATH];	// polyset name
-	char		shader[MAX_QPATH];
-	int			shaderIndex;	// for in-game use
-
-	int			ofsHeader;	// this will be a negative number
-
-	int			numVerts;
-	int			ofsVerts;
-
-	int			numTriangles;
-	int			ofsTriangles;
-
-	// Bone references are a set of ints representing all the bones
-	// present in any vertex weights for this surface.  This is
-	// needed because a model may have surfaces that need to be
-	// drawn at different sort times, and we don't want to have
-	// to re-interpolate all the bones for each surface.
-	int			numBoneReferences;
-	int			ofsBoneReferences;
-
-	int			ofsEnd;		// next surface follows
-} mdrSurface_t;
-
-typedef struct {
-	float		matrix[3][4];
-} mdrBone_t;
-
-typedef struct {
-	vec3_t		bounds[2];		// bounds of all surfaces of all LOD's for this frame
-	vec3_t		localOrigin;		// midpoint of bounds, used for sphere cull
-	float		radius;			// dist from localOrigin to corner
-	char		name[16];
-	mdrBone_t	bones[1];		// [numBones]
-} mdrFrame_t;
-
-typedef struct {
-        unsigned char Comp[24]; // MC_COMP_BYTES is in MatComp.h, but don't want to couple
-} mdrCompBone_t;
-
-typedef struct {
-        vec3_t          bounds[2];		// bounds of all surfaces of all LOD's for this frame
-        vec3_t          localOrigin;		// midpoint of bounds, used for sphere cull
-        float           radius;			// dist from localOrigin to corner
-        mdrCompBone_t   bones[1];		// [numBones]
-} mdrCompFrame_t;
-
-typedef struct {
-	int			numSurfaces;
-	int			ofsSurfaces;		// first surface, others follow
-	int			ofsEnd;				// next lod follows
-} mdrLOD_t;
-
-typedef struct {
-        int                     boneIndex;
-        char            name[32];
-} mdrTag_t;
-
-typedef struct {
-	int			ident;
-	int			version;
-
-	char		name[MAX_QPATH];	// model name
-
-	// frames and bones are shared by all levels of detail
-	int			numFrames;
-	int			numBones;
-	int			ofsFrames;			// mdrFrame_t[numFrames]
-
-	// each level of detail has completely separate sets of surfaces
-	int			numLODs;
-	int			ofsLODs;
-
-        int                     numTags;
-        int                     ofsTags;
-
-	int			ofsEnd;				// end of file
-} mdrHeader_t;
-
-#endif
 
 /*
 ==============================================================================
@@ -443,9 +333,9 @@ typedef struct {
 #define	LIGHTMAP_WIDTH		128
 #define	LIGHTMAP_HEIGHT		128
 
-#define MAX_WORLD_COORD		( 128*1024 )
-#define MIN_WORLD_COORD		( -128*1024 )
-#define WORLD_SIZE			( MAX_WORLD_COORD - MIN_WORLD_COORD )
+#define MIN_WORLD_COORD ( -65536 )
+#define	MAX_WORLD_COORD	( 65536 )
+#define WORLD_SIZE		( MAX_WORLD_COORD - MIN_WORLD_COORD )
 
 //=============================================================================
 
@@ -544,8 +434,6 @@ typedef struct {
 	vec3_t		normal;
 	byte		color[4];
 } drawVert_t;
-
-#define drawVert_t_cleared(x) drawVert_t (x) = {{0, 0, 0}, {0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0, 0}}
 
 typedef enum {
 	MST_BAD,

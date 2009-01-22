@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef TR_LOCAL_H
 #define TR_LOCAL_H
 
-#include "../qcommon/q_shared.h"
+#include "../game/q_shared.h"
 #include "../qcommon/qfiles.h"
 #include "../qcommon/qcommon.h"
 #include "tr_public.h"
@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 typedef unsigned int glIndex_t;
 
 // fast float to int conversion
-#if id386 && !defined(__GNUC__)
+#if id386 && !( (defined __linux__ || defined __FreeBSD__ || defined __OpenBSD__ ) && (defined __i386__ ) ) // rb010123
 long myftol( float f );
 #else
 #define	myftol(x) ((int)(x))
@@ -104,7 +104,7 @@ typedef struct image_s {
 
 	qboolean	mipmap;
 	qboolean	allowPicmip;
-	int			wrapClampMode;		// GL_CLAMP_TO_EDGE or GL_REPEAT
+	int			wrapClampMode;		// GL_CLAMP or GL_REPEAT
 
 	struct image_s*	next;
 } image_t;
@@ -323,8 +323,6 @@ typedef struct {
 
 struct shaderCommands_s;
 
-// any change in the LIGHTMAP_* defines here MUST be reflected in
-// R_FindShader() in tr_bsp.c
 #define LIGHTMAP_2D			-4		// shader is for 2D rendering
 #define LIGHTMAP_BY_VERTEX	-3		// pre-lit triangle models
 #define LIGHTMAP_WHITEIMAGE	-2
@@ -436,8 +434,6 @@ typedef struct {
 	vec3_t		vieworg;
 	vec3_t		viewaxis[3];		// transformation matrix
 
-	stereoFrame_t	stereoFrame;
-
 	int			time;				// time in milliseconds for shader effects and other time dependent rendering issues
 	int			rdflags;			// RDF_NOWORLDMODEL, etc
 
@@ -509,7 +505,6 @@ typedef struct {
 	cplane_t	frustum[4];
 	vec3_t		visBounds[2];
 	float		zFar;
-	stereoFrame_t	stereoFrame;
 } viewParms_t;
 
 
@@ -531,9 +526,6 @@ typedef enum {
 	SF_POLY,
 	SF_MD3,
 	SF_MD4,
-#ifdef RAVENMD4
-	SF_MDR,
-#endif
 	SF_FLARE,
 	SF_ENTITY,				// beams, rails, lightning, etc that can be determined by entity
 	SF_DISPLAY_LIST,
@@ -746,10 +738,7 @@ typedef enum {
 	MOD_BAD,
 	MOD_BRUSH,
 	MOD_MESH,
-	MOD_MD4,
-#ifdef RAVENMD4
-	MOD_MDR
-#endif
+	MOD_MD4
 } modtype_t;
 
 typedef struct model_s {
@@ -760,7 +749,7 @@ typedef struct model_s {
 	int			dataSize;			// just for listing purposes
 	bmodel_t	*bmodel;			// only if type == MOD_BRUSH
 	md3Header_t	*md3[MD3_MAX_LODS];	// only if type == MOD_MESH
-	void	*md4;				// only if type == (MOD_MD4 | MOD_MDR)
+	md4Header_t	*md4;				// only if type == MOD_MD4
 
 	int			 numLods;
 } model_t;
@@ -976,22 +965,12 @@ extern trGlobals_t	tr;
 extern glconfig_t	glConfig;		// outside of TR since it shouldn't be cleared during ref re-init
 extern glstate_t	glState;		// outside of TR since it shouldn't be cleared during ref re-init
 
-// These two variables should live inside glConfig but can't because of compatibility issues to the original ID vms.
-// If you release a stand-alone game and your mod uses tr_types.h from this build you can safely move them to
-// the glconfig_t struct.
-extern qboolean  textureFilterAnisotropic;
-extern int       maxAnisotropy;
-extern float     displayAspect;
-
 
 //
 // cvars
 //
 extern cvar_t	*r_flareSize;
 extern cvar_t	*r_flareFade;
-// coefficient for the flare intensity falloff function.
-#define FLARE_STDCOEFF "150"
-extern cvar_t	*r_flareCoeff;
 
 extern cvar_t	*r_railWidth;
 extern cvar_t	*r_railCoreWidth;
@@ -1002,12 +981,11 @@ extern cvar_t	*r_verbose;				// used for verbose debug spew
 extern cvar_t	*r_ignoreFastPath;		// allows us to ignore our Tess fast paths
 
 extern cvar_t	*r_znear;				// near Z clip plane
-extern cvar_t	*r_zproj;				// z distance of projection plane
-extern cvar_t	*r_stereoSeparation;			// separation of cameras for stereo rendering
 
 extern cvar_t	*r_stencilbits;			// number of desired stencil bits
 extern cvar_t	*r_depthbits;			// number of desired depth bits
 extern cvar_t	*r_colorbits;			// number of desired color bits, only relevant for fullscreen
+extern cvar_t	*r_stereo;				// desired pixelformat stereo flag
 extern cvar_t	*r_texturebits;			// number of desired texture bits
 										// 0 = use framebuffer depth
 										// 16 = use 16-bit textures
@@ -1049,12 +1027,11 @@ extern cvar_t	*r_ignorehwgamma;		// overrides hardware gamma capabilities
 
 extern cvar_t	*r_allowExtensions;				// global enable/disable of OpenGL extensions
 extern cvar_t	*r_ext_compressed_textures;		// these control use of specific extensions
+extern cvar_t	*r_ext_gamma_control;
+extern cvar_t	*r_ext_texenv_op;
 extern cvar_t	*r_ext_multitexture;
 extern cvar_t	*r_ext_compiled_vertex_array;
 extern cvar_t	*r_ext_texture_env_add;
-
-extern cvar_t	*r_ext_texture_filter_anisotropic;
-extern cvar_t	*r_ext_max_anisotropy;
 
 extern	cvar_t	*r_nobind;						// turns off binding to appropriate textures
 extern	cvar_t	*r_singleShader;				// make most world faces use default shader
@@ -1095,11 +1072,6 @@ extern	cvar_t	*r_smp;
 extern	cvar_t	*r_showSmp;
 extern	cvar_t	*r_skipBackEnd;
 
-extern	cvar_t	*r_stereoEnabled;
-extern	cvar_t	*r_anaglyphMode;
-
-extern	cvar_t	*r_greyscale;
-
 extern	cvar_t	*r_ignoreGLErrors;
 
 extern	cvar_t	*r_overBrightBits;
@@ -1113,8 +1085,6 @@ extern	cvar_t	*r_debugSort;
 
 extern	cvar_t	*r_printShaders;
 extern	cvar_t	*r_saveFontData;
-
-extern	cvar_t	*r_GLlibCoolDownMsec;
 
 //====================================================================
 
@@ -1145,15 +1115,11 @@ void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader, int fogIndex, int 
 void R_LocalNormalToWorld (vec3_t local, vec3_t world);
 void R_LocalPointToWorld (vec3_t local, vec3_t world);
 int R_CullLocalBox (vec3_t bounds[2]);
+int R_CullBox (vec3_t transformedBounds[8]);
 int R_CullPointAndRadius( vec3_t origin, float radius );
 int R_CullLocalPointAndRadius( vec3_t origin, float radius );
-
-#ifdef SMOKINGUNS
-int R_CullBox (vec3_t transformedBounds[8]);
 void R_GetFrustumPlane( cplane_t frustum[4] );
-#endif
 
-void R_SetupProjection(viewParms_t *dest, float zProj, qboolean computeFrustum);
 void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms, orientationr_t *or );
 
 /*
@@ -1242,9 +1208,6 @@ int		R_SumOfUsedImages( void );
 void	R_InitSkins( void );
 skin_t	*R_GetSkinByHandle( qhandle_t hSkin );
 
-int R_ComputeLOD( trRefEntity_t *ent );
-
-const void *RB_TakeVideoFrameCmd( const void *data );
 
 //
 // tr_shader.c
@@ -1303,19 +1266,18 @@ typedef struct stageVars
 	vec2_t		texcoords[NUM_TEXTURE_BUNDLES][SHADER_MAX_VERTEXES];
 } stageVars_t;
 
-
 typedef struct shaderCommands_s
 {
-	glIndex_t	indexes[SHADER_MAX_INDEXES] ALIGN(16);
-	vec4_t		xyz[SHADER_MAX_VERTEXES] ALIGN(16);
-	vec4_t		normal[SHADER_MAX_VERTEXES] ALIGN(16);
-	vec2_t		texCoords[SHADER_MAX_VERTEXES][2] ALIGN(16);
-	color4ub_t	vertexColors[SHADER_MAX_VERTEXES] ALIGN(16);
-	int			vertexDlightBits[SHADER_MAX_VERTEXES] ALIGN(16);
+	glIndex_t	indexes[SHADER_MAX_INDEXES];
+	vec4_t		xyz[SHADER_MAX_VERTEXES];
+	vec4_t		normal[SHADER_MAX_VERTEXES];
+	vec2_t		texCoords[SHADER_MAX_VERTEXES][2];
+	color4ub_t	vertexColors[SHADER_MAX_VERTEXES];
+	int			vertexDlightBits[SHADER_MAX_VERTEXES];
 
-	stageVars_t	svars ALIGN(16);
+	stageVars_t	svars;
 
-	color4ub_t	constantColor255[SHADER_MAX_VERTEXES] ALIGN(16);
+	color4ub_t	constantColor255[SHADER_MAX_VERTEXES];
 
 	shader_t	*shader;
   float   shaderTime;
@@ -1462,27 +1424,6 @@ void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, fl
 void RE_AddAdditiveLightToScene( const vec3_t org, float intensity, float r, float g, float b );
 void RE_RenderScene( const refdef_t *fd );
 
-#ifdef RAVENMD4
-/*
-=============================================================
-
-UNCOMPRESSING BONES
-
-=============================================================
-*/
-
-#define MC_BITS_X (16)
-#define MC_BITS_Y (16)
-#define MC_BITS_Z (16)
-#define MC_BITS_VECT (16)
-
-#define MC_SCALE_X (1.0f/64)
-#define MC_SCALE_Y (1.0f/64)
-#define MC_SCALE_Z (1.0f/64)
-
-void MC_UnCompress(float mat[3][4],const unsigned char * comp);
-#endif
-
 /*
 =============================================================
 
@@ -1491,27 +1432,9 @@ ANIMATED MODELS
 =============================================================
 */
 
-// void R_MakeAnimModel( model_t *model );      haven't seen this one really, so not needed I guess.
+void R_MakeAnimModel( model_t *model );
 void R_AddAnimSurfaces( trRefEntity_t *ent );
 void RB_SurfaceAnim( md4Surface_t *surfType );
-#ifdef RAVENMD4
-void R_MDRAddAnimSurfaces( trRefEntity_t *ent );
-void RB_MDRSurfaceAnim( md4Surface_t *surface );
-#endif
-
-/*
-=============================================================
-
-IMAGE LOADERS
-
-=============================================================
-*/
-
-void R_LoadBMP( const char *name, byte **pic, int *width, int *height );
-void R_LoadJPG( const char *name, byte **pic, int *width, int *height );
-void R_LoadPCX( const char *name, byte **pic, int *width, int *height );
-void R_LoadPNG( const char *name, byte **pic, int *width, int *height );
-void R_LoadTGA( const char *name, byte **pic, int *width, int *height );
 
 /*
 =============================================================
@@ -1623,27 +1546,6 @@ typedef struct {
 	qboolean jpeg;
 } screenshotCommand_t;
 
-typedef struct {
-	int						commandId;
-	int						width;
-	int						height;
-	byte					*captureBuffer;
-	byte					*encodeBuffer;
-	qboolean			motionJpeg;
-} videoFrameCommand_t;
-
-typedef struct
-{
-	int commandId;
-
-	GLboolean rgba[4];
-} colorMaskCommand_t;
-
-typedef struct
-{
-	int commandId;
-} clearDepthCommand_t;
-
 typedef enum {
 	RC_END_OF_LIST,
 	RC_SET_COLOR,
@@ -1651,10 +1553,7 @@ typedef enum {
 	RC_DRAW_SURFS,
 	RC_DRAW_BUFFER,
 	RC_SWAP_BUFFERS,
-	RC_SCREENSHOT,
-	RC_VIDEOFRAME,
-	RC_COLORMASK,
-	RC_CLEARDEPTH
+	RC_SCREENSHOT
 } renderCommand_t;
 
 
@@ -1703,15 +1602,10 @@ void RE_StretchPic ( float x, float y, float w, float h,
 void RE_BeginFrame( stereoFrame_t stereoFrame );
 void RE_EndFrame( int *frontEndMsec, int *backEndMsec );
 void SaveJPG(char * filename, int quality, int image_width, int image_height, unsigned char *image_buffer);
-int SaveJPGToBuffer( byte *buffer, int quality,
-		int image_width, int image_height,
-		byte *image_buffer );
-void RE_TakeVideoFrame( int width, int height,
-		byte *captureBuffer, byte *encodeBuffer, qboolean motionJpeg );
 
 // font stuff
-void R_InitFreeType( void );
-void R_DoneFreeType( void );
+void R_InitFreeType();
+void R_DoneFreeType();
 void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t *font);
 
 

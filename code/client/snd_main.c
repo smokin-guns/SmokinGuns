@@ -228,10 +228,11 @@ S_Update
 */
 void S_Update( void )
 {
-	if( s_muteWhenMinimized->integer && com_minimized->integer ) {
+// Tequila: Skipping ioQuake3 stuff
+/*	if( s_muteWhenMinimized->integer && com_minimized->integer ) {
 		S_StopAllSounds( );
 		return;
-	}
+	}*/
 
 	if( si.Update ) {
 		si.Update( );

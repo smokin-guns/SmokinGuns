@@ -75,12 +75,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qcommon.h"
 
 #ifdef BUILD_FREETYPE
-#include <ft2build.h>
-#include <freetype/fterrors.h>
-#include <freetype/ftsystem.h>
-#include <freetype/ftimage.h>
-#include <freetype/freetype.h>
-#include <freetype/ftoutln.h>
+#include "../ft2/fterrors.h"
+#include "../ft2/ftsystem.h"
+#include "../ft2/ftimage.h"
+#include "../ft2/freetype.h"
+#include "../ft2/ftoutln.h"
 
 #define _FLOOR(x)  ((x) & -64)
 #define _CEIL(x)   (((x)+63) & -64)
@@ -299,7 +298,7 @@ static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, in
 static int fdOffset;
 static byte	*fdFile;
 
-int readInt( void ) {
+int readInt() {
 	int i = fdFile[fdOffset]+(fdFile[fdOffset+1]<<8)+(fdFile[fdOffset+2]<<16)+(fdFile[fdOffset+3]<<24);
 	fdOffset += 4;
 	return i;
@@ -310,14 +309,14 @@ typedef union {
 	float	ffred;
 } poor;
 
-float readFloat( void ) {
+float readFloat() {
 	poor	me;
-#if defined Q3_BIG_ENDIAN
+#if idppc
 	me.fred[0] = fdFile[fdOffset+3];
 	me.fred[1] = fdFile[fdOffset+2];
 	me.fred[2] = fdFile[fdOffset+1];
 	me.fred[3] = fdFile[fdOffset+0];
-#elif defined Q3_LITTLE_ENDIAN
+#else
 	me.fred[0] = fdFile[fdOffset+0];
 	me.fred[1] = fdFile[fdOffset+1];
 	me.fred[2] = fdFile[fdOffset+2];
@@ -343,12 +342,6 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t *font) {
   char name[1024];
 	float dpi = 72;											//
 	float glyphScale =  72.0f / dpi; 		// change the scale to be relative to 1 based on 72 dpi ( so dpi of 144 means a scale of .5 )
-
-
-  if (!fontName) {
-    ri.Printf(PRINT_ALL, "RE_RegisterFont: called with empty name\n");
-    return;
-  }
 
 	if (pointSize <= 0) {
 		pointSize = 12;
@@ -494,7 +487,7 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t *font) {
 			}
 
     	//Com_sprintf (name, sizeof(name), "fonts/fontImage_%i_%i", imageNumber++, pointSize);
-      image = R_CreateImage(name, imageBuff, 256, 256, qfalse, qfalse, GL_CLAMP_TO_EDGE);
+      image = R_CreateImage(name, imageBuff, 256, 256, qfalse, qfalse, GL_CLAMP);
       h = RE_RegisterShaderFromImage(name, LIGHTMAP_2D, image, qfalse);
       for (j = lastStart; j < i; j++) {
         font->glyphs[j].glyph = h;
@@ -528,7 +521,7 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t *font) {
 
 
 
-void R_InitFreeType(void) {
+void R_InitFreeType() {
 #ifdef BUILD_FREETYPE
   if (FT_Init_FreeType( &ftLibrary )) {
     ri.Printf(PRINT_ALL, "R_InitFreeType: Unable to initialize FreeType.\n");
@@ -538,7 +531,7 @@ void R_InitFreeType(void) {
 }
 
 
-void R_DoneFreeType(void) {
+void R_DoneFreeType() {
 #ifdef BUILD_FREETYPE
   if (ftLibrary) {
     FT_Done_FreeType( ftLibrary );

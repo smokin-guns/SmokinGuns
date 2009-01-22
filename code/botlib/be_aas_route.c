@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 *
 *****************************************************************************/
 
-#include "../qcommon/q_shared.h"
+#include "../game/q_shared.h"
 #include "l_utils.h"
 #include "l_memory.h"
 #include "l_log.h"
@@ -40,8 +40,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "l_precomp.h"
 #include "l_struct.h"
 #include "aasfile.h"
-#include "botlib.h"
-#include "be_aas.h"
+#include "../game/botlib.h"
+#include "../game/be_aas.h"
 #include "be_aas_funcs.h"
 #include "be_interface.h"
 #include "be_aas_def.h"
@@ -107,7 +107,7 @@ void AAS_RoutingInfo(void)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-ID_INLINE int AAS_ClusterAreaNum(int cluster, int areanum)
+__inline int AAS_ClusterAreaNum(int cluster, int areanum)
 {
 	int side, areacluster;
 
@@ -167,7 +167,7 @@ void AAS_InitTravelFlagFromType(void)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-ID_INLINE int AAS_TravelFlagForType_inline(int traveltype)
+__inline int AAS_TravelFlagForType_inline(int traveltype)
 {
 	int tfl;
 
@@ -340,7 +340,7 @@ int AAS_EnableRoutingArea(int areanum, int enable)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-ID_INLINE float AAS_RoutingTime(void)
+__inline float AAS_RoutingTime(void)
 {
 	return AAS_Time();
 } //end of the function AAS_RoutingTime
@@ -380,7 +380,7 @@ int AAS_GetAreaContentsTravelFlags(int areanum)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-ID_INLINE int AAS_AreaContentsTravelFlags_inline(int areanum)
+__inline int AAS_AreaContentsTravelFlags_inline(int areanum)
 {
 	return aasworld.areacontentstravelflags[areanum];
 } //end of the function AAS_AreaContentsTravelFlags
@@ -522,8 +522,7 @@ void AAS_CalculateAreaTravelTimes(void)
 		//
 		size += settings->numreachableareas * sizeof(unsigned short *);
 		//
-		size += settings->numreachableareas *
-			PAD(revreach->numlinks, sizeof(long)) * sizeof(unsigned short);
+		size += settings->numreachableareas * revreach->numlinks * sizeof(unsigned short);
 	} //end for
 	//allocate memory for the area travel times
 	ptr = (char *) GetClearedMemory(size);
@@ -543,7 +542,7 @@ void AAS_CalculateAreaTravelTimes(void)
 		for (l = 0; l < settings->numreachableareas; l++)
 		{
 			aasworld.areatraveltimes[i][l] = (unsigned short *) ptr;
-			ptr += PAD(revreach->numlinks, sizeof(long)) * sizeof(unsigned short);
+			ptr += revreach->numlinks * sizeof(unsigned short);
 			//reachability link
 			reach = &aasworld.reachability[settings->firstreachablearea + l];
 			//

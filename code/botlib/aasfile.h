@@ -21,9 +21,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+/*****************************************************************************
+* name:		aasfile.h
+*
+* desc:		not sure yet.
+*
+* $Archive: /source/stable/code/botlib/be_aas_bsp.h $
+*
+*****************************************************************************/
 
-//NOTE:	int =	default signed
-//				default long
+/* NOTE:	int =	default signed
+ 					default long */
 
 #define AASID						(('S'<<24)+('A'<<16)+('A'<<8)+'E')
 #define AASVERSION_OLD				4
@@ -133,37 +141,36 @@ typedef struct aas_reachability_s
 	int edgenum;						//number of the edge towards the other area
 	vec3_t start;						//start point of inter area movement
 	vec3_t end;							//end point of inter area movement
-	int traveltype;					//type of travel required to get to the area
-	unsigned short int traveltime;//travel time of the inter area movement
+	int traveltype;						//type of travel required to get to the area
+	unsigned short int traveltime;		//travel time of the inter area movement
 } aas_reachability_t;
 
-//area settings
+/*
+Area settings
+Could also add all kind of statistic fields
+*/
 typedef struct aas_areasettings_s
 {
-	//could also add all kind of statistic fields
 	int contents;						//contents of the area
 	int areaflags;						//several area flags
 	int presencetype;					//how a bot can be present in this area
 	int cluster;						//cluster the area belongs to, if negative it's a portal
-	int clusterareanum;				//number of the area in the cluster
-	int numreachableareas;			//number of reachable areas from this one
-	int firstreachablearea;			//first reachable area in the reachable area index
+	int clusterareanum;					//number of the area in the cluster
+	int numreachableareas;				//number of reachable areas from this one
+	int firstreachablearea;				//first reachable area in the reachable area index
 } aas_areasettings_t;
 
-//cluster portal
-typedef struct aas_portal_s
+typedef struct aas_portal_s				//cluster portal
 {
 	int areanum;						//area that is the actual portal
 	int frontcluster;					//cluster at front of portal
 	int backcluster;					//cluster at back of portal
-	int clusterareanum[2];			//number of the area in the front and back cluster
+	int clusterareanum[2];				//number of the area in the front and back cluster
 } aas_portal_t;
 
-//cluster portal index
-typedef int aas_portalindex_t;
+typedef int aas_portalindex_t;			//cluster portal index
 
-//cluster
-typedef struct aas_cluster_s
+typedef struct aas_cluster_s			//cluster
 {
 	int numareas;						//number of areas in the cluster
 	int numreachabilityareas;			//number of areas with reachabilities
@@ -175,25 +182,21 @@ typedef struct aas_cluster_s
 
 typedef vec3_t aas_vertex_t;
 
-//just a plane in the third dimension
-typedef struct aas_plane_s
+typedef struct aas_plane_s				//just a plane in the third dimension
 {
 	vec3_t normal;						//normal vector of the plane
 	float dist;							//distance of the plane (normal vector * distance = point in plane)
 	int type;
 } aas_plane_t;
 
-//edge
-typedef struct aas_edge_s
+typedef struct aas_edge_s				//edge
 {
 	int v[2];							//numbers of the vertexes of this edge
 } aas_edge_t;
 
-//edge index, negative if vertexes are reversed
-typedef int aas_edgeindex_t;
+typedef int aas_edgeindex_t;			//edge index, negative if vertexes are reversed
 
-//a face bounds an area, often it will also seperate two areas
-typedef struct aas_face_s
+typedef struct aas_face_s				//a face bounds an area, often it will also seperate two areas
 {
 	int planenum;						//number of the plane this face is in
 	int faceflags;						//face flags (no use to create face settings for just this field)
@@ -203,11 +206,9 @@ typedef struct aas_face_s
 	int backarea;						//area at the back of this face
 } aas_face_t;
 
-//face index, stores a negative index if backside of face
-typedef int aas_faceindex_t;
+typedef int aas_faceindex_t;			//face index, stores a negative index if backside of face
 
-//area with a boundary of faces
-typedef struct aas_area_s
+typedef struct aas_area_s				//area with a boundary of faces
 {
 	int areanum;						//number of this area
 	//3d definition
@@ -218,8 +219,7 @@ typedef struct aas_area_s
 	vec3_t center;						//'center' of the area
 } aas_area_t;
 
-//nodes of the bsp tree
-typedef struct aas_node_s
+typedef struct aas_node_s				//nodes of the bsp tree
 {
 	int planenum;
 	int children[2];					//child nodes of this node, or areas as leaves when negative
@@ -228,21 +228,19 @@ typedef struct aas_node_s
 
 //=========== aas file ===============
 
-//header lump
-typedef struct
+typedef struct							//header lump
 {
 	int fileofs;
 	int filelen;
 } aas_lump_t;
 
-//aas file header
-typedef struct aas_header_s
+typedef struct aas_header_s				//aas file header
 {
 	int ident;
 	int version;
 	int bspchecksum;
-	//data entries
-	aas_lump_t lumps[AAS_LUMPS];
+
+	aas_lump_t lumps[AAS_LUMPS];		//data entries
 } aas_header_t;
 
 
