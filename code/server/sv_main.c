@@ -23,9 +23,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "server.h"
 
+#ifdef USE_VOIP
+cvar_t *sv_voip;
+#endif
+
 serverStatic_t	svs;				// persistant server info
 server_t		sv;					// local server
-vm_t			*gvm = NULL;				// game virtual machine // bk001212 init
+vm_t			*gvm = NULL;		// game virtual machine
 
 cvar_t	*sv_fps;				// time rate for running non-clients
 cvar_t	*sv_timeout;			// seconds without any message
@@ -45,6 +49,7 @@ cvar_t	*sv_killserver;			// menu system can set to 1 to shut server down
 cvar_t	*sv_mapname;
 cvar_t	*sv_mapChecksum;
 cvar_t	*sv_serverid;
+cvar_t	*sv_minRate;
 cvar_t	*sv_maxRate;
 cvar_t	*sv_minPing;
 cvar_t	*sv_maxPing;
@@ -53,6 +58,9 @@ cvar_t	*sv_pure;
 cvar_t	*sv_floodProtect;
 cvar_t	*sv_lanForceRate; // dedicated 1 (LAN) server forces local client rates to 99999 (bug #491)
 cvar_t	*sv_strictAuth;
+
+serverBan_t serverBans[SERVER_MAXBANS];
+int serverBansCount = 0;
 
 /*
 =============================================================================
@@ -135,6 +143,10 @@ void SV_AddServerCommand( client_t *client, const char *cmd ) {
 //		return;
 //	}
 
+	// do not send commands until the gamestate has been sent
+	if( client->state < CS_PRIMED )
+		return;
+
 	client->reliableSequence++;
 	// if we would be losing an old command that hasn't been acknowledged,
 	// we must drop the connection
@@ -165,13 +177,21 @@ A NULL client will broadcast to all clients
 */
 void QDECL SV_SendServerCommand(client_t *cl, const char *fmt, ...) {
 	va_list		argptr;
-	byte		message[MAX_STRING_CHARS-2]; // commands can't be the full length, compare client_t in server.h
+	byte		message[MAX_MSGLEN];
 	client_t	*client;
 	int			j;
 
 	va_start (argptr,fmt);
 	Q_vsnprintf ((char *)message, sizeof(message), fmt,argptr);
 	va_end (argptr);
+
+	// Fix to http://aluigi.altervista.org/adv/q3msgboom-adv.txt
+	// The actual cause of the bug is probably further downstream
+	// and should maybe be addressed later, but this certainly
+	// fixes the problem for now
+	if ( strlen ((char *)message) > 1022 ) {
+		return;
+	}
 
 	if ( cl != NULL ) {
 		SV_AddServerCommand( cl, (char *)message );
@@ -185,9 +205,6 @@ void QDECL SV_SendServerCommand(client_t *cl, const char *fmt, ...) {
 
 	// send the data to all relevent clients
 	for (j = 0, client = svs.clients; j < sv_maxclients->integer ; j++, client++) {
-		if ( client->state < CS_PRIMED ) {
-			continue;
-		}
 		SV_AddServerCommand( client, (char *)message );
 	}
 }
@@ -217,6 +234,7 @@ but not on every player enter or exit.
 void SV_MasterHeartbeat( void ) {
 	static netadr_t	adr[MAX_MASTER_SERVERS];
 	int			i;
+	int			res;
 
 	// "dedicated 1" is for lan play, "dedicated 2" is for inet public play
 	if ( !com_dedicated || com_dedicated->integer != 2 ) {
@@ -243,7 +261,8 @@ void SV_MasterHeartbeat( void ) {
 			sv_master[i]->modified = qfalse;
 
 			Com_Printf( "Resolving %s\n", sv_master[i]->string );
-			if ( !NET_StringToAdr( sv_master[i]->string, &adr[i] ) ) {
+			res = NET_StringToAdr( sv_master[i]->string, &adr[i], NA_UNSPEC );
+			if ( !res ) {
 				// if the address failed to resolve, clear it
 				// so we don't take repeated dns hits
 				Com_Printf( "Couldn't resolve address: %s\n", sv_master[i]->string );
@@ -251,12 +270,11 @@ void SV_MasterHeartbeat( void ) {
 				sv_master[i]->modified = qfalse;
 				continue;
 			}
-			if ( !strstr( ":", sv_master[i]->string ) ) {
+			if ( res == 2 ) {
+				// if no port was specified, use the default master port
 				adr[i].port = BigShort( PORT_MASTER );
 			}
-			Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", sv_master[i]->string,
-				adr[i].ip[0], adr[i].ip[1], adr[i].ip[2], adr[i].ip[3],
-				BigShort( adr[i].port ) );
+			Com_Printf( "%s resolved to %s\n", sv_master[i]->string, NET_AdrToStringwPort(adr[i]));
 		}
 
 
@@ -326,15 +344,6 @@ void SVC_Status( netadr_t from ) {
 	// to prevent timed spoofed reply packets that add ghost servers
 	Info_SetValueForKey( infostring, "challenge", Cmd_Argv(1) );
 
-	// add "demo" to the sv_keywords if restricted
-	if ( Cvar_VariableValue( "fs_restrict" ) ) {
-		char	keywords[MAX_INFO_STRING];
-
-		Com_sprintf( keywords, sizeof( keywords ), "demo %s",
-			Info_ValueForKey( infostring, "sv_keywords" ) );
-		Info_SetValueForKey( infostring, "sv_keywords", keywords );
-	}
-
 	status[0] = 0;
 	statusLength = 0;
 
@@ -374,6 +383,15 @@ void SVC_Info( netadr_t from ) {
 		return;
 	}
 
+	/*
+	 * Check whether Cmd_Argv(1) has a sane length. This was not done in the original Quake3 version which led
+	 * to the Infostring bug discovered by Luigi Auriemma. See http://aluigi.altervista.org/ for the advisory.
+	 */
+
+	// A maximum challenge length of 128 should be more than plenty.
+	if(strlen(Cmd_Argv(1)) > 128)
+		return;
+
 	// don't count privateclients
 	count = 0;
 	for ( i = sv_privateClients->integer ; i < sv_maxclients->integer ; i++ ) {
@@ -396,6 +414,12 @@ void SVC_Info( netadr_t from ) {
 		va("%i", sv_maxclients->integer - sv_privateClients->integer ) );
 	Info_SetValueForKey( infostring, "gametype", va("%i", sv_gametype->integer ) );
 	Info_SetValueForKey( infostring, "pure", va("%i", sv_pure->integer ) );
+
+#ifdef USE_VOIP
+	if (sv_voip->integer) {
+		Info_SetValueForKey( infostring, "voip", va("%i", sv_voip->integer ) );
+	}
+#endif
 
 	if( sv_minPing->integer ) {
 		Info_SetValueForKey( infostring, "minPing", va("%i", sv_minPing->integer) );
@@ -443,7 +467,7 @@ void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
 
 	// TTimo - https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=534
 	time = Com_Milliseconds();
-	if (time<(lasttime+500)) {
+	if ( (unsigned)( time - lasttime ) < 500u ) {
 		return;
 	}
 	lasttime = time;
@@ -525,8 +549,10 @@ void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 		SV_GetChallenge( from );
 	} else if (!Q_stricmp(c, "connect")) {
 		SV_DirectConnect( from );
+#ifndef STANDALONE
 	} else if (!Q_stricmp(c, "ipAuthorize")) {
 		SV_AuthorizeIpPacket( from );
+#endif
 	} else if (!Q_stricmp(c, "rcon")) {
 		SVC_RemoteCommand( from, msg );
 	} else if (!Q_stricmp(c, "disconnect")) {
@@ -755,12 +781,19 @@ void SV_Frame( int msec ) {
 
 	// the menu kills the server with this cvar
 	if ( sv_killserver->integer ) {
-		SV_Shutdown ("Server was killed.\n");
+		SV_Shutdown ("Server was killed");
 		Cvar_Set( "sv_killserver", "0" );
 		return;
 	}
 
-	if ( !com_sv_running->integer ) {
+	if (!com_sv_running->integer)
+	{
+		// Running as a server, but no map loaded
+#ifdef DEDICATED
+		// Block until something interesting happens
+		Sys_Sleep(-1);
+#endif
+
 		return;
 	}
 
@@ -773,11 +806,18 @@ void SV_Frame( int msec ) {
 	if ( sv_fps->integer < 1 ) {
 		Cvar_Set( "sv_fps", "10" );
 	}
-	frameMsec = 1000 / sv_fps->integer ;
+
+	frameMsec = 1000 / sv_fps->integer * com_timescale->value;
+	// don't let it scale below 1ms
+	if(frameMsec < 1)
+	{
+		Cvar_Set("timescale", va("%f", sv_fps->integer / 1000.0f));
+		frameMsec = 1;
+	}
 
 	sv.timeResidual += msec;
 
-	if (!com_dedicated->integer) SV_BotFrame( sv.time + sv.timeResidual );
+	if (!com_dedicated->integer) SV_BotFrame (sv.time + sv.timeResidual);
 
 	if ( com_dedicated->integer && sv.timeResidual < frameMsec ) {
 		// NET_Sleep will give the OS time slices until either get a packet
@@ -827,7 +867,7 @@ void SV_Frame( int msec ) {
 	// update ping based on the all received frames
 	SV_CalcPings();
 
-	if (com_dedicated->integer) SV_BotFrame( sv.time );
+	if (com_dedicated->integer) SV_BotFrame (sv.time);
 
 	// run the game simulation in chunks
 	while ( sv.timeResidual >= frameMsec ) {
@@ -836,7 +876,7 @@ void SV_Frame( int msec ) {
 		sv.time += frameMsec;
 
 		// let everything in the world think and move
-		VM_Call( gvm, GAME_RUN_FRAME, sv.time );
+		VM_Call (gvm, GAME_RUN_FRAME, sv.time);
 	}
 
 	if ( com_speeds->integer ) {

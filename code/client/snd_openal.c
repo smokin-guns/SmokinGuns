@@ -1979,6 +1979,7 @@ qboolean S_AL_Init( soundInterface_t *si )
 	s_alGraceDistance = Cvar_Get("s_alGraceDistance", "512", CVAR_CHEAT);
 
 	s_alDriver = Cvar_Get( "s_alDriver", ALDRIVER_DEFAULT, CVAR_ARCHIVE );
+
 	// Load QAL
 	if( !QAL_Init( s_alDriver->string ) )
 	{
@@ -2139,6 +2140,7 @@ qboolean S_AL_Init( soundInterface_t *si )
 	si->StopCapture = S_AL_StopCapture;
 	si->MasterGain = S_AL_MasterGain;
 #endif
+
 	return qtrue;
 #else
 	return qfalse;

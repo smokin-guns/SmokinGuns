@@ -23,14 +23,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // vm_x86.c -- load time compiler and execution environment for x86
 
 #include "vm_local.h"
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
-#if (defined __FreeBSD__ || defined __OpenBSD__ ) // rb0101023
+#ifdef __FreeBSD__
 #include <sys/types.h>
 #endif
 
 #ifndef _WIN32
 #include <sys/mman.h> // for PROT_ stuff
 #endif
+
+/* need this on NX enabled systems (i386 with PAE kernel or
+ * noexec32=on x86_64) */
+#ifdef __linux__
+#define VM_X86_MMAP
+#endif
+
+static void VM_Destroy_Compiled(vm_t* self);
 
 /*
 
@@ -43,7 +54,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 */
 
-// TTimo: initialised the statics, this fixes a crash when entering a compiled VM
 static	byte	*buf = NULL;
 static	byte	*jused = NULL;
 static	int		compiledOfs = 0;
@@ -54,38 +64,34 @@ static	int		*instructionPointers = NULL;
 
 #define FTOL_PTR
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 
 #if defined( FTOL_PTR )
 int _ftol( float );
 static	int		ftolPtr = (int)_ftol;
 #endif
 
-void AsmCall( void );
-static	int		asmCallPtr = (int)AsmCall;
-
-#else // _WIN32
+#else // _MSC_VER
 
 #if defined( FTOL_PTR )
-// bk001213 - BEWARE: does not work! UI menu etc. broken - stack!
-// bk001119 - added: int gftol( float x ) { return (int)x; }
 
-int qftol( void );     // bk001213 - label, see unix/ftol.nasm
-int qftol027F( void ); // bk001215 - fixed FPU control variants
+int qftol( void );
+int qftol027F( void );
 int qftol037F( void );
-int qftol0E7F( void ); // bk010102 - fixed bogus bits (duh)
+int qftol0E7F( void );
 int qftol0F7F( void );
 
 
 static	int		ftolPtr = (int)qftol0F7F;
 #endif // FTOL_PTR
 
-void doAsmCall( void );
-static	int		asmCallPtr = (int)doAsmCall;
-#endif // !_WIN32
+#endif
+
+void AsmCall(void);
+static void (*const asmCallPtr)(void) = AsmCall;
 
 
-static	int		callMask = 0; // bk001213 - init
+static	int		callMask = 0;
 
 static	int	instruction, pass;
 static	int	lastConst = 0;
@@ -106,7 +112,7 @@ static	ELastCommand	LastCommand;
 AsmCall
 =================
 */
-#ifdef _WIN32
+#ifdef _MSC_VER
 __declspec( naked ) void AsmCall( void ) {
 int		programStack;
 int		*opStack;
@@ -116,7 +122,7 @@ vm_t*	savedVM;
 __asm {
 	mov		eax, dword ptr [edi]
 	sub		edi, 4
-	or		eax,eax
+	test	eax,eax
 	jl		systemCall
 	// calling another vm function
 	shl		eax,2
@@ -129,8 +135,7 @@ systemCall:
 
 	// convert negative num to system call number
 	// and store right before the first arg
-	neg		eax
-	dec		eax
+	not		eax
 
 	push    ebp
 	mov     ebp, esp
@@ -169,62 +174,61 @@ _asm {
 
 }
 
-#else //!_WIN32
+#else //!_MSC_VER
 
-static	int		callProgramStack;
-static	int		*callOpStack;
-static	int		callSyscallNum;
+#if defined(__MINGW32__) || defined(MACOS_X) // _ is prepended to compiled symbols
+#	define CMANG(sym) "_"#sym
+#else
+#	define CMANG(sym) #sym
+#endif
 
-void callAsmCall(void)
+static void __attribute__((cdecl, used)) CallAsmCall(int const syscallNum,
+		int const programStack, int* const opStack)
 {
-	vm_t	*savedVM;
-	int		*callOpStack2;
-
-	savedVM = currentVM;
-	callOpStack2 = callOpStack;
+	vm_t     *const vm   = currentVM;
+	intptr_t *const data = (intptr_t*)(vm->dataBase + programStack + 4);
 
 	// save the stack to allow recursive VM entry
-	currentVM->programStack = callProgramStack - 4;
-	*(int *)((byte *)currentVM->dataBase + callProgramStack + 4) = callSyscallNum;
-//VM_LogSyscalls(  (int *)((byte *)currentVM->dataBase + programStack + 4) );
-	*(callOpStack2+1) = currentVM->systemCall( (int *)((byte *)currentVM->dataBase + callProgramStack + 4) );
+	vm->programStack = programStack - 4;
+	*data = syscallNum;
+	opStack[1] = vm->systemCall(data);
 
- 	currentVM = savedVM;
+	currentVM = vm;
 }
 
-void AsmCall( void ) {
-	__asm__("doAsmCall:      			\n\t" \
-			"	movl (%%edi),%%eax			\n\t" \
-			"	subl $4,%%edi				\n\t" \
-			"   orl %%eax,%%eax				\n\t" \
-			"	jl systemCall				\n\t" \
-			"	shll $2,%%eax				\n\t" \
-			"	addl %3,%%eax				\n\t" \
-			"	call *(%%eax)				\n\t" \
-		  " movl (%%edi),%%eax   \n\t" \
-	    " andl callMask, %%eax \n\t" \
-			"	jmp doret					   \n\t" \
-			"systemCall:					\n\t" \
-			"	negl %%eax					\n\t" \
-			"	decl %%eax					\n\t" \
-			"	movl %%eax,%0				\n\t" \
-			"	movl %%esi,%1				\n\t" \
-			"	movl %%edi,%2				\n\t" \
-			"	pushl %%ecx					\n\t" \
-			"	pushl %%esi					\n\t" \
-			"	pushl %%edi					\n\t" \
-			"	call callAsmCall			\n\t" \
-			"	popl %%edi					\n\t" \
-			"	popl %%esi					\n\t" \
-			"	popl %%ecx					\n\t" \
-			"	addl $4,%%edi				\n\t" \
-			"doret:							\n\t" \
-			"	ret							\n\t" \
-			: "=rm" (callSyscallNum), "=rm" (callProgramStack), "=rm" (callOpStack) \
-			: "rm" (instructionPointers) \
-			: "ax", "di", "si", "cx" \
+__asm__(
+	".text\n\t"
+	".p2align 4,,15\n\t"
+#if defined __ELF__
+	".type " CMANG(AsmCall) ", @function\n"
+#endif
+	CMANG(AsmCall) ":\n\t"
+	"movl  (%edi), %eax\n\t"
+	"subl  $4, %edi\n\t"
+	"testl %eax, %eax\n\t"
+	"jl    0f\n\t"
+	"shll  $2, %eax\n\t"
+	"addl  " CMANG(instructionPointers) ", %eax\n\t"
+	"call  *(%eax)\n\t"
+	"movl  (%edi), %eax\n\t"
+	"andl  " CMANG(callMask) ", %eax\n\t"
+	"ret\n"
+	"0:\n\t" // system call
+	"notl  %eax\n\t"
+	"pushl %ecx\n\t"
+	"pushl %edi\n\t" // opStack
+	"pushl %esi\n\t" // programStack
+	"pushl %eax\n\t" // syscallNum
+	"call  " CMANG(CallAsmCall) "\n\t"
+	"addl  $12, %esp\n\t"
+	"popl  %ecx\n\t"
+	"addl  $4, %edi\n\t"
+	"ret\n\t"
+#if defined __ELF__
+	".size " CMANG(AsmCall)", .-" CMANG(AsmCall)
+#endif
 	);
-}
+
 #endif
 
 static int	Constant4( void ) {
@@ -410,6 +414,12 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 	jused = Z_Malloc(header->instructionCount + 2 );
 
 	Com_Memset(jused, 0, header->instructionCount+2);
+
+	// ensure that the optimisation pass knows about all the jump
+	// table targets
+	for( i = 0; i < vm->numJumpTableTargets; i++ ) {
+		jused[ *(int *)(vm->jumpTableTargets + ( i * sizeof( int ) ) ) ] = 1;
+	}
 
 	for(pass=0;pass<2;pass++) {
 	oc0 = -23423;
@@ -995,7 +1005,7 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 			EmitString( "D9 1F" );		// fstp dword ptr [edi]
 			break;
 		case OP_CVFI:
-#ifndef FTOL_PTR // WHENHELLISFROZENOVER  // bk001213 - was used in 1.17
+#ifndef FTOL_PTR // WHENHELLISFROZENOVER
 			// not IEEE complient, but simple and fast
 		  EmitString( "D9 07" );		// fld dword ptr [edi]
 			EmitString( "DB 1F" );		// fistp dword ptr [edi]
@@ -1055,35 +1065,55 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 
 	// copy to an exact size buffer on the hunk
 	vm->codeLength = compiledOfs;
-	vm->codeBase = Hunk_Alloc( compiledOfs, h_low );
+#ifdef VM_X86_MMAP
+	vm->codeBase = mmap(NULL, compiledOfs, PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+	if(vm->codeBase == (void*)-1)
+		Com_Error(ERR_DROP, "VM_CompileX86: can't mmap memory");
+#elif _WIN32
+	// allocate memory with EXECUTE permissions under windows.
+	vm->codeBase = VirtualAlloc(NULL, compiledOfs, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	if(!vm->codeBase)
+		Com_Error(ERR_DROP, "VM_CompileX86: VirtualAlloc failed");
+#else
+	vm->codeBase = malloc(compiledOfs);
+#endif
+
 	Com_Memcpy( vm->codeBase, buf, compiledOfs );
+
+#ifdef VM_X86_MMAP
+	if(mprotect(vm->codeBase, compiledOfs, PROT_READ|PROT_EXEC))
+		Com_Error(ERR_DROP, "VM_CompileX86: mprotect failed");
+#elif _WIN32
+	{
+		DWORD oldProtect = 0;
+		
+		// remove write permissions.
+		if(!VirtualProtect(vm->codeBase, compiledOfs, PAGE_EXECUTE_READ, &oldProtect))
+			Com_Error(ERR_DROP, "VM_CompileX86: VirtualProtect failed");
+	}
+#endif
+
 	Z_Free( buf );
 	Z_Free( jused );
 	Com_Printf( "VM file %s compiled to %i bytes of code\n", vm->name, compiledOfs );
+
+	vm->destroy = VM_Destroy_Compiled;
 
 	// offset all the instruction pointers for the new location
 	for ( i = 0 ; i < header->instructionCount ; i++ ) {
 		vm->instructionPointers[i] += (int)vm->codeBase;
 	}
+}
 
-#if defined __OpenBSD__  // ndef _WIN32
-	// Must make the newly generated code executable
-	{
-		int r;
-		unsigned long addr;
-		int psize = getpagesize();
-		Com_Printf( "VM being made executable\n" );
-
-		addr = ((int)vm->codeBase & ~(psize-1)) - psize;
-
-		r = mprotect((char*)addr, vm->codeLength + (int)vm->codeBase - addr + psize,
-			PROT_READ | PROT_WRITE | PROT_EXEC );
-
-		if (r < 0)
-			Com_Error( ERR_FATAL, "mprotect failed to change PROT_EXEC" );
-	}
+void VM_Destroy_Compiled(vm_t* self)
+{
+#ifdef VM_X86_MMAP
+	munmap(self->codeBase, self->codeLength);
+#elif _WIN32
+	VirtualFree(self->codeBase, 0, MEM_RELEASE);
+#else
+	free(self->codeBase);
 #endif
-
 }
 
 /*
@@ -1093,14 +1123,12 @@ VM_CallCompiled
 This function is called directly by the generated code
 ==============
 */
-#ifndef DLL_ONLY // bk010215 - for DLL_ONLY dedicated servers/builds w/o VM
 int	VM_CallCompiled( vm_t *vm, int *args ) {
 	int		stack[1024];
 	int		programCounter;
 	int		programStack;
 	int		stackOnEntry;
 	byte	*image;
-	void	*entryPoint;
 	void	*opStack;
 	int		*oldInstructionPointers;
 
@@ -1139,45 +1167,38 @@ int	VM_CallCompiled( vm_t *vm, int *args ) {
 	*(int *)&image[ programStack ] = -1;	// will terminate the loop on return
 
 	// off we go into generated code...
-	entryPoint = vm->codeBase;
 	opStack = &stack;
 
-#ifdef _WIN32
-	__asm  {
-		pushad
-		mov		esi, programStack;
-		mov		edi, opStack
-		call	entryPoint
-		mov		programStack, esi
-		mov		opStack, edi
-		popad
-	}
-#else
 	{
-		static int memProgramStack;
-		static void *memOpStack;
-		static void *memEntryPoint;
+#ifdef _MSC_VER
+		void *entryPoint = vm->codeBase;
 
-		memProgramStack	= programStack;
-		memOpStack      = opStack;
-		memEntryPoint   = entryPoint;
+		__asm {
+			pushad
+			mov    esi, programStack
+			mov		edi, opStack
+			call	entryPoint
+			mov		programStack, esi
+			mov		opStack, edi
+			popad
+		}
+#else
+		/* These registers are used as scratch registers and are destroyed after the
+		 * call.  Do not use clobber, so they can be used as input for the asm. */
+		unsigned eax;
+		unsigned ebx;
+		unsigned ecx;
+		unsigned edx;
 
-		__asm__("	pushal				\r\n" \
-				"	movl %0,%%esi		\r\n" \
-				"	movl %1,%%edi		\r\n" \
-				"	call *%2			\r\n" \
-				"	movl %%esi,%0		\r\n" \
-				"	movl %%edi,%1		\r\n" \
-				"	popal				\r\n" \
-				: "=m" (memProgramStack), "=m" (memOpStack) \
-				: "m" (memEntryPoint), "0" (memProgramStack), "1" (memOpStack) \
-				: "si", "di" \
+		__asm__ volatile(
+			"call *%6"
+			: "+S" (programStack), "+D" (opStack),
+			  "=a" (eax), "=b" (ebx), "=c" (ecx), "=d" (edx)
+			: "mr" (vm->codeBase)
+			: "cc", "memory"
 		);
-
-		programStack = memProgramStack;
-		opStack      = memOpStack;
-	}
 #endif
+	}
 
 	if ( opStack != &stack[1] ) {
 		Com_Error( ERR_DROP, "opStack corrupted in compiled code" );
@@ -1193,6 +1214,3 @@ int	VM_CallCompiled( vm_t *vm, int *args ) {
 
 	return *(int *)opStack;
 }
-#endif // !DLL_ONLY
-
-

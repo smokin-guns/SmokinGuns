@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __TR_PUBLIC_H
 #define __TR_PUBLIC_H
 
-#include "../cgame/tr_types.h"
+#include "tr_types.h"
 
 #define	REF_API_VERSION		8
 
@@ -99,10 +99,13 @@ typedef struct {
 	qboolean (*GetEntityToken)( char *buffer, int size );
 	qboolean (*inPVS)( const vec3_t p1, const vec3_t p2 );
 
+	void (*TakeVideoFrame)( int h, int w, byte* captureBuffer, byte *encodeBuffer, qboolean motionJpeg );
 	// Smokin' Guns specific exported functions
+#ifdef SMOKINGUNS
 	int		(*CullBox)( vec3_t transformedBounds[8] );
 	int		(*CullPointAndRadius)( vec3_t origin, float radius );
 	void	(*GetFrustumPlane)( cplane_t frustum[4] );
+#endif
 } refexport_t;
 
 //
@@ -135,6 +138,7 @@ typedef struct {
 
 	cvar_t	*(*Cvar_Get)( const char *name, const char *value, int flags );
 	void	(*Cvar_Set)( const char *name, const char *value );
+	void	(*Cvar_CheckRange)( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral );
 
 	void	(*Cmd_AddCommand)( const char *name, void(*cmd)(void) );
 	void	(*Cmd_RemoveCommand)( const char *name );
@@ -162,6 +166,7 @@ typedef struct {
 	int		(*CIN_PlayCinematic)( const char *arg0, int xpos, int ypos, int width, int height, int bits);
 	e_status (*CIN_RunCinematic) (int handle);
 
+	void	(*CL_WriteAVIVideoFrame)( const byte *buffer, int size );
 } refimport_t;
 
 

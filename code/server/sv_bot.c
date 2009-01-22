@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // sv_bot.c
 
 #include "server.h"
-#include "../game/botlib.h"
+#include "../botlib/botlib.h"
 
 typedef struct bot_debugpoly_s
 {
@@ -140,7 +140,7 @@ void QDECL BotImport_Print(int type, char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	vsprintf(str, fmt, ap);
+	Q_vsnprintf(str, sizeof(str), fmt, ap);
 	va_end(ap);
 
 	switch(type) {
@@ -519,10 +519,6 @@ SV_BotInitBotLib
 void SV_BotInitBotLib(void) {
 	botlib_import_t	botlib_import;
 
-	if ( !Cvar_VariableValue("fs_restrict") && !Sys_CheckCD() ) {
-		Com_Error( ERR_NEED_CD, "Game CD not in drive" );
-	}
-
 	if (debugpolygons) Z_Free(debugpolygons);
 	bot_maxdebugpolys = Cvar_VariableIntegerValue("bot_maxdebugpolys");
 	debugpolygons = Z_Malloc(sizeof(bot_debugpoly_t) * bot_maxdebugpolys);
@@ -559,7 +555,7 @@ void SV_BotInitBotLib(void) {
 	botlib_import.DebugPolygonDelete = BotImport_DebugPolygonDelete;
 
 	botlib_export = (botlib_export_t *)GetBotLibAPI( BOTLIB_API_VERSION, &botlib_import );
-	assert(botlib_export); 	// bk001129 - somehow we end up with a zero import.
+	assert(botlib_export); 	// somehow we end up with a zero import.
 }
 
 
