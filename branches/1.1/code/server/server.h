@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // server.h
 
-#include "../game/q_shared.h"
+#include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 #include "../game/g_public.h"
 #include "../game/bg_public.h"
@@ -33,6 +33,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 										// GAME BOTH REFERENCE !!!
 
 #define	MAX_ENT_CLUSTERS	16
+
+#ifdef USE_VOIP
+typedef struct voipServerPacket_s
+{
+	int generation;
+	int sequence;
+	int frames;
+	int len;
+	int sender;
+	byte data[1024];
+} voipServerPacket_t;
+#endif
 
 typedef struct svEntity_s {
 	struct worldSector_s *worldSector;
@@ -152,7 +164,6 @@ typedef struct client_s {
 	int				lastPacketTime;		// svs.time when packet was last received
 	int				lastConnectTime;	// svs.time when connection started
 	int				nextSnapshotTime;	// send another snapshot when svs.time >= nextSnapshotTime
-	int				oldServerTime;
 	qboolean		rateDelayed;		// true if nextSnapshotTime was set based on rate instead of snapshotMsec
 	int				timeoutCount;		// must timeout a few frames in a row so debugging doesn't break
 	clientSnapshot_t	frames[PACKET_BACKUP];	// updates can be delta'd from here
@@ -168,6 +179,17 @@ typedef struct client_s {
 	// buffer them into this queue, and hand them out to netchan as needed
 	netchan_buffer_t *netchan_start_queue;
 	netchan_buffer_t **netchan_end_queue;
+
+#ifdef USE_VOIP
+	qboolean hasVoip;
+	qboolean muteAllVoip;
+	qboolean ignoreVoipFromClient[MAX_CLIENTS];
+	voipServerPacket_t voipPacket[64]; // !!! FIXME: WAY too much memory!
+	int queuedVoipPackets;
+#endif
+
+	int				oldServerTime;
+	qboolean		csUpdated[MAX_CONFIGSTRINGS+1];	
 } client_t;
 
 //=============================================================================
@@ -212,6 +234,18 @@ typedef struct {
 	netadr_t	authorizeAddress;			// for rcon return messages
 } serverStatic_t;
 
+#define SERVER_MAXBANS	1024
+#define SERVER_BANFILE	"serverbans.dat"
+// Structure for managing bans
+typedef struct
+{
+	netadr_t ip;
+	// For a CIDR-Notation type suffix
+	int subnet;
+	
+	qboolean isexception;
+} serverBan_t;
+
 //=============================================================================
 
 extern	serverStatic_t	svs;				// persistant server info across maps
@@ -238,6 +272,7 @@ extern	cvar_t	*sv_killserver;
 extern	cvar_t	*sv_mapname;
 extern	cvar_t	*sv_mapChecksum;
 extern	cvar_t	*sv_serverid;
+extern	cvar_t	*sv_minRate;
 extern	cvar_t	*sv_maxRate;
 extern	cvar_t	*sv_minPing;
 extern	cvar_t	*sv_maxPing;
@@ -246,6 +281,14 @@ extern	cvar_t	*sv_pure;
 extern	cvar_t	*sv_floodProtect;
 extern	cvar_t	*sv_lanForceRate;
 extern	cvar_t	*sv_strictAuth;
+
+extern	serverBan_t serverBans[SERVER_MAXBANS];
+extern	int serverBansCount;
+
+#ifdef USE_VOIP
+extern	cvar_t	*sv_voip;
+#endif
+
 
 //===========================================================
 
@@ -271,6 +314,7 @@ void SV_MasterShutdown (void);
 //
 void SV_SetConfigstring( int index, const char *val );
 void SV_GetConfigstring( int index, char *buffer, int bufferSize );
+void SV_UpdateConfigstrings( client_t *client );
 
 void SV_SetUserinfo( int index, const char *val );
 void SV_GetUserinfo( int index, char *buffer, int bufferSize );
@@ -287,7 +331,9 @@ void SV_GetChallenge( netadr_t from );
 
 void SV_DirectConnect( netadr_t from );
 
+#ifndef STANDALONE
 void SV_AuthorizeIpPacket( netadr_t from );
+#endif
 
 void SV_ExecuteClientMessage( client_t *cl, msg_t *msg );
 void SV_UserinfoChanged( client_t *cl );
@@ -299,6 +345,11 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK );
 void SV_ClientThink (client_t *cl, usercmd_t *cmd);
 
 void SV_WriteDownloadToClient( client_t *cl , msg_t *msg );
+
+#ifdef USE_VOIP
+void SV_WriteVoipToClient( client_t *cl, msg_t *msg );
+#endif
+
 
 //
 // sv_ccmds.c
