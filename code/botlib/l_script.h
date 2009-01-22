@@ -162,7 +162,7 @@ typedef struct token_s
 	int subtype;					//last read token sub type
 #ifdef NUMBERVALUE
 	unsigned long int intvalue;	//integer value
-	float floatvalue;			//floating point value
+	long double floatvalue;			//floating point value
 #endif //NUMBERVALUE
 	char *whitespace_p;				//start of white space before token
 	char *endwhitespace_p;			//start of white space before token
@@ -219,7 +219,7 @@ void StripSingleQuotes(char *string);
 //read a possible signed integer
 signed long int ReadSignedInt(script_t *script);
 //read a possible signed floating point number
-float ReadSignedFloat(script_t *script);
+long double ReadSignedFloat(script_t *script);
 //set an array with punctuations, NULL restores default C/C++ set
 void SetScriptPunctuations(script_t *script, punctuation_t *p);
 //set script flags

@@ -21,6 +21,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+
+/*****************************************************************************
+* name:		l_crc.c
+*
+* desc:		CRC calculation
+*
+* $Archive: /source/stable/code/botlib/l_crc.h $
+*
+*****************************************************************************/
+
 typedef unsigned short crc_t;
 
 void CRC_Init(unsigned short *crcvalue);

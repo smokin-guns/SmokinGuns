@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 *
 *****************************************************************************/
 
-#include "../qcommon/q_shared.h"
+#include "../game/q_shared.h"
 #include "l_memory.h"
 #include "l_libvar.h"
 #include "l_utils.h"
@@ -38,19 +38,21 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "l_precomp.h"
 #include "l_struct.h"
 #include "aasfile.h"
-#include "botlib.h"
-#include "be_aas.h"
+#include "../game/botlib.h"
+#include "../game/be_aas.h"
 #include "be_aas_funcs.h"
 #include "be_interface.h"
 
-#include "be_ea.h"
-#include "be_ai_goal.h"
-#include "be_ai_move.h"
+#include "../game/be_ea.h"
+#include "../game/be_ai_goal.h"
+#include "../game/be_ai_move.h"
 
 
 //#define DEBUG_AI_MOVE
 //#define DEBUG_ELEVATOR
 //#define DEBUG_GRAPPLE
+
+// bk001204 - redundant bot_avoidspot_t, see ../game/be_ai_move.h
 
 //movement state
 //NOTE: the moveflags MFL_ONGROUND, MFL_TELEPORTED, MFL_WATERJUMP and
@@ -1326,12 +1328,28 @@ void BotCheckBlocked(bot_movestate_t *ms, vec3_t dir, int checkbottom, bot_mover
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
+void BotClearMoveResult(bot_moveresult_t *moveresult)
+{
+	moveresult->failure = qfalse;
+	moveresult->type = 0;
+	moveresult->blocked = qfalse;
+	moveresult->blockentity = 0;
+	moveresult->traveltype = 0;
+	moveresult->flags = 0;
+} //end of the function BotClearMoveResult
+//===========================================================================
+//
+// Parameter:			-
+// Returns:				-
+// Changes Globals:		-
+//===========================================================================
 bot_moveresult_t BotTravel_Walk(bot_movestate_t *ms, aas_reachability_t *reach)
 {
 	float dist, speed;
 	vec3_t hordir;
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 
+	BotClearMoveResult(&result);
 	//first walk straight to the reachability start
 	hordir[0] = reach->start[0] - ms->origin[0];
 	hordir[1] = reach->start[1] - ms->origin[1];
@@ -1384,7 +1402,9 @@ bot_moveresult_t BotFinishTravel_Walk(bot_movestate_t *ms, aas_reachability_t *r
 {
 	vec3_t hordir;
 	float dist, speed;
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
+
+	BotClearMoveResult(&result);
 	//if not on the ground and changed areas... don't walk back!!
 	//(doesn't seem to help)
 	/*
@@ -1420,8 +1440,9 @@ bot_moveresult_t BotTravel_Crouch(bot_movestate_t *ms, aas_reachability_t *reach
 {
 	float speed;
 	vec3_t hordir;
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 
+	BotClearMoveResult(&result);
 	//
 	speed = 400;
 	//walk straight to reachability end
@@ -1449,8 +1470,9 @@ bot_moveresult_t BotTravel_BarrierJump(bot_movestate_t *ms, aas_reachability_t *
 {
 	float dist, speed;
 	vec3_t hordir;
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 
+	BotClearMoveResult(&result);
 	//walk straight to reachability start
 	hordir[0] = reach->start[0] - ms->origin[0];
 	hordir[1] = reach->start[1] - ms->origin[1];
@@ -1483,8 +1505,9 @@ bot_moveresult_t BotFinishTravel_BarrierJump(bot_movestate_t *ms, aas_reachabili
 {
 	float dist;
 	vec3_t hordir;
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 
+	BotClearMoveResult(&result);
 	//if near the top or going down
 	if (ms->velocity[2] < 250)
 	{
@@ -1510,8 +1533,9 @@ bot_moveresult_t BotFinishTravel_BarrierJump(bot_movestate_t *ms, aas_reachabili
 bot_moveresult_t BotTravel_Swim(bot_movestate_t *ms, aas_reachability_t *reach)
 {
 	vec3_t dir;
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 
+	BotClearMoveResult(&result);
 	//swim straight to reachability end
 	VectorSubtract(reach->start, ms->origin, dir);
 	VectorNormalize(dir);
@@ -1536,8 +1560,9 @@ bot_moveresult_t BotTravel_WaterJump(bot_movestate_t *ms, aas_reachability_t *re
 {
 	vec3_t dir, hordir;
 	float dist;
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 
+	BotClearMoveResult(&result);
 	//swim straight to reachability end
 	VectorSubtract(reach->end, ms->origin, dir);
 	VectorCopy(dir, hordir);
@@ -1569,9 +1594,10 @@ bot_moveresult_t BotFinishTravel_WaterJump(bot_movestate_t *ms, aas_reachability
 {
 	vec3_t dir, pnt;
 	float dist;
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 
 	//botimport.Print(PRT_MESSAGE, "BotFinishTravel_WaterJump\n");
+	BotClearMoveResult(&result);
 	//if waterjumping there's nothing to do
 	if (ms->moveflags & MFL_WATERJUMP) return result;
 	//if not touching any water anymore don't do anything
@@ -1605,8 +1631,9 @@ bot_moveresult_t BotTravel_WalkOffLedge(bot_movestate_t *ms, aas_reachability_t 
 {
 	vec3_t hordir, dir;
 	float dist, speed, reachhordist;
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 
+	BotClearMoveResult(&result);
 	//check if the bot is blocked by anything
 	VectorSubtract(reach->start, ms->origin, dir);
 	VectorNormalize(dir);
@@ -1704,8 +1731,9 @@ bot_moveresult_t BotFinishTravel_WalkOffLedge(bot_movestate_t *ms, aas_reachabil
 {
 	vec3_t dir, hordir, end, v;
 	float dist, speed;
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 
+	BotClearMoveResult(&result);
 	//
 	VectorSubtract(reach->end, ms->origin, dir);
 	BotCheckBlocked(ms, dir, qtrue, &result);
@@ -1742,8 +1770,9 @@ bot_moveresult_t BotTravel_Jump(bot_movestate_t *ms, aas_reachability_t *reach)
 {
 	vec3_t hordir;
 	float dist, gapdist, speed, horspeed, sv_jumpvel;
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 
+	BotClearMoveResult(&result);
 	//
 	sv_jumpvel = botlibglobals.sv_jumpvel->value;
 	//walk straight to the reachability start
@@ -1790,9 +1819,10 @@ bot_moveresult_t BotTravel_Jump(bot_movestate_t *ms, aas_reachability_t *reach)
 {
 	vec3_t hordir, dir1, dir2, mins, maxs, start, end;
 	float dist1, dist2, speed;
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 	bsp_trace_t trace;
 
+	BotClearMoveResult(&result);
 	//
 	hordir[0] = reach->start[0] - reach->end[0];
 	hordir[1] = reach->start[1] - reach->end[1];
@@ -1862,8 +1892,9 @@ bot_moveresult_t BotTravel_Jump(bot_movestate_t *ms, aas_reachability_t *reach)
 	vec3_t hordir, dir1, dir2, start, end, runstart;
 //	vec3_t runstart, dir1, dir2, hordir;
 	float dist1, dist2, speed;
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 
+	BotClearMoveResult(&result);
 	//
 	AAS_JumpReachRunStart(reach, runstart);
 	//*
@@ -1931,8 +1962,9 @@ bot_moveresult_t BotFinishTravel_Jump(bot_movestate_t *ms, aas_reachability_t *r
 {
 	vec3_t hordir, hordir2;
 	float speed, dist;
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 
+	BotClearMoveResult(&result);
 	//if not jumped yet
 	if (!ms->jumpreach) return result;
 	//go straight to the reachability end
@@ -1967,8 +1999,9 @@ bot_moveresult_t BotTravel_Ladder(bot_movestate_t *ms, aas_reachability_t *reach
 	vec3_t dir, viewdir;//, hordir;
 	vec3_t origin = {0, 0, 0};
 //	vec3_t up = {0, 0, 1};
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 
+	BotClearMoveResult(&result);
 	//
 //	if ((ms->moveflags & MFL_AGAINSTLADDER))
 		//NOTE: not a good idea for ladders starting in water
@@ -2020,8 +2053,9 @@ bot_moveresult_t BotTravel_Teleport(bot_movestate_t *ms, aas_reachability_t *rea
 {
 	vec3_t hordir;
 	float dist;
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 
+	BotClearMoveResult(&result);
 	//if the bot is being teleported
 	if (ms->moveflags & MFL_TELEPORTED) return result;
 
@@ -2050,8 +2084,9 @@ bot_moveresult_t BotTravel_Elevator(bot_movestate_t *ms, aas_reachability_t *rea
 {
 	vec3_t dir, dir1, dir2, hordir, bottomcenter;
 	float dist, dist1, dist2, speed;
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 
+	BotClearMoveResult(&result);
 	//if standing on the plat
 	if (BotOnMover(ms->origin, ms->entitynum, reach))
 	{
@@ -2199,8 +2234,9 @@ bot_moveresult_t BotTravel_Elevator(bot_movestate_t *ms, aas_reachability_t *rea
 bot_moveresult_t BotFinishTravel_Elevator(bot_movestate_t *ms, aas_reachability_t *reach)
 {
 	vec3_t bottomcenter, bottomdir, topdir;
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 
+	BotClearMoveResult(&result);
 	//
 	MoverBottomCenter(reach, bottomcenter);
 	VectorSubtract(bottomcenter, ms->origin, bottomdir);
@@ -2287,8 +2323,9 @@ bot_moveresult_t BotTravel_FuncBobbing(bot_movestate_t *ms, aas_reachability_t *
 {
 	vec3_t dir, dir1, dir2, hordir, bottomcenter, bob_start, bob_end, bob_origin;
 	float dist, dist1, dist2, speed;
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 
+	BotClearMoveResult(&result);
 	//
 	BotFuncBobStartEnd(reach, bob_start, bob_end, bob_origin);
 	//if standing ontop of the func_bobbing
@@ -2443,9 +2480,10 @@ bot_moveresult_t BotTravel_FuncBobbing(bot_movestate_t *ms, aas_reachability_t *
 bot_moveresult_t BotFinishTravel_FuncBobbing(bot_movestate_t *ms, aas_reachability_t *reach)
 {
 	vec3_t bob_origin, bob_start, bob_end, dir, hordir, bottomcenter;
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 	float dist, speed;
 
+	BotClearMoveResult(&result);
 	//
 	BotFuncBobStartEnd(reach, bob_start, bob_end, bob_origin);
 	//
@@ -2552,7 +2590,7 @@ void BotResetGrapple(bot_movestate_t *ms)
 //===========================================================================
 bot_moveresult_t BotTravel_Grapple(bot_movestate_t *ms, aas_reachability_t *reach)
 {
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 	float dist, speed;
 	vec3_t dir, viewdir, org;
 	int state, areanum;
@@ -2564,6 +2602,7 @@ bot_moveresult_t BotTravel_Grapple(bot_movestate_t *ms, aas_reachability_t *reac
 	botimport.DebugLineShow(debugline, reach->start, reach->end, LINECOLOR_BLUE);
 #endif //DEBUG_GRAPPLE
 
+	BotClearMoveResult(&result);
 	//
 	if (ms->moveflags & MFL_GRAPPLERESET)
 	{
@@ -2707,9 +2746,10 @@ bot_moveresult_t BotTravel_RocketJump(bot_movestate_t *ms, aas_reachability_t *r
 {
 	vec3_t hordir;
 	float dist, speed;
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 
 	//botimport.Print(PRT_MESSAGE, "BotTravel_RocketJump: bah\n");
+	BotClearMoveResult(&result);
 	//
 	hordir[0] = reach->start[0] - ms->origin[0];
 	hordir[1] = reach->start[1] - ms->origin[1];
@@ -2771,9 +2811,10 @@ bot_moveresult_t BotTravel_BFGJump(bot_movestate_t *ms, aas_reachability_t *reac
 {
 	vec3_t hordir;
 	float dist, speed;
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 
 	//botimport.Print(PRT_MESSAGE, "BotTravel_BFGJump: bah\n");
+	BotClearMoveResult(&result);
 	//
 	hordir[0] = reach->start[0] - ms->origin[0];
 	hordir[1] = reach->start[1] - ms->origin[1];
@@ -2831,8 +2872,9 @@ bot_moveresult_t BotFinishTravel_WeaponJump(bot_movestate_t *ms, aas_reachabilit
 {
 	vec3_t hordir;
 	float speed;
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 
+	BotClearMoveResult(&result);
 	//if not jumped yet
 	if (!ms->jumpreach) return result;
 	/*
@@ -2870,8 +2912,9 @@ bot_moveresult_t BotTravel_JumpPad(bot_movestate_t *ms, aas_reachability_t *reac
 {
 	float dist, speed;
 	vec3_t hordir;
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 
+	BotClearMoveResult(&result);
 	//first walk straight to the reachability start
 	hordir[0] = reach->start[0] - ms->origin[0];
 	hordir[1] = reach->start[1] - ms->origin[1];
@@ -2896,8 +2939,9 @@ bot_moveresult_t BotFinishTravel_JumpPad(bot_movestate_t *ms, aas_reachability_t
 {
 	float speed;
 	vec3_t hordir;
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 
+	BotClearMoveResult(&result);
 	if (!BotAirControl(ms->origin, ms->velocity, reach->end, hordir, &speed))
 	{
 		hordir[0] = reach->end[0] - ms->origin[0];
@@ -2954,7 +2998,7 @@ int BotReachabilityTime(aas_reachability_t *reach)
 //===========================================================================
 bot_moveresult_t BotMoveInGoalArea(bot_movestate_t *ms, bot_goal_t *goal)
 {
-	bot_moveresult_t_cleared( result );
+	bot_moveresult_t result;
 	vec3_t dir;
 	float dist, speed;
 
@@ -2963,6 +3007,7 @@ bot_moveresult_t BotMoveInGoalArea(bot_movestate_t *ms, bot_goal_t *goal)
 	//AAS_ClearShownDebugLines();
 	//AAS_DebugLine(ms->origin, goal->origin, LINECOLOR_RED);
 #endif //DEBUG
+	BotClearMoveResult(&result);
 	//walk straight to the goal origin
 	dir[0] = goal->origin[0] - ms->origin[0];
 	dir[1] = goal->origin[1] - ms->origin[1];
@@ -3017,13 +3062,8 @@ void BotMoveToGoal(bot_moveresult_t *result, int movestate, bot_goal_t *goal, in
 	//bsp_trace_t trace;
 	//static int debugline;
 
-	result->failure = qfalse;
-	result->type = 0;
-	result->blocked = qfalse;
-	result->blockentity = 0;
-	result->traveltype = 0;
-	result->flags = 0;
 
+	BotClearMoveResult(result);
 	//
 	ms = BotMoveStateFromHandle(movestate);
 	if (!ms) return;

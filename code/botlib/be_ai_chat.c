@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 *
 *****************************************************************************/
 
-#include "../qcommon/q_shared.h"
+#include "../game/q_shared.h"
 #include "l_memory.h"
 #include "l_libvar.h"
 #include "l_script.h"
@@ -39,12 +39,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "l_utils.h"
 #include "l_log.h"
 #include "aasfile.h"
-#include "botlib.h"
-#include "be_aas.h"
+#include "../game/botlib.h"
+#include "../game/be_aas.h"
 #include "be_aas_funcs.h"
 #include "be_interface.h"
-#include "be_ea.h"
-#include "be_ai_chat.h"
+#include "../game/be_ea.h"
+#include "../game/be_ai_chat.h"
 
 
 //escape character
@@ -368,26 +368,13 @@ void BotQueueConsoleMessage(int chatstate, int type, char *message)
 int BotNextConsoleMessage(int chatstate, bot_consolemessage_t *cm)
 {
 	bot_chatstate_t *cs;
-	bot_consolemessage_t *firstmsg;
 
 	cs = BotChatStateFromHandle(chatstate);
 	if (!cs) return 0;
-	if ((firstmsg = cs->firstmessage))
+	if (cs->firstmessage)
 	{
-		cm->handle = firstmsg->handle;
-		cm->time = firstmsg->time;
-		cm->type = firstmsg->type;
-		Q_strncpyz(cm->message, firstmsg->message,
-			   sizeof(cm->message));
-		
-		/* We omit setting the two pointers in cm because pointer
-		 * size in the VM differs between the size in the engine on
-		 * 64 bit machines, which would lead to a buffer overflow if
-		 * this functions is called from the VM. The pointers are
-		 * of no interest to functions calling
-		 * BotNextConsoleMessage anyways.
-		 */
-		
+		Com_Memcpy(cm, cs->firstmessage, sizeof(bot_consolemessage_t));
+		cm->next = cm->prev = NULL;
 		return cm->handle;
 	} //end if
 	return 0;
@@ -689,7 +676,6 @@ bot_synonymlist_t *BotLoadSynonyms(char *filename)
 					lastsynonym = NULL;
 					while(1)
 					{
-						size_t len;
 						if (!PC_ExpectTokenString(source, "(") ||
 							!PC_ExpectTokenType(source, TT_STRING, 0, &token))
 						{
@@ -703,15 +689,13 @@ bot_synonymlist_t *BotLoadSynonyms(char *filename)
 							FreeSource(source);
 							return NULL;
 						} //end if
-						len = strlen(token.string) + 1;
-						len = PAD(len, sizeof(long));
-						size += sizeof(bot_synonym_t) + len;
+						size += sizeof(bot_synonym_t) + strlen(token.string) + 1;
 						if (pass)
 						{
 							synonym = (bot_synonym_t *) ptr;
 							ptr += sizeof(bot_synonym_t);
 							synonym->string = ptr;
-							ptr += len;
+							ptr += strlen(token.string) + 1;
 							strcpy(synonym->string, token.string);
 							//
 							if (lastsynonym) lastsynonym->next = synonym;
@@ -995,22 +979,19 @@ bot_randomlist_t *BotLoadRandomStrings(char *filename)
 		//
 		while(PC_ReadToken(source, &token))
 		{
-			size_t len;
 			if (token.type != TT_NAME)
 			{
 				SourceError(source, "unknown random %s", token.string);
 				FreeSource(source);
 				return NULL;
 			} //end if
-			len = strlen(token.string) + 1;
-			len = PAD(len, sizeof(long));
-			size += sizeof(bot_randomlist_t) + len;
+			size += sizeof(bot_randomlist_t) + strlen(token.string) + 1;
 			if (pass)
 			{
 				random = (bot_randomlist_t *) ptr;
 				ptr += sizeof(bot_randomlist_t);
 				random->string = ptr;
-				ptr += len;
+				ptr += strlen(token.string) + 1;
 				strcpy(random->string, token.string);
 				random->firstrandomstring = NULL;
 				random->numstrings = 0;
@@ -1027,21 +1008,18 @@ bot_randomlist_t *BotLoadRandomStrings(char *filename)
 			} //end if
 			while(!PC_CheckTokenString(source, "}"))
 			{
-				size_t len;
 				if (!BotLoadChatMessage(source, chatmessagestring))
 				{
 					FreeSource(source);
 					return NULL;
 				} //end if
-				len = strlen(chatmessagestring) + 1;
-				len = PAD(len, sizeof(long));
-				size += sizeof(bot_randomstring_t) + len;
+				size += sizeof(bot_randomstring_t) + strlen(chatmessagestring) + 1;
 				if (pass)
 				{
 					randomstring = (bot_randomstring_t *) ptr;
 					ptr += sizeof(bot_randomstring_t);
 					randomstring->string = ptr;
-					ptr += len;
+					ptr += strlen(chatmessagestring) + 1;
 					strcpy(randomstring->string, chatmessagestring);
 					//
 					random->numstrings++;
@@ -1440,7 +1418,7 @@ int StringsMatch(bot_matchpiece_t *pieces, bot_match_t *match)
 		//if the last piece was a variable string
 		if (lastvariable >= 0)
 		{
-        		assert( match->variables[lastvariable].offset >= 0 );
+        		assert( match->variables[lastvariable].offset >= 0 ); // bk001204
 			match->variables[lastvariable].length =
 				strlen(&match->string[ (int) match->variables[lastvariable].offset]);
 		} //end if
@@ -1501,7 +1479,7 @@ void BotMatchVariable(bot_match_t *match, int variable, char *buf, int size)
 	{
 		if (match->variables[variable].length < size)
 			size = match->variables[variable].length+1;
-		assert( match->variables[variable].offset >= 0 );
+		assert( match->variables[variable].offset >= 0 ); // bk001204
 		strncpy(buf, &match->string[ (int) match->variables[variable].offset], size-1);
 		buf[size-1] = '\0';
 	} //end if
@@ -2130,14 +2108,11 @@ bot_chat_t *BotLoadInitialChat(char *chatfile, char *chatname)
 						//read the chat messages
 						while(!PC_CheckTokenString(source, "}"))
 						{
-							size_t len;
 							if (!BotLoadChatMessage(source, chatmessagestring))
 							{
 								FreeSource(source);
 								return NULL;
 							} //end if
-							len = strlen(chatmessagestring) + 1;
-							len = PAD(len, sizeof(long));
 							if (pass)
 							{
 								chatmessage = (bot_chatmessage_t *) ptr;
@@ -2149,11 +2124,11 @@ bot_chat_t *BotLoadInitialChat(char *chatfile, char *chatname)
 								ptr += sizeof(bot_chatmessage_t);
 								chatmessage->chatmessage = ptr;
 								strcpy(chatmessage->chatmessage, chatmessagestring);
-								ptr += len;
+								ptr += strlen(chatmessagestring) + 1;
 								//the number of chat messages increased
 								chattype->numchatmessages++;
 							} //end if
-							size += sizeof(bot_chatmessage_t) + len;
+							size += sizeof(bot_chatmessage_t) + strlen(chatmessagestring) + 1;
 						} //end if
 					} //end while
 				} //end if
@@ -2317,7 +2292,7 @@ int BotExpandChatMessage(char *outmessage, char *message, unsigned long mcontext
 					} //end if
 					if (match->variables[num].offset >= 0)
 					{
-					        assert( match->variables[num].offset >= 0 );
+					        assert( match->variables[num].offset >= 0 ); // bk001204
 						ptr = &match->string[ (int) match->variables[num].offset];
 						for (i = 0; i < match->variables[num].length; i++)
 						{

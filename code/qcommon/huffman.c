@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * Compression book.  The ranks are not actually stored, but implicitly defined
  * by the location of a node within a doubly-linked list */
 
-#include "q_shared.h"
+#include "../game/q_shared.h"
 #include "qcommon.h"
 
 static int			bloc = 0;
@@ -38,16 +38,6 @@ void	Huff_putBit( int bit, byte *fout, int *offset) {
 	fout[(bloc>>3)] |= bit << (bloc&7);
 	bloc++;
 	*offset = bloc;
-}
-
-int		Huff_getBloc(void)
-{
-	return bloc;
-}
-
-void	Huff_setBloc(int _bloc)
-{
-	bloc = _bloc;
 }
 
 int		Huff_getBit( byte *fin, int *offset) {
@@ -93,7 +83,7 @@ static void free_ppnode(huff_t* huff, node_t **ppnode) {
 }
 
 /* Swap the location of these two nodes in the tree */
-static void swap (huff_t* huff, node_t *node1, node_t *node2) { 
+static void swap (huff_t* huff, node_t *node1, node_t *node2) {
 	node_t *par1, *par2;
 
 	par1 = node1->parent;

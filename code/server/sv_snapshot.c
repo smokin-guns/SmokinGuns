@@ -161,6 +161,7 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 
 	// send over the current server time so the client can drift
 	// its view of time to try to match
+	// http://svn.icculus.org/quake3?rev=192&view=rev
 	if( client->oldServerTime ) {
 		// The server has not yet got an acknowledgement of the
 		// new gamestate from this client, so continue to send it
@@ -552,14 +553,7 @@ static int SV_RateMsec( client_t *client, int messageSize ) {
 			rate = sv_maxRate->integer;
 		}
 	}
-	if ( sv_minRate->integer ) {
-		if ( sv_minRate->integer < 1000 )
-			Cvar_Set( "sv_minRate", "1000" );
-		if ( sv_minRate->integer > rate )
-			rate = sv_minRate->integer;
-	}
-
-	rateMsec = ( messageSize + HEADER_RATE_BYTES ) * 1000 / rate * com_timescale->value;
+	rateMsec = ( messageSize + HEADER_RATE_BYTES ) * 1000 / rate;
 
 	return rateMsec;
 }
@@ -584,34 +578,35 @@ void SV_SendMessageToClient( msg_t *msg, client_t *client ) {
 
 	// set nextSnapshotTime based on rate and requested number of updates
 
-	// local clients get snapshots every server frame
+	// local clients get snapshots every frame
 	// TTimo - https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=491
 	// added sv_lanForceRate check
 	if ( client->netchan.remoteAddress.type == NA_LOOPBACK || (sv_lanForceRate->integer && Sys_IsLANAddress (client->netchan.remoteAddress)) ) {
-		client->nextSnapshotTime = svs.time + (1000.0 / sv_fps->integer * com_timescale->value);
+		client->nextSnapshotTime = svs.time - 1;
 		return;
 	}
 
 	// normal rate / snapshotMsec calculation
-	rateMsec = SV_RateMsec(client, msg->cursize);
+	rateMsec = SV_RateMsec( client, msg->cursize );
 
-	if ( rateMsec < client->snapshotMsec * com_timescale->value) {
+	if ( rateMsec < client->snapshotMsec ) {
 		// never send more packets than this, no matter what the rate is at
-		rateMsec = client->snapshotMsec * com_timescale->value;
+		rateMsec = client->snapshotMsec;
 		client->rateDelayed = qfalse;
 	} else {
 		client->rateDelayed = qtrue;
 	}
 
-	client->nextSnapshotTime = svs.time + rateMsec * com_timescale->value;
+	client->nextSnapshotTime = svs.time + rateMsec;
 
 	// don't pile up empty snapshots while connecting
 	if ( client->state != CS_ACTIVE ) {
 		// a gigantic connection message may have already put the nextSnapshotTime
 		// more than a second away, so don't shorten it
 		// do shorten if client is downloading
-		if (!*client->downloadName && client->nextSnapshotTime < svs.time + 1000 * com_timescale->value)
-			client->nextSnapshotTime = svs.time + 1000 * com_timescale->value;
+		if ( !*client->downloadName && client->nextSnapshotTime < svs.time + 1000 ) {
+			client->nextSnapshotTime = svs.time + 1000;
+		}
 	}
 }
 
@@ -653,10 +648,6 @@ void SV_SendClientSnapshot( client_t *client ) {
 
 	// Add any download data if the client is downloading
 	SV_WriteDownloadToClient( client, &msg );
-
-#ifdef USE_VOIP
-	SV_WriteVoipToClient( client, &msg );
-#endif
 
 	// check for overflow
 	if ( msg.overflowed ) {
