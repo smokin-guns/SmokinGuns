@@ -2124,7 +2124,8 @@ clean: clean-debug clean-release
 ifeq ($(PLATFORM),mingw32)
 	@$(MAKE) -C $(NSISDIR) clean
 else
-	@$(MAKE) -C $(LOKISETUPDIR) clean
+# Don't build lokisetup for now on Smokin' Guns, it is still not updated
+#	@$(MAKE) -C $(LOKISETUPDIR) clean
 endif
 
 clean-debug:
