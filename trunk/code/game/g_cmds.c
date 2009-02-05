@@ -1917,13 +1917,8 @@ void Cmd_DropWeapon_f( gentity_t *ent, int weapon ) {
 	//byte i;
 
 	// Don't drop anything if the player is a spectator
-	switch (ent->client->sess.spectatorState) {
-	case SPECTATOR_FOLLOW:		// Third person spectator follow
-	case SPECTATOR_CHASECAM:	// First person spectator follow
-		return;
-		break;
-	}
-
+	if ( ent->client->sess.spectatorState != SPECTATOR_NOT )  return;
+	
 	client = ent->client;
 	ucmd = &ent->client->pers.cmd;
 
