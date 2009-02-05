@@ -1401,6 +1401,7 @@ typedef struct {
 
 
 	int				exp_shotgunpattern;
+//	char				availablePlaylist[MAX_INFO_STRING];
 
 	qboolean		specsareflies;
 	qboolean		deathcam;

@@ -275,8 +275,9 @@ vmCvar_t		cg_farclip;
 vmCvar_t		cg_farclip_value;
 vmCvar_t		cg_farclip_zoomvalue;
 
-// temp
+// experimental
 vmCvar_t		cg_exp_shotgunpattern;
+//vmCvar_t		cg_availablePlaylist;
 
 /*int				frame_lower;
 int				oldframe_lower;
@@ -395,6 +396,7 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_farclip_zoomvalue, "cg_farclip_zoomvalue", "3", CVAR_ARCHIVE},
 	
 	{ &cg_exp_shotgunpattern, "cg_exp_shotgunpattern", "0", CVAR_ROM},
+//	{ &cg_availablePlaylist, "cg_availablePlaylist", "0", CVAR_ROM},
 	
 	{ &cg_cameraOrbit, "cg_cameraOrbit", "0", CVAR_CHEAT},
 	{ &cg_cameraOrbitDelay, "cg_cameraOrbitDelay", "50", CVAR_ARCHIVE},

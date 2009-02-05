@@ -1522,7 +1522,7 @@ Cmd_CallVote_f
 ==================
 */
 void Cmd_CallVote_f( gentity_t *ent ) {
-	int		i;
+	int	i;
 	char	arg1[MAX_STRING_TOKENS];
 	char	arg2[MAX_STRING_TOKENS];
 
@@ -1562,9 +1562,10 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else if ( !Q_stricmp( arg1, "g_doWarmup" ) ) {
 	} else if ( !Q_stricmp( arg1, "timelimit" ) ) {
 	} else if ( !Q_stricmp( arg1, "fraglimit" ) ) {
+	} else if ( !Q_stricmp( arg1, "playlist" ) ) {
 	} else {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
-		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>, g_doWarmup, timelimit <time>, fraglimit <frags>.\n\"" );
+		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>, g_doWarmup, timelimit <time>, fraglimit <frags>, playlist <playlistname>.\n\"" );
 		return;
 	}
 
@@ -1593,15 +1594,48 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else if ( !Q_stricmp( arg1, "map" ) ) {
 		// special case for map changes, we want to reset the nextmap setting
 		// this allows a player to change maps, but not upset the map rotation
-		char	s[MAX_STRING_CHARS];
-
-		trap_Cvar_VariableStringBuffer( "nextmap", s, sizeof(s) );
-		if (*s) {
-			Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s; set nextmap \"%s\"", arg1, arg2, s );
-		} else {
-			Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s", arg1, arg2 );
-		}
+		
+		// Joe Kari : calling a vote for a /map command is not supposed to change 'nextmap' cvar
+		// I turn to comment this code, this is not usefull anymore since I have modified server/sv_init.c to never
+		// turn 'nextmap' to 'map_restart 0'
+		
+		//char	s[MAX_STRING_CHARS];
+		//trap_Cvar_VariableStringBuffer( "nextmap", s, sizeof(s) );
+		//if (*s) {
+		//	Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s; set nextmap \"%s\"", arg1, arg2, s );
+		//} else {
+		//	Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s", arg1, arg2 );
+		//}
+		
+		Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s", arg1, arg2 );
+		
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
+	} else if ( !Q_stricmp( arg1, "playlist" ) ) {	// Joe Kari: allow player to vote for a playlist
+		
+		char splited[ 32 + 1 ];
+		int start = 0 ;
+		char tmp_str[ MAX_STRING_CHARS ];
+		qboolean match = qfalse ;
+		
+		trap_Cvar_VariableStringBuffer( "g_availablePlaylist" , tmp_str , sizeof( tmp_str ) ) ;
+		
+		while ( ( start = strnsplit( tmp_str , splited , ' ' , start , 32 ) ) && !match ) {
+			if ( !Q_stricmp( arg2 , splited ) )  match = qtrue ;
+		}
+		
+		if ( !match ) {
+			start = 0 ;
+			trap_SendServerCommand( ent-g_entities, "print \"Invalid playlist string. Allowed playlist are:\n\"" );
+			while ( start = strnsplit( tmp_str , splited , ' ' , start , 32 ) )  {
+				Com_sprintf( splited ,  sizeof(splited) , "print \"^5%s^7\n\"" , splited ) ;
+				trap_SendServerCommand( ent-g_entities, splited ) ;
+			}
+			return;
+		}
+		
+		Com_sprintf( level.voteString, sizeof( level.voteString ), "%s \"vstr %s\"", arg1, arg2 );
+		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
+		
 	} else if ( !Q_stricmp( arg1, "nextmap" ) ) {
 		char	s[MAX_STRING_CHARS];
 
@@ -1917,8 +1951,17 @@ void Cmd_DropWeapon_f( gentity_t *ent, int weapon ) {
 	//byte i;
 
 	// Don't drop anything if the player is a spectator
-	if ( ent->client->sess.spectatorState != SPECTATOR_NOT )  return;
-	
+	//G_Printf( "ent->client->sess.spectatorState: %d\n" , ent->client->sess.spectatorState ) ;
+	// Joe Kari : it looks like using sess.spectatorState is buggy, a playing player have a value of SPECTATOR_FREE instead of SPECTATOR_NOT
+	// so I will use sess.sessionTeam instead
+	switch ( ent->client->sess.sessionTeam ) {
+	        case TEAM_SPECTATOR :
+	        case TEAM_RED_SPECTATOR :
+	        case TEAM_BLUE_SPECTATOR :
+	        	return ;
+	        	break ;
+	}
+	                        
 	client = ent->client;
 	ucmd = &ent->client->pers.cmd;
 

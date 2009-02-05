@@ -135,6 +135,7 @@ vmCvar_t	g_version;
 vmCvar_t	g_url;
 vmCvar_t	g_breakspawndelay;
 vmCvar_t	g_forcebreakrespawn;
+
 #ifndef SMOKINGUNS
 vmCvar_t	g_obeliskHealth;
 vmCvar_t	g_obeliskRegenPeriod;
@@ -167,6 +168,7 @@ vmCvar_t	br_teamrole;
 
 // experimental cvars
 vmCvar_t	g_exp_shotgunpattern;
+//vmCvar_t	g_availablePlaylist;
 
 
 qboolean b_sWaitingForPlayers = qfalse;
@@ -203,6 +205,7 @@ static cvarTable_t		gameCvarTable[] = {
   	{ &g_moneyrespawn, "g_moneyrespawn", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
   	
   	{ &g_exp_shotgunpattern, "g_exp_shotgunpattern", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+//	{ &g_availablePlaylist, "g_availablePlaylist", "", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qtrue },
 
 	{ &g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse  },
 
