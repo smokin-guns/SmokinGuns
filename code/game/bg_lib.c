@@ -1535,5 +1535,35 @@ int sscanf( const char *buffer, const char *fmt, ... ) {
 	return count;
 }
 
+int strnsplit( char *input_string , char *output_string , char spliter , int start , size_t n )
+{
+	int index_in , index_out , len ;
+	
+	len = strlen( input_string ) ;
+	if ( start >= len )  return 0 ;
+	n -- ;	// because of the final NULL char
+	if ( n < 1 )  return 0 ;
+	
+	index_in = start ;
+	index_out = 0 ;
+	
+	// move to the first non-spliter char
+	while ( ( input_string[ index_in ] == spliter ) && ( index_in < len ) )  index_in ++ ;
+	if ( index_in == len )  return 0 ;
+	
+	// add all non-spliter char until the end of the string or until the next spliter char
+	while ( ( input_string[ index_in ] != spliter ) && ( index_in < len ) && ( index_out < n ) )
+	{
+		output_string[ index_out ] = input_string[ index_in ] ;
+		index_out ++ ;
+		index_in ++ ;
+	}
+	output_string[ index_out ] = 0 ;	// final NULL char
+	
+	// return the position in the input string where it stopped, usefull as a 'start' value for the next strnsplit call
+	return index_in ;
+}
+
+
 
 #endif
