@@ -456,8 +456,12 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 
 	// set nextmap to the same map, but it may be overriden
 	// by the game startup or another console command
+	
+	// Joe Kari: this is what cause the 'nextmap' to bug, I remove that if SMOKINGUNS is defined
+#ifndef SMOKINGUNS
 	Cvar_Set( "nextmap", "map_restart 0");
 //	Cvar_Set( "nextmap", va("map %s", server) );
+#endif
 
 	for (i=0 ; i<sv_maxclients->integer ; i++) {
 		// save when the server started for each client already connected
