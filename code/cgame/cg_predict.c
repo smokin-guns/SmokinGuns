@@ -1205,6 +1205,16 @@ void CG_PredictPlayerState( void ) {
 			cg.markedweapon = 0;
 			cg_pmove.ps->stats[STAT_OLDWEAPON] = 0;
 		}
+		else if ( ( cgs.gametype >= GT_RTP ) && ( cg.time < cg.roundstarttime + ROUND_NOMOVE_TIME ) 
+			&& (cg.predictedPlayerState.persistant[PERS_TEAM] < TEAM_SPECTATOR ) )  {
+			// added by Joe Kari: delete all movement and cmd stats until the end of the countdown in RTP and BR gametype
+			cg_pmove.ps->speed = 0;
+			cg_pmove.cmd.forwardmove = 0;
+			cg_pmove.cmd.rightmove = 0;
+			cg_pmove.cmd.upmove = 0;
+			cg_pmove.cmd.buttons = 0;
+			cg_pmove.xyspeed = 0;
+		}
 
 		// mouseangles can't be moved during camera move
 		if(cg.introend - DU_INTRO_DRAW >= cg.time &&
