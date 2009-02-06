@@ -272,11 +272,11 @@ vmCvar_t		hit_model;
 vmCvar_t		cg_warmupmessage;
 
 vmCvar_t		cg_farclip;
-vmCvar_t		cg_farclip_value;
-vmCvar_t		cg_farclip_zoomvalue;
+vmCvar_t		cg_farclipValue;
+vmCvar_t		cg_farclipZoomValue;
 
 // experimental
-vmCvar_t		cg_exp_shotgunpattern;
+vmCvar_t		cg_newShotgunPattern;
 //vmCvar_t		cg_availablePlaylist;
 
 /*int				frame_lower;
@@ -392,10 +392,10 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_enableBreath, "g_enableBreath", "0", CVAR_SERVERINFO},
 
 	{ &cg_farclip, "cg_farclip", "1", CVAR_ARCHIVE},
-	{ &cg_farclip_value, "cg_farclip_value", "1", CVAR_ARCHIVE},
-	{ &cg_farclip_zoomvalue, "cg_farclip_zoomvalue", "3", CVAR_ARCHIVE},
+	{ &cg_farclipValue, "cg_farclipValue", "1", CVAR_ARCHIVE},
+	{ &cg_farclipZoomValue, "cg_farclipZoomValue", "3", CVAR_ARCHIVE},
 	
-	{ &cg_exp_shotgunpattern, "cg_exp_shotgunpattern", "0", CVAR_ROM},
+	{ &cg_newShotgunPattern, "cg_newShotgunPattern", "0", CVAR_ROM},
 //	{ &cg_availablePlaylist, "cg_availablePlaylist", "0", CVAR_ROM},
 	
 	{ &cg_cameraOrbit, "cg_cameraOrbit", "0", CVAR_CHEAT},

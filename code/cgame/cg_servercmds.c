@@ -181,9 +181,9 @@ void CG_ParseServerinfo( void ) {
 	trap_Cvar_Set("g_blueTeamname", cgs.blueTeam);
 	cgs.deathcam = atoi( Info_ValueForKey( info, "g_deathcam" ) );
 
-	s = Info_ValueForKey( info, "g_exp_shotgunpattern" );
-	trap_Cvar_Set("cg_exp_shotgunpattern", s);
-	cgs.exp_shotgunpattern = cg_exp_shotgunpattern.integer;
+	s = Info_ValueForKey( info, "g_newShotgunPattern" );
+	trap_Cvar_Set("cg_newShotgunPattern", s);
+	cgs.newShotgunPattern = cg_newShotgunPattern.integer;
 
 //	s = Info_ValueForKey( info, "g_availablePlaylist" );
 //	trap_Cvar_Set("cg_availablePlaylist", s);

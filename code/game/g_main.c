@@ -52,7 +52,7 @@ int			g_roundstarttime;
 
 int			g_session;
 
-vmCvar_t	g_moneyrespawn;
+vmCvar_t	g_moneyRespawn;
 
 // bank robbery
 qboolean	g_goldescaped;
@@ -60,7 +60,7 @@ qboolean	g_robbed;
 int			g_robteam;
 int			g_defendteam;
 
-vmCvar_t	g_robber_reward;
+vmCvar_t	g_robberReward;
 
 vmCvar_t	g_redteamcount;
 vmCvar_t	g_blueteamcount;
@@ -167,7 +167,7 @@ vmCvar_t	br_teamrole;
 
 
 // experimental cvars
-vmCvar_t	g_exp_shotgunpattern;
+vmCvar_t	g_newShotgunPattern;
 //vmCvar_t	g_availablePlaylist;
 
 
@@ -202,9 +202,9 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &du_forcetrio, "du_forcetrio", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 
 	{ &br_teamrole, "br_teamrole", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
-  	{ &g_moneyrespawn, "g_moneyrespawn", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+  	{ &g_moneyRespawn, "g_moneyRespawn", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
   	
-  	{ &g_exp_shotgunpattern, "g_exp_shotgunpattern", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+  	{ &g_newShotgunPattern, "g_newShotgunPattern", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 //	{ &g_availablePlaylist, "g_availablePlaylist", "", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qtrue },
 
 	{ &g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse  },
@@ -274,7 +274,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_redteamcount, "g_redteamcount", "0", CVAR_SERVERINFO, 0, qfalse  },
 	{ &g_blueteamcount, "g_blueteamcount", "0", CVAR_SERVERINFO, 0, qfalse  },
 
-	{ &g_robber_reward, "g_robber_reward", "1", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qfalse  },
+	{ &g_robberReward, "g_robberReward", "1", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qfalse  },
 	
 	{ &g_redteamscore, "g_redteamscore", "0", CVAR_SERVERINFO, 0, qfalse  },
 	{ &g_blueteamscore, "g_blueteamscore", "0", CVAR_SERVERINFO, 0, qfalse  },

@@ -814,13 +814,13 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			assaulter->client->ps.stats[STAT_MONEY] -= 2*LOSE_MONEY;
 
 			if(assaulter->client->ps.stats[STAT_MONEY] < 0){
-				if ( g_moneyrespawn.integer == 1 ) {
+				if ( g_moneyRespawn.integer == 1 ) {
 					// Joe Kari: in the new money system, the teamkiller don't waste its money, 
 					// what he loses is a gift to his mate
 					victim->client->ps.stats[STAT_MONEY] += 2*LOSE_MONEY + assaulter->client->ps.stats[STAT_MONEY] ;
 				}
 				assaulter->client->ps.stats[STAT_MONEY] = 0;
-			} else if ( g_moneyrespawn.integer == 1 ) {
+			} else if ( g_moneyRespawn.integer == 1 ) {
 				// Joe Kari: in the new money system, the teamkiller don't waste its money, 
 				// what he loses is a gift to his mate
 				victim->client->ps.stats[STAT_MONEY] += 2*LOSE_MONEY ;
