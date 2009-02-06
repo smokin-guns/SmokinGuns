@@ -49,14 +49,24 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 
-	if(ent->item->giTag == PW_GOLD && g_gametype.integer == GT_BR){
+	if(ent->item->giTag == PW_GOLD && g_gametype.integer == GT_BR) {
 		other->client->ps.stats[STAT_MONEY] += 10;
 		other->client->ps.powerups[ent->item->giTag] = 1;
-	} else if(ent->item->giTag == PW_GOLD){
+	} else if(ent->item->giTag == PW_GOLD) {
 		other->client->ps.stats[STAT_MONEY] += ent->count;
-	} else
+	} else if(ent->item->giTag == PW_BELT ) {
+		// Added by Joe Kari: collecting an ammo belt give you full ammo just like when you buy it
+		// so Breli will be happy :O)
+		other->client->ps.ammo[WP_BULLETS_CLIP] = bg_weaponlist[WP_REM58].maxAmmo*2;
+		other->client->ps.ammo[WP_SHELLS_CLIP] = bg_weaponlist[WP_REMINGTON_GAUGE].maxAmmo*2;
+		other->client->ps.ammo[WP_CART_CLIP] = bg_weaponlist[WP_WINCHESTER66].maxAmmo*2;
+		other->client->ps.ammo[WP_GATLING_CLIP] = bg_weaponlist[WP_GATLING].maxAmmo*2;
+		other->client->ps.ammo[WP_SHARPS_CLIP] = bg_weaponlist[WP_SHARPS].maxAmmo*2;
 		other->client->ps.powerups[ent->item->giTag] = 1;
-
+	} else {
+		other->client->ps.powerups[ent->item->giTag] = 1;
+	}
+	
 	if(other->client->ps.stats[STAT_MONEY] > MAX_MONEY)
 			other->client->ps.stats[STAT_MONEY] = MAX_MONEY;
 
