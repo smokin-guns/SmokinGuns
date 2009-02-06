@@ -839,7 +839,7 @@ int ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, qbo
 	// unlink player first
 	trap_UnlinkEntity(ent);
 	
-	if ( g_exp_shotgunpattern.integer ) {
+	if ( g_newShotgunPattern.integer ) {
 		
 		// Joe Kari: new experimental shotgun pattern //
 		

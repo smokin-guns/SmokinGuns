@@ -13,20 +13,25 @@ Changes since SG 1.0-20081231
  - you have to export DEFAULT_BASEDIR from the shell before to do a make
 - Use SMOKINGUNS and SMOKINGUNS_SO define
 - Add SG_VERSION, SG_RELEASE & SG_SVN support
-- new shotgun pattern (needs "g_exp_shotgunpattern 1") more uniform, and with homogenous radial density
-- new money system (needs "g_moneyrespawn 1")
+- new shotgun pattern (needs "g_newShotgunPattern 1") more uniform, and with homogenous radial density
+- new money system (needs "g_moneyRespawn 1")
 - customize teamrole in BR by setting cvar br_teamrole to 0 (default, winner defend next round), 1 (winner are robbers next round), 
 	2 (outlaws are always robbers), 3 (lawmen are always robbers) or 4 (robbers and defenders swap at every new round)
-- the player who rob the bank now get one point, this is customizable by admin through the cvar: g_robber_reward (value between 0 and 5)
+- the player who rob the bank now get one point, this is customizable by admin through the cvar: g_robberReward (value between 0 and 5)
 - far-clipping (with a bunch of clipping-form) support for func_static entity, come with additionnal cvar: 
-	cg_farclip to turn on/off this feature (default: on), cg_farclip_value to scale it up (default: 1, value lesser than 1
-	are ignored - for cheat protection), and cg_farclip_zoomvalue for the sharp's zoom mode (default: 3, again: value 
+	cg_farclip to turn on/off this feature (default: on), cg_farclipValue to scale it up (default: 1, value lesser than 1
+	are ignored - for cheat protection), and cg_farclipZoomValue for the sharp's zoom mode (default: 3, again: value 
 	lesser than 1 are ignored)
+- new vote: playlist, only available through the console by typing "/callvote playlist <playlistname>", needs playlist to be
+	specified in the server.cfg, "g_availablePlaylist" should be set to a string with <playlistname> seperated by white-space
+
 *** CHANGES ***
-- Reloading bug fixed by Joe Kari
+- Fix reloading bug with peacemaker, winchester 1866 and 1897, and colt lightning
 - Fix game crash during game load when using cgame binary library
 - Fix server not hitting time limit when only bots are playing (thanks to ioQ3 code engine)
 - Fix cinematic rendering with wide screens (thanks to ioQ3 code engine), intro is now visible in wide screen mode
+- Fix 'nextmap' cvar bug that was randomly breaking map cycle
+- Fix the bug allowing spectator to drop weapon
 
 Changes in SG 1.0-20081231
 ******************
