@@ -25,6 +25,7 @@ Changes since SG 1.0-20081231
 - new vote: playlist, only available through the console by typing "/callvote playlist <playlistname>", needs playlist to be
 	specified in the server.cfg, "g_availablePlaylist" should be set to a string with <playlistname> seperated by white-space
 - in BR or RTP: you can no longer move or shoot until the countdown has ended
+- collecting an ammo belt give you full ammo for all weapon, just like when you buy it (for example in Newtown and Dawnfort)
 
 *** CHANGES ***
 - Fix reloading bug with peacemaker, winchester 1866 and 1897, and colt lightning
