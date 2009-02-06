@@ -916,8 +916,8 @@ extern	vmCvar_t	g_maxclients;			// allow this many total, including spectators
 extern	vmCvar_t	g_maxGameClients;		// allow this many active
 extern	vmCvar_t	g_restarted;
 
-extern	vmCvar_t	g_moneyrespawn;
-extern	vmCvar_t	g_exp_shotgunpattern;
+extern	vmCvar_t	g_moneyRespawn;
+extern	vmCvar_t	g_newShotgunPattern;
 extern	vmCvar_t	g_duellimit;
 extern	vmCvar_t	g_dmflags;
 extern	vmCvar_t	g_fraglimit;
@@ -1046,7 +1046,7 @@ extern	vmCvar_t	g_blueteamcount;
 extern	vmCvar_t	g_redteamscore;
 extern	vmCvar_t	g_blueteamscore;
 
-extern	vmCvar_t	g_robber_reward;
+extern	vmCvar_t	g_robberReward;
 
 extern	vmCvar_t	g_splitChat;
 

@@ -125,7 +125,7 @@ void Touch_Escape( gentity_t *self, gentity_t *other, trace_t *trace ){
 	if ( g_goldescaped )  return ;
 	
 	g_goldescaped = qtrue;
-	reward = g_robber_reward.integer ;
+	reward = g_robberReward.integer ;
 	if ( reward < MIN_POINT_ROBBER_REWARD )  reward = MIN_POINT_ROBBER_REWARD ;
 	else if ( reward > MAX_POINT_ROBBER_REWARD )  reward = MAX_POINT_ROBBER_REWARD ;
 	AddScore( other , other->r.currentOrigin , reward ) ;

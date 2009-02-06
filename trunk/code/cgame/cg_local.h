@@ -1400,7 +1400,7 @@ typedef struct {
 	char			blueTeam[MAX_QPATH];
 
 
-	int				exp_shotgunpattern;
+	int				newShotgunPattern;
 //	char				availablePlaylist[MAX_INFO_STRING];
 
 	qboolean		specsareflies;
@@ -1609,10 +1609,10 @@ extern	vmCvar_t		cg_enableBreath;
 
 
 extern	vmCvar_t		cg_farclip;
-extern	vmCvar_t		cg_farclip_value;
-extern	vmCvar_t		cg_farclip_zoomvalue;
+extern	vmCvar_t		cg_farclipValue;
+extern	vmCvar_t		cg_farclipZoomValue;
 
-extern	vmCvar_t		cg_exp_shotgunpattern;
+extern	vmCvar_t		cg_newShotgunPattern;
 
 // Smokin'Guns Cvars
 //extern	vmCvar_t		cg_wq_lefthanded;

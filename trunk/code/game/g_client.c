@@ -1775,7 +1775,7 @@ void ClientSpawn(gentity_t *ent) {
 			min_money = DU_MIN_MONEY ;
 		}
 		else  {
-			if ( g_moneyrespawn.integer == 1 ) {
+			if ( g_moneyRespawn.integer == 1 ) {
 				// Joe Kari: new minimum money at respawn formula //
 				if ( ( g_gametype.integer == GT_BR ) || ( g_gametype.integer == GT_RTP ) ) {
 					min_money = MIN_MONEY + ( client->ps.stats[ STAT_MONEY ] - m_teamlose.integer ) / 4 ;
