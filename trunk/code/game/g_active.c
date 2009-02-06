@@ -1455,7 +1455,19 @@ void ClientThink_real( gentity_t *ent ) {
 		pm.ps->weapon = WP_NONE;
 		pm.ps->weapon2 = WP_NONE;
 		pm.xyspeed = 0;
-
+		
+		VectorClear(ent->s.pos.trDelta);
+	}
+	else if ( ( g_gametype.integer >= GT_RTP ) && ( level.time < g_roundstarttime + ROUND_NOMOVE_TIME ) 
+		&& ( ent->client->sess.sessionTeam < TEAM_SPECTATOR ) )  {
+		// added by Joe Kari: delete all movement and cmd stats until the end of the countdown in RTP and BR gametype
+		pm.ps->speed = 0;
+		pm.cmd.forwardmove = 0;
+		pm.cmd.rightmove = 0;
+		pm.cmd.upmove = 0;
+		pm.cmd.buttons = 0;
+		pm.xyspeed = 0;
+		
 		VectorClear(ent->s.pos.trDelta);
 	}
 

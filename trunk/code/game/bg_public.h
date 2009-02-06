@@ -85,6 +85,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define DEFAULT_REDTEAM_NAME		"Lawmen"
 #define DEFAULT_BLUETEAM_NAME		"Outlaws"
 
+#define ROUND_NOMOVE_TIME	3000
+
 #define	FALLOFF_RANGE	150
 
 // total intro time of 10000
