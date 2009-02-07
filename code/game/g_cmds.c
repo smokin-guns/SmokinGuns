@@ -1562,10 +1562,10 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else if ( !Q_stricmp( arg1, "g_doWarmup" ) ) {
 	} else if ( !Q_stricmp( arg1, "timelimit" ) ) {
 	} else if ( !Q_stricmp( arg1, "fraglimit" ) ) {
-	} else if ( !Q_stricmp( arg1, "playlist" ) ) {
+	} else if ( !Q_stricmp( arg1, "mapcycle" ) ) {
 	} else {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
-		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>, g_doWarmup, timelimit <time>, fraglimit <frags>, playlist <playlistname>.\n\"" );
+		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>, g_doWarmup, timelimit <time>, fraglimit <frags>, mapcycle <mapcyclename>.\n\"" );
 		return;
 	}
 
@@ -1610,14 +1610,14 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s", arg1, arg2 );
 		
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
-	} else if ( !Q_stricmp( arg1, "playlist" ) ) {	// Joe Kari: allow player to vote for a playlist
+	} else if ( !Q_stricmp( arg1, "mapcycle" ) ) {	// Joe Kari: allow player to vote for a mapcycle
 		
 		char splited[ 32 + 1 ];
 		int start = 0 ;
 		char tmp_str[ MAX_STRING_CHARS ];
 		qboolean match = qfalse ;
 		
-		trap_Cvar_VariableStringBuffer( "g_availablePlaylist" , tmp_str , sizeof( tmp_str ) ) ;
+		trap_Cvar_VariableStringBuffer( "g_availableMapcycle" , tmp_str , sizeof( tmp_str ) ) ;
 		
 		while ( ( start = strnsplit( tmp_str , splited , ' ' , start , 32 ) ) && !match ) {
 			if ( !Q_stricmp( arg2 , splited ) )  match = qtrue ;
@@ -1625,7 +1625,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		
 		if ( !match ) {
 			start = 0 ;
-			trap_SendServerCommand( ent-g_entities, "print \"Invalid playlist string. Allowed playlist are:\n\"" );
+			trap_SendServerCommand( ent-g_entities, "print \"Invalid mapcycle string. Allowed mapcycle are:\n\"" );
 			while ( start = strnsplit( tmp_str , splited , ' ' , start , 32 ) )  {
 				Com_sprintf( splited ,  sizeof(splited) , "print \"^5%s^7\n\"" , splited ) ;
 				trap_SendServerCommand( ent-g_entities, splited ) ;

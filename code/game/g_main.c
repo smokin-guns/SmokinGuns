@@ -52,6 +52,10 @@ int			g_roundstarttime;
 
 int			g_session;
 
+
+
+int		g_humancount;	// human connected (playing or spectating)
+
 vmCvar_t	g_moneyRespawn;
 
 // bank robbery
@@ -168,7 +172,6 @@ vmCvar_t	br_teamrole;
 
 // experimental cvars
 vmCvar_t	g_newShotgunPattern;
-//vmCvar_t	g_availablePlaylist;
 
 
 qboolean b_sWaitingForPlayers = qfalse;
@@ -205,7 +208,6 @@ static cvarTable_t		gameCvarTable[] = {
   	{ &g_moneyRespawn, "g_moneyRespawn", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
   	
   	{ &g_newShotgunPattern, "g_newShotgunPattern", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
-//	{ &g_availablePlaylist, "g_availablePlaylist", "", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qtrue },
 
 	{ &g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse  },
 
@@ -1101,6 +1103,7 @@ void CalculateRanks( void ) {
 	int		rank;
 	int		score;
 	int		newScore;
+	int		humancount;
 	gclient_t	*cl;
 
 	level.follow1 = -1;
@@ -1109,6 +1112,7 @@ void CalculateRanks( void ) {
 	level.numNonSpectatorClients = 0;
 	level.numPlayingClients = 0;
 	level.numVotingClients = 0;		// don't count bots
+	humancount = 0;
 	for ( i = 0; i < TEAM_NUM_TEAMS; i++ ) {
 		level.numteamVotingClients[i] = 0;
 	}
@@ -1116,6 +1120,7 @@ void CalculateRanks( void ) {
 		if ( level.clients[i].pers.connected != CON_DISCONNECTED ) {
 			level.sortedClients[level.numConnectedClients] = i;
 			level.numConnectedClients++;
+			if ( !(g_entities[i].r.svFlags & SVF_BOT) )  humancount ++;
 
 			if ( level.clients[i].sess.sessionTeam != TEAM_SPECTATOR ||
 				(level.clients[i].sess.sessionTeam == TEAM_SPECTATOR &&
@@ -1204,6 +1209,7 @@ void CalculateRanks( void ) {
 	if ( level.intermissiontime ) {
 		SendScoreboardMessageToAllClients();
 	}
+	g_humancount = humancount ;
 }
 
 
