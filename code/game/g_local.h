@@ -1000,6 +1000,8 @@ extern	int			g_roundstarttime;
 
 extern	int			g_session;
 
+extern	int			g_humancount;
+
 // duel definitions
 typedef struct mappart_s {
 	qboolean	inuse;

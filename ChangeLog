@@ -22,10 +22,15 @@ Changes since SG 1.0-20081231
 	cg_farclip to turn on/off this feature (default: on), cg_farclipValue to scale it up (default: 1, value lesser than 1
 	are ignored - for cheat protection), and cg_farclipZoomValue for the sharp's zoom mode (default: 3, again: value 
 	lesser than 1 are ignored)
-- new vote: playlist, only available through the console by typing "/callvote playlist <playlistname>", needs playlist to be
-	specified in the server.cfg, "g_availablePlaylist" should be set to a string with <playlistname> seperated by white-space
+- new vote: mapcycle, only available through the console by typing "/callvote mapcycle <mapcyclename>", needs mapcycle to be
+	specified in the server.cfg, "g_availableMapcycle" should be set to a string with <mapcyclename> seperated by white-space
 - in BR or RTP: you can no longer move or shoot until the countdown has ended
 - collecting an ammo belt give you full ammo for all weapon, just like when you buy it (for example in Newtown and Dawnfort)
+- game now execute some cvar on few event: 
+	- "onEvent_playerDisconnect_do" everytime a human player disconnect
+	- "onEvent_playerConnect_do" everytime a human player connect
+	- "onEvent_playerDownTo<integer>_do" everytime the number of human player connected drop down to <integer>
+	- "onEvent_playerUpTo<integer>_do" everytime the number of human player connected raise up to <integer>
 
 *** CHANGES ***
 - Fix reloading bug with peacemaker, winchester 1866 and 1897, and colt lightning
