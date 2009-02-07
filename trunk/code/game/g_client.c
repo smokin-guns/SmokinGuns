@@ -1378,7 +1378,14 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		trap_SendServerCommand( clientNum, "print \"This server is Unlagged: full lag compensation is OFF!\n\"" );
 	}
 //unlagged - backward reconciliation #5
-
+	
+	// Joe Kari: exec content of the onEvent_playerConnect_do cvar
+	if ( firstTime && !isBot )
+	{
+		trap_SendConsoleCommand( EXEC_APPEND, "vstr onEvent_playerConnect_do\n" ) ;
+		trap_SendConsoleCommand( EXEC_APPEND , va( "vstr onEvent_playerUpTo%i_do\n" , g_humancount ) ) ;
+	}
+	
 	return NULL;
 }
 
@@ -1900,7 +1907,7 @@ server system housekeeping.
 void ClientDisconnect( int clientNum ) {
 	gentity_t	*ent;
 	gentity_t	*tent;
-	int			i;
+	int		i;
 
 	// cleanup if we are kicking a bot that
 	// hasn't spawned yet
@@ -1964,6 +1971,13 @@ void ClientDisconnect( int clientNum ) {
 
 	if ( ent->r.svFlags & SVF_BOT ) {
 		BotAIShutdownClient( clientNum, qfalse );
+	}
+	
+	// Joe Kari: exec content of the onEvent_playerDisconnect_do cvar
+	else 
+	{
+		trap_SendConsoleCommand( EXEC_APPEND , "vstr onEvent_playerDisconnect_do\n" ) ;
+		trap_SendConsoleCommand( EXEC_APPEND , va( "vstr onEvent_playerDownTo%i_do\n" , g_humancount ) ) ;
 	}
 }
 
