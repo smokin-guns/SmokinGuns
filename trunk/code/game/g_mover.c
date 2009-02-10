@@ -1998,7 +1998,7 @@ A bmodel that just sits there, doing nothing.  Can be used for conditional walls
 void SP_func_static( gentity_t *ent )
 {
 	
-	// Joe Kari: new func_static with far clipping support
+	// Joe Kari: new func_static (totally rewritten) with far-clipping and level of detail support
 	// with reminder-style comment
 	
 	float		light ;
@@ -2006,6 +2006,7 @@ void SP_func_static( gentity_t *ent )
 	qboolean	lightSet , colorSet ;
 	char		*value ;
 	char		tmp_char[32] ;
+	int		tmp_int ;
 	
 	// register brush model to physical engine
 	trap_SetBrushModel( ent , ent->model ) ;
@@ -2041,7 +2042,7 @@ void SP_func_static( gentity_t *ent )
 	// for drawing, but clip against the brushes
 	if ( ent->model2 )  ent->s.modelindex2 = G_ModelIndex( ent->model2 ) ;
 
-	// get the value for the key "farclip_*" and copy it to powerups, legsAnim and torsoAnim field
+	// get the value for the key "farclip" and copy it to powerups (8 lower bits), legsAnim and torsoAnim field
 	
 	G_SpawnString( "farclip" , "none" , &value ) ;
 	sscanf( value , "%31s %i %i" , tmp_char , &ent->s.legsAnim , &ent->s.torsoAnim ) ;
@@ -2072,9 +2073,6 @@ void SP_func_static( gentity_t *ent )
 	else if ( !Q_stricmp( "square_infinite_y" , tmp_char ) )  ent->s.powerups = FARCLIP_SQUARE_INFINITE_Y ;
 	else  ent->s.powerups = FARCLIP_NONE ;
 	
-	//G_Printf( "^4%s (%i) : %i - %i\n" , tmp_char , ent->s.powerups , ent->s.legsAnim , ent->s.torsoAnim ) ;
-	
-	
 	if ( ent->s.powerups )
 	{
 		// "legsAnim" has only 8 bits over network, so the far clip value is rounded to multiple of 64
@@ -2085,6 +2083,21 @@ void SP_func_static( gentity_t *ent )
 		ent->s.torsoAnim = ( ent->s.torsoAnim + 32 ) / 64 ;
 		if ( ent->s.torsoAnim < 1 )  ent->s.torsoAnim = 1 ;
 	}
+	
+	//G_Printf( "^4%s (%i) : %i - %i\n" , tmp_char , ent->s.powerups , ent->s.legsAnim , ent->s.torsoAnim ) ;
+	
+	
+	// get the value for the key "lod" (Level Of Detail) and copy it to upper bits of powerups (bits 9 to 12)
+	
+	G_SpawnString( "lod" , "none" , &value ) ;
+	sscanf( value , "%5s %i" , tmp_char , &tmp_int ) ;
+	
+	if ( !Q_stricmp( "min" , tmp_char ) )  ent->s.powerups |= MAPLOD_BINARY_MASK | MAPLOD_GTE_BINARY_MASK | ( ( tmp_int & 3 ) << 8 ) ;
+	else if ( !Q_stricmp( "max" , tmp_char ) )  ent->s.powerups |= MAPLOD_BINARY_MASK | ( ( tmp_int & 3 ) << 8 ) ;
+	
+	
+	//G_Printf( "^5%s (%i) : %i - %i\n" , tmp_char , ent->s.powerups , ent->s.legsAnim , ent->s.torsoAnim ) ;
+	
 	
 	// should determinate in which cluster the entity is ??
 	trap_LinkEntity( ent ) ;

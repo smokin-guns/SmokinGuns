@@ -1612,6 +1612,8 @@ extern	vmCvar_t		cg_farclip;
 extern	vmCvar_t		cg_farclipValue;
 extern	vmCvar_t		cg_farclipZoomValue;
 
+extern	vmCvar_t		cg_mapLOD;
+
 extern	vmCvar_t		cg_newShotgunPattern;
 
 // Smokin'Guns Cvars

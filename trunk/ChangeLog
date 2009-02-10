@@ -31,6 +31,8 @@ Changes since SG 1.0-20081231
 	- "onEvent_playerConnect_do" everytime a human player connect
 	- "onEvent_playerDownTo<integer>_do" everytime the number of human player connected drop down to <integer>
 	- "onEvent_playerUpTo<integer>_do" everytime the number of human player connected raise up to <integer>
+- map LOD (Level Of Detail):  support for func_static entity, come with additionnal cvar: cg_mapLOD (value from 0 to 3), 
+	this cvar is compared to the func_static LOD, if it pass the test, it is displayed, else, it is cliped.
 
 *** CHANGES ***
 - Fix reloading bug with peacemaker, winchester 1866 and 1897, and colt lightning

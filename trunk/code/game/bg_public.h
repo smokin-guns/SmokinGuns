@@ -211,14 +211,14 @@ Far clipping form definition
 typedef enum {
         FARCLIP_NONE ,			// no clipping
 	FARCLIP_SPHERE ,		// Standard default spherical clipping
-        FARCLIP_ELLIPSE_X ,		// X-axis rescaled (using entity key "farclip_alt") sphere
+        FARCLIP_ELLIPSE_X ,		// X-axis rescaled sphere
         FARCLIP_ELLIPSE_Y ,		// Y-axis rescaled
         FARCLIP_ELLIPSE_Z ,		// Z-axis rescaled
-        FARCLIP_CYLINDER_X ,		// X-axis cylinder (using entity key "farclip_alt" for its axis length)
+        FARCLIP_CYLINDER_X ,		// X-axis cylinder for its axis length)
         FARCLIP_CYLINDER_Y ,		// Y-axis 
         FARCLIP_CYLINDER_Z ,		// Z-axis 
         FARCLIP_CUBE ,			// Cubic clipping (along axis), bounding-box clipping
-        FARCLIP_BOX_X ,			// X-axis rescaled (using entity key "farclip_alt") cube
+        FARCLIP_BOX_X ,			// X-axis rescaled cube
         FARCLIP_BOX_Y ,			
         FARCLIP_BOX_Z ,
         FARCLIP_CONE_X ,		// distance along X-axis is substracted from YZ-axis distance calculation
@@ -235,7 +235,16 @@ typedef enum {
         FARCLIP_SQUARE_INFINITE_Z
 } farclip_t ;
 
-
+/*
+-----------------------
+Map LOD (Level Of Detail)
+(by Joe Kari)
+-----------------------
+*/
+#define MAPLOD_BINARY_MASK	0x400		// bit on => LOD definition, bit off => no LOD definition: always displayed
+#define	MAPLOD_GTE_BINARY_MASK	0x800 		// bit on => object is displayed if LOD is GreaTer or Equal (GTE) to the value
+						// bit off => object is displayed if LOD is less or equal to the value
+        
 
 
 /*
