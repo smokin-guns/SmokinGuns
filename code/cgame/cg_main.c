@@ -275,6 +275,8 @@ vmCvar_t		cg_farclip;
 vmCvar_t		cg_farclipValue;
 vmCvar_t		cg_farclipZoomValue;
 
+vmCvar_t		cg_mapLOD;
+
 // experimental
 vmCvar_t		cg_newShotgunPattern;
 //vmCvar_t		cg_availablePlaylist;
@@ -394,6 +396,8 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_farclip, "cg_farclip", "1", CVAR_ARCHIVE},
 	{ &cg_farclipValue, "cg_farclipValue", "1", CVAR_ARCHIVE},
 	{ &cg_farclipZoomValue, "cg_farclipZoomValue", "3", CVAR_ARCHIVE},
+	
+	{ &cg_mapLOD, "cg_mapLOD", "2", CVAR_ARCHIVE},
 	
 	{ &cg_newShotgunPattern, "cg_newShotgunPattern", "0", CVAR_ROM},
 //	{ &cg_availablePlaylist, "cg_availablePlaylist", "0", CVAR_ROM},

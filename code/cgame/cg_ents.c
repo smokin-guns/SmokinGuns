@@ -879,8 +879,9 @@ static void CG_Mover( centity_t *cent ) {
 	refEntity_t		ent;
 	entityState_t		*s1;
 	
-	// Joe Kari: farclip_dist
-	int farclip_type = cent->currentState.powerups ;
+	// Joe Kari: farclip_type and farclip_dist :
+	
+	int farclip_type = cent->currentState.powerups & 255 ;	// only 8 lower bits of powerups is used for farclipping
 	// fast multiply by 64:
 	float farclip_dist = (float)( cent->currentState.legsAnim << 6 ) ;
 	float farclip_alt_dist = (float)( cent->currentState.torsoAnim << 6 ) ;
@@ -912,7 +913,17 @@ static void CG_Mover( centity_t *cent ) {
 	ent.renderfx = RF_NOSHADOW;
 	
 	// Joe Kari: for func_static (yes there are classified as mover)
-	// if a farclip is specified for this entity, then clip it !!!
+	// if a LOD is specified for this entity, then try to clip it !!!
+	if ( cent->currentState.powerups & MAPLOD_BINARY_MASK ) {
+		int objectLOD = ( cent->currentState.powerups >> 8 ) & 3 ;
+		if ( cent->currentState.powerups & MAPLOD_GTE_BINARY_MASK ) {
+			if ( cg_mapLOD.integer < objectLOD )  return;
+		}
+		else if ( cg_mapLOD.integer > objectLOD )  return;
+	}
+	
+	// Joe Kari: for func_static
+	// if a farclip is specified for this entity, then try to clip it !!!
 	if ( ( farclip_type > FARCLIP_NONE ) && ( farclip_type < CG_Farclip_Tester_Table_Size ) && ( CG_Farclip_Tester[farclip_type]( s1->origin , cg.refdef.vieworg , farclip_dist , farclip_alt_dist ) ) )  return;
 	
 	// flicker between two skins (FIXME?)
