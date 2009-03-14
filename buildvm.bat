@@ -1,4 +1,3 @@
-<<<<<<< .mine
 @rem make sure we have a safe environment
 @set LIBRARY=
 @set INCLUDE=
