@@ -2163,7 +2163,7 @@ int			trap_Key_GetCatcher( void );
 void		trap_Key_SetCatcher( int catcher );
 int			trap_Key_GetKey( const char *binding );
 
-//cg_wq_utils.c
+//cg_sg_utils.c
 #define BOUNCE_LIGHT	0
 #define BOUNCE_MEDIUM	1
 #define BOUNCE_HEAVY	2
