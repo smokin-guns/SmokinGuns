@@ -1619,14 +1619,14 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		
 		trap_Cvar_VariableStringBuffer( "g_availableMapcycle" , tmp_str , sizeof( tmp_str ) ) ;
 		
-		while ( ( start = strtok( tmp_str , splited , ' ' , start , 32 ) ) && !match ) {
+		while ( ( start = strnsplit( tmp_str , splited , ' ' , start , 32 ) ) && !match ) {
 			if ( !Q_stricmp( arg2 , splited ) )  match = qtrue ;
 		}
 		
 		if ( !match ) {
 			start = 0 ;
 			trap_SendServerCommand( ent-g_entities, "print \"Invalid mapcycle string. Allowed mapcycle are:\n\"" );
-			while ( start = strtok( tmp_str , splited , ' ' , start , 32 ) )  {
+			while ( start = strnsplit( tmp_str , splited , ' ' , start , 32 ) )  {
 				Com_sprintf( splited ,  sizeof(splited) , "print \"^5%s^7\n\"" , splited ) ;
 				trap_SendServerCommand( ent-g_entities, splited ) ;
 			}
