@@ -76,11 +76,6 @@ int _atos( const char **stringPtr , char *dest , int limit );
 int vsprintf( char *buffer, const char *fmt, va_list argptr );
 int sscanf( const char *buffer, const char *fmt, ... );
 
-// Joe Kari: string spliter, fill output_string with all char found between the 'start' postion in input_string
-// to the next char 'spliter', 'n' is the max size of output_string INCLUDING the final NULL char, that is automatically added,
-// return 0 if no string were found or an error occur, or return the next value to be used as the next 'start' argument
-int strnsplit( char *input_string , char *output_string , char spliter , int start , size_t n ) ;
-
 // Memory functions
 void *memmove( void *dest, const void *src, size_t count );
 void *memset( void *dest, int c, size_t count );

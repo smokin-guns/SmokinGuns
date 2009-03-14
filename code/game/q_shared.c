@@ -879,6 +879,36 @@ char *Q_CleanStr( char *string ) {
 }
 
 
+int strnsplit( char *input_string , char *output_string , char splitter , int start , size_t n )
+{
+	int index_in , index_out , len ;
+	
+	len = strlen( input_string ) ;
+	if ( start >= len )  return 0 ;
+	n -- ;	// because of the final NULL char
+	if ( n < 1 )  return 0 ;
+	
+	index_in = start ;
+	index_out = 0 ;
+	
+	// move to the first non-splitter char
+	while ( ( input_string[ index_in ] == splitter ) && ( index_in < len ) )  index_in ++ ;
+	if ( index_in == len )  return 0 ;
+	
+	// add all non-splitter char until the end of the string or until the next splitter char
+	while ( ( input_string[ index_in ] != splitter ) && ( index_in < len ) && ( index_out < n ) )
+	{
+		output_string[ index_out ] = input_string[ index_in ] ;
+		index_out ++ ;
+		index_in ++ ;
+	}
+	output_string[ index_out ] = 0 ;	// final NULL char
+	
+	// return the position in the input string where it stopped, useful as a 'start' value for the next strnsplit call
+	return index_in ;
+}
+
+
 void QDECL Com_sprintf( char *dest, int size, const char *fmt, ...) {
 	int		len;
 	va_list		argptr;
