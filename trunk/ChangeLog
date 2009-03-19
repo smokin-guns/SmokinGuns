@@ -1,4 +1,36 @@
-Changes since SG 1.0-20081231
+Changes in SG 1.0-20090314 (SVN r145)
+******************
+*** NEW ***
+- Further progress of ioquake3 backport (sg_tequila)
+- Map LOD (joe_kari)
+ - Far clipping entities supported
+ - Static LOD function (func_static entity) added
+ - cg_mapLOD cvar included
+- Mapcycle bugfix and new cvars: (joe_kari)
+ - onEvent_playerDisconnect_do
+ - onEvent_playerConnect_do
+ - onEvent_playerDownTo<integer>_do
+ - onEvent_playerUpTo<integer>_do
+- End-of-line use native method (torhu)
+- Bank robbery points can be specified by admin (joe_kari)
+- Spectator cannot drop weapon now (joe_kari)
+- BR and RTP will now allow player to shoot until countdown expires (joe_kari)
+- Ammo belts give players full ammunition for all weapons held (joe_kari)
+- SG Version bumped automatically per build if SG_SVN is defined (sg_tequila)
+- Supports newer versions of GCC (3.4/4.0/4.1) on Linux (sg_tequila)
+
+*** CHANGES ***
+- Cleanup of Visual C++ project files (sparcdr)
+- Migration of remaining VC6 era workspaces to VC9 (sparcdr)
+- Fixes to build system for both Windows and UNIX (sparcdr, sg_tequila)
+- Removal of legacy/obsolete UNIX build files (sg_tequila)
+- Fixes to SDL, lcc, and OpenAL build system (sg_tequila)
+- Silence some compiler warnings (sg_tequila)
+- Changes to vote system to lessen abuse (sg_tequila)
+- Legacy naming convention of files with *_wq_* became *_sg_* (sg_tequila)
+- Changes function syntax to camelCase (joe_kari)
+
+Changes since SG 1.0-20081231 (SVN r136)
 ******************
 *** NEW ***
 - Added more custom resolution, to be set using +set r_mode mode_number
@@ -50,7 +82,6 @@ Changes in SG 1.0-20081231
 - Updated Makefile to produce sse, sse2 and smp binaries for unix
 - Updated Unix building process to keep install & build folder in the source base
 - Fix "OP_BLOCK_COPY not dword aligned" in the same way then an old ioQuake3 fix...
-
 
 Changes since sg 0.9
 ******************
