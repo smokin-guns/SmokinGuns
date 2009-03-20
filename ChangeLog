@@ -1,38 +1,13 @@
-Changes in SG 1.0-20090314 (SVN r145)
+Changes since SG 1.0-20081231 (SVN r125+)
 ******************
 *** NEW ***
 - Further progress of ioquake3 backport (sg_tequila)
-- Map LOD (joe_kari)
- - Far clipping entities supported
- - Static LOD function (func_static entity) added
- - cg_mapLOD cvar included
-- Mapcycle bugfix and new cvars: (joe_kari)
- - onEvent_playerDisconnect_do
- - onEvent_playerConnect_do
- - onEvent_playerDownTo<integer>_do
- - onEvent_playerUpTo<integer>_do
 - End-of-line use native method (torhu)
 - Bank robbery points can be specified by admin (joe_kari)
 - Spectator cannot drop weapon now (joe_kari)
-- BR and RTP will now allow player to shoot until countdown expires (joe_kari)
-- Ammo belts give players full ammunition for all weapons held (joe_kari)
 - SG Version bumped automatically per build if SG_SVN is defined (sg_tequila)
 - Supports newer versions of GCC (3.4/4.0/4.1) on Linux (sg_tequila)
-
-*** CHANGES ***
-- Cleanup of Visual C++ project files (sparcdr)
-- Migration of remaining VC6 era workspaces to VC9 (sparcdr)
-- Fixes to build system for both Windows and UNIX (sparcdr, sg_tequila)
-- Removal of legacy/obsolete UNIX build files (sg_tequila)
-- Fixes to SDL, lcc, and OpenAL build system (sg_tequila)
-- Silence some compiler warnings (sg_tequila)
-- Changes to vote system to lessen abuse (sg_tequila)
-- Legacy naming convention of files with *_wq_* became *_sg_* (sg_tequila)
-- Changes function syntax to camelCase (joe_kari)
-
-Changes since SG 1.0-20081231 (SVN r136)
-******************
-*** NEW ***
+- Further removal of references to Western Quake 3
 - Added more custom resolution, to be set using +set r_mode mode_number
  - Mode 12: 1280x800 (wide)
  - Mode 13: 1440x900 (wide)
@@ -45,64 +20,71 @@ Changes since SG 1.0-20081231 (SVN r136)
  - you have to export DEFAULT_BASEDIR from the shell before to do a make
 - Use SMOKINGUNS and SMOKINGUNS_SO define
 - Add SG_VERSION, SG_RELEASE & SG_SVN support
-- new shotgun pattern (needs "g_newShotgunPattern 1") more uniform, and with homogenous radial density
-- new money system (needs "g_moneyRespawn 1")
+- new shotgun pattern (needs "g_newShotgunPattern 1") more uniform, and with homogenous radial density (joe_kari)
+- new money system (needs "g_moneyRespawn 1") (joe_kari)
 - customize teamrole in BR by setting cvar br_teamrole to 0 (default, winner defend next round), 1 (winner are robbers next round), 
-	2 (outlaws are always robbers), 3 (lawmen are always robbers) or 4 (robbers and defenders swap at every new round)
-- the player who rob the bank now get one point, this is customizable by admin through the cvar: g_robberReward (value between 0 and 5)
+	2 (outlaws are always robbers), 3 (lawmen are always robbers) or 4 (robbers and defenders swap at every new round) (joe_kari)
+- the player who rob the bank now get one point, this is customizable by admin through the cvar: g_robberReward (value between 0 and 5) (joe_kari)
 - far-clipping (with a bunch of clipping-form) support for func_static entity, come with additionnal cvar: 
 	cg_farclip to turn on/off this feature (default: on), cg_farclipValue to scale it up (default: 1, value lesser than 1
 	are ignored - for cheat protection), and cg_farclipZoomValue for the sharp's zoom mode (default: 3, again: value 
-	lesser than 1 are ignored)
+	lesser than 1 are ignored) (joe_kari)
 - new vote: mapcycle, only available through the console by typing "/callvote mapcycle <mapcyclename>", needs mapcycle to be
-	specified in the server.cfg, "g_availableMapcycle" should be set to a string with <mapcyclename> seperated by white-space
-- in BR or RTP: you can no longer move or shoot until the countdown has ended
-- collecting an ammo belt give you full ammo for all weapon, just like when you buy it (for example in Newtown and Dawnfort)
-- game now execute some cvar on few event: 
+	specified in the server.cfg, "g_availableMapcycle" should be set to a string with <mapcyclename> seperated by white-space (joe_kari)
+- in BR or RTP: you can no longer move or shoot until the countdown has ended (joe_kari)
+- collecting an ammo belt give you full ammo for all weapon, just like when you buy it (for example in Newtown and Dawnfort) (joe_kari)
+- game now execute some cvar on few event: (joe_kari)
 	- "onEvent_playerDisconnect_do" everytime a human player disconnect
 	- "onEvent_playerConnect_do" everytime a human player connect
 	- "onEvent_playerDownTo<integer>_do" everytime the number of human player connected drop down to <integer>
 	- "onEvent_playerUpTo<integer>_do" everytime the number of human player connected raise up to <integer>
 - map LOD (Level Of Detail):  support for func_static entity, come with additionnal cvar: cg_mapLOD (value from 0 to 3), 
-	this cvar is compared to the func_static LOD, if it pass the test, it is displayed, else, it is cliped.
+	this cvar is compared to the func_static LOD, if it pass the test, it is displayed, else, it is cliped. (joe_kari)
 
 *** CHANGES ***
-- Fix reloading bug with peacemaker, winchester 1866 and 1897, and colt lightning
+- Fix reloading bug with peacemaker, winchester 1866 and 1897, and colt lightning (joe_kari)
 - Fix game crash during game load when using cgame binary library
 - Fix server not hitting time limit when only bots are playing (thanks to ioQ3 code engine)
 - Fix cinematic rendering with wide screens (thanks to ioQ3 code engine), intro is now visible in wide screen mode
-- Fix 'nextmap' cvar bug that was randomly breaking map cycle
-- Fix the bug allowing spectator to drop weapon
+- Fix 'nextmap' cvar bug that was randomly breaking map cycle (joe_kari)
+- Fix the bug allowing spectator to drop weapon (joe_kari)
+- Cleanup of Visual C++ project files (sparcdr)
+- Migration of remaining VC6 era workspaces to VC9 (sparcdr)
+- Fixes to build system for both Windows and UNIX (sparcdr, sg_tequila)
+- Removal of legacy/obsolete UNIX build files (sg_tequila)
+- Fixes to SDL, lcc, and OpenAL build system (sg_tequila)
+- Silence some compiler warnings (sg_tequila)
+- Changes to vote system to lessen abuse (sg_tequila)
+- Legacy naming convention of files with *_wq_* became *_sg_* (sg_tequila)
+- Changes function syntax to camelCase (joe_kari)
 
 Changes in SG 1.0-20081231
 ******************
 *** CHANGES ***
-- Updated Unix building process to support more processor kind
-- Updated Makefile to produce binary libraries for unix
-- Updated Makefile to produce sse, sse2 and smp binaries for unix
-- Updated Unix building process to keep install & build folder in the source base
-- Fix "OP_BLOCK_COPY not dword aligned" in the same way then an old ioQuake3 fix...
+- Updated Unix building process to support more processor kind (sg_tequila)
+- Updated Makefile to produce binary libraries for unix (sg_tequila)
+- Updated Makefile to produce sse, sse2 and smp binaries for unix (sg_tequila)
+- Updated Unix building process to keep install & build folder in the source base (sg_tequila)
+- Fix "OP_BLOCK_COPY not dword aligned" in the same way then an old ioQuake3 fix... (sg_tequila)
 
 Changes since sg 0.9
 ******************
 *** CHANGES ***
-- Added .mak, .bat, .lnt, .vprj, .Conscript, .Makefile files from Tequila archive (Excluded a few)
-- Fixed buildvm.bat and cleanvm.bat which weren't working due to reorganization
-- Organized VC build solutions
-- Removed old VC build solutions
-- Created SSE and SSE2 build profiles for each solution
-- Added lcc compiler toolchain back
-- Added AL and unix files
+- Fixed buildvm.bat and cleanvm.bat which weren't working due to reorganization (torhu)
+- Organized VC build solutions (sparcdr)
+- Removed old VC6 build solutions for main project (sparcdr)
+- Added lcc compiler toolchain back (sparcdr)
+- Added AL and unix files (sg_tequila)
 
 Changes since sg 0.9
 ******************
 *** CHANGES ***
-- Copyright updated.
-- Source license header audit completed.
-- Removed .mak, .bat, .lnt, .vprj, Construct, Makefile files (Waiting for "working" sets to be comitted)
-- Removed code/macosx (Old project was for pre-XCode and the current state of code excludes Intel)
-- Removed code/unix (Waiting for "working" sets to be comitted)
-- Updated Win32 project files for Visual Studio / C++ 2008 (VC9)
+- Copyright updated
+- Source license header audit completed (sparcdr)
+- Removed .mak, .bat, .lnt, .vprj, Construct, Makefile files (Waiting for "working" sets to be comitted) (sparcdr)
+- Removed code/macosx (Old project was for pre-XCode and the current state of code excludes Intel) (sparcdr)
+- Removed code/unix (Waiting for "working" sets to be comitted) (sparcdr)
+- Updated Win32 project files for Visual Studio / C++ 2008 (VC9) (sparcdr)
 
 Changes since wq3 b2.2
 ******************
