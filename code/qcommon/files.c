@@ -2652,18 +2652,18 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 
 /*
 ================
-FS_idPak
+FS_sgPak
 ================
 */
-qboolean FS_idPak( char *pak, char *base ) {
+qboolean FS_sgPak( char *pak, char *base ) {
 	int i;
 
-	for (i = 0; i < NUM_ID_PAKS; i++) {
-		if ( !FS_FilenameCompare(pak, va("%s/pak%d", base, i)) ) {
+	for (i = 0; i < NUM_SG_PAKS; i++) {
+		if ( !FS_FilenameCompare(pak, va("smokinguns/sg_%s%d", base, i)) ) {
 			break;
 		}
 	}
-	if (i < NUM_ID_PAKS) {
+	if (i < NUM_SG_PAKS) {
 		return qtrue;
 	}
 	return qfalse;
@@ -2712,8 +2712,11 @@ qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring ) {
 		badchecksum = qfalse;
 		havepak = qfalse;
 
-		// never autodownload any of the id paks
-		if ( FS_idPak(fs_serverReferencedPakNames[i], "baseq3") || FS_idPak(fs_serverReferencedPakNames[i], "missionpack") ) {
+		// never autodownload any of the released SG paks
+		if ( FS_sgPak(fs_serverReferencedPakNames[i], "textures")
+				|| FS_sgPak(fs_serverReferencedPakNames[i], "sounds")
+				|| FS_sgPak(fs_serverReferencedPakNames[i], "pak")
+				|| FS_sgPak(fs_serverReferencedPakNames[i], "maps")) {
 			continue;
 		}
 
