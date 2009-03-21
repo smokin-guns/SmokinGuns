@@ -73,7 +73,7 @@ $vm_sa_env = new cons(
   cg_snapshot.c
   cg_view.c
   cg_weapons.c
-  cg_wq_utils.c
+  cg_sg_utils.c
   cg_unlagged.c
   );
 $FILESREF = \@FILES;
