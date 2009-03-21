@@ -1446,7 +1446,7 @@ muzzle:
 		if ( ps || cg.renderingThirdPerson ||
 			cent->currentState.number != cg.predictedPlayerState.clientNum ) {
 
-			if( 1 == 2){
+			if(i == 2){
 				if ( weapon2->flashDlightColor[0] || weapon2->flashDlightColor[1] || weapon2->flashDlightColor[2] ) {
 					trap_R_AddLightToScene( flash.origin, 100 + (rand()&31), weapon2->flashDlightColor[0],
 						weapon2->flashDlightColor[1], weapon2->flashDlightColor[2] );
