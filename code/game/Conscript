@@ -81,7 +81,7 @@ $vm_sa_env = new cons(
   g_weapon.c
   q_math.c
   q_shared.c
-  g_wq_utils.c
+  g_sg_utils.c
   g_hit.c
   g_unlagged.c
   );
