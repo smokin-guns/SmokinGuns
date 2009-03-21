@@ -799,8 +799,8 @@ void SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
 
 						// now that we know the file is referenced,
 						// check whether it's legal to download it.
-						missionPack = FS_idPak(pakbuf, "missionpack");
-						idPack = missionPack || FS_idPak(pakbuf, "baseq3");
+						missionPack = FS_sgPak(pakbuf, "smokinguns");
+						idPack = missionPack || FS_sgPak(pakbuf, "baseq3");
 
 						break;
 					}
