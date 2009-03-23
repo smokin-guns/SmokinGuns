@@ -307,12 +307,48 @@ char lastValidBase[MAX_OSPATH];
 char lastValidGame[MAX_OSPATH];
 
 #ifdef FS_MISSING
+static  cvar_t	*fs_missingfiles;
 FILE*		missingFiles = NULL;
 #endif
 
 /* C99 defines __func__ */
 #ifndef __func__
 #define __func__ "(unknown)"
+#endif
+
+#ifndef FS_FOPENI
+#define fopeni fopen
+#else
+/*
+==============
+fopeni
+Load a system file avoiding case sensitivity
+Needed for game dev on Unix platform
+==============
+*/
+static FILE	*fopeni( char *path, const char *mode ) {
+	char **pFiles = NULL ;
+	char dir[MAX_STRING_CHARS];
+	char file[MAX_STRING_CHARS];
+	char filter[MAX_STRING_CHARS];
+	int len = 0, found = 0;
+
+	Q_strncpyz( dir, path, MAX_STRING_CHARS );
+	Q_strncpyz( dir, Sys_Dirname(dir), MAX_STRING_CHARS );
+	Q_strncpyz( file, path, MAX_STRING_CHARS );
+	Com_sprintf( filter, MAX_STRING_CHARS, "*/%s", Sys_Basename(file));
+	len = strlen(filter) - 1 ;
+
+	pFiles = Sys_ListFiles( dir, NULL, filter, &found, qfalse );
+	while ( found-- && pFiles[found] != 0 ) {
+		if (strlen(pFiles[found]) != len) continue ;
+		Com_sprintf( file, MAX_STRING_CHARS, "%s%s", dir, pFiles[found]);
+		path = file ;
+		break ;
+	}
+	Sys_FreeFileList( pFiles );
+	return fopen( path, mode );
+}
 #endif
 
 /*
@@ -550,7 +586,7 @@ static void FS_CopyFile( char *fromOSPath, char *toOSPath ) {
 		return;
 	}
 
-	f = fopen( fromOSPath, "rb" );
+	f = fopeni( fromOSPath, "rb" );
 	if ( !f ) {
 		return;
 	}
@@ -621,7 +657,7 @@ qboolean FS_FileExists( const char *file )
 
 	testpath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, file );
 
-	f = fopen( testpath, "rb" );
+	f = fopeni( testpath, "rb" );
 	if (f) {
 		fclose( f );
 		return qtrue;
@@ -644,7 +680,7 @@ qboolean FS_SV_FileExists( const char *file )
 	testpath = FS_BuildOSPath( fs_homepath->string, file, "");
 	testpath[strlen(testpath)-1] = '\0';
 
-	f = fopen( testpath, "rb" );
+	f = fopeni( testpath, "rb" );
 	if (f) {
 		fclose( f );
 		return qtrue;
@@ -728,7 +764,7 @@ int FS_SV_FOpenFileRead( const char *filename, fileHandle_t *fp ) {
 		Com_Printf( "FS_SV_FOpenFileRead (fs_homepath): %s\n", ospath );
 	}
 
-	fsh[f].handleFiles.file.o = fopen( ospath, "rb" );
+	fsh[f].handleFiles.file.o = fopeni( ospath, "rb" );
 	fsh[f].handleSync = qfalse;
 	if (!fsh[f].handleFiles.file.o)
 	{
@@ -744,7 +780,7 @@ int FS_SV_FOpenFileRead( const char *filename, fileHandle_t *fp ) {
 				Com_Printf( "FS_SV_FOpenFileRead (fs_basepath): %s\n", ospath );
 			}
 
-			fsh[f].handleFiles.file.o = fopen( ospath, "rb" );
+			fsh[f].handleFiles.file.o = fopeni( ospath, "rb" );
 			fsh[f].handleSync = qfalse;
 		}
 
@@ -939,7 +975,7 @@ fileHandle_t FS_FOpenFileAppend( const char *filename ) {
 		return 0;
 	}
 
-	fsh[f].handleFiles.file.o = fopen( ospath, "ab" );
+	fsh[f].handleFiles.file.o = fopeni( ospath, "ab" );
 	fsh[f].handleSync = qfalse;
 	if (!fsh[f].handleFiles.file.o) {
 		f = 0;
@@ -1037,7 +1073,7 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 				dir = search->dir;
 
 				netpath = FS_BuildOSPath( dir->path, dir->gamedir, filename );
-				temp = fopen (netpath, "rb");
+				temp = fopeni (netpath, "rb");
 				if ( !temp ) {
 					continue;
 				}
@@ -1187,7 +1223,7 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 			dir = search->dir;
 
 			netpath = FS_BuildOSPath( dir->path, dir->gamedir, filename );
-			fsh[*file].handleFiles.file.o = fopen (netpath, "rb");
+			fsh[*file].handleFiles.file.o = fopeni (netpath, "rb");
 			if ( !fsh[*file].handleFiles.file.o ) {
 				continue;
 			}
@@ -2707,7 +2743,7 @@ void FS_Shutdown( qboolean closemfp ) {
 	Cmd_RemoveCommand( "touchFile" );
 
 #ifdef FS_MISSING
-	if (closemfp) {
+	if (closemfp && missingFiles) {
 		fclose(missingFiles);
 	}
 #endif
@@ -2773,6 +2809,9 @@ static void FS_Startup( const char *gameName )
 	fs_basepath = Cvar_Get ("fs_basepath", Sys_DefaultInstallPath(), CVAR_INIT );
 #ifdef SMOKINGUNS
 	fs_basegame = Cvar_Get ("fs_basegame", BASEGAME, CVAR_INIT );
+#ifdef FS_MISSING
+	fs_missingfiles = Cvar_Get ("fs_missingfiles", "0", CVAR_INIT );
+#endif
 #else
 	fs_basegame = Cvar_Get ("fs_basegame", "", CVAR_INIT );
 #endif
@@ -2856,8 +2895,8 @@ static void FS_Startup( const char *gameName )
 	Com_Printf( "----------------------\n" );
 
 #ifdef FS_MISSING
-	if (missingFiles == NULL) {
-		missingFiles = fopen( "\\missing.txt", "ab" );
+	if (missingFiles == NULL && fs_missingfiles->integer) {
+		missingFiles = fopen( "missing.txt", "ab" );
 	}
 #endif
 	Com_Printf( "%d files in pk3 files\n", fs_packFiles );
@@ -3333,6 +3372,9 @@ void FS_InitFilesystem( void ) {
 	Com_StartupVariable( "fs_basepath" );
 	Com_StartupVariable( "fs_homepath" );
 	Com_StartupVariable( "fs_game" );
+#ifdef FS_MISSING
+	Com_StartupVariable( "fs_missingfiles" );
+#endif
 
 	// try to start up normally
 	FS_Startup( BASEGAME );

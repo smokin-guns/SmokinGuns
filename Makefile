@@ -852,6 +852,9 @@ endif
 
 ifeq ($(BUILD_STANDALONE),1)
   BASE_CFLAGS += -DSTANDALONE
+  ifdef STANDALONE_CFLAGS
+    BASE_CFLAGS += $(STANDALONE_CFLAGS)
+  endif
 endif
 
 ifdef SDK_GAMENAME
@@ -1380,19 +1383,6 @@ Q3OBJ = \
   $(B)/client/con_passive.o \
   $(B)/client/con_log.o \
   $(B)/client/sys_main.o
-
-ifeq ($(SDK_GAMENAME),SMOKINGUNSS)
-# Add splines support for Smokin' Guns
-  Q3OBJ += \
-    $(B)/client/math_angles.o \
-    $(B)/client/math_matrix.o \
-    $(B)/client/math_quaternion.o \
-    $(B)/client/math_vector.o \
-    $(B)/client/q_parse.o \
-    $(B)/client/q_shared.o \
-    $(B)/client/splines.o \
-    $(B)/client/util_str.o
-endif
 
 ifeq ($(ARCH),i386)
   Q3OBJ += \
