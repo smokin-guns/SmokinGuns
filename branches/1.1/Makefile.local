@@ -37,3 +37,6 @@ endif
 ifndef BUILD_DIR
   BUILD_DIR         = ./build
 endif
+
+STANDALONE_CFLAGS = 
+#STANDALONE_CFLAGS = -DFS_MISSING -DFS_FOPENI
