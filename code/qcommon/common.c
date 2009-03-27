@@ -2532,6 +2532,7 @@ Com_Init
 */
 void Com_Init( char *commandLine ) {
 	char	*s;
+	int	qport;
 
 	Com_Printf( "%s %s %s\n", Q3_VERSION, PLATFORM_STRING, __DATE__ );
 
@@ -2652,7 +2653,11 @@ void Com_Init( char *commandLine ) {
 	com_version = Cvar_Get ("version", s, CVAR_ROM | CVAR_SERVERINFO );
 
 	Sys_Init();
-	Netchan_Init( Com_Milliseconds() & 0xffff );	// pick a port value that should be nice and random
+
+	// Pick a random port value
+	Com_RandomBytes( (byte*)&qport, sizeof(int) );
+	Netchan_Init( qport & 0xffff );
+
 	VM_Init();
 	SV_Init();
 
