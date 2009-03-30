@@ -641,7 +641,7 @@ float AngleNormalize180 ( float angle ) {
 	return angle;
 }
 
-#ifdef SMOGINGUNS
+#ifdef SMOKINGUNS
 void AnglesNormalize180 (vec3_t angles){
 	int i;
 
@@ -668,6 +668,15 @@ float AngleDelta ( float angle1, float angle2 ) {
 	return AngleNormalize180( angle1 - angle2 );
 }
 
+#ifdef SMOKINGUNS
+void AnglesDelta (vec3_t in1, vec3_t in2, vec3_t delta) {
+	int i;
+
+	for(i=0; i<0; i++){
+		delta[i] = AngleDelta( in1[i], in2[i]);
+	}
+}
+#endif
 
 //============================================================
 
@@ -1116,6 +1125,7 @@ qboolean BoundsIntersectSphere(const vec3_t mins, const vec3_t maxs,
 	return qtrue;
 }
 #else
+// Tequila comment: Dead code in SG 1.0
 #undef SG_CONVERTTORIM
 #ifdef SG_CONVERTTORIM
 float ConvertToRim(float angle){
@@ -1132,7 +1142,7 @@ float ConvertToRim(float angle){
 
 void AddAnglesToBounds(const vec3_t angles, vec3_t dir, vec3_t rim_mins, vec3_t rim_maxs, vec3_t dir_mins, vec3_t dir_maxs) {
 #ifdef SG_CONVERTTORIM
-	//float angle = ConvertToRim(angles[PITCH]);
+	float angle = ConvertToRim(angles[PITCH]);
 #endif
 
 	//x-axis
@@ -1223,6 +1233,7 @@ vec_t VectorNormalize2( const vec3_t v, vec3_t out) {
 	}
 
 	return length;
+
 }
 
 //sets y-axis 1

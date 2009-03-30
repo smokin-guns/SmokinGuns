@@ -1117,7 +1117,7 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 		opStackLoadInstructionAddr[opStackDepth-2] = 0;
 		opStackDepth -= 2;
                 i = Constant4();
-				jused[i] = 1;
+		jused[i] = 1;
                 InstImm( "bc", PPC_BC, 4, 0, 8 );
                 if ( pass==1 ) {
                     v = vm->instructionPointers[ i ] - (int)&buf[compiledOfs];
@@ -1141,7 +1141,7 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 		opStackLoadInstructionAddr[opStackDepth-2] = 0;
 		opStackDepth -= 2;
                 i = Constant4();
-				jused[i] = 1;
+		jused[i] = 1;
                 InstImm( "bc", PPC_BC, 12, 1, 8 );
                 if ( pass==1 ) {
                     v = vm->instructionPointers[ i ] - (int)&buf[compiledOfs];

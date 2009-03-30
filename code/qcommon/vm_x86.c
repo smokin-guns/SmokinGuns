@@ -227,7 +227,7 @@ __asm__(
 #if defined __ELF__
 	".size " CMANG(AsmCall)", .-" CMANG(AsmCall)
 #endif
-	);
+);
 
 #endif
 
@@ -1007,7 +1007,7 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 		case OP_CVFI:
 #ifndef FTOL_PTR // WHENHELLISFROZENOVER
 			// not IEEE complient, but simple and fast
-		  EmitString( "D9 07" );		// fld dword ptr [edi]
+			EmitString( "D9 07" );		// fld dword ptr [edi]
 			EmitString( "DB 1F" );		// fistp dword ptr [edi]
 #else // FTOL_PTR
 			// call the library conversion function
@@ -1176,10 +1176,10 @@ int	VM_CallCompiled( vm_t *vm, int *args ) {
 		__asm {
 			pushad
 			mov    esi, programStack
-			mov		edi, opStack
-			call	entryPoint
-			mov		programStack, esi
-			mov		opStack, edi
+			mov    edi, opStack
+			call   entryPoint
+			mov    programStack, esi
+			mov    opStack, edi
 			popad
 		}
 #else

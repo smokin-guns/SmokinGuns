@@ -2663,7 +2663,7 @@ void Com_Init( char *commandLine ) {
 
 	com_dedicated->modified = qfalse;
 #ifndef DEDICATED
-		CL_Init();
+	CL_Init();
 #endif
 
 	// set com_frameTime so that if a map is started on the
