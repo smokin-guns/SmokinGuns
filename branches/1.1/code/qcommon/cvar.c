@@ -755,13 +755,13 @@ void Cvar_Set_f( void ) {
 		case '\0':
 			break;
 		case 'u':
-	v->flags |= CVAR_USERINFO;
+			v->flags |= CVAR_USERINFO;
 			break;
 		case 's':
-	v->flags |= CVAR_SERVERINFO;
+			v->flags |= CVAR_SERVERINFO;
 			break;
 		case 'a':
-	v->flags |= CVAR_ARCHIVE;
+			v->flags |= CVAR_ARCHIVE;
 			break;
 	}
 }

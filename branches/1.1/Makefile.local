@@ -16,11 +16,11 @@ ifeq ($(BUILD_SERVER),)
 endif
 ifeq ($(BUILD_GAME_SO),)
   # Don't build binary game by default
-  BUILD_GAME_SO    = 0
+  BUILD_GAME_SO    = 1
 endif
 ifeq ($(BUILD_GAME_QVM),)
   # Don't build QVM game by default
-  BUILD_GAME_QVM   = 0
+  BUILD_GAME_QVM   = 1
 endif
 ########################################################################
 # Don't modify the following or the build will just be broken
@@ -32,6 +32,7 @@ GAMEDIR           = smokinguns
 ########################################################################
 VERSION           = 1.1
 USE_CODEC_VORBIS  = 0
+SDK_RELEASE       = SG_RELEASE=\\\"$(shell date +%Y%m%d)\\\"
 ########################################################################
 # Here some convenient defaults
 ifndef COPYDIR
@@ -41,5 +42,109 @@ ifndef BUILD_DIR
   BUILD_DIR         = ./build
 endif
 
-STANDALONE_CFLAGS = 
+#STANDALONE_CFLAGS = -DFS_FOPENI
 #STANDALONE_CFLAGS = -DFS_MISSING -DFS_FOPENI
+
+#SDK_TARGETS = \
+#    $(B)/$(GAMEDIR)/cgame$(ARCH).$(SHLIBEXT) \
+#    $(B)/$(GAMEDIR)/qagame$(ARCH).$(SHLIBEXT) \
+#    $(B)/$(GAMEDIR)/ui$(ARCH).$(SHLIBEXT) \
+#      $(B)/$(GAMEDIR)/vm/cgame.qvm \
+#      $(B)/$(GAMEDIR)/vm/qagame.qvm \
+#      $(B)/$(GAMEDIR)/vm/ui.qvm
+
+# By default, all game mod components are build but for now only UI is ported back
+SDK_TARGETS = \
+      $(B)/$(GAMEDIR)/vm/ui.qvm
+SDK_TARGETS += $(B)/$(GAMEDIR)/ui$(ARCH).$(SHLIBEXT)
+SDKUIDIR = ui
+
+#############################################################################
+## SMOKINGUNS CGAME
+#############################################################################
+
+Q3CGOBJ_SDK = \
+  $(B)/$(GAMENAME)/cgame/cg_main.o \
+  $(B)/$(GAMENAME)/cgame/bg_misc.o \
+  $(B)/$(GAMENAME)/cgame/bg_pmove.o \
+  $(B)/$(GAMENAME)/cgame/bg_slidemove.o \
+  $(B)/$(GAMENAME)/cgame/bg_lib.o \
+  $(B)/$(GAMENAME)/cgame/cg_consolecmds.o \
+  $(B)/$(GAMENAME)/cgame/cg_newdraw.o \
+  $(B)/$(GAMENAME)/cgame/cg_draw.o \
+  $(B)/$(GAMENAME)/cgame/cg_drawtools.o \
+  $(B)/$(GAMENAME)/cgame/cg_effects.o \
+  $(B)/$(GAMENAME)/cgame/cg_ents.o \
+  $(B)/$(GAMENAME)/cgame/cg_event.o \
+  $(B)/$(GAMENAME)/cgame/cg_info.o \
+  $(B)/$(GAMENAME)/cgame/cg_localents.o \
+  $(B)/$(GAMENAME)/cgame/cg_marks.o \
+  $(B)/$(GAMENAME)/cgame/cg_players.o \
+  $(B)/$(GAMENAME)/cgame/cg_playerstate.o \
+  $(B)/$(GAMENAME)/cgame/cg_predict.o \
+  $(B)/$(GAMENAME)/cgame/cg_scoreboard.o \
+  $(B)/$(GAMENAME)/cgame/cg_servercmds.o \
+  $(B)/$(GAMENAME)/cgame/cg_snapshot.o \
+  $(B)/$(GAMENAME)/cgame/cg_view.o \
+  $(B)/$(GAMENAME)/cgame/cg_weapons.o \
+  $(B)/$(GAMENAME)/ui/ui_shared.o \
+  \
+  $(B)/$(GAMENAME)/qcommon/q_math.o \
+  $(B)/$(GAMENAME)/qcommon/q_shared.o
+
+#############################################################################
+## SMOKINGUNS GAME
+#############################################################################
+
+Q3GOBJ_SDK = \
+  $(B)/$(GAMENAME)/game/g_main.o \
+  $(B)/$(GAMENAME)/game/ai_chat.o \
+  $(B)/$(GAMENAME)/game/ai_cmd.o \
+  $(B)/$(GAMENAME)/game/ai_dmnet.o \
+  $(B)/$(GAMENAME)/game/ai_dmq3.o \
+  $(B)/$(GAMENAME)/game/ai_main.o \
+  $(B)/$(GAMENAME)/game/ai_team.o \
+  $(B)/$(GAMENAME)/game/ai_vcmd.o \
+  $(B)/$(GAMENAME)/game/bg_misc.o \
+  $(B)/$(GAMENAME)/game/bg_pmove.o \
+  $(B)/$(GAMENAME)/game/bg_slidemove.o \
+  $(B)/$(GAMENAME)/game/bg_lib.o \
+  $(B)/$(GAMENAME)/game/g_active.o \
+  $(B)/$(GAMENAME)/game/g_arenas.o \
+  $(B)/$(GAMENAME)/game/g_bot.o \
+  $(B)/$(GAMENAME)/game/g_client.o \
+  $(B)/$(GAMENAME)/game/g_cmds.o \
+  $(B)/$(GAMENAME)/game/g_combat.o \
+  $(B)/$(GAMENAME)/game/g_items.o \
+  $(B)/$(GAMENAME)/game/g_mem.o \
+  $(B)/$(GAMENAME)/game/g_misc.o \
+  $(B)/$(GAMENAME)/game/g_missile.o \
+  $(B)/$(GAMENAME)/game/g_mover.o \
+  $(B)/$(GAMENAME)/game/g_session.o \
+  $(B)/$(GAMENAME)/game/g_spawn.o \
+  $(B)/$(GAMENAME)/game/g_svcmds.o \
+  $(B)/$(GAMENAME)/game/g_target.o \
+  $(B)/$(GAMENAME)/game/g_team.o \
+  $(B)/$(GAMENAME)/game/g_trigger.o \
+  $(B)/$(GAMENAME)/game/g_utils.o \
+  $(B)/$(GAMENAME)/game/g_weapon.o \
+  \
+  $(B)/$(GAMENAME)/qcommon/q_math.o \
+  $(B)/$(GAMENAME)/qcommon/q_shared.o
+
+#############################################################################
+## SMOKINGUNS UI
+#############################################################################
+
+Q3UIOBJ_SDK = \
+  $(B)/$(GAMENAME)/ui/ui_main.o \
+  $(B)/$(GAMENAME)/ui/ui_atoms.o \
+  $(B)/$(GAMENAME)/ui/ui_gameinfo.o \
+  $(B)/$(GAMENAME)/ui/ui_players.o \
+  $(B)/$(GAMENAME)/ui/ui_shared.o \
+  \
+  $(B)/$(GAMENAME)/ui/bg_misc.o \
+  $(B)/$(GAMENAME)/ui/bg_lib.o \
+  \
+  $(B)/$(GAMENAME)/qcommon/q_math.o \
+  $(B)/$(GAMENAME)/qcommon/q_shared.o

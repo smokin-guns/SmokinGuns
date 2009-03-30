@@ -116,14 +116,14 @@ static char	*opnames[256] = {
 #if idppc
 
 //FIXME: these, um... look the same to me
-    #if defined(__GNUC__)
+#if defined(__GNUC__)
 static ID_INLINE unsigned int loadWord(void *addr) {
-            unsigned int word;
+	unsigned int word;
 
-            asm("lwbrx %0,0,%1" : "=r" (word) : "r" (addr));
-            return word;
-        }
-    #else
+	asm("lwbrx %0,0,%1" : "=r" (word) : "r" (addr));
+	return word;
+}
+#else
 static ID_INLINE unsigned int __lwbrx(register void *addr,
 		register int offset) {
 	register unsigned int word;

@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 /**********************************************************************
 	UI_ATOMS.C
 
@@ -30,15 +31,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 qboolean		m_entersound;		// after a frame, so caching won't disrupt the sound
 
-// these are here so the functions in q_shared.c can link
-#ifndef UI_HARD_LINKED
-
 void QDECL Com_Error( int level, const char *error, ... ) {
 	va_list		argptr;
 	char		text[1024];
 
 	va_start (argptr, error);
-	vsprintf (text, error, argptr);
+	Q_vsnprintf (text, sizeof(text), error, argptr);
 	va_end (argptr);
 
 	trap_Error( va("%s", text) );
@@ -49,13 +47,11 @@ void QDECL Com_Printf( const char *msg, ... ) {
 	char		text[1024];
 
 	va_start (argptr, msg);
-	vsprintf (text, msg, argptr);
+	Q_vsnprintf (text, sizeof(text), msg, argptr);
 	va_end (argptr);
 
 	trap_Print( va("%s", text) );
 }
-
-#endif
 
 qboolean newUI = qfalse;
 
@@ -83,19 +79,22 @@ void UI_StartDemoLoop( void ) {
 
 
 #ifndef SMOKINGUNS
+#ifndef MISSIONPACK
 static void NeedCDAction( qboolean result ) {
 	if ( !result ) {
 		trap_Cmd_ExecuteText( EXEC_APPEND, "quit\n" );
 	}
 }
+#endif // MISSIONPACK
 
+#ifndef MISSIONPACK
 static void NeedCDKeyAction( qboolean result ) {
 	if ( !result ) {
 		trap_Cmd_ExecuteText( EXEC_APPEND, "quit\n" );
 	}
 }
+#endif // MISSIONPACK
 #endif
-
 
 char *UI_Argv( int arg ) {
 	static char	buffer[MAX_STRING_CHARS];
@@ -155,6 +154,14 @@ void UI_LoadBestScores(const char *map, int game) {
 	char		fileName[MAX_QPATH];
 	fileHandle_t f;
 	postGameInfo_t newInfo;
+
+#ifdef SMOKINGUNS
+	// Tequila: Minor fix to not try to load anything when map is not defined here
+	//          In some case that's involves not critical bad file loading tries
+	if (map==NULL)
+		return ;
+#endif
+
 	memset(&newInfo, 0, sizeof(postGameInfo_t));
 	Com_sprintf(fileName, MAX_QPATH, "games/%s_%i.game", map, game);
 	if (trap_FS_FOpenFile(fileName, &f, FS_READ) >= 0) {
@@ -180,7 +187,7 @@ void UI_LoadBestScores(const char *map, int game) {
 UI_ClearScores
 ===============
 */
-void UI_ClearScores() {
+void UI_ClearScores(void) {
 	char	gameList[4096];
 	char *gameFile;
 	int		i, len, count, size;
@@ -211,23 +218,16 @@ void UI_ClearScores() {
 
 
 
-static void	UI_Cache_f() {
+static void	UI_Cache_f( void ) {
 	Display_CacheAll();
 }
-
-/*
-Serverinfoprocedure
-char		info[MAX_INFO_STRING];
-trap_GetConfigString( CS_SERVERINFO, info, sizeof(info) );
-game = atoi(Info_ValueForKey(info, "g_gametype"));
-*/
 
 /*
 =======================
 UI_CalcPostGameStats
 =======================
 */
-static void UI_CalcPostGameStats() {
+static void UI_CalcPostGameStats( void ) {
 	char		map[MAX_QPATH];
 	char		fileName[MAX_QPATH];
 	char		info[MAX_INFO_STRING];
@@ -357,9 +357,13 @@ qboolean UI_ConsoleCommand( int realTime ) {
 		if (trap_Argc() == 4) {
 			char shader1[MAX_QPATH];
 			char shader2[MAX_QPATH];
+			char shader3[MAX_QPATH];
+			
 			Q_strncpyz(shader1, UI_Argv(1), sizeof(shader1));
 			Q_strncpyz(shader2, UI_Argv(2), sizeof(shader2));
-			trap_R_RemapShader(shader1, shader2, UI_Argv(3));
+			Q_strncpyz(shader3, UI_Argv(3), sizeof(shader3));
+			
+			trap_R_RemapShader(shader1, shader2, shader3);
 			return qtrue;
 		}
 	}

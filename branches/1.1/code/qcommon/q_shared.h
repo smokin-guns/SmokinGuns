@@ -41,7 +41,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
     #define PRODUCT_VERSION	"1.1"
   #endif
   #ifndef SG_RELEASE
-    #define SG_RELEASE	"20090122"
+    #define SG_RELEASE	"20090330"
   #endif
 #else
   #define PRODUCT_NAME			"iofoo3"
@@ -215,13 +215,7 @@ typedef int		clipHandle_t;
 // the game guarantees that no string from the network will ever
 // exceed MAX_STRING_CHARS
 #define	MAX_STRING_CHARS	1024	// max length of a string passed to Cmd_TokenizeString
-
-#if defined SMOKINGUNS_SO || defined Q3_VM
-#define	MAX_STRING_TOKENS	256		// max tokens resulting from Cmd_TokenizeString
-#else
 #define	MAX_STRING_TOKENS	1024	// max tokens resulting from Cmd_TokenizeString
-#endif
-
 #define	MAX_TOKEN_CHARS		1024	// max length of an individual token
 
 #define	MAX_INFO_STRING		1024
@@ -286,10 +280,10 @@ typedef enum {
 
 #define PROP_GAP_WIDTH			3
 #define PROP_SPACE_WIDTH		8
-#if defined SMOKINGUNS_SO || defined Q3_VM
-#define PROP_HEIGHT				24
-#else
+#ifndef SMOKINGUNS
 #define PROP_HEIGHT				27
+#else
+#define PROP_HEIGHT				24
 #endif
 #define PROP_SMALL_SIZE_SCALE	0.75
 
@@ -764,6 +758,14 @@ void	Q_strcat( char *dest, int size, const char *src );
 int Q_PrintStrlen( const char *string );
 // removes color sequences from string
 char *Q_CleanStr( char *string );
+
+#ifdef SMOKINGUNS
+// Joe Kari: string splitter, fill output_string with all char found between the 'start' postion in input_string
+// to the next char 'splitter', 'n' is the max size of output_string INCLUDING the final NULL char, that is automatically added,
+// return 0 if no string were found or an error occur, or return the next value to be used as the next 'start' argument
+int strnsplit( char *input_string , char *output_string , char splitter , int start , size_t n ) ;
+#endif
+
 // Count the number of char tocount encountered in string
 int Q_CountChar(const char *string, char tocount);
 
@@ -1035,17 +1037,13 @@ typedef struct {
 
 //=========================================================
 
-#if defined SMOKINGUNS_SO || defined Q3_VM
 // bit field limits
 #define	MAX_STATS				16
+#if defined SMOKINGUNS && ( defined CGAME || defined GAME || defined UI )
 #define	MAX_PERSISTANT			10
 #define	MAX_POWERUPS			13
 #define	MAX_WEAPONS				21
-
-// 4 ints have been used for other variables, so total ints of 60 instead of 64 here
 #else
-// bit field limits
-#define	MAX_STATS				16
 #define	MAX_PERSISTANT			16
 #define	MAX_POWERUPS			16
 #define	MAX_WEAPONS				16
@@ -1123,7 +1121,7 @@ typedef struct playerState_s {
 	int			powerups[MAX_POWERUPS];	// level.time that the powerup runs out
 	int			ammo[MAX_WEAPONS];
 
-#if defined SMOKINGUNS_SO || defined Q3_VM	// Only used by SG mod
+#if defined SMOKINGUNS && ( defined CGAME || defined GAME || defined UI )	// Only used by SG mod
 	// stats for 2nd weapon
 	int			weapon2;
 	int			weapon2state;// important to be here because of PERS_SCORE
@@ -1134,17 +1132,17 @@ typedef struct playerState_s {
 #endif
 	int			generic1;
 	int			loopSound;
-#if ! defined SMOKINGUNS_SO && ! defined Q3_VM
+#if ! defined SMOKINGUNS || ! ( defined CGAME || defined GAME || defined UI )	// Not used by SG mod
 	int			jumppad_ent;	// jumppad entity hit this frame
 #endif
 
 	// not communicated over the net at all
 	int			ping;			// server to game info for scoreboard
-#if defined SMOKINGUNS_SO || defined Q3_VM	// Only used by SG mod
+#if defined SMOKINGUNS && ( defined CGAME || defined GAME || defined UI )	// Only used by SG mod
 	int			oldbuttons;
 #endif
 	int			pmove_framecount;	// FIXME: don't transmit over the network
-#if ! defined SMOKINGUNS_SO && ! defined Q3_VM
+#if ! defined SMOKINGUNS || ! ( defined CGAME || defined GAME || defined UI )	// Not used by SG mod
 	int			jumppad_frame;
 #endif
 	int			entityEventSequence;
@@ -1279,8 +1277,9 @@ typedef struct entityState_s {
 
 	// Joe Kari: attempt to add far clipping to entities
 	// for instance, the engine itself should be modified (msg.c)
+#ifdef SMOKINGUNS
 	//int		farclip_dist;
-	
+#endif
 } entityState_t;
 
 typedef enum {
@@ -1316,13 +1315,13 @@ typedef struct {
   float s2;
   float t2;
   qhandle_t glyph;  // handle to the shader with the glyph
-	char shaderName[32];
+  char shaderName[32];
 } glyphInfo_t;
 
 typedef struct {
   glyphInfo_t glyphs [GLYPHS_PER_FONT];
-	float glyphScale;
-	char name[MAX_QPATH];
+  float glyphScale;
+  char name[MAX_QPATH];
 } fontInfo_t;
 
 #define Square(x) ((x)*(x))
@@ -1373,17 +1372,10 @@ typedef enum _flag_status {
 
 
 
-#if defined SMOKINGUNS_SO || defined Q3_VM
-#define	MAX_GLOBAL_SERVERS			2048
-#define	MAX_OTHER_SERVERS			128
-#define MAX_PINGREQUESTS			16
-#define MAX_SERVERSTATUSREQUESTS	16
-#else
 #define	MAX_GLOBAL_SERVERS				4096
 #define	MAX_OTHER_SERVERS					128
 #define MAX_PINGREQUESTS					32
 #define MAX_SERVERSTATUSREQUESTS	16
-#endif
 
 #define SAY_ALL		0
 #define SAY_TEAM	1

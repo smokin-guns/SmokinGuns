@@ -787,7 +787,7 @@ int FS_SV_FOpenFileRead( const char *filename, fileHandle_t *fp ) {
 
 		if ( !fsh[f].handleFiles.file.o )
 		{
-		f = 0;
+			f = 0;
 		}
 	}
 
@@ -1205,11 +1205,11 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 			// if we are running restricted, the only files we
 			// will allow to come from the directory are .cfg files
 			l = strlen( filename );
-      // FIXME TTimo I'm not sure about the fs_numServerPaks test
-      // if you are using FS_ReadFile to find out if a file exists,
-      //   this test can make the search fail although the file is in the directory
-      // I had the problem on https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=8
-      // turned out I used FS_FileExists instead
+			// FIXME TTimo I'm not sure about the fs_numServerPaks test
+			// if you are using FS_ReadFile to find out if a file exists,
+			//   this test can make the search fail although the file is in the directory
+			// I had the problem on https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=8
+			// turned out I used FS_FileExists instead
 			if ( fs_numServerPaks ) {
 
 				if ( Q_stricmp( filename + l - 4, ".cfg" )		// for config files
@@ -1430,8 +1430,8 @@ int FS_Seek( fileHandle_t f, long offset, int origin ) {
 
 		switch( origin ) {
 			case FS_SEEK_SET:
-			unzSetCurrentFileInfoPosition(fsh[f].handleFiles.file.z, fsh[f].zipFilePos);
-			unzOpenCurrentFile(fsh[f].handleFiles.file.z);
+				unzSetCurrentFileInfoPosition(fsh[f].handleFiles.file.z, fsh[f].zipFilePos);
+				unzOpenCurrentFile(fsh[f].handleFiles.file.z);
 				//fallthrough
 
 			case FS_SEEK_CUR:
@@ -1445,7 +1445,7 @@ int FS_Seek( fileHandle_t f, long offset, int origin ) {
 
 			default:
 				Com_Error( ERR_FATAL, "Bad origin in FS_Seek\n" );
-			return -1;
+				return -1;
 				break;
 		}
 	} else {
@@ -2101,51 +2101,51 @@ FIXME TTimo those two should move to common.c next to Sys_ListFiles
  */
 static unsigned int Sys_CountFileList(char **list)
 {
-  int i = 0;
+	int i = 0;
 
-  if (list)
-  {
-    while (*list)
-    {
-      list++;
-      i++;
-    }
-  }
-  return i;
+	if (list)
+	{
+		while (*list)
+		{
+			list++;
+			i++;
+		}
+	}
+	return i;
 }
 
 static char** Sys_ConcatenateFileLists( char **list0, char **list1 )
 {
-  int totalLength = 0;
-  char** cat = NULL, **dst, **src;
+	int totalLength = 0;
+	char** cat = NULL, **dst, **src;
 
-  totalLength += Sys_CountFileList(list0);
-  totalLength += Sys_CountFileList(list1);
+	totalLength += Sys_CountFileList(list0);
+	totalLength += Sys_CountFileList(list1);
 
-  /* Create new list. */
-  dst = cat = Z_Malloc( ( totalLength + 1 ) * sizeof( char* ) );
+	/* Create new list. */
+	dst = cat = Z_Malloc( ( totalLength + 1 ) * sizeof( char* ) );
 
-  /* Copy over lists. */
-  if (list0)
-  {
-    for (src = list0; *src; src++, dst++)
-      *dst = *src;
-  }
-  if (list1)
-  {
-    for (src = list1; *src; src++, dst++)
-      *dst = *src;
-  }
+	/* Copy over lists. */
+	if (list0)
+	{
+		for (src = list0; *src; src++, dst++)
+			*dst = *src;
+	}
+	if (list1)
+	{
+		for (src = list1; *src; src++, dst++)
+			*dst = *src;
+	}
 
-  // Terminate the list
-  *dst = NULL;
+	// Terminate the list
+	*dst = NULL;
 
-  // Free our old lists.
-  // NOTE: not freeing their content, it's been merged in dst and still being used
-  if (list0) Z_Free( list0 );
-  if (list1) Z_Free( list1 );
+	// Free our old lists.
+	// NOTE: not freeing their content, it's been merged in dst and still being used
+	if (list0) Z_Free( list0 );
+	if (list1) Z_Free( list1 );
 
-  return cat;
+	return cat;
 }
 
 /*
@@ -2158,106 +2158,106 @@ The directories are searched in base path, cd path and home path
 ================
 */
 int	FS_GetModList( char *listbuf, int bufsize ) {
-  int		nMods, i, j, nTotal, nLen, nPaks, nPotential, nDescLen;
-  char **pFiles = NULL;
-  char **pPaks = NULL;
-  char *name, *path;
-  char descPath[MAX_OSPATH];
-  fileHandle_t descHandle;
+	int		nMods, i, j, nTotal, nLen, nPaks, nPotential, nDescLen;
+	char **pFiles = NULL;
+	char **pPaks = NULL;
+	char *name, *path;
+	char descPath[MAX_OSPATH];
+	fileHandle_t descHandle;
 
-  int dummy;
-  char **pFiles0 = NULL;
-  char **pFiles1 = NULL;
-  qboolean bDrop = qfalse;
+	int dummy;
+	char **pFiles0 = NULL;
+	char **pFiles1 = NULL;
+	qboolean bDrop = qfalse;
 
-  *listbuf = 0;
-  nMods = nPotential = nTotal = 0;
+	*listbuf = 0;
+	nMods = nPotential = nTotal = 0;
 
-  pFiles0 = Sys_ListFiles( fs_homepath->string, NULL, NULL, &dummy, qtrue );
-  pFiles1 = Sys_ListFiles( fs_basepath->string, NULL, NULL, &dummy, qtrue );
-  // we searched for mods in the three paths
-  // it is likely that we have duplicate names now, which we will cleanup below
-  pFiles = Sys_ConcatenateFileLists( pFiles0, pFiles1 );
-  nPotential = Sys_CountFileList(pFiles);
+	pFiles0 = Sys_ListFiles( fs_homepath->string, NULL, NULL, &dummy, qtrue );
+	pFiles1 = Sys_ListFiles( fs_basepath->string, NULL, NULL, &dummy, qtrue );
+	// we searched for mods in the three paths
+	// it is likely that we have duplicate names now, which we will cleanup below
+	pFiles = Sys_ConcatenateFileLists( pFiles0, pFiles1 );
+	nPotential = Sys_CountFileList(pFiles);
 
-  for ( i = 0 ; i < nPotential ; i++ ) {
-    name = pFiles[i];
-    // NOTE: cleaner would involve more changes
-    // ignore duplicate mod directories
-    if (i!=0) {
-      bDrop = qfalse;
-      for(j=0; j<i; j++)
-      {
-        if (Q_stricmp(pFiles[j],name)==0) {
-          // this one can be dropped
-          bDrop = qtrue;
-          break;
-        }
-      }
-    }
-    if (bDrop) {
-      continue;
-    }
-    // we drop "baseq3" "." and ".."
-    if (Q_stricmp(name, BASEGAME) && Q_stricmpn(name, ".", 1)) {
-      // now we need to find some .pk3 files to validate the mod
-      // NOTE TTimo: (actually I'm not sure why .. what if it's a mod under developement with no .pk3?)
-      // we didn't keep the information when we merged the directory names, as to what OS Path it was found under
-      //   so it could be in base path, cd path or home path
-      //   we will try each three of them here (yes, it's a bit messy)
-      path = FS_BuildOSPath( fs_basepath->string, name, "" );
-      nPaks = 0;
-      pPaks = Sys_ListFiles(path, ".pk3", NULL, &nPaks, qfalse);
-      Sys_FreeFileList( pPaks ); // we only use Sys_ListFiles to check wether .pk3 files are present
+	for ( i = 0 ; i < nPotential ; i++ ) {
+		name = pFiles[i];
+		// NOTE: cleaner would involve more changes
+		// ignore duplicate mod directories
+		if (i!=0) {
+			bDrop = qfalse;
+			for(j=0; j<i; j++)
+			{
+				if (Q_stricmp(pFiles[j],name)==0) {
+					// this one can be dropped
+					bDrop = qtrue;
+					break;
+				}
+			}
+		}
+		if (bDrop) {
+			continue;
+		}
+		// we drop "baseq3" "." and ".."
+		if (Q_stricmp(name, BASEGAME) && Q_stricmpn(name, ".", 1)) {
+			// now we need to find some .pk3 files to validate the mod
+			// NOTE TTimo: (actually I'm not sure why .. what if it's a mod under developement with no .pk3?)
+			// we didn't keep the information when we merged the directory names, as to what OS Path it was found under
+			//   so it could be in base path, cd path or home path
+			//   we will try each three of them here (yes, it's a bit messy)
+			path = FS_BuildOSPath( fs_basepath->string, name, "" );
+			nPaks = 0;
+			pPaks = Sys_ListFiles(path, ".pk3", NULL, &nPaks, qfalse); 
+			Sys_FreeFileList( pPaks ); // we only use Sys_ListFiles to check wether .pk3 files are present
 
-      /* try on home path */
-      if ( nPaks <= 0 )
-      {
-        path = FS_BuildOSPath( fs_homepath->string, name, "" );
-        nPaks = 0;
-        pPaks = Sys_ListFiles( path, ".pk3", NULL, &nPaks, qfalse );
-        Sys_FreeFileList( pPaks );
-      }
+			/* try on home path */
+			if ( nPaks <= 0 )
+			{
+				path = FS_BuildOSPath( fs_homepath->string, name, "" );
+				nPaks = 0;
+				pPaks = Sys_ListFiles( path, ".pk3", NULL, &nPaks, qfalse );
+				Sys_FreeFileList( pPaks );
+			}
 
-      if (nPaks > 0) {
-        nLen = strlen(name) + 1;
-        // nLen is the length of the mod path
-        // we need to see if there is a description available
-        descPath[0] = '\0';
-        strcpy(descPath, name);
-        strcat(descPath, "/description.txt");
-        nDescLen = FS_SV_FOpenFileRead( descPath, &descHandle );
-        if ( nDescLen > 0 && descHandle) {
-          FILE *file;
-          file = FS_FileForHandle(descHandle);
-          Com_Memset( descPath, 0, sizeof( descPath ) );
-          nDescLen = fread(descPath, 1, 48, file);
-          if (nDescLen >= 0) {
-            descPath[nDescLen] = '\0';
-          }
-          FS_FCloseFile(descHandle);
-        } else {
-          strcpy(descPath, name);
-        }
-        nDescLen = strlen(descPath) + 1;
+			if (nPaks > 0) {
+				nLen = strlen(name) + 1;
+				// nLen is the length of the mod path
+				// we need to see if there is a description available
+				descPath[0] = '\0';
+				strcpy(descPath, name);
+				strcat(descPath, "/description.txt");
+				nDescLen = FS_SV_FOpenFileRead( descPath, &descHandle );
+				if ( nDescLen > 0 && descHandle) {
+					FILE *file;
+					file = FS_FileForHandle(descHandle);
+					Com_Memset( descPath, 0, sizeof( descPath ) );
+					nDescLen = fread(descPath, 1, 48, file);
+					if (nDescLen >= 0) {
+						descPath[nDescLen] = '\0';
+					}
+					FS_FCloseFile(descHandle);
+				} else {
+					strcpy(descPath, name);
+				}
+				nDescLen = strlen(descPath) + 1;
 
-        if (nTotal + nLen + 1 + nDescLen + 1 < bufsize) {
-          strcpy(listbuf, name);
-          listbuf += nLen;
-          strcpy(listbuf, descPath);
-          listbuf += nDescLen;
-          nTotal += nLen + nDescLen;
-          nMods++;
-        }
-        else {
-          break;
-        }
-      }
-    }
-  }
-  Sys_FreeFileList( pFiles );
+				if (nTotal + nLen + 1 + nDescLen + 1 < bufsize) {
+					strcpy(listbuf, name);
+					listbuf += nLen;
+					strcpy(listbuf, descPath);
+					listbuf += nDescLen;
+					nTotal += nLen + nDescLen;
+					nMods++;
+				}
+				else {
+					break;
+				}
+			}
+		}
+	}
+	Sys_FreeFileList( pFiles );
 
-  return nMods;
+	return nMods;
 }
 
 
@@ -2629,10 +2629,10 @@ qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring ) {
 
 		// Make sure the server cannot make us write to non-quake3 directories.
 		if(FS_CheckDirTraversal(fs_serverReferencedPakNames[i]))
-                {
+		{
 			Com_Printf("WARNING: Invalid download name %s\n", fs_serverReferencedPakNames[i]);
-                        continue;
-                }
+			continue;
+		}
 
 		for ( sp = fs_searchpaths ; sp ; sp = sp->next ) {
 			if ( sp->pack && sp->pack->checksum == fs_serverReferencedPaks[i] ) {
@@ -2644,55 +2644,55 @@ qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring ) {
 		if ( !havepak && fs_serverReferencedPakNames[i] && *fs_serverReferencedPakNames[i] ) {
 			// Don't got it
 
-      if (dlstring)
-      {
-	// We need this to make sure we won't hit the end of the buffer or the server could
-	// overwrite non-pk3 files on clients by writing so much crap into neededpaks that
-	// Q_strcat cuts off the .pk3 extension.
+			if (dlstring)
+			{
+				// We need this to make sure we won't hit the end of the buffer or the server could
+				// overwrite non-pk3 files on clients by writing so much crap into neededpaks that
+				// Q_strcat cuts off the .pk3 extension.
 
-	origpos += strlen(origpos);
+				origpos += strlen(origpos);
 
-        // Remote name
-        Q_strcat( neededpaks, len, "@");
-        Q_strcat( neededpaks, len, fs_serverReferencedPakNames[i] );
-        Q_strcat( neededpaks, len, ".pk3" );
+				// Remote name
+				Q_strcat( neededpaks, len, "@");
+				Q_strcat( neededpaks, len, fs_serverReferencedPakNames[i] );
+				Q_strcat( neededpaks, len, ".pk3" );
 
-        // Local name
-        Q_strcat( neededpaks, len, "@");
-        // Do we have one with the same name?
-        if ( FS_SV_FileExists( va( "%s.pk3", fs_serverReferencedPakNames[i] ) ) )
-        {
-          char st[MAX_ZPATH];
-          // We already have one called this, we need to download it to another name
-          // Make something up with the checksum in it
-          Com_sprintf( st, sizeof( st ), "%s.%08x.pk3", fs_serverReferencedPakNames[i], fs_serverReferencedPaks[i] );
-          Q_strcat( neededpaks, len, st );
-        }
-        else
-        {
-          Q_strcat( neededpaks, len, fs_serverReferencedPakNames[i] );
-          Q_strcat( neededpaks, len, ".pk3" );
-        }
+				// Local name
+				Q_strcat( neededpaks, len, "@");
+				// Do we have one with the same name?
+				if ( FS_SV_FileExists( va( "%s.pk3", fs_serverReferencedPakNames[i] ) ) )
+				{
+					char st[MAX_ZPATH];
+					// We already have one called this, we need to download it to another name
+					// Make something up with the checksum in it
+					Com_sprintf( st, sizeof( st ), "%s.%08x.pk3", fs_serverReferencedPakNames[i], fs_serverReferencedPaks[i] );
+					Q_strcat( neededpaks, len, st );
+				}
+				else
+				{
+					Q_strcat( neededpaks, len, fs_serverReferencedPakNames[i] );
+					Q_strcat( neededpaks, len, ".pk3" );
+				}
 
-        // Find out whether it might have overflowed the buffer and don't add this file to the
-        // list if that is the case.
-        if(strlen(origpos) + (origpos - neededpaks) >= len - 1)
-	{
-		*origpos = '\0';
-		break;
-	}
-      }
-      else
-      {
-        Q_strcat( neededpaks, len, fs_serverReferencedPakNames[i] );
-			  Q_strcat( neededpaks, len, ".pk3" );
-        // Do we have one with the same name?
-        if ( FS_SV_FileExists( va( "%s.pk3", fs_serverReferencedPakNames[i] ) ) )
-        {
-          Q_strcat( neededpaks, len, " (local file exists with wrong checksum)");
-        }
-        Q_strcat( neededpaks, len, "\n");
-      }
+				// Find out whether it might have overflowed the buffer and don't add this file to the
+				// list if that is the case.
+				if(strlen(origpos) + (origpos - neededpaks) >= len - 1)
+				{
+					*origpos = '\0';
+					break;
+				}
+			}
+			else
+			{
+				Q_strcat( neededpaks, len, fs_serverReferencedPakNames[i] );
+				Q_strcat( neededpaks, len, ".pk3" );
+				// Do we have one with the same name?
+				if ( FS_SV_FileExists( va( "%s.pk3", fs_serverReferencedPakNames[i] ) ) )
+				{
+					Q_strcat( neededpaks, len, " (local file exists with wrong checksum)");
+				}
+				Q_strcat( neededpaks, len, "\n");
+			}
 		}
 	}
 

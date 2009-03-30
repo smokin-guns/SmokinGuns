@@ -25,12 +25,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define __UI_SHARED_H
 
 
-#include "../game/q_shared.h"
-#include "../cgame/tr_types.h"
-// Avoid a trick from Hika in cons for unix build
-#ifndef __KEYCODES_H__
-#include "keycodes.h"
-#endif
+#include "../qcommon/q_shared.h"
+#include "../renderer/tr_types.h"
+#include "../client/keycodes.h"
 
 #include "../../ui/menudef.h"
 
@@ -68,7 +65,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define WINDOW_POPUP				0x00200000	// popup
 #define WINDOW_BACKCOLORSET			0x00400000	// backcolor was explicitly set
 #define WINDOW_TIMEDVISIBLE			0x00800000	// visibility timing ( NOT implemented )
+#ifdef SMOKINGUNS
 #define WINDOW_NOFOCUS				0x01000000
+#endif
 
 
 // CGAME cursor type bits
@@ -96,6 +95,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ART_FX_YELLOW		"menu/art/fx_yel"
 
 #define ASSET_GRADIENTBAR "ui/assets/gradientbar2.tga"
+#ifndef SMOKINGUNS
+#define ASSET_SCROLLBAR             "ui/assets/scrollbar.tga"
+#define ASSET_SCROLLBAR_ARROWDOWN   "ui/assets/scrollbar_arrow_dwn_a.tga"
+#define ASSET_SCROLLBAR_ARROWUP     "ui/assets/scrollbar_arrow_up_a.tga"
+#define ASSET_SCROLLBAR_ARROWLEFT   "ui/assets/scrollbar_arrow_left.tga"
+#define ASSET_SCROLLBAR_ARROWRIGHT  "ui/assets/scrollbar_arrow_right.tga"
+#define ASSET_SCROLL_THUMB          "ui/assets/scrollbar_thumb.tga"
+#define ASSET_SLIDER_BAR						"ui/assets/slider2.tga"
+#define ASSET_SLIDER_THUMB					"ui/assets/sliderbutt_1.tga"
+#else
 #define ASSET_SCROLLBAR             "ui/wq3_assets/scrollbar.tga"
 #define ASSET_SCROLLBAR_HORZ		"ui/wq3_assets/scrollbar_horz.tga"
 #define ASSET_SCROLLBAR_ARROWDOWN   "ui/wq3_assets/scrollbar_arrow_dwn_a.tga"
@@ -107,11 +116,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ASSET_SLIDER_THUMB			"ui/wq3_assets/slider_thumb.tga"
 #define ASSET_MENU_WIDTH			"ui/wq3_assets/menu_width.tga"
 #define ASSET_MENU_HEIGHT			"ui/wq3_assets/menu_height.tga"
+#endif
 #define SCROLLBAR_SIZE 16.0
 #define SLIDER_WIDTH 96.0
+#ifndef SMOKINGUNS
+#define SLIDER_HEIGHT 16.0
+#define SLIDER_THUMB_WIDTH 12.0
+#define SLIDER_THUMB_HEIGHT 20.0
+#else
 #define SLIDER_HEIGHT 12.0
 #define SLIDER_THUMB_WIDTH 14.0
 #define SLIDER_THUMB_HEIGHT 14.0
+#endif
 #define	NUM_CROSSHAIRS			10
 
 typedef struct {
@@ -256,7 +272,7 @@ typedef struct itemDef_s {
 	colorRangeDef_t colorRanges[MAX_COLOR_RANGES];
 	float special;								 // used for feeder id's etc.. diff per type
   int cursorPos;                 // cursor position in characters
-	void *typeData;	// type specific data ptr's
+	void *typeData;              // type specific data ptr's
 } itemDef_t;
 
 typedef struct {
@@ -293,15 +309,19 @@ typedef struct {
   qhandle_t scrollBarArrowLeft;
   qhandle_t scrollBarArrowRight;
   qhandle_t scrollBar;
+#ifdef SMOKINGUNS
   qhandle_t	scrollBar_horz;
+#endif
   qhandle_t scrollBarThumb;
   qhandle_t buttonMiddle;
   qhandle_t buttonInside;
   qhandle_t solidBox;
   qhandle_t sliderBar;
   qhandle_t sliderThumb;
+#ifdef SMOKINGUNS
   qhandle_t	menu_width;
   qhandle_t menu_height;
+#endif
   sfxHandle_t menuEnterSound;
   sfxHandle_t menuExitSound;
   sfxHandle_t menuBuzzSound;
@@ -318,7 +338,11 @@ typedef struct {
   // player settings
 	qhandle_t fxBasePic;
   qhandle_t fxPic[7];
-	qhandle_t	crosshairShader;//[NUM_CROSSHAIRS];
+#ifndef SMOKINGUNS
+	qhandle_t	crosshairShader[NUM_CROSSHAIRS];
+#else
+	qhandle_t	crosshairShader;
+#endif
 
 } cachedAssets_t;
 
@@ -341,11 +365,11 @@ typedef struct {
   void (*drawRect) ( float x, float y, float w, float h, float size, const vec4_t color);
   void (*drawSides) (float x, float y, float w, float h, float size);
   void (*drawTopBottom) (float x, float y, float w, float h, float size);
-  void (*clearScene) ();
+  void (*clearScene) ( void );
   void (*addRefEntityToScene) (const refEntity_t *re );
   void (*renderScene) ( const refdef_t *fd );
   void (*registerFont) (const char *pFontname, int pointSize, fontInfo_t *font);
-  void (*ownerDrawItem) (itemDef_t *item, float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle);
+  void (*ownerDrawItem) (float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle);
 	float (*getValue) (int ownerDraw);
 	qboolean (*ownerDrawVisible) (int flags);
   void (*runScript)(char **p);
@@ -355,7 +379,7 @@ typedef struct {
   void (*setCVar)(const char *cvar, const char *value);
   void (*drawTextWithCursor)(float x, float y, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style);
   void (*setOverstrikeMode)(qboolean b);
-  qboolean (*getOverstrikeMode)();
+  qboolean (*getOverstrikeMode)( void );
   void (*startLocalSound)( sfxHandle_t sfx, int channelNum );
   qboolean (*ownerDrawHandleKey)(int ownerDraw, int flags, float *special, int key);
   int (*feederCount)(float feederID);
@@ -372,7 +396,7 @@ typedef struct {
 	int (*ownerDrawWidth)(int ownerDraw, float scale);
 	sfxHandle_t (*registerSound)(const char *name, qboolean compressed);
 	void (*startBackgroundTrack)( const char *intro, const char *loop);
-	void (*stopBackgroundTrack)();
+	void (*stopBackgroundTrack)( void );
 	int (*playCinematic)(const char *name, float x, float y, float w, float h);
 	void (*stopCinematic)(int handle);
 	void (*drawCinematic)(int handle, float x, float y, float w, float h);
@@ -397,15 +421,20 @@ typedef struct {
 
 } displayContextDef_t;
 
+#ifdef SMOKINGUNS
+// Tequila: Moved from cg_local.h as it needs itemDef_t type definition
+void CG_OwnerDraw(itemDef_t *item, float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle);
+#endif
+
 const char *String_Alloc(const char *p);
-void String_Init();
-void String_Report();
+void String_Init( void );
+void String_Report( void );
 void Init_Display(displayContextDef_t *dc);
 void Display_ExpandMacros(char * buff);
 void Menu_Init(menuDef_t *menu);
 void Item_Init(itemDef_t *item);
 void Menu_PostParse(menuDef_t *menu);
-menuDef_t *Menu_GetFocused();
+menuDef_t *Menu_GetFocused( void );
 void Menu_HandleKey(menuDef_t *menu, int key, qboolean down);
 void Menu_HandleMouseMove(menuDef_t *menu, float x, float y);
 void Menu_ScrollFeeder(menuDef_t *menu, int feeder, qboolean down);
@@ -421,33 +450,33 @@ qboolean PC_Int_Parse(int handle, int *i);
 qboolean PC_Rect_Parse(int handle, rectDef_t *r);
 qboolean PC_String_Parse(int handle, const char **out);
 qboolean PC_Script_Parse(int handle, const char **out);
-int Menu_Count();
+int Menu_Count( void );
 void Menu_New(int handle);
-void Menu_PaintAll();
+void Menu_PaintAll( void );
 menuDef_t *Menus_ActivateByName(const char *p);
-void Menu_Reset();
-qboolean Menus_AnyFullScreenVisible();
+void Menu_Reset( void );
+qboolean Menus_AnyFullScreenVisible( void );
 void  Menus_Activate(menuDef_t *menu);
 
-displayContextDef_t *Display_GetContext();
+displayContextDef_t *Display_GetContext( void );
 void *Display_CaptureItem(int x, int y);
 qboolean Display_MouseMove(void *p, int x, int y);
 int Display_CursorType(int x, int y);
-qboolean Display_KeyBindPending();
+qboolean Display_KeyBindPending( void );
 void Menus_OpenByName(const char *p);
 menuDef_t *Menus_FindByName(const char *p);
 void Menus_ShowByName(const char *p);
 void Menus_CloseByName(const char *p);
 void Display_HandleKey(int key, qboolean down, int x, int y);
 void LerpColor(vec4_t a, vec4_t b, vec4_t c, float t);
-void Menus_CloseAll();
+void Menus_CloseAll( void );
 void Menu_Paint(menuDef_t *menu, qboolean forcePaint);
 void Menu_SetFeederSelection(menuDef_t *menu, int feeder, int index, const char *name);
-void Display_CacheAll();
+void Display_CacheAll( void );
 
 void *UI_Alloc( int size );
 void UI_InitMemory( void );
-qboolean UI_OutOfMemory();
+qboolean UI_OutOfMemory( void );
 
 void Controls_GetConfig( void );
 void Controls_SetConfig(qboolean restart);
