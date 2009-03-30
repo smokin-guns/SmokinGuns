@@ -171,7 +171,11 @@ CGDIR=$(MOUNT_DIR)/cgame
 BLIBDIR=$(MOUNT_DIR)/botlib
 NDIR=$(MOUNT_DIR)/null
 UIDIR=$(MOUNT_DIR)/ui
+ifndef SDKUIDIR
 Q3UIDIR=$(MOUNT_DIR)/q3_ui
+else
+Q3UIDIR=$(MOUNT_DIR)/$(SDKUIDIR)
+endif
 JPDIR=$(MOUNT_DIR)/jpeg-6b
 SPEEXDIR=$(MOUNT_DIR)/libspeex
 Q3ASMDIR=$(MOUNT_DIR)/tools/asm
@@ -806,6 +810,9 @@ ifneq ($(BUILD_CLIENT),0)
   endif
 endif
 
+ifdef SDK_TARGETS
+	TARGETS += $(SDK_TARGETS)
+else
 ifneq ($(BUILD_GAME_SO),0)
   TARGETS += \
     $(B)/$(GAMEDIR)/cgame$(ARCH).$(SHLIBEXT) \
@@ -832,6 +839,7 @@ ifneq ($(BUILD_GAME_QVM),0)
       $(B)/missionpack/vm/ui.qvm
     endif
   endif
+endif
 endif
 
 ifeq ($(USE_MUMBLE),1)
@@ -873,6 +881,9 @@ else
 endif
 
 BASE_CFLAGS += -DPRODUCT_VERSION=\\\"$(VERSION)\\\"
+ifdef SDK_RELEASE
+BASE_CFLAGS += -D$(SDK_RELEASE)
+endif
 
 ifeq ($(V),1)
 echo_cmd=@:
@@ -1172,25 +1183,53 @@ $(Q3LCC): $(Q3LCCOBJ) $(Q3RCC) $(Q3CPP)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(TOOLS_CFLAGS) $(TOOLS_LDFLAGS) -o $@ $(Q3LCCOBJ) $(TOOLS_LIBS)
 
+ifndef SDK_GAMENAME
 define DO_Q3LCC
 $(echo_cmd) "Q3LCC $<"
 $(Q)$(Q3LCC) -o $@ $<
 endef
+else
+define DO_Q3LCC
+$(echo_cmd) "Q3LCC $<"
+$(Q)$(Q3LCC) -D$(SDK_GAMENAME) -o $@ $<
+endef
+endif
 
+ifndef SDK_GAMENAME
 define DO_CGAME_Q3LCC
 $(echo_cmd) "CGAME_Q3LCC $<"
 $(Q)$(Q3LCC) -DCGAME -o $@ $<
 endef
+else
+define DO_CGAME_Q3LCC
+$(echo_cmd) "CGAME_Q3LCC $<"
+$(Q)$(Q3LCC) -D$(SDK_GAMENAME) -DCGAME -o $@ $<
+endef
+endif
 
+ifdef SDK_GAMENAME
 define DO_GAME_Q3LCC
 $(echo_cmd) "GAME_Q3LCC $<"
 $(Q)$(Q3LCC) -DQAGAME -o $@ $<
 endef
+else
+define DO_GAME_Q3LCC
+$(echo_cmd) "GAME_Q3LCC $<"
+$(Q)$(Q3LCC) -D$(SDK_GAMENAME) -DQAGAME -o $@ $<
+endef
+endif
 
+ifndef SDK_GAMENAME
 define DO_UI_Q3LCC
 $(echo_cmd) "UI_Q3LCC $<"
 $(Q)$(Q3LCC) -DUI -o $@ $<
 endef
+else
+define DO_UI_Q3LCC
+$(echo_cmd) "UI_Q3LCC $<"
+$(Q)$(Q3LCC) -D$(SDK_GAMENAME) -DUI -o $@ $<
+endef
+endif
 
 define DO_Q3LCC_MISSIONPACK
 $(echo_cmd) "Q3LCC_MISSIONPACK $<"
@@ -1675,14 +1714,20 @@ Q3CGOBJ_ = \
   $(B)/baseq3/qcommon/q_math.o \
   $(B)/baseq3/qcommon/q_shared.o
 
+ifdef Q3CGOBJ_SDK
+Q3CGOBJ_ = $(Q3CGOBJ_SDK)
+Q3CGOBJ = $(Q3CGOBJ_) $(B)/$(GAMENAME)/cgame/cg_syscalls.o
+else
 Q3CGOBJ = $(Q3CGOBJ_) $(B)/baseq3/cgame/cg_syscalls.o
+endif
 Q3CGVMOBJ = $(Q3CGOBJ_:%.o=%.asm)
 
-$(B)/baseq3/cgame$(ARCH).$(SHLIBEXT): $(Q3CGOBJ)
+
+$(B)/$(GAMENAME)/cgame$(ARCH).$(SHLIBEXT): $(Q3CGOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3CGOBJ)
 
-$(B)/baseq3/vm/cgame.qvm: $(Q3CGVMOBJ) $(CGDIR)/cg_syscalls.asm $(Q3ASM)
+$(B)/$(GAMENAME)/vm/cgame.qvm: $(Q3CGVMOBJ) $(CGDIR)/cg_syscalls.asm $(Q3ASM)
 	$(echo_cmd) "Q3ASM $@"
 	$(Q)$(Q3ASM) -o $@ $(Q3CGVMOBJ) $(CGDIR)/cg_syscalls.asm
 
@@ -1772,14 +1817,19 @@ Q3GOBJ_ = \
   $(B)/baseq3/qcommon/q_math.o \
   $(B)/baseq3/qcommon/q_shared.o
 
+ifdef Q3GOBJ_SDK
+Q3GOBJ_ = $(Q3GOBJ_SDK)
+Q3GOBJ = $(Q3GOBJ_) $(B)/$(GAMENAME)/game/g_syscalls.o
+else
 Q3GOBJ = $(Q3GOBJ_) $(B)/baseq3/game/g_syscalls.o
+endif
 Q3GVMOBJ = $(Q3GOBJ_:%.o=%.asm)
 
-$(B)/baseq3/qagame$(ARCH).$(SHLIBEXT): $(Q3GOBJ)
+$(B)/$(GAMENAME)/qagame$(ARCH).$(SHLIBEXT): $(Q3GOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3GOBJ)
 
-$(B)/baseq3/vm/qagame.qvm: $(Q3GVMOBJ) $(GDIR)/g_syscalls.asm $(Q3ASM)
+$(B)/$(GAMENAME)/vm/qagame.qvm: $(Q3GVMOBJ) $(GDIR)/g_syscalls.asm $(Q3ASM)
 	$(echo_cmd) "Q3ASM $@"
 	$(Q)$(Q3ASM) -o $@ $(Q3GVMOBJ) $(GDIR)/g_syscalls.asm
 
@@ -1886,14 +1936,19 @@ Q3UIOBJ_ = \
   $(B)/baseq3/qcommon/q_math.o \
   $(B)/baseq3/qcommon/q_shared.o
 
+ifdef Q3UIOBJ_SDK
+Q3UIOBJ_ = $(Q3UIOBJ_SDK)
+Q3UIOBJ = $(Q3UIOBJ_) $(B)/$(GAMENAME)/ui/ui_syscalls.o
+else
 Q3UIOBJ = $(Q3UIOBJ_) $(B)/missionpack/ui/ui_syscalls.o
+endif
 Q3UIVMOBJ = $(Q3UIOBJ_:%.o=%.asm)
 
-$(B)/baseq3/ui$(ARCH).$(SHLIBEXT): $(Q3UIOBJ)
+$(B)/$(GAMENAME)/ui$(ARCH).$(SHLIBEXT): $(Q3UIOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3UIOBJ)
 
-$(B)/baseq3/vm/ui.qvm: $(Q3UIVMOBJ) $(UIDIR)/ui_syscalls.asm $(Q3ASM)
+$(B)/$(GAMENAME)/vm/ui.qvm: $(Q3UIVMOBJ) $(UIDIR)/ui_syscalls.asm $(Q3ASM)
 	$(echo_cmd) "Q3ASM $@"
 	$(Q)$(Q3ASM) -o $@ $(Q3UIVMOBJ) $(UIDIR)/ui_syscalls.asm
 

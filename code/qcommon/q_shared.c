@@ -358,48 +358,48 @@ int COM_Compress( char *data_p ) {
 					in++;
 				if ( *in )
 					in += 2;
-                        // record when we hit a newline
-                        } else if ( c == '\n' || c == '\r' ) {
-                            newline = qtrue;
-                            in++;
-                        // record when we hit whitespace
-                        } else if ( c == ' ' || c == '\t') {
-                            whitespace = qtrue;
-                            in++;
-                        // an actual token
+				// record when we hit a newline
+			} else if ( c == '\n' || c == '\r' ) {
+				newline = qtrue;
+				in++;
+				// record when we hit whitespace
+			} else if ( c == ' ' || c == '\t') {
+				whitespace = qtrue;
+				in++;
+				// an actual token
 			} else {
-                            // if we have a pending newline, emit it (and it counts as whitespace)
-                            if (newline) {
-                                *out++ = '\n';
-                                newline = qfalse;
-                                whitespace = qfalse;
-                            } if (whitespace) {
-                                *out++ = ' ';
-                                whitespace = qfalse;
-                            }
+				// if we have a pending newline, emit it (and it counts as whitespace)
+				if (newline) {
+					*out++ = '\n';
+					newline = qfalse;
+					whitespace = qfalse;
+				} if (whitespace) {
+					*out++ = ' ';
+					whitespace = qfalse;
+				}
 
-                            // copy quoted strings unmolested
-                            if (c == '"') {
-                                    *out++ = c;
-                                    in++;
-                                    while (1) {
-                                        c = *in;
-                                        if (c && c != '"') {
-                                            *out++ = c;
-                                            in++;
-                                        } else {
-                                            break;
-                                        }
-                                    }
-                                    if (c == '"') {
-                                        *out++ = c;
-                                        in++;
-                                    }
-                            } else {
-                                *out = c;
-                                out++;
-                                in++;
-                            }
+				// copy quoted strings unmolested
+				if (c == '"') {
+					*out++ = c;
+					in++;
+					while (1) {
+						c = *in;
+						if (c && c != '"') {
+							*out++ = c;
+							in++;
+						} else {
+							break;
+						}
+					}
+					if (c == '"') {
+						*out++ = c;
+						in++;
+					}
+				} else {
+					*out = c;
+					out++;
+					in++;
+				}
 			}
 		}
 	}
@@ -922,6 +922,37 @@ char *Q_CleanStr( char *string ) {
 
 	return string;
 }
+
+#ifdef SMOKINGUNS
+int strnsplit( char *input_string , char *output_string , char splitter , int start , size_t n )
+{
+	int index_in , index_out , len ;
+
+	len = strlen( input_string ) ;
+	if ( start >= len )  return 0 ;
+	n -- ;	// because of the final NULL char
+	if ( n < 1 )  return 0 ;
+	
+	index_in = start ;
+	index_out = 0 ;
+	
+	// move to the first non-splitter char
+	while ( ( input_string[ index_in ] == splitter ) && ( index_in < len ) )  index_in ++ ;
+	if ( index_in == len )  return 0 ;
+	
+	// add all non-splitter char until the end of the string or until the next splitter char
+	while ( ( input_string[ index_in ] != splitter ) && ( index_in < len ) && ( index_out < n ) )
+	{
+		output_string[ index_out ] = input_string[ index_in ] ;
+		index_out ++ ;
+		index_in ++ ;
+	}
+	output_string[ index_out ] = 0 ;	// final NULL char
+	
+	// return the position in the input string where it stopped, useful as a 'start' value for the next strnsplit call
+	return index_in ;
+}
+#endif
 
 int Q_CountChar(const char *string, char tocount)
 {

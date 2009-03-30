@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
+//
 // gameinfo.c
 //
 
@@ -39,6 +40,10 @@ static char		*ui_botInfos[MAX_BOTS];
 static int		ui_numArenas;
 static char		*ui_arenaInfos[MAX_ARENAS];
 
+#ifndef SMOKINGUNS
+static int		ui_numSinglePlayerArenas;
+static int		ui_numSpecialSinglePlayerArenas;
+#endif
 
 /*
 ===============
@@ -124,6 +129,7 @@ static void UI_LoadArenasFromFile( char *filename ) {
 	ui_numArenas += UI_ParseInfos( buf, MAX_ARENAS - ui_numArenas, &ui_arenaInfos[ui_numArenas] );
 }
 
+#ifdef SMOKINGUNS
 void CopyMapInfo( mapInfo *from, mapInfo *to){
 	int i;
 
@@ -172,6 +178,7 @@ void UI_SortMapInfos( void ){
 		}
 	}
 }
+#endif
 
 /*
 ===============
@@ -192,19 +199,27 @@ void UI_LoadArenas( void ) {
 	uiInfo.mapCount = 0;
 
 	trap_Cvar_Register( &arenasFile, "g_arenasFile", "", CVAR_INIT|CVAR_ROM );
-	/*if( *arenasFile.string ) {
+#ifndef SMOKINGUNS
+	if( *arenasFile.string ) {
 		UI_LoadArenasFromFile(arenasFile.string);
 	}
 	else {
 		UI_LoadArenasFromFile("scripts/arenas.txt");
-	}*/
+	}
 
 	// get all arenas from .arena files
+	numdirs = trap_FS_GetFileList("scripts", ".arena", dirlist, 1024 );
+#else
 	numdirs = trap_FS_GetFileList("maps", ".cfg", dirlist, 1024 );
+#endif
 	dirptr  = dirlist;
 	for (i = 0; i < numdirs; i++, dirptr += dirlen+1) {
 		dirlen = strlen(dirptr);
+#ifndef SMOKINGUNS
+		strcpy(filename, "scripts/");
+#else
 		strcpy(filename, "maps/");
+#endif
 		strcat(filename, dirptr);
 		UI_LoadArenasFromFile(filename);
 	}
@@ -222,11 +237,37 @@ void UI_LoadArenas( void ) {
 		uiInfo.mapList[uiInfo.mapCount].levelShot = -1;
 		uiInfo.mapList[uiInfo.mapCount].imageName = String_Alloc(va("levelshots/%s", uiInfo.mapList[uiInfo.mapCount].mapLoadName));
 		uiInfo.mapList[uiInfo.mapCount].typeBits = 0;
+
+#ifndef SMOKINGUNS
+		type = Info_ValueForKey( ui_arenaInfos[n], "type" );
+		// if no type specified, it will be treated as "ffa"
+		if( *type ) {
+			if( strstr( type, "ffa" ) ) {
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_FFA);
+			}
+			if( strstr( type, "tourney" ) ) {
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_TOURNAMENT);
+			}
+			if( strstr( type, "ctf" ) ) {
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_CTF);
+			}
+			if( strstr( type, "oneflag" ) ) {
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_1FCTF);
+			}
+			if( strstr( type, "overload" ) ) {
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_OBELISK);
+			}
+			if( strstr( type, "harvester" ) ) {
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_HARVESTER);
+			}
+		} else {
+			uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_FFA);
+		}
+#else
 		uiInfo.mapList[uiInfo.mapCount].author = String_Alloc(Info_ValueForKey(ui_arenaInfos[n], "author"));
 
-		for(i = 0; i < 6; i++){
+		for (i = 0; i < 6; i++)
 			uiInfo.mapList[uiInfo.mapCount].description[i] = String_Alloc(Info_ValueForKey(ui_arenaInfos[n], va("desc_line%i", i+1)));
-		}
 
 		// Tequila comment: Set typeBits toward map name prefix convention
 		type = Info_ValueForKey( ui_arenaInfos[n], "map" );
@@ -240,7 +281,8 @@ void UI_LoadArenas( void ) {
 			uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_BR);
 		} else {
 			uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_FFA) | (1 << GT_TEAM) | (1 << GT_RTP);
-			}
+		}
+#endif
 
 		uiInfo.mapCount++;
 		if (uiInfo.mapCount >= MAX_MAPS) {
@@ -248,8 +290,10 @@ void UI_LoadArenas( void ) {
 		}
 	}
 
+#ifdef SMOKINGUNS
 	// now sort the mapinfos by the maploadnames
 	UI_SortMapInfos();
+#endif
 }
 
 
@@ -308,11 +352,11 @@ void UI_LoadBots( void ) {
 	}
 
 	// get all bots from .bot files
-	numdirs = trap_FS_GetFileList("scripts/wq3bots", ".bot", dirlist, 1024 );
+	numdirs = trap_FS_GetFileList("scripts", ".bot", dirlist, 1024 );
 	dirptr  = dirlist;
 	for (i = 0; i < numdirs; i++, dirptr += dirlen+1) {
 		dirlen = strlen(dirptr);
-		strcpy(filename, "scripts/wq3bots/");
+		strcpy(filename, "scripts/");
 		strcat(filename, dirptr);
 		UI_LoadBotsFromFile(filename);
 	}
@@ -353,7 +397,7 @@ char *UI_GetBotInfoByName( const char *name ) {
 	return NULL;
 }
 
-int UI_GetNumBots() {
+int UI_GetNumBots( void ) {
 	return ui_numBots;
 }
 
