@@ -21,6 +21,8 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
+
 
 #define	CMD_BACKUP			64
 #define	CMD_MASK			(CMD_BACKUP - 1)
@@ -182,12 +184,16 @@ typedef enum {
 	CG_CEIL,
 	CG_TESTPRINTINT,
 	CG_TESTPRINTFLOAT,
+#ifndef SMOKINGUNS
+	CG_ACOS
+#else
 	CG_ACOS,
 
 	/// Smokin' Guns specific syscalls
 	CG_R_CULL_BBOX = 150,
 	CG_R_CULL_SPHERE,
 	CG_R_FRUSTUM_PLANE
+#endif
 } cgameImport_t;
 
 
@@ -242,7 +248,7 @@ typedef enum {
 
 //----------------------------------------------
 // hika comments: this part Spoon added is only for the mod
-#if defined SMOKINGUNS_SO || defined Q3_VM
+#if defined SMOKINGUNS && ( defined CGAME || defined QAGAME || defined UI )
 
 //mapinfo ny Spoon
 

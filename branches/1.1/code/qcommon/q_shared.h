@@ -1039,7 +1039,7 @@ typedef struct {
 
 // bit field limits
 #define	MAX_STATS				16
-#if defined SMOKINGUNS && ( defined CGAME || defined GAME || defined UI )
+#if defined SMOKINGUNS && ( defined CGAME || defined QAGAME || defined UI )
 #define	MAX_PERSISTANT			10
 #define	MAX_POWERUPS			13
 #define	MAX_WEAPONS				21
@@ -1121,7 +1121,7 @@ typedef struct playerState_s {
 	int			powerups[MAX_POWERUPS];	// level.time that the powerup runs out
 	int			ammo[MAX_WEAPONS];
 
-#if defined SMOKINGUNS && ( defined CGAME || defined GAME || defined UI )	// Only used by SG mod
+#if defined SMOKINGUNS && ( defined CGAME || defined QAGAME || defined UI )	// Only used by SG mod
 	// stats for 2nd weapon
 	int			weapon2;
 	int			weapon2state;// important to be here because of PERS_SCORE
@@ -1132,17 +1132,17 @@ typedef struct playerState_s {
 #endif
 	int			generic1;
 	int			loopSound;
-#if ! defined SMOKINGUNS || ! ( defined CGAME || defined GAME || defined UI )	// Not used by SG mod
+#if ! defined SMOKINGUNS || ! ( defined CGAME || defined QAGAME || defined UI )	// Not used by SG mod
 	int			jumppad_ent;	// jumppad entity hit this frame
 #endif
 
 	// not communicated over the net at all
 	int			ping;			// server to game info for scoreboard
-#if defined SMOKINGUNS && ( defined CGAME || defined GAME || defined UI )	// Only used by SG mod
+#if defined SMOKINGUNS && ( defined CGAME || defined QAGAME || defined UI )	// Only used by SG mod
 	int			oldbuttons;
 #endif
 	int			pmove_framecount;	// FIXME: don't transmit over the network
-#if ! defined SMOKINGUNS || ! ( defined CGAME || defined GAME || defined UI )	// Not used by SG mod
+#if ! defined SMOKINGUNS || ! ( defined CGAME || defined QAGAME || defined UI )	// Not used by SG mod
 	int			jumppad_frame;
 #endif
 	int			entityEventSequence;
