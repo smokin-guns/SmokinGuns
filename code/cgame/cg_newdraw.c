@@ -22,14 +22,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#ifndef SMOKINGUNS
+#error This file not be used for classic Q3A.
+#endif
+
 #include "cg_local.h"
-// Still included in cg_local.h
-//#include "../ui/ui_shared.h"
+#include "../ui/ui_shared.h"
 
 extern displayContextDef_t cgDC;
 
+#ifdef SMOKINGUNS
 void CG_DrawField (int x, int y, int width, int value);
 void CG_DrawMoneyField (int x, int y, int width, int value);
+#endif
 
 // set in CG_ParseTeamInfo
 
@@ -41,7 +46,7 @@ int drawTeamOverlayModificationCount = -1;
 //static char teamChat1[256];
 //static char teamChat2[256];
 
-void CG_InitTeamChat() {
+void CG_InitTeamChat(void) {
   memset(teamChat1, 0, sizeof(teamChat1));
   memset(teamChat2, 0, sizeof(teamChat2));
   memset(systemChat, 0, sizeof(systemChat));
@@ -56,8 +61,12 @@ void CG_SetPrintString(int type, const char *p) {
   }
 }
 
-void CG_CheckOrderPending() {
+void CG_CheckOrderPending(void) {
+#ifndef SMOKINGUNS
+	if (cgs.gametype < GT_CTF) {
+#else
 	if (cgs.gametype < GT_RTP) {
+#endif
 		return;
 	}
 	if (cgs.orderPending) {
@@ -120,7 +129,7 @@ void CG_CheckOrderPending() {
 	}
 }
 
-static void CG_SetSelectedPlayerName() {
+static void CG_SetSelectedPlayerName( void ) {
   if (cg_currentSelectedPlayer.integer >= 0 && cg_currentSelectedPlayer.integer < numSortedTeamPlayers) {
 		clientInfo_t *ci = cgs.clientinfo + sortedTeamPlayers[cg_currentSelectedPlayer.integer];
 	  if (ci) {
@@ -132,14 +141,14 @@ static void CG_SetSelectedPlayerName() {
 		trap_Cvar_Set("cg_selectedPlayerName", "Everyone");
 	}
 }
-int CG_GetSelectedPlayer() {
+int CG_GetSelectedPlayer( void ) {
 	if (cg_currentSelectedPlayer.integer < 0 || cg_currentSelectedPlayer.integer >= numSortedTeamPlayers) {
 		cg_currentSelectedPlayer.integer = 0;
 	}
 	return cg_currentSelectedPlayer.integer;
 }
 
-void CG_SelectNextPlayer() {
+void CG_SelectNextPlayer( void ) {
 	CG_CheckOrderPending();
 	if (cg_currentSelectedPlayer.integer >= 0 && cg_currentSelectedPlayer.integer < numSortedTeamPlayers) {
 		cg_currentSelectedPlayer.integer++;
@@ -149,7 +158,7 @@ void CG_SelectNextPlayer() {
 	CG_SetSelectedPlayerName();
 }
 
-void CG_SelectPrevPlayer() {
+void CG_SelectPrevPlayer( void ) {
 	CG_CheckOrderPending();
 	if (cg_currentSelectedPlayer.integer > 0 && cg_currentSelectedPlayer.integer < numSortedTeamPlayers) {
 		cg_currentSelectedPlayer.integer--;
@@ -173,7 +182,7 @@ static void CG_DrawPlayerArmorIcon( rectDef_t *rect, qboolean draw2D ) {
 	cent = &cg_entities[cg.snap->ps.clientNum];
 	ps = &cg.snap->ps;
 
-	if ( draw2D || !cg_draw3dIcons.integer && cg_drawIcons.integer ) {
+	if ( draw2D || ( !cg_draw3dIcons.integer && cg_drawIcons.integer) ) {
 		CG_DrawPic( rect->x, rect->y + rect->h/2 + 1, rect->w, rect->h, cgs.media.armorIcon );
   } else if (cg_draw3dIcons.integer) {
 	  VectorClear( angles );
@@ -210,12 +219,14 @@ static void CG_DrawPlayerArmorValue(rectDef_t *rect, float scale, vec4_t color, 
 	}
 }
 
+#ifndef SMOKINGUNS
 static float healthColors[4][4] = {
 //		{ 0.2, 1.0, 0.2, 1.0 } , { 1.0, 0.2, 0.2, 1.0 }, {0.5, 0.5, 0.5, 1} };
-		{ 1, 0.69f, 0, 1.0f } ,		// normal
+		{ 1.0f, 0.69f, 0.0f, 1.0f } ,		// normal
 		{ 1.0f, 0.2f, 0.2f, 1.0f },		// low health
-		{0.5f, 0.5f, 0.5f, 1},			// weapon firing
-		{ 1, 1, 1, 1 } };			// health > 100
+		{ 0.5f, 0.5f, 0.5f, 1.0f},		// weapon firing
+		{ 1.0f, 1.0f, 1.0f, 1.0f } };		// health > 100
+#endif
 
 static void CG_DrawPlayerAmmoIcon( rectDef_t *rect, qboolean draw2D ) {
 	centity_t	*cent;
@@ -226,7 +237,7 @@ static void CG_DrawPlayerAmmoIcon( rectDef_t *rect, qboolean draw2D ) {
 	cent = &cg_entities[cg.snap->ps.clientNum];
 	ps = &cg.snap->ps;
 
-	if ( draw2D || !cg_draw3dIcons.integer && cg_drawIcons.integer ) {
+	if ( draw2D || (!cg_draw3dIcons.integer && cg_drawIcons.integer) ) {
 	  qhandle_t	icon;
     icon = cg_weapons[ cg.predictedPlayerState.weapon ].ammoIcon;
 		if ( icon ) {
@@ -363,8 +374,8 @@ static void CG_DrawSelectedPlayerArmor( rectDef_t *rect, float scale, vec4_t col
 }
 
 qhandle_t CG_StatusHandle(int task) {
-	qhandle_t h = -1;
-	/*qhandle_t h = cgs.media.assaultShader;
+#ifndef SMOKINGUNS
+	qhandle_t h = cgs.media.assaultShader;
 	switch (task) {
 		case TEAMTASK_OFFENSE :
 			h = cgs.media.assaultShader;
@@ -390,7 +401,10 @@ qhandle_t CG_StatusHandle(int task) {
 		default :
 			h = cgs.media.assaultShader;
 			break;
-	}*/
+	}
+#else
+	qhandle_t h = -1;
+#endif
 	return h;
 }
 
@@ -468,12 +482,14 @@ static void CG_DrawSelectedPlayerWeapon( rectDef_t *rect ) {
 }
 
 static void CG_DrawPlayerScore( rectDef_t *rect, float scale, vec4_t color, qhandle_t shader, int textStyle ) {
-  char num[16];
-  int value = cg.snap->ps.persistant[PERS_SCORE];
+	char num[16];
+	int value = cg.snap->ps.persistant[PERS_SCORE];
 
-  if(cgs.gametype == GT_DUEL){
-	value = cgs.clientinfo[cg.snap->ps.clientNum].losses;
-  }
+#ifdef SMOKINGUNS
+	if(cgs.gametype == GT_DUEL){
+		value = cgs.clientinfo[cg.snap->ps.clientNum].losses;
+	}
+#endif
 
 	if (shader) {
 		trap_R_SetColor( color );
@@ -486,6 +502,7 @@ static void CG_DrawPlayerScore( rectDef_t *rect, float scale, vec4_t color, qhan
 	}
 }
 
+#ifdef SMOKINGUNS
 static void CG_DrawRoundtime( rectDef_t *rect, float scale, vec4_t color, qhandle_t shader, int textStyle ) {
 	int value;
 
@@ -512,6 +529,7 @@ static void CG_DrawRoundtime( rectDef_t *rect, float scale, vec4_t color, qhandl
 	value = CG_Text_Width(s, scale, 0);
 	CG_Text_Paint(rect->x + (rect->w - value) / 2, rect->y + rect->h, scale, color, s, 0, 0, textStyle);
 }
+#endif
 
 static void CG_DrawPlayerItem( rectDef_t *rect, float scale, qboolean draw2D) {
 	int		value;
@@ -623,8 +641,10 @@ static void CG_DrawPlayerHealth(rectDef_t *rect, float scale, vec4_t color, qhan
 	ps = &cg.snap->ps;
 
 	value = ps->stats[STAT_HEALTH];
+#ifdef SMOKINGUNS
 	if(value < 0)
 		value = 0;
+#endif
 
 	if (shader) {
 		trap_R_SetColor( color );
@@ -667,8 +687,7 @@ static void CG_DrawBlueScore(rectDef_t *rect, float scale, vec4_t color, qhandle
 
 // FIXME: team name support
 static void CG_DrawRedName(rectDef_t *rect, float scale, vec4_t color, int textStyle ) {
-	int x = rect->x;
-
+#ifdef SMOKINGUNS
 	// draw moneybag to indicate that this is the robber team
 	if(cgs.gametype == GT_BR){
 		gitem_t *item = BG_FindItem("Moneybag");
@@ -684,6 +703,7 @@ static void CG_DrawRedName(rectDef_t *rect, float scale, vec4_t color, int textS
 		else
 			CG_Text_Paint(x, y, scale, colorw, "Defend the Moneybag!", 0, -1, 3);
 	}
+#endif
 
 	CG_Text_Paint(rect->x, rect->y + rect->h, scale, color, cg_redTeamName.string , 0, 0, textStyle);
 }
@@ -704,7 +724,6 @@ static void CG_DrawBlueFlagName(rectDef_t *rect, float scale, vec4_t color, int 
 }
 
 static void CG_DrawBlueFlagStatus(rectDef_t *rect, qhandle_t shader) {
-
 	if (cgs.gametype != GT_CTF && cgs.gametype != GT_1FCTF) {
 		if (cgs.gametype == GT_HARVESTER) {
 		  vec4_t color = {0, 0, 1, 1};
@@ -795,6 +814,7 @@ static void CG_DrawRedFlagHead(rectDef_t *rect) {
 }
 #endif
 
+#ifndef SMOKINGUNS
 static void CG_HarvesterSkulls(rectDef_t *rect, float scale, vec4_t color, qboolean force2D, int textStyle ) {
 	char num[16];
 	vec3_t origin, angles;
@@ -836,6 +856,7 @@ static void CG_HarvesterSkulls(rectDef_t *rect, float scale, vec4_t color, qbool
 		}
 	}
 }
+#endif
 
 #ifndef SMOKINGUNS
 static void CG_OneFlagStatus(rectDef_t *rect) {
@@ -866,6 +887,10 @@ static void CG_OneFlagStatus(rectDef_t *rect) {
 
 static void CG_DrawCTFPowerUp(rectDef_t *rect) {
 	int		value;
+
+	if (cgs.gametype < GT_CTF) {
+		return;
+	}
 	value = cg.snap->ps.stats[STAT_PERSISTANT_POWERUP];
 	if ( value ) {
 		CG_RegisterItemVisuals( value );
@@ -1007,7 +1032,8 @@ float CG_GetValue(int ownerDraw) {
 	return -1;
 }
 
-qboolean CG_OtherTeamHasFlag() {
+#ifndef SMOKINGUNS
+qboolean CG_OtherTeamHasFlag(void) {
 	if (cgs.gametype == GT_CTF || cgs.gametype == GT_1FCTF) {
 		int team = cg.snap->ps.persistant[PERS_TEAM];
 		if (cgs.gametype == GT_1FCTF) {
@@ -1031,7 +1057,7 @@ qboolean CG_OtherTeamHasFlag() {
 	return qfalse;
 }
 
-qboolean CG_YourTeamHasFlag() {
+qboolean CG_YourTeamHasFlag(void) {
 	if (cgs.gametype == GT_CTF || cgs.gametype == GT_1FCTF) {
 		int team = cg.snap->ps.persistant[PERS_TEAM];
 		if (cgs.gametype == GT_1FCTF) {
@@ -1054,6 +1080,7 @@ qboolean CG_YourTeamHasFlag() {
 	}
 	return qfalse;
 }
+#endif
 
 // THINKABOUTME: should these be exclusive or inclusive..
 //
@@ -1096,6 +1123,7 @@ qboolean CG_OwnerDrawVisible(int flags) {
 		}
 	}
 
+#ifndef SMOKINGUNS
 	if (flags & CG_SHOW_HARVESTER) {
 		if( cgs.gametype == GT_HARVESTER ) {
 			return qtrue;
@@ -1125,6 +1153,7 @@ qboolean CG_OwnerDrawVisible(int flags) {
       return qfalse;
     }
 	}
+#endif
 
 	if (flags & CG_SHOW_HEALTHCRITICAL) {
 		if (cg.snap->ps.stats[STAT_HEALTH] < 25) {
@@ -1133,7 +1162,7 @@ qboolean CG_OwnerDrawVisible(int flags) {
 	}
 
 	if (flags & CG_SHOW_HEALTHOK) {
-		if (cg.snap->ps.stats[STAT_HEALTH] > 25) {
+		if (cg.snap->ps.stats[STAT_HEALTH] >= 25) {
 			return qtrue;
 		}
 	}
@@ -1145,7 +1174,11 @@ qboolean CG_OwnerDrawVisible(int flags) {
 	}
 
 	if (flags & CG_SHOW_TOURNAMENT) {
+#ifndef SMOKINGUNS
+		if( cgs.gametype == GT_TOURNAMENT ) {
+#else
 		if( cgs.gametype == GT_DUEL ) {
+#endif
 			return qtrue;
 		}
 	}
@@ -1153,30 +1186,34 @@ qboolean CG_OwnerDrawVisible(int flags) {
 	if (flags & CG_SHOW_DURINGINCOMINGVOICE) {
 	}
 
+#ifndef SMOKINGUNS
+	if (flags & CG_SHOW_IF_PLAYER_HAS_FLAG) {
+		if (cg.snap->ps.powerups[PW_REDFLAG] || cg.snap->ps.powerups[PW_BLUEFLAG] || cg.snap->ps.powerups[PW_NEUTRALFLAG]) {
+			return qtrue;
+		}
+	}
+#else
 	if (flags & CG_SHOW_WEAPON2){
 		if( cg.snap->ps.weapon2)
 			return qtrue;
 	}
-
-	/*if (flags & CG_SHOW_IF_PLAYER_HAS_FLAG) {
-		if (cg.snap->ps.powerups[PW_REDFLAG] || cg.snap->ps.powerups[PW_BLUEFLAG] || cg.snap->ps.powerups[PW_NEUTRALFLAG]) {
-			return qtrue;
-		}
-	}*/
+#endif
 	return qfalse;
 }
 
 
 
 static void CG_DrawPlayerHasFlag(rectDef_t *rect, qboolean force2D) {
-	/*int adj = (force2D) ? 0 : 2;
+#ifndef SMOKINGUNS
+	int adj = (force2D) ? 0 : 2;
 	if( cg.predictedPlayerState.powerups[PW_REDFLAG] ) {
   	CG_DrawFlagModel( rect->x + adj, rect->y + adj, rect->w - adj, rect->h - adj, TEAM_RED, force2D);
 	} else if( cg.predictedPlayerState.powerups[PW_BLUEFLAG] ) {
   	CG_DrawFlagModel( rect->x + adj, rect->y + adj, rect->w - adj, rect->h - adj, TEAM_BLUE, force2D);
 	} else if( cg.predictedPlayerState.powerups[PW_NEUTRALFLAG] ) {
   	CG_DrawFlagModel( rect->x + adj, rect->y + adj, rect->w - adj, rect->h - adj, TEAM_FREE, force2D);
-	}*/
+	}
+#endif
 }
 
 static void CG_DrawAreaSystemChat(rectDef_t *rect, float scale, vec4_t color, qhandle_t shader) {
@@ -1191,10 +1228,14 @@ static void CG_DrawAreaChat(rectDef_t *rect, float scale, vec4_t color, qhandle_
   CG_Text_Paint(rect->x, rect->y + rect->h, scale, color, teamChat2, 0, 0, 0);
 }
 
-const char *CG_GetKillerText() {
+const char *CG_GetKillerText(void) {
 	const char *s = "";
 	if ( cg.killerName[0] ) {
+#ifndef SMOKINGUNS
+		s = va("Fragged by %s", cg.killerName );
+#else
 		s = va("Killed by %s", cg.killerName );
+#endif
 	}
 	return s;
 }
@@ -1211,9 +1252,13 @@ static void CG_DrawKiller(rectDef_t *rect, float scale, vec4_t color, qhandle_t 
 
 
 static void CG_DrawCapFragLimit(rectDef_t *rect, float scale, vec4_t color, qhandle_t shader, int textStyle) {
+#ifndef SMOKINGUNS
+	int limit = (cgs.gametype >= GT_CTF) ? cgs.capturelimit : cgs.fraglimit;
+#else
 	int limit = (cgs.gametype >= GT_RTP) ? cgs.scorelimit : cgs.fraglimit;
 	if(cgs.gametype == GT_DUEL)
 		limit = cgs.duellimit;
+#endif
 
 	CG_Text_Paint(rect->x, rect->y, scale, color, va("%2i", limit),0, 0, textStyle);
 }
@@ -1230,14 +1275,24 @@ static void CG_Draw2ndPlace(rectDef_t *rect, float scale, vec4_t color, qhandle_
 	}
 }
 
-const char *CG_GetGameStatusText() {
+const char *CG_GetGameStatusText(void) {
 	const char *s = "";
 	if ( cgs.gametype < GT_TEAM) {
 		if (cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR ) {
 			s = va("%s place with %i",CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ),cg.snap->ps.persistant[PERS_SCORE] );
 		}
 	} else {
+#ifndef SMOKINGUNS
+		if ( cg.teamScores[0] == cg.teamScores[1] ) {
+			s = va("Teams are tied at %i", cg.teamScores[0] );
+		} else if ( cg.teamScores[0] >= cg.teamScores[1] ) {
+			s = va("Red leads Blue, %i to %i", cg.teamScores[0], cg.teamScores[1] );
+		} else {
+			s = va("Blue leads Red, %i to %i", cg.teamScores[1], cg.teamScores[0] );
+		}
+#else
 		s = va("%i : %i", cg.teamScores[0], cg.teamScores[1] );
+#endif
 	}
 	return s;
 }
@@ -1246,7 +1301,22 @@ static void CG_DrawGameStatus(rectDef_t *rect, float scale, vec4_t color, qhandl
 	CG_Text_Paint(rect->x, rect->y + rect->h, scale, color, CG_GetGameStatusText(), 0, 0, textStyle);
 }
 
-const char *CG_GameTypeString() {
+const char *CG_GameTypeString(void) {
+#ifndef SMOKINGUNS
+	if ( cgs.gametype == GT_FFA ) {
+		return "Free For All";
+	} else if ( cgs.gametype == GT_TEAM ) {
+		return "Team Deathmatch";
+	} else if ( cgs.gametype == GT_CTF ) {
+		return "Capture the Flag";
+	} else if ( cgs.gametype == GT_1FCTF ) {
+		return "One Flag CTF";
+	} else if ( cgs.gametype == GT_OBELISK ) {
+		return "Overload";
+	} else if ( cgs.gametype == GT_HARVESTER ) {
+		return "Harvester";
+	}
+#else
 	if ( cgs.gametype == GT_FFA ) {
 		return "Deathmatch";
 	} else if ( cgs.gametype == GT_TEAM ) {
@@ -1258,6 +1328,7 @@ const char *CG_GameTypeString() {
 	} else if( cgs.gametype == GT_BR ){
 		return "Bank Robbery";
 	}
+#endif
 	return "";
 }
 static void CG_DrawGameType(rectDef_t *rect, float scale, vec4_t color, qhandle_t shader, int textStyle ) {
@@ -1286,7 +1357,7 @@ static void CG_Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4
 		}
 		count = 0;
 		while (s && *s && count < len) {
-			glyph = &font->glyphs[*s];
+			glyph = &font->glyphs[(int)*s]; // TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
 			if ( Q_IsColorString( s ) ) {
 				memcpy( newColor, g_color_table[ColorIndex(*(s+1))], sizeof( newColor ) );
 				newColor[3] = color[3];
@@ -1447,7 +1518,9 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vec4_t color, qhandle_t shader) {
 	if (cg.spectatorLen) {
 		float maxX;
+#ifdef SMOKINGUNS
 		vec4_t newColor ;
+#endif
 
 		if (cg.spectatorWidth == -1) {
 			cg.spectatorWidth = 0;
@@ -1459,13 +1532,16 @@ void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vec4_t color, qhandle_t
 			cg.spectatorOffset = 0;
 			cg.spectatorPaintX = rect->x + 1;
 			cg.spectatorPaintX2 = -1;
+#ifdef SMOKINGUNS
 			Vector4Copy( color, cg.spectatorCurrentColor );
+#endif
 		}
 
 		if (cg.time > cg.spectatorTime) {
 			cg.spectatorTime = cg.time + 10;
 			if (cg.spectatorPaintX <= rect->x + 2) { // Left border is reached
 				if (cg.spectatorOffset < cg.spectatorLen) {
+#ifdef SMOKINGUNS
 					// A spectator name is about to be shrinked
 					while ( Q_IsColorString( &cg.spectatorList[cg.spectatorOffset])
 						&& cg.spectatorOffset+2 < cg.spectatorLen ) {
@@ -1476,9 +1552,12 @@ void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vec4_t color, qhandle_t
 						cg.spectatorOffset+=2;
 					}
 					if (cg.spectatorOffset < cg.spectatorLen) {
+#endif
 						cg.spectatorPaintX += CG_Text_Width(&cg.spectatorList[cg.spectatorOffset], scale, 1) - 1;
 						cg.spectatorOffset++;
+#ifdef SMOKINGUNS
 					}
+#endif
 				} else {
 					cg.spectatorOffset = 0;
 					if (cg.spectatorPaintX2 >= 0) {
@@ -1487,7 +1566,9 @@ void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vec4_t color, qhandle_t
 						cg.spectatorPaintX = rect->x + rect->w - 2;
 					}
 					cg.spectatorPaintX2 = -1;
+#ifdef SMOKINGUNS
 					Vector4Copy( color, cg.spectatorCurrentColor );
+#endif
 				}
 			} else {
 				// Move list to the left
@@ -1499,7 +1580,11 @@ void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vec4_t color, qhandle_t
 		}
 
 		maxX = rect->x + rect->w - 2;
+#ifndef SMOKINGUNS
+		CG_Text_Paint_Limit(&maxX, cg.spectatorPaintX, rect->y + rect->h - 3, scale, color, &cg.spectatorList[cg.spectatorOffset], 0, 0); 
+#else
 		CG_Text_Paint_Limit(&maxX, cg.spectatorPaintX, rect->y + rect->h - 3, scale, cg.spectatorCurrentColor, &cg.spectatorList[cg.spectatorOffset], 0, 0);
+#endif
 		if (cg.spectatorPaintX2 >= 0) {
 			float maxX2 = rect->x + rect->w - 2;
 			CG_Text_Paint_Limit(&maxX2, cg.spectatorPaintX2, rect->y + rect->h - 3, scale, color, cg.spectatorList, 0, cg.spectatorOffset);
@@ -1518,6 +1603,7 @@ void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vec4_t color, qhandle_t
 
 
 
+#ifndef SMOKINGUNS
 void CG_DrawMedal(int ownerDraw, rectDef_t *rect, float scale, vec4_t color, qhandle_t shader) {
 	score_t *score = &cg.scores[cg.selectedScore];
 	float value = 0;
@@ -1551,7 +1637,6 @@ void CG_DrawMedal(int ownerDraw, rectDef_t *rect, float scale, vec4_t color, qha
 			break;
 	}
 
-#if 0
 	if (value > 0) {
 		if (ownerDraw != CG_PERFECT) {
 			if (ownerDraw == CG_ACCURACY) {
@@ -1581,10 +1666,10 @@ void CG_DrawMedal(int ownerDraw, rectDef_t *rect, float scale, vec4_t color, qha
 	}
 	trap_R_SetColor(NULL);
 
+}
 #endif
 
-}
-
+#ifdef SMOKINGUNS
 static float colors[5][4] = {
 	{ 1.0f, 1.0f, 1.0f, 1.0f } ,		// normal
 	{ 1.0f, 1.0f, 1.0f, 0.75f },
@@ -1867,27 +1952,35 @@ static void CG_DrawAmmoWeapon2(int rectx, int recty){
 		}
 	}
 }
+#endif
 
+
+//
+#ifndef SMOKINGUNS
+void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle) {
+	rectDef_t rect;
+#else
 void Item_Text_Paint(itemDef_t *item);
 extern menu_items_t menu_items[MAX_MENU_ITEMS];
 extern menuDef_t *menuItem;
 extern int menuItemCount;
-//
+
 void CG_OwnerDraw(itemDef_t *item, float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle) {
 	rectDef_t rect;
 	int dyn_y;
 	gitem_t *buyitem;
 	int	j, score;
 	int value;
-	static float color2[4] = {1.0, 1.0, 1.0, 0.6f};
-	static float colorgold[4] = {1.0, 0.75, 0.0, 0.8f};
+	static float color2[4] = {1.0f, 1.0f, 1.0f, 0.6f};
+	static float colorgold[4] = {1.0f, 0.75f, 0.0f, 0.8f};
 	static float colors[5][4] = {
-		{ 1.0, 1.0, 1.0, 1.0 },
-		{ 1.0, 0.0, 0.0, 1.0 },
-		{ 1.0, 0.8f, 0.0, 1 },
-		{ 0.0, 0.0, 0.0, 0.6f },
-		{ 0.5, 0.5, 0.5, 1.0},
+		{ 1.0f, 1.0f, 1.0f, 1.0f },
+		{ 1.0f, 0.0f, 0.0f, 1.0f },
+		{ 1.0f, 0.8f, 0.0f, 1.0f },
+		{ 0.0f, 0.0f, 0.0f, 0.6f },
+		{ 0.5f, 0.5f, 0.5f, 1.0f },
 	};
+#endif
 
 	if ( cg_drawStatus.integer == 0 ) {
 		return;
@@ -1903,6 +1996,7 @@ void CG_OwnerDraw(itemDef_t *item, float x, float y, float w, float h, float tex
   rect.h = h;
 
   switch (ownerDraw) {
+#ifdef SMOKINGUNS
 	case CG_FIELD_HEALTH:
 		value = cg.snap->ps.stats[STAT_HEALTH];
 		if(value < 0)
@@ -2089,7 +2183,7 @@ void CG_OwnerDraw(itemDef_t *item, float x, float y, float w, float h, float tex
 	case CG_ROUNDTIME:
 		CG_DrawRoundtime(&rect, scale, color, shader, textStyle);
 		break;
-
+#endif
 
   case CG_PLAYER_ARMOR_ICON:
     CG_DrawPlayerArmorIcon(&rect, ownerDrawFlags & CG_SHOW_2DONLY);
@@ -2183,13 +2277,6 @@ void CG_OwnerDraw(itemDef_t *item, float x, float y, float w, float h, float tex
     break;
   case CG_RED_FLAGNAME:
     CG_DrawRedFlagName(&rect, scale, color, textStyle);
-#else
-  case CG_BLUE_FLAGSTATUS:
-  case CG_BLUE_FLAGNAME:
-  case CG_RED_FLAGHEAD:
-  case CG_RED_FLAGSTATUS:
-  case CG_RED_FLAGNAME:
-#endif
     break;
   case CG_HARVESTER_SKULLS:
     CG_HarvesterSkulls(&rect, scale, color, qfalse, textStyle);
@@ -2198,8 +2285,16 @@ void CG_OwnerDraw(itemDef_t *item, float x, float y, float w, float h, float tex
     CG_HarvesterSkulls(&rect, scale, color, qtrue, textStyle);
     break;
   case CG_ONEFLAG_STATUS:
-#ifndef SMOKINGUNS
     CG_OneFlagStatus(&rect);
+#else
+  case CG_BLUE_FLAGSTATUS:
+  case CG_BLUE_FLAGNAME:
+  case CG_RED_FLAGHEAD:
+  case CG_RED_FLAGSTATUS:
+  case CG_RED_FLAGNAME:
+  case CG_HARVESTER_SKULLS:
+  case CG_HARVESTER_SKULLS2D:
+  case CG_ONEFLAG_STATUS:
 #endif
     break;
   case CG_PLAYER_LOCATION:
@@ -2211,11 +2306,11 @@ void CG_OwnerDraw(itemDef_t *item, float x, float y, float w, float h, float tex
   case CG_CTF_POWERUP:
 #ifndef SMOKINGUNS
     CG_DrawCTFPowerUp(&rect);
-#endif
     break;
   case CG_AREA_POWERUP:
-#ifndef SMOKINGUNS
 		CG_DrawAreaPowerUp(&rect, align, special, scale, color);
+#else
+  case CG_AREA_POWERUP:
 #endif
     break;
   case CG_PLAYER_STATUS:
@@ -2253,7 +2348,9 @@ void CG_OwnerDraw(itemDef_t *item, float x, float y, float w, float h, float tex
 	case CG_PERFECT:
 	case CG_GAUNTLET:
 	case CG_CAPTURES:
+#ifndef SMOKINGUNS
 		CG_DrawMedal(ownerDraw, &rect, scale, color, shader);
+#endif
 		break;
   case CG_SPECTATORS:
 		CG_DrawTeamSpectators(&rect, scale, color, shader);
@@ -2282,8 +2379,12 @@ void CG_OwnerDraw(itemDef_t *item, float x, float y, float w, float h, float tex
 void CG_MouseEvent(int x, int y) {
 	int n;
 
+#ifndef SMOKINGUNS
+	if ( (cg.predictedPlayerState.pm_type == PM_NORMAL || cg.predictedPlayerState.pm_type == PM_SPECTATOR) && cg.showScores == qfalse) {
+#else
 	if ( ((cg.predictedPlayerState.pm_type == PM_NORMAL || cg.predictedPlayerState.pm_type == PM_SPECTATOR) && cg.showScores == qfalse)
 		&& !cg.menu) {
+#endif
 		trap_Key_SetCatcher(0);
 		return;
 	}
@@ -2322,7 +2423,7 @@ CG_HideTeamMenus
 ==================
 
 */
-void CG_HideTeamMenu() {
+void CG_HideTeamMenu( void ) {
   Menus_CloseByName("teamMenu");
   Menus_CloseByName("getMenu");
 }
@@ -2333,7 +2434,7 @@ CG_ShowTeamMenus
 ==================
 
 */
-void CG_ShowTeamMenu() {
+void CG_ShowTeamMenu( void ) {
   Menus_OpenByName("teamMenu");
 }
 
@@ -2357,38 +2458,42 @@ void CG_EventHandling(int type) {
     //CG_ShowTeamMenu();
   } else if (type == CGAME_EVENT_SCOREBOARD) {
   }
+
 }
 
 
 
 void CG_KeyEvent(int key, qboolean down) {
-
+#ifdef SMOKINGUNS
 	if(cg.oldbutton && !down){
 		cg.oldbutton = qfalse;
 	}
-
-	//cg_keylist[key] = down;
+#endif
 
 	if (!down) {
 		return;
 	}
 
+#ifndef SMOKINGUNS
+	if ( cg.predictedPlayerState.pm_type == PM_NORMAL || (cg.predictedPlayerState.pm_type == PM_SPECTATOR && cg.showScores == qfalse)) {
+#else
 	if ( (cg.predictedPlayerState.pm_type == PM_NORMAL || (cg.predictedPlayerState.pm_type == PM_SPECTATOR && cg.showScores == qfalse))
 		&& !cg.menu) {
+#endif
 		CG_EventHandling(CGAME_EVENT_NONE);
 		trap_Key_SetCatcher(0);
 		return;
 	}
 
-  //if (key == trap_Key_GetKey("teamMenu") || !Display_CaptureItem(cgs.cursorX, cgs.cursorY)) {
+	//if (key == trap_Key_GetKey("teamMenu") || !Display_CaptureItem(cgs.cursorX, cgs.cursorY)) {
     // if we see this then we should always be visible
-  //  CG_EventHandling(CGAME_EVENT_NONE);
-  //  trap_Key_SetCatcher(0);
-  //}
+	//  CG_EventHandling(CGAME_EVENT_NONE);
+	//  trap_Key_SetCatcher(0);
+	//}
 
 
 
-  Display_HandleKey(key, down, cgs.cursorX, cgs.cursorY);
+	Display_HandleKey(key, down, cgs.cursorX, cgs.cursorY);
 
 	if (cgs.capturedItem) {
 		cgs.capturedItem = NULL;
@@ -2409,8 +2514,8 @@ int CG_ClientNumFromName(const char *p) {
   return -1;
 }
 
-void CG_ShowResponseHead() {
-  Menus_OpenByName("voiceMenu");
+void CG_ShowResponseHead(void) {
+	Menus_OpenByName("voiceMenu");
 	trap_Cvar_Set("cl_conXOffset", "72");
 	cg.voiceTime = cg.time;
 }
@@ -2421,17 +2526,17 @@ void CG_RunMenuScript(char **args) {
 
 void CG_GetTeamColor(vec4_t *color) {
   if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
-    (*color)[0] = 1;
-    (*color)[3] = .25f;
-    (*color)[1] = (*color)[2] = 0;
+    (*color)[0] = 1.0f;
+    (*color)[3] = 0.25f;
+    (*color)[1] = (*color)[2] = 0.0f;
   } else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
-    (*color)[0] = (*color)[1] = 0;
-    (*color)[2] = 1;
-    (*color)[3] = .25f;
+    (*color)[0] = (*color)[1] = 0.0f;
+    (*color)[2] = 1.0f;
+    (*color)[3] = 0.25f;
   } else {
-    (*color)[0] = (*color)[2] = 0;
-    (*color)[1] = .17f;
-    (*color)[3] = .25f;
+    (*color)[0] = (*color)[2] = 0.0f;
+    (*color)[1] = 0.17f;
+    (*color)[3] = 0.25f;
 	}
 }
 

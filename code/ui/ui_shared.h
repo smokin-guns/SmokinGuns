@@ -421,11 +421,6 @@ typedef struct {
 
 } displayContextDef_t;
 
-#ifdef SMOKINGUNS
-// Tequila: Moved from cg_local.h as it needs itemDef_t type definition
-void CG_OwnerDraw(itemDef_t *item, float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle);
-#endif
-
 const char *String_Alloc(const char *p);
 void String_Init( void );
 void String_Report( void );
