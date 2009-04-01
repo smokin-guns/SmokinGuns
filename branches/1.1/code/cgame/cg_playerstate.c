@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // cg_playerstate.c -- this file acts on changes in a new playerState_t
 // With normal play, this will be done after local prediction, but when
 // following another player or playing back a demo, it will be checked
@@ -33,10 +34,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 CG_CheckAmmo
 
 If the ammo has gone low enough to generate the warning, play a sound
-
-***not used anymore***
 ==============
 */
+#ifndef SMOKINGUNS
 void CG_CheckAmmo( void ) {
 	int		i;
 	int		total;
@@ -46,15 +46,18 @@ void CG_CheckAmmo( void ) {
 	// see about how many seconds of ammo we have remaining
 	weapons = cg.snap->ps.stats[ STAT_WEAPONS ];
 	total = 0;
-	for ( i = WP_REM58 ; i < WP_NUM_WEAPONS ; i++ ) {
+	for ( i = WP_MACHINEGUN ; i < WP_NUM_WEAPONS ; i++ ) {
 		if ( ! ( weapons & ( 1 << i ) ) ) {
 			continue;
 		}
 		switch ( i ) {
-		case WP_REMINGTON_GAUGE:
-		case WP_DYNAMITE:
-		//case WP_RAILGUN:
-		case WP_WINCHESTER66:
+		case WP_ROCKET_LAUNCHER:
+		case WP_GRENADE_LAUNCHER:
+		case WP_RAILGUN:
+		case WP_SHOTGUN:
+#ifdef MISSIONPACK
+		case WP_PROX_LAUNCHER:
+#endif
 			total += cg.snap->ps.ammo[i] * 1000;
 			break;
 		default:
@@ -80,6 +83,7 @@ void CG_CheckAmmo( void ) {
 		trap_S_StartLocalSound( cgs.media.noAmmoSound, CHAN_LOCAL_SOUND );
 	}
 }
+#endif
 
 /*
 ==============
@@ -188,15 +192,24 @@ CG_Respawn
 A respawn happened this snapshot
 ================
 */
+#ifdef SMOKINGUNS
 void CG_ClearLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int animationNumber);
+#endif
 void CG_Respawn( void ) {
+#ifdef SMOKINGUNS
 	centity_t *cent = &cg_entities[cg.snap->ps.clientNum];
+#endif
 
 	// no error decay on player movement
 	cg.thisFrameTeleport = qtrue;
 
 	// display weapons available
 	cg.weaponSelectTime = cg.time;
+
+#ifndef SMOKINGUNS
+	// select the weapon the server says we are using
+	cg.weaponSelect = cg.snap->ps.weapon;
+#else
 	cg.markedweapon = WP_NONE;
 	cg.lastusedweapon = WP_NONE;
 
@@ -239,6 +252,7 @@ void CG_Respawn( void ) {
 		cg.weaponSelect = WP_NONE;
 
 	VectorCopy(cent->lerpOrigin, cg.anim_vieworigin);
+#endif
 }
 
 extern char *eventnames[];
@@ -322,6 +336,7 @@ void CG_CheckChangedPredictableEvents( playerState_t *ps ) {
 pushReward
 ==================
 */
+#ifndef SMOKINGUNS
 static void pushReward(sfxHandle_t sfx, qhandle_t shader, int rewardCount) {
 	if (cg.rewardStack < (MAX_REWARDSTACK-1)) {
 		cg.rewardStack++;
@@ -330,6 +345,7 @@ static void pushReward(sfxHandle_t sfx, qhandle_t shader, int rewardCount) {
 		cg.rewardCount[cg.rewardStack] = rewardCount;
 	}
 }
+#endif
 
 /*
 ==================
@@ -337,8 +353,10 @@ CG_CheckLocalSounds
 ==================
 */
 void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
-//	int			highScore, health, armor, reward;
-	//sfxHandle_t sfx;
+#ifndef SMOKINGUNS
+	int			highScore, health, armor, reward;
+	sfxHandle_t sfx;
+#endif
 
 	// don't play the sounds if the player just changed teams
 	if ( ps->persistant[PERS_TEAM] != ops->persistant[PERS_TEAM] ) {
@@ -346,7 +364,8 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	}
 
 	// hit changes
-	/*if ( ps->persistant[PERS_HITS] > ops->persistant[PERS_HITS] ) {
+#ifndef SMOKINGUNS
+	if ( ps->persistant[PERS_HITS] > ops->persistant[PERS_HITS] ) {
 		armor  = ps->persistant[PERS_ATTACKEE_ARMOR] & 0xff;
 		health = ps->persistant[PERS_ATTACKEE_ARMOR] >> 8;
 #ifdef MISSIONPACK
@@ -362,7 +381,8 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 #endif
 	} else if ( ps->persistant[PERS_HITS] < ops->persistant[PERS_HITS] ) {
 		trap_S_StartLocalSound( cgs.media.hitTeamSound, CHAN_LOCAL_SOUND );
-	}*/
+	}
+#endif
 
 	// health changes of more than -1 should make pain sounds
 	if ( ps->stats[STAT_HEALTH] < ops->stats[STAT_HEALTH] - 1 ) {
@@ -378,7 +398,8 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	}
 
 	// reward sounds
-	/*reward = qfalse;
+#ifndef SMOKINGUNS
+	reward = qfalse;
 	if (ps->persistant[PERS_CAPTURES] != ops->persistant[PERS_CAPTURES]) {
 		pushReward(cgs.media.captureAwardSound, cgs.media.medalCapture, ps->persistant[PERS_CAPTURES]);
 		reward = qtrue;
@@ -502,7 +523,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	}
 
 	// fraglimit warnings
-	if ( cgs.fraglimit > 0 && cgs.gametype < GT_RTP) {
+	if ( cgs.fraglimit > 0 && cgs.gametype < GT_CTF) {
 		highScore = cgs.scores1;
 		if ( !( cg.fraglimitWarnings & 4 ) && highScore == (cgs.fraglimit - 1) ) {
 			cg.fraglimitWarnings |= 1 | 2 | 4;
@@ -516,7 +537,8 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 			cg.fraglimitWarnings |= 1;
 			CG_AddBufferedSound(cgs.media.threeFragSound);
 		}
-	}*/
+	}
+#endif
 }
 
 /*
@@ -549,12 +571,19 @@ void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops ) {
 	}
 
 	if ( cg.snap->ps.pm_type != PM_INTERMISSION
+#ifndef SMOKINGUNS
+		&& ps->persistant[PERS_TEAM] != TEAM_SPECTATOR ) {
+#else
 		&& ps->persistant[PERS_TEAM] < TEAM_SPECTATOR ) {
+#endif
 		CG_CheckLocalSounds( ps, ops );
 	}
 
 	// check for going low on ammo
-	//CG_CheckAmmo(); but not in Western Quake³
+#ifndef SMOKINGUNS
+	// but not in Smokin 'Guns
+	CG_CheckAmmo();
+#endif
 
 	// run events
 	CG_CheckPlayerstateEvents( ps, ops );
