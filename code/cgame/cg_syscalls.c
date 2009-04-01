@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // cg_syscalls.c -- this file is only included when building a dll
 // cg_syscalls.asm is included instead when building a qvm
 #ifdef Q3_VM
@@ -29,18 +30,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
-static int (QDECL *syscall)( int arg, ... ) = (int (QDECL *)( int, ...))-1;
+static intptr_t (QDECL *syscall)( intptr_t arg, ... ) = (intptr_t (QDECL *)( intptr_t, ...))-1;
 
 
-void dllEntry( int (QDECL  *syscallptr)( int arg,... ) ) {
+void dllEntry( intptr_t (QDECL  *syscallptr)( intptr_t arg,... ) ) {
 	syscall = syscallptr;
 }
 
 
 int PASSFLOAT( float x ) {
-	float	floatTemp;
-	floatTemp = x;
-	return *(int *)&floatTemp;
+	floatint_t fi;
+	fi.f = x;
+	return fi.i;
 }
 
 void	trap_Print( const char *fmt ) {
@@ -154,15 +155,7 @@ int		trap_CM_TransformedPointContents( const vec3_t p, clipHandle_t model, const
 void	trap_CM_BoxTrace( trace_t *results, const vec3_t start, const vec3_t end,
 						  const vec3_t mins, const vec3_t maxs,
 						  clipHandle_t model, int brushmask ) {
-	//int shaderNum;
-
 	syscall( CG_CM_BOXTRACE, results, start, end, mins, maxs, model, brushmask );
-
-	//added by Spoon to decompress surfaceFlags
-	/*shaderNum = results->surfaceFlags;
-	results->surfaceFlags = shaderInfo[results->surfaceFlags].surfaceFlags;
-
-	return shaderNum;*/
 }
 
 void	trap_CM_CapsuleTrace( trace_t *results, const vec3_t start, const vec3_t end,
@@ -174,16 +167,8 @@ void	trap_CM_CapsuleTrace( trace_t *results, const vec3_t start, const vec3_t en
 void	trap_CM_TransformedBoxTrace( trace_t *results, const vec3_t start, const vec3_t end,
 						  const vec3_t mins, const vec3_t maxs,
 						  clipHandle_t model, int brushmask,
-						  const vec3_t origin, const vec3_t angles) {
-	//int shaderNum;
-
+						  const vec3_t origin, const vec3_t angles ) {
 	syscall( CG_CM_TRANSFORMEDBOXTRACE, results, start, end, mins, maxs, model, brushmask, origin, angles );
-
-	//added by Spoon to decompress surfaceFlags
-	/*shaderNum = results->surfaceFlags;
-	results->surfaceFlags = shaderInfo[results->surfaceFlags].surfaceFlags;
-
-	return shaderNum;*/
 }
 
 void	trap_CM_TransformedCapsuleTrace( trace_t *results, const vec3_t start, const vec3_t end,
@@ -461,6 +446,7 @@ qboolean trap_R_inPVS( const vec3_t p1, const vec3_t p2 ) {
 	return syscall( CG_R_INPVS, p1, p2 );
 }
 
+#ifdef SMOKINGUNS
 int trap_R_CullBoundingBox( vec3_t box_vertex[8] ) {
 	return syscall( CG_R_CULL_BBOX, box_vertex );
 }
@@ -472,4 +458,4 @@ int trap_R_CullPointAndRadius( vec3_t pt, float radius ) {
 int trap_R_GetFrustumPlane( cplane_t frustum[4] ) {
 	return syscall( CG_R_FRUSTUM_PLANE, frustum );
 }
-
+#endif
