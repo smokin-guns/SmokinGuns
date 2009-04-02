@@ -334,15 +334,14 @@ typedef enum {
 	LE_FADE_RGB,
 	LE_SCALE_FADE,
 	LE_SCOREPLUM,
-#ifdef SMOKINGUNS
-	LE_SMOKE,
-#endif
-#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 	LE_KAMIKAZE,
 	LE_INVULIMPACT,
 	LE_INVULJUICED,
-	LE_SHOWREFENTITY
+#else
+	LE_SMOKE,
 #endif
+	LE_SHOWREFENTITY
 } leType_t;
 
 typedef enum {
