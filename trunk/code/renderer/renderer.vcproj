@@ -50,7 +50,7 @@
 				FavorSizeOrSpeed="0"
 				OmitFramePointers="false"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\Microsoft DirectX SDK (November 2008)\Include&quot;"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\Microsoft DirectX SDK (March 2009)\Include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;SMOKINGUNS"
 				StringPooling="true"
 				RuntimeLibrary="0"
