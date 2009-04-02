@@ -56,7 +56,7 @@
 				FavorSizeOrSpeed="0"
 				OmitFramePointers="false"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\Microsoft DirectX SDK (November 2008)\Include&quot;;&quot;C:\Program Files\OpenAL 1.1 SDK\Include&quot;"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\Microsoft DirectX SDK (March 2009)\Include&quot;;&quot;C:\Program Files\OpenAL 1.1 SDK\Include&quot;"
 				PreprocessorDefinitions="_WIN32;WIN32;NDEBUG;_WINDOWS;SMOKINGUNS;USE_MUMBLE;USE_OPENAL"
 				StringPooling="true"
 				RuntimeLibrary="0"
