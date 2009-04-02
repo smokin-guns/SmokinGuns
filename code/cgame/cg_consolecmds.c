@@ -21,30 +21,20 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // cg_consolecmds.c -- text commands typed in at the local console, or
 // executed by a key binding
 
-//#ifdef DLL_RELEASE
-	//#include <dshow.h>
-//#endif
-
 #include "cg_local.h"
-// Still included in cg_local.h
-//#include "../ui/ui_shared.h"
-#ifdef MISSIONPACK
+#include "../ui/ui_shared.h"
+#ifdef SMOKINGUNS
 extern menuDef_t *menuScoreboard;
+// Smoking' Guns specific
 extern menuDef_t *menuBuy;
 extern menuDef_t *menuItem;
 extern int menuItemCount;
 extern coord_t save_menuBuy;
 extern coord_t save_menuItem;
-#endif
-
-#ifdef DLL_RELEASE
-	//mp3-support
-	IGraphBuilder *pGraph;
-	IMediaControl *pMediaControl;
-	int is_playing;
 #endif
 
 
@@ -96,16 +86,22 @@ Debugging command to print the current position
 =============
 */
 static void CG_Viewpos_f (void) {
+#ifndef SMOKINGUNS
+	CG_Printf ("(%i %i %i) : %i\n", (int)cg.refdef.vieworg[0],
+		(int)cg.refdef.vieworg[1], (int)cg.refdef.vieworg[2], 
+		(int)cg.refdefViewAngles[YAW]);
+#else
 	CG_Printf ("(%f %f %f) : (%f %f %f)\n", cg.refdef.vieworg[0],
 		cg.refdef.vieworg[1], cg.refdef.vieworg[2],
 		cg.refdefViewAngles[0], cg.refdefViewAngles[1],
 		cg.refdefViewAngles[2]);
+#endif
 }
 
 
 static void CG_ScoresDown_f( void ) {
 
-#ifdef MISSIONPACK
+#ifdef SMOKINGUNS
 		CG_BuildSpectatorString();
 #endif
 	if ( cg.scoresRequestTime + 2000 < cg.time ) {
@@ -134,9 +130,10 @@ static void CG_ScoresUp_f( void ) {
 	}
 }
 
-void CG_ClearFocusses();
+#ifdef SMOKINGUNS
+void CG_ClearFocusses(void);
 //set up the menu
-void CG_BuyMenu ( void) {
+void CG_BuyMenu (void) {
 	if(cg.menu == MENU_BUY) {
 		CG_CloseBuyMenu();
 		return;
@@ -208,10 +205,11 @@ void CG_BuyMenu ( void) {
 	// The "client" engine code will set BUTTON_BUYMENU to usercmd_t.buttons .
 	trap_SendConsoleCommand( "+button8" );
 }
+#endif
 
-#ifdef MISSIONPACK
+#ifdef SMOKINGUNS
 extern menuDef_t *menuScoreboard;
-void Menu_Reset();			// FIXME: add to right include file
+void Menu_Reset( void );			// FIXME: add to right include file
 
 static void CG_LoadHud_f( void) {
   char buff[1024];
@@ -221,20 +219,28 @@ static void CG_LoadHud_f( void) {
 	String_Init();
 	Menu_Reset();
 
-	//trap_Cvar_VariableStringBuffer("cg_hudFiles", buff, sizeof(buff));
-	//hudSet = buff;
-	//if (hudSet[0] == '\0') {
+#ifndef SMOKINGUNS
+	trap_Cvar_VariableStringBuffer("cg_hudFiles", buff, sizeof(buff));
+	hudSet = buff;
+	if (hudSet[0] == '\0') {
 		hudSet = "ui/hud.txt";
-	//}
+	}
+#else
+	hudSet = "ui/hud.txt";
+#endif
+#endif
 
 	CG_LoadMenus(hudSet);
 	menuScoreboard = NULL;
+#ifdef SMOKINGUNS
 	menuBuy = NULL;
 	menuItem = NULL;
 	menuItemCount = 0;
+#endif
 }
 
 
+#ifdef SMOKINGUNS
 static void CG_scrollScoresDown_f( void) {
 	if (menuScoreboard && cg.scoreBoardShowing) {
 		Menu_ScrollFeeder(menuScoreboard, FEEDER_SCOREBOARD, qtrue);
@@ -259,7 +265,9 @@ static void CG_spWin_f( void) {
 	trap_Cvar_Set("cg_thirdPerson", "1");
 	trap_Cvar_Set("cg_thirdPersonAngle", "0");
 	trap_Cvar_Set("cg_thirdPersonRange", "100");
+#ifndef SMOKINGUNS
 	CG_AddBufferedSound(cgs.media.winnerSound);
+#endif
 	//trap_S_StartLocalSound(cgs.media.winnerSound, CHAN_ANNOUNCER);
 	CG_CenterPrint("YOU WIN!", SCREEN_HEIGHT * .30, 0);
 }
@@ -270,7 +278,9 @@ static void CG_spLose_f( void) {
 	trap_Cvar_Set("cg_thirdPerson", "1");
 	trap_Cvar_Set("cg_thirdPersonAngle", "0");
 	trap_Cvar_Set("cg_thirdPersonRange", "100");
+#ifndef SMOKINGUNS
 	CG_AddBufferedSound(cgs.media.loserSound);
+#endif
 	//trap_S_StartLocalSound(cgs.media.loserSound, CHAN_ANNOUNCER);
 	CG_CenterPrint("YOU LOSE...", SCREEN_HEIGHT * .30, 0);
 }
@@ -337,7 +347,7 @@ static void CG_VoiceTellAttacker_f( void ) {
 	trap_SendClientCommand( command );
 }
 
-#ifdef MISSIONPACK
+#ifdef SMOKINGUNS
 static void CG_NextTeamMember_f( void ) {
   CG_SelectNextPlayer();
 }
@@ -396,7 +406,11 @@ static void CG_DenyOrder_f (void ) {
 }
 
 static void CG_TaskOffense_f (void ) {
+#ifndef SMOKINGUNS
 	if (cgs.gametype == GT_CTF || cgs.gametype == GT_1FCTF) {
+#else
+	if (cgs.gametype == GT_DUEL) {
+#endif
 		trap_SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONGETFLAG));
 	} else {
 		trap_SendConsoleCommand(va("cmd vsay_team %s\n", VOICECHAT_ONOFFENSE));
@@ -511,6 +525,14 @@ CG_StartOrbit_f
 */
 
 static void CG_StartOrbit_f( void ) {
+#ifndef SMOKINGUNS
+	char var[MAX_TOKEN_CHARS];
+
+	trap_Cvar_VariableStringBuffer( "developer", var, sizeof( var ) );
+	if ( !atoi(var) ) {
+		return;
+	}
+#endif
 	if (cg_cameraOrbit.value != 0) {
 		trap_Cvar_Set ("cg_cameraOrbit", "0");
 		trap_Cvar_Set("cg_thirdPerson", "0");
@@ -522,76 +544,20 @@ static void CG_StartOrbit_f( void ) {
 	}
 }
 
-#ifdef DLL_RELEASE
-
-void startupMP3() {
-	CoInitialize(NULL);
-}
-
-void shutdownMP3() {
-	if (is_playing) {
-		pMediaControl->lpVtbl->Stop(pMediaControl);
-		pMediaControl->lpVtbl->Release(pMediaControl);
-		pGraph->lpVtbl->Release(pGraph);
-	}
-	is_playing = 0;
-	pGraph = NULL;
-	pMediaControl = NULL;
-	CoUninitialize();
-}
-
-static void CG_StopMP3(void) {
-	if (is_playing) {
-		pMediaControl->lpVtbl->Stop(pMediaControl);
-		pMediaControl->lpVtbl->Release(pMediaControl);
-		pGraph->lpVtbl->Release(pGraph);
-		is_playing = 0;
+/*
+static void CG_Camera_f( void ) {
+	char name[1024];
+	trap_Argv( 1, name, sizeof(name));
+	if (trap_loadCamera(name)) {
+		cg.cameraMode = qtrue;
+		trap_startCamera(cg.time);
+	} else {
+		CG_Printf ("Unable to load camera %s\n",name);
 	}
 }
+*/
 
-static void CG_PlayMP3(void) {
-	char *path;
-	wchar_t *w_path;
-	HRESULT render = 0;
-
-	if (is_playing)
-		CG_StopMP3();
-
-
-	path = (char *)malloc(256);
-	w_path = (wchar_t *)malloc(sizeof(wchar_t) * 256);
-
-	trap_Args(path, 256);
-	MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, path, -1, w_path, 256);
-
-	CoCreateInstance(&CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER, &IID_IGraphBuilder, (void **)&pGraph);
-	pGraph->lpVtbl->QueryInterface(pGraph, &IID_IMediaControl, (void **)&pMediaControl);
-
-	render = pGraph->lpVtbl->RenderFile(pGraph, w_path, NULL);
-
-	if (render != S_OK) {
-		if (render == VFW_E_NOT_FOUND)
-			Com_Printf("Couldnt find file %s\n", path);
-		else
-			Com_Printf("Unknown rendering error for %s, %f\n", path, render);
-
-		free(path);
-		free(w_path);
-
-		return;
-	}
-
-	Com_Printf("Playing %s\n", path);
-
-	is_playing = 1;
-
-	free(path);
-	free(w_path);
-
-	pMediaControl->lpVtbl->Run(pMediaControl);
-}
-#endif
-
+#ifdef SMOKINGUNS
 static void CG_AngleDecrease_f(void){
 	cg_thirdPersonAngle.value -= 10.0;
 
@@ -608,11 +574,13 @@ static void CG_AngleIncrease_f(void){
 
 }
 
-static void CG_ShowCoords_f( void){
+static void CG_ShowCoords_f(void){
 	CG_Printf("%f %f %f\n", cg.refdef.vieworg[0], cg.refdef.vieworg[1],
 		cg.refdef.vieworg[2]);
 }
+#endif
 
+#ifndef SMOKINGUNS
 static void CG_ScopeUp(void){
 	cg.scopetime += 5;
 	if(cg.scopetime > SCOPE_TIME)
@@ -629,13 +597,15 @@ static void CG_ScopeDown(void){
 
 	//CG_Printf("%i\n", cg.scopetime);
 }
+#endif
 
 /*
-==================
-AI-Node-Code
-==================
-*/
+ * ==================
+ *  AI-Node-Code
+ * ==================
+ */
 
+#ifdef SMOKINGUNS
 static void CG_SaveFileAiNode_f(void){
 	int				i;
 	fileHandle_t	file;
@@ -791,6 +761,7 @@ static void CG_PrintAiNode_f(void){
 		CG_Printf("no nodes.\n");
 	CG_Printf("-------------------\n");
 }
+#endif
 
 typedef struct {
 	char	*cmd;
@@ -807,20 +778,24 @@ static consoleCommand_t	commands[] = {
 	{ "viewpos", CG_Viewpos_f },
 	{ "+scores", CG_ScoresDown_f },
 	{ "-scores", CG_ScoresUp_f },
-//	{ "+zoom", CG_ZoomDown_f },
-//	{ "-zoom", CG_ZoomUp_f },
+#ifndef SMOKINGUNS
+	{ "+zoom", CG_ZoomDown_f },
+	{ "-zoom", CG_ZoomUp_f },
+#endif
 	{ "sizeup", CG_SizeUp_f },
 	{ "sizedown", CG_SizeDown_f },
 	{ "weapnext", CG_NextWeapon_f },
 	{ "weapprev", CG_PrevWeapon_f },
 	{ "weapon", CG_Weapon_f },
+#ifdef SMOKINGUNS
 	{ "lastusedweapon", CG_LastUsedWeapon_f },
+#endif
 	{ "tell_target", CG_TellTarget_f },
 	{ "tell_attacker", CG_TellAttacker_f },
 	{ "vtell_target", CG_VoiceTellTarget_f },
 	{ "vtell_attacker", CG_VoiceTellAttacker_f },
 	{ "tcmd", CG_TargetCommand_f },
-#ifdef MISSIONPACK
+#ifdef SMOKINGUNS
 	{ "loadhud", CG_LoadHud_f },
 	{ "nextTeamMember", CG_NextTeamMember_f },
 	{ "prevTeamMember", CG_PrevTeamMember_f },
@@ -846,10 +821,9 @@ static consoleCommand_t	commands[] = {
 	{ "scoresDown", CG_scrollScoresDown_f },
 	{ "scoresUp", CG_scrollScoresUp_f },
 #endif
+#ifdef SMOKINGUNS
 	//{ "+scope", CG_ScopeUp },
 	//{ "-scope", CG_ScopeDown },
-	{ "startOrbit", CG_StartOrbit_f },
-	{ "loaddeferred", CG_LoadDeferredPlayers },
 	{ "-angle", CG_AngleDecrease_f },
 	{ "+angle", CG_AngleIncrease_f },
 	{ "coords", CG_ShowCoords_f },
@@ -859,11 +833,11 @@ static consoleCommand_t	commands[] = {
 	{ "node_print", CG_PrintAiNode_f},
 	{ "node_savefile", CG_SaveFileAiNode_f},
 	{ "node_openfile", CG_OpenFileAiNode_f},
-#ifdef DLL_RELEASE
-	{ "mp3play", CG_PlayMP3 },
-	{ "mp3stop", CG_StopMP3 },
-#endif
 	{ "wq_buy", CG_BuyMenu },
+#endif
+	{ "startOrbit", CG_StartOrbit_f },
+	//{ "camera", CG_Camera_f },
+	{ "loaddeferred", CG_LoadDeferredPlayers }	
 };
 
 
@@ -930,7 +904,9 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("follow");
 	trap_AddCommand ("levelshot");
 	trap_AddCommand ("addbot");
+#ifdef SMOKINGUNS
 	trap_AddCommand ("kickbots");
+#endif
 	trap_AddCommand ("setviewpos");
 	trap_AddCommand ("callvote");
 	trap_AddCommand ("vote");
@@ -940,8 +916,10 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("teamtask");
 	trap_AddCommand ("loaddefered");	// spelled wrong, but not changing for demo
 
+#ifdef SMOKINGUNS
 	//new console commands
 	trap_AddCommand ("dropweapon");
 	trap_AddCommand ("cg_buy");
 	trap_AddCommand ("buy");
+#endif
 }
