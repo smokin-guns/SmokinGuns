@@ -21,29 +21,44 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // bg_pmove.c -- both games player movement code
 // takes a playerstate and a usercmd as input and returns a modifed playerstate
 
-#include "q_shared.h"
+#include "../qcommon/q_shared.h"
 #include "bg_public.h"
 #include "bg_local.h"
-
-//#define	PM_DEBUG
 
 pmove_t		*pm;
 pml_t		pml;
 
 // movement parameters
-float	pm_stopspeed = 20.0f;//100
-float	pm_duckScale = 0.50f;//0.25
+#ifndef SMOKINGUNS
+float	pm_stopspeed = 100.0f;
+float	pm_duckScale = 0.25f;
+float	pm_swimScale = 0.50f;
+float	pm_wadeScale = 0.70f;
+
+float	pm_accelerate = 10.0f;
+float	pm_airaccelerate = 1.0f;
+float	pm_wateraccelerate = 4.0f;
+float	pm_flyaccelerate = 8.0f;
+
+float	pm_friction = 6.0f;
+float	pm_waterfriction = 1.0f;
+float	pm_flightfriction = 3.0f;
+float	pm_spectatorfriction = 5.0f;
+#else
+float	pm_stopspeed = 20.0f;
+float	pm_duckScale = 0.50f;
 float	pm_swimScale = 0.60f;
 float	pm_wadeScale = 0.70f;
 float	pm_ladderScale = 0.80f;  // Set the max movement speed to 80% of normal
 float	pm_reloadScale = 0.75f;
 
-float	pm_accelerate = 8.4f; //10
+float	pm_accelerate = 8.4f;
 float	pm_airaccelerate = 1.0f;
-float	pm_wateraccelerate = 5.6f; // 4
+float	pm_wateraccelerate = 5.6f;
 float	pm_flyaccelerate = 8.0f;
 float	pm_ladderAccelerate = 3000;  // The acceleration to friction ratio is 1:1
 
@@ -52,6 +67,7 @@ float	pm_waterfriction = 1.2f;
 float	pm_flightfriction = 3.0f;
 float	pm_spectatorfriction = 5.0f;
 float	pm_ladderfriction = 3000;  // Friction is high enough so you don't slip down
+#endif
 
 int		c_pmove = 0;
 
@@ -62,14 +78,17 @@ PM_AddEvent
 
 ===============
 */
+#ifdef SMOKINGUNS
 void PM_AddEvent2(int newEvent, int param){
 	BG_AddPredictableEventToPlayerstate( newEvent, param, pm->ps );
 }
+#endif
 
 void PM_AddEvent( int newEvent ) {
 	BG_AddPredictableEventToPlayerstate( newEvent, 0, pm->ps );
 }
 
+#ifdef SMOKINGUNS
 void PM_FireWeapon(int anim, qboolean weapon2, qboolean altfire, qboolean delay){
 
 	if(weapon2){
@@ -125,6 +144,7 @@ int PM_AnimLength( int anim, qboolean weapon2) {
 	return length;
 }
 //Spoon functions END
+#endif
 
 /*
 ===============
@@ -158,6 +178,7 @@ void PM_AddTouchEnt( int entityNum ) {
 PM_StartWeaponAnim
 ===================
 */
+#ifdef SMOKINGUNS
 static void PM_StartWeapon2Anim( int anim , qboolean reload, qboolean sec) {
 
 	if(reload){
@@ -211,6 +232,7 @@ static void PM_ContinueWeaponAnim( int anim , qboolean weapon2) {
 	pm->ps->weaponAnim = ( ( pm->ps->weaponAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )
 		| anim;
 }
+#endif
 
 /*
 ===================
@@ -221,7 +243,6 @@ static void PM_StartTorsoAnim( int anim ) {
 	if ( pm->ps->pm_type >= PM_DEAD ) {
 		return;
 	}
-
 	pm->ps->torsoAnim = ( ( pm->ps->torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )
 		| anim;
 }
@@ -263,8 +284,10 @@ static void PM_ContinueTorsoAnim( int anim ) {
 
 static void PM_ForceLegsAnim( int anim ) {
 
+#ifdef SMOKINGUNS
 	if(pm->ps->weaponstate == WEAPON_JUMPING)
 		pm->ps->weaponstate = WEAPON_READY;
+#endif
 
 	pm->ps->legsTimer = 0;
 	PM_StartLegsAnim( anim );
@@ -345,14 +368,16 @@ static void PM_Friction( void ) {
 	}
 
 	// apply flying friction
-/*	if ( pm->ps->powerups[PW_FLIGHT]) {
+#ifndef SMOKINGUNS
+	if ( pm->ps->powerups[PW_FLIGHT]) {
 		drop += speed*pm_flightfriction*pml.frametime;
-	}*/
-
+	}
+#else
 	if ( pml.ladder ) // If they're on a ladder...
 	{
 		drop += speed*pm_ladderfriction*pml.frametime;  // Add ladder friction!
 	}
+#endif
 
 	if ( pm->ps->pm_type == PM_SPECTATOR) {
 		drop += speed*pm_spectatorfriction*pml.frametime;
@@ -379,18 +404,16 @@ Handles user intended acceleration
 ==============
 */
 static void PM_Accelerate( vec3_t wishdir, float wishspeed, float accel ) {
-#if 0
+#ifndef SMOKINGUNS
 	// q2 style
 	int			i;
 	float		addspeed, accelspeed, currentspeed;
 
 	currentspeed = DotProduct (pm->ps->velocity, wishdir);
-
 	addspeed = wishspeed - currentspeed;
 	if (addspeed <= 0) {
 		return;
 	}
-	accel /= 2;
 	accelspeed = accel*pml.frametime*wishspeed;
 	if (accelspeed > addspeed) {
 		accelspeed = addspeed;
@@ -407,6 +430,7 @@ static void PM_Accelerate( vec3_t wishdir, float wishspeed, float accel ) {
 	float		pushLen;
 	float		canPush;
 //	float		currentspeed = DotProduct (pm->ps->velocity, wishdir);
+#ifdef SMOKINGUNS
 	float oldaccel = accel;
 	float vel_z_save = pm->ps->velocity[2];
 
@@ -414,20 +438,21 @@ static void PM_Accelerate( vec3_t wishdir, float wishspeed, float accel ) {
 	if(pm->ps->stats[STAT_KNOCKTIME]){
 		accel *= 0.25f;
 	}
+#endif
 
 	VectorScale( wishdir, wishspeed, wishVelocity );
 	VectorSubtract( wishVelocity, pm->ps->velocity, pushDir );
 	pushLen = VectorNormalize( pushDir );
 
 	canPush = accel*pml.frametime*wishspeed;
-
 	if (canPush > pushLen) {
 		canPush = pushLen;
 	}
 
+#ifdef SMOKINGUNS
 	if(pushLen && canPush){
 
-		accel *= sqrt(canPush/pushLen)*1.5f;//1.4f;
+		accel *= sqrt(canPush/pushLen)*1.5f;
 
 		if(oldaccel < accel) accel = oldaccel;
 		//Com_Printf("%f %f\n", accel, sqrt(canPush/pushLen));
@@ -437,9 +462,11 @@ static void PM_Accelerate( vec3_t wishdir, float wishspeed, float accel ) {
 			canPush = pushLen;
 		}
 	}
+#endif
 
 	VectorMA( pm->ps->velocity, canPush, pushDir, pm->ps->velocity );
 
+#ifdef SMOKINGUNS
 	// use other acceleration when falling down/jumping
 	if(pushLen && canPush){
 
@@ -455,7 +482,9 @@ static void PM_Accelerate( vec3_t wishdir, float wishspeed, float accel ) {
 		pm->ps->velocity[2] = vel_z_save + canPush*pushDir[2];
 	}
 #endif
+#endif
 }
+
 
 
 /*
@@ -506,9 +535,11 @@ static void PM_SetMovementDir( void ) {
 		} else if ( pm->cmd.rightmove < 0 && pm->cmd.forwardmove > 0 ) {
 			pm->ps->movementDir = 1;
 		} else if ( pm->cmd.rightmove < 0 && pm->cmd.forwardmove == 0 ) {
+#ifdef SMOKINGUNS
 			if(!( pm->cmd.buttons & BUTTON_WALKING ))
 				pm->ps->movementDir = 0; // we now have a slide anim
 			else
+#endif
 				pm->ps->movementDir = 2;
 		} else if ( pm->cmd.rightmove < 0 && pm->cmd.forwardmove < 0 ) {
 			pm->ps->movementDir = 3;
@@ -517,9 +548,11 @@ static void PM_SetMovementDir( void ) {
 		} else if ( pm->cmd.rightmove > 0 && pm->cmd.forwardmove < 0 ) {
 			pm->ps->movementDir = 5;
 		} else if ( pm->cmd.rightmove > 0 && pm->cmd.forwardmove == 0 ) {
+#ifdef SMOKINGUNS
 			if(!( pm->cmd.buttons & BUTTON_WALKING ))
 				pm->ps->movementDir = 0;// we now have a slide anim
 			else
+#endif
 				pm->ps->movementDir = 6;
 		} else if ( pm->cmd.rightmove > 0 && pm->cmd.forwardmove > 0 ) {
 			pm->ps->movementDir = 7;
@@ -565,24 +598,32 @@ static qboolean PM_CheckJump( void ) {
 
 	pm->ps->groundEntityNum = ENTITYNUM_NONE;
 	pm->ps->velocity[2] = JUMP_VELOCITY;
+#ifndef SMOKINGUNS
+	PM_AddEvent( EV_JUMP );
+#else
 	pm->ps->velocity[1] *= 0.75f; //reduce jump-verlocity
 	pm->ps->velocity[0] *= 0.75f;
-	//PM_AddEvent( EV_JUMP );
+#endif
 
-	//if ( pm->cmd.forwardmove >= 0 ) {
-		PM_ForceLegsAnim( BOTH_JUMP );
+#ifndef SMOKINGUNS
+	if ( pm->cmd.forwardmove >= 0 ) {
+		PM_ForceLegsAnim( LEGS_JUMP );
 		pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
-
-		if((pm->ps->weaponstate == WEAPON_READY
-			&& pm->ps->weapon2state == WEAPON_READY)
-			|| pm->ps->weaponstate == WEAPON_JUMPING){
-			pm->ps->weaponstate = WEAPON_JUMPING;
-			PM_StartTorsoAnim( BOTH_JUMP );
-		}
-	/*} else {
+	} else {
 		PM_ForceLegsAnim( LEGS_JUMPB );
 		pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
-	}*/
+	}
+#else
+	PM_ForceLegsAnim( BOTH_JUMP );
+	pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
+
+	if((pm->ps->weaponstate == WEAPON_READY
+		&& pm->ps->weapon2state == WEAPON_READY)
+		|| pm->ps->weaponstate == WEAPON_JUMPING){
+		pm->ps->weaponstate = WEAPON_JUMPING;
+		PM_StartTorsoAnim( BOTH_JUMP );
+	}
+#endif
 
 	return qtrue;
 }
@@ -729,8 +770,7 @@ static void PM_WaterMove( void ) {
 	PM_SlideMove( qfalse );
 }
 
-#if 0
-//#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 /*
 ===================
 PM_InvulnerabilityMove
@@ -859,12 +899,15 @@ PM_GrappleMove
 
 ===================
 */
+#ifndef SMOKINGUNS
 static void PM_GrappleMove( void ) {
 	vec3_t vel, v;
 	float vlen;
 
 	VectorScale(pml.forward, -16, v);
-	//VectorAdd(pm->ps->grapplePoint, v, v);
+#ifndef SMOKINGUNS
+	VectorAdd(pm->ps->grapplePoint, v, v);
+#endif
 	VectorSubtract(v, pm->ps->origin, vel);
 	vlen = VectorLength(vel);
 	VectorNormalize( vel );
@@ -878,6 +921,7 @@ static void PM_GrappleMove( void ) {
 
 	pml.groundPlane = qfalse;
 }
+#endif
 
 /*
 ===================
@@ -953,12 +997,14 @@ static void PM_WalkMove( void ) {
 	}
 
 	// clamp the speed lower while reloading
+#ifdef SMOKINGUNS
 	if ( pm->ps->weaponstate == WEAPON_RELOADING ||
 	                     pm->ps->weapon2state == WEAPON_RELOADING) {
 		if ( wishspeed > pm->ps->speed * pm_reloadScale ) {
 			wishspeed = pm->ps->speed * pm_reloadScale;
 		}
 	}
+#endif
 
 	// clamp the speed lower if wading or walking on the bottom
 	if ( pm->waterlevel ) {
@@ -978,13 +1024,6 @@ static void PM_WalkMove( void ) {
 	} else {
 		accelerate = pm_accelerate;
 	}
-
-	//if player is strafing the speed is decreased too now, just for testing
-	/*if(fmove && smove){
-		wishspeed *= 0.95f;
-	} else if(smove){
-		wishspeed *= 0.9f;
-	}*/
 
 	PM_Accelerate (wishdir, wishspeed, accelerate);
 
@@ -1007,7 +1046,6 @@ static void PM_WalkMove( void ) {
 	// don't decrease velocity when going up or down a slope
 	VectorNormalize(pm->ps->velocity);
 	VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
-
 
 	// don't do anything if standing still
 	if (!pm->ps->velocity[0] && !pm->ps->velocity[1]) {
@@ -1119,6 +1157,11 @@ static int PM_FootstepForSurface( void ) {
 	if ( pml.groundTrace.surfaceFlags & SURF_NOSTEPS ) {
 		return 0;
 	}
+#ifndef SMOKINGUNS
+	if ( pml.groundTrace.surfaceFlags & SURF_METALSTEPS ) {
+		return EV_FOOTSTEP_METAL;
+	}
+#else
 	if ( pml.groundTrace.surfaceFlags & SURF_METAL ) {
 		return EV_FOOTSTEP_METAL;
 	}
@@ -1134,6 +1177,7 @@ static int PM_FootstepForSurface( void ) {
 	if( pml.groundTrace.surfaceFlags & SURF_CLOTH) {
 		return EV_FOOTSTEP_CLOTH;
 	}
+#endif
 	return EV_FOOTSTEP;
 }
 
@@ -1150,12 +1194,23 @@ static void PM_CrashLand( void ) {
 	float		dist;
 	float		vel, acc;
 	float		t;
-	float		a, b, c, den/*, i*/;
+	float		a, b, c, den;
 
+#ifndef SMOKINGUNS
+	// decide which landing animation to use
+	if ( pm->ps->pm_flags & PMF_BACKWARDS_JUMP ) {
+		PM_ForceLegsAnim( LEGS_LANDB );
+	} else {
+		PM_ForceLegsAnim( LEGS_LAND );
+	}
+
+	pm->ps->legsTimer = TIMER_LAND;
+#else
 	if(pm->ps->weaponstate == WEAPON_JUMPING){
 		pm->ps->weaponstate = WEAPON_READY;
 		pm->ps->weapon2state = WEAPON_READY;
 	}
+#endif
 
 	// calculate the exact velocity on landing
 	dist = pm->ps->origin[2] - pml.previous_origin[2];
@@ -1166,8 +1221,10 @@ static void PM_CrashLand( void ) {
 	b = vel;
 	c = -dist;
 
+#ifdef SMOKINGUNS
 	if( a == 0)
 		return;
+#endif
 	den =  b * b - 4 * a * c;
 	if ( den < 0 ) {
 		return;
@@ -1175,8 +1232,18 @@ static void PM_CrashLand( void ) {
 	t = (-b - sqrt( den ) ) / ( 2 * a );
 
 	delta = vel + t * acc;
+#ifndef SMOKINGUNS
+	delta = delta*delta * 0.0001;
+#else
 	delta = delta*delta * 0.00013;
+#endif
 
+#ifndef SMOKINGUNS
+	// ducking while falling doubles damage
+	if ( pm->ps->pm_flags & PMF_DUCKED ) {
+		delta *= 2;
+	}
+#else
 	// ducking while falling 0.8*damage
 	if ( pm->ps->pm_flags & PMF_DUCKED ) {
 		delta *= 0.8f;
@@ -1200,6 +1267,7 @@ static void PM_CrashLand( void ) {
 
 		pm->ps->legsTimer = TIMER_LAND;
 	}
+#endif
 
 	// never take falling damage if completely underwater
 	if ( pm->waterlevel == 3 ) {
@@ -1214,13 +1282,6 @@ static void PM_CrashLand( void ) {
 		delta *= 0.5;
 	}
 
-	/*for(i=0;i<NUM_PREFIXINFO;i++){
-		if(pml.groundTrace.surfaceFlags & prefixInfo[i].surfaceFlags){
-			//delta *= prefixInfo[i].fallingDamageFactor;
-			break;
-		}
-	}*/
-
 	if ( delta < 1 ) {
 		return;
 	}
@@ -1230,6 +1291,20 @@ static void PM_CrashLand( void ) {
 	// SURF_NODAMAGE is used for bounce pads where you don't ever
 	// want to take damage or play a crunch sound
 	if ( !(pml.groundTrace.surfaceFlags & SURF_NODAMAGE) )  {
+#ifndef SMOKINGUNS
+		if ( delta > 60 ) {
+			PM_AddEvent( EV_FALL_FAR );
+		} else if ( delta > 40 ) {
+			// this is a pain grunt, so don't play it if dead
+			if ( pm->ps->stats[STAT_HEALTH] > 0 ) {
+				PM_AddEvent( EV_FALL_MEDIUM );
+			}
+		} else if ( delta > 7 ) {
+			PM_AddEvent( EV_FALL_SHORT );
+		} else {
+			PM_AddEvent( PM_FootstepForSurface() );
+		}
+#else
 		if ( delta > 60 ) {
 			PM_AddEvent( EV_FALL_VERY_FAR );
 			//Com_Printf("FALLING_DAMAGE: very far\n");
@@ -1262,6 +1337,7 @@ static void PM_CrashLand( void ) {
 				&& !(pm->ps->pm_flags & PMF_DUCKED) )
 				PM_AddEvent( PM_FootstepForSurface() );
 		}
+#endif
 	}
 
 	// start footstep cycle over
@@ -1350,23 +1426,26 @@ static void PM_GroundTraceMissed( void ) {
 		point[2] -= 64;
 
 		pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
-
-		if ( trace.fraction == 1.0) {
-
-			//if ( pm->cmd.forwardmove >= 0 ) {
-				PM_ForceLegsAnim( BOTH_JUMP );
+		if ( trace.fraction == 1.0 ) {
+#ifndef SMOKINGUNS
+			if ( pm->cmd.forwardmove >= 0 ) {
+				PM_ForceLegsAnim( LEGS_JUMP );
 				pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
-
-				if((pm->ps->weaponstate == WEAPON_READY
-					&& pm->ps->weapon2state == WEAPON_READY)
-					|| pm->ps->weaponstate == WEAPON_JUMPING){
-					pm->ps->weaponstate = WEAPON_JUMPING;
-					PM_StartTorsoAnim( BOTH_JUMP );
-				}
-			/*} else {
+			} else {
 				PM_ForceLegsAnim( LEGS_JUMPB );
 				pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
-			}*/
+			}
+#else
+			PM_ForceLegsAnim( BOTH_JUMP );
+			pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
+
+			if((pm->ps->weaponstate == WEAPON_READY
+				&& pm->ps->weapon2state == WEAPON_READY)
+				|| pm->ps->weaponstate == WEAPON_JUMPING){
+				pm->ps->weaponstate = WEAPON_JUMPING;
+				PM_StartTorsoAnim( BOTH_JUMP );
+			}
+#endif
 		}
 	}
 
@@ -1375,6 +1454,7 @@ static void PM_GroundTraceMissed( void ) {
 	pml.walking = qfalse;
 }
 
+#ifdef SMOKINGUNS
 void	trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize );
 
 void PM_FindGround( void ){
@@ -1399,6 +1479,7 @@ void PM_FindGround( void ){
 
 	pm->ps->origin[2] = trace.endpos[2];
 }
+#endif
 
 /*
 =============
@@ -1436,20 +1517,25 @@ static void PM_GroundTrace( void ) {
 			Com_Printf("%i:kickoff\n", c_pmove);
 		}
 		// go into jump animation
-		//if ( pm->cmd.forwardmove >= 0 ) {
-			PM_ForceLegsAnim( BOTH_JUMP );
+#ifndef SMOKINGUNS
+		if ( pm->cmd.forwardmove >= 0 ) {
+			PM_ForceLegsAnim( LEGS_JUMP );
 			pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
-
-			if((pm->ps->weaponstate == WEAPON_READY
-				&& pm->ps->weapon2state == WEAPON_READY)
-				|| pm->ps->weaponstate == WEAPON_JUMPING){
-				pm->ps->weaponstate = WEAPON_JUMPING;
-				PM_StartTorsoAnim( BOTH_JUMP );
-			}
-		/*} else {
+		} else {
 			PM_ForceLegsAnim( LEGS_JUMPB );
 			pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
-		}*/
+		}
+#else
+		PM_ForceLegsAnim( BOTH_JUMP );
+		pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
+
+		if((pm->ps->weaponstate == WEAPON_READY
+			&& pm->ps->weapon2state == WEAPON_READY)
+			|| pm->ps->weaponstate == WEAPON_JUMPING){
+			pm->ps->weaponstate = WEAPON_JUMPING;
+			PM_StartTorsoAnim( BOTH_JUMP );
+		}
+#endif
 
 		pm->ps->groundEntityNum = ENTITYNUM_NONE;
 		pml.groundPlane = qfalse;
@@ -1541,7 +1627,9 @@ static void PM_SetWaterLevel( void ) {
 			cont = pm->pointcontents (point, pm->ps->clientNum );
 			if ( cont & MASK_WATER ){
 				pm->waterlevel = 3;
+#ifdef SMOKINGUNS
 				PM_AddEvent(EV_UNDERWATER);
+#endif
 			}
 		}
 	}
@@ -1559,16 +1647,34 @@ static void PM_CheckDuck (void)
 {
 	trace_t	trace;
 
+#ifndef SMOKINGUNS
+	if ( pm->ps->powerups[PW_INVULNERABILITY] ) {
+		if ( pm->ps->pm_flags & PMF_INVULEXPAND ) {
+			// invulnerability sphere has a 42 units radius
+			VectorSet( pm->mins, -42, -42, -42 );
+			VectorSet( pm->maxs, 42, 42, 42 );
+		}
+		else {
+			VectorSet( pm->mins, -15, -15, MINS_Z );
+			VectorSet( pm->maxs, 15, 15, 16 );
+		}
+		pm->ps->pm_flags |= PMF_DUCKED;
+		pm->ps->viewheight = CROUCH_VIEWHEIGHT;
+		return;
+	}
+#endif
 	pm->ps->pm_flags &= ~PMF_INVULEXPAND;
 
-	VectorCopy(playerMins, pm->mins);
-	VectorCopy(playerMaxs, pm->maxs);
-
-	/*pm->mins[0] = -15;
+#ifndef SMOKINGUNS
+	pm->mins[0] = -15;
 	pm->mins[1] = -15;
 
 	pm->maxs[0] = 15;
-	pm->maxs[1] = 15;*/
+	pm->maxs[1] = 15;
+#else
+	VectorCopy(playerMins, pm->mins);
+	VectorCopy(playerMaxs, pm->maxs);
+#endif
 
 	pm->mins[2] = MINS_Z;
 
@@ -1588,7 +1694,11 @@ static void PM_CheckDuck (void)
 		if (pm->ps->pm_flags & PMF_DUCKED)
 		{
 			// try to stand up
+#ifndef SMOKINGUNS
+			pm->maxs[2] = 32;
+#else
 			pm->maxs[2] = MAXS_Z;
+#endif
 			pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, pm->ps->origin, pm->ps->clientNum, pm->tracemask );
 			if (!trace.allsolid)
 				pm->ps->pm_flags &= ~PMF_DUCKED;
@@ -1597,12 +1707,20 @@ static void PM_CheckDuck (void)
 
 	if (pm->ps->pm_flags & PMF_DUCKED)
 	{
+#ifndef SMOKINGUNS
+		pm->maxs[2] = 16;
+#else
 		pm->maxs[2] = MAXS_Z - 16;
+#endif
 		pm->ps->viewheight = CROUCH_VIEWHEIGHT;
 	}
 	else
 	{
+#ifndef SMOKINGUNS
+		pm->maxs[2] = 32;
+#else
 		pm->maxs[2] = MAXS_Z;
+#endif
 		pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
 	}
 }
@@ -1629,11 +1747,15 @@ static void PM_Footsteps( void ) {
 	pm->xyspeed = sqrt( pm->ps->velocity[0] * pm->ps->velocity[0]
 		+  pm->ps->velocity[1] * pm->ps->velocity[1] );
 
-	if ( pm->ps->groundEntityNum == ENTITYNUM_NONE  && !pml.ladder) {
+#ifndef SMOKINGUNS
+	if ( pm->ps->groundEntityNum == ENTITYNUM_NONE ) {
 
-/*		if ( pm->ps->powerups[PW_INVULNERABILITY] ) {
+		if ( pm->ps->powerups[PW_INVULNERABILITY] ) {
 			PM_ContinueLegsAnim( LEGS_IDLECR );
-		}*/
+		}
+#else
+	if ( pm->ps->groundEntityNum == ENTITYNUM_NONE  && !pml.ladder) {
+#endif
 		// airborne leaves position in cycle intact, but doesn't advance
 		if ( pm->waterlevel > 1 ) {
 			PM_ContinueLegsAnim( LEGS_SWIM );
@@ -1642,26 +1764,46 @@ static void PM_Footsteps( void ) {
 	}
 
 	// if not trying to move
+#ifndef SMOKINGUNS
+	if ( !pm->cmd.forwardmove && !pm->cmd.rightmove ) {
+#else
 	if( (pml.ladder && !pm->cmd.forwardmove && !pm->cmd.upmove && !pm->cmd.rightmove) ||//if on ladder
 		(!pm->cmd.forwardmove && !pm->cmd.rightmove && !pml.ladder)) { //if not on ladder
+#endif
 		if (  pm->xyspeed < 5 ) {
 			pm->ps->bobCycle = 0;	// start at beginning of cycle again
 			if ( pm->ps->pm_flags & PMF_DUCKED ) {
+#ifndef SMOKINGUNS
+				PM_ContinueLegsAnim( LEGS_IDLECR );
+#else
 				PM_ContinueLegsAnim( LEGS_CROUCHED_IDLE );
+#endif
 			} else {
 				PM_ContinueLegsAnim( LEGS_IDLE );
 			}
 		}
+#ifdef SMOKINGUNS
 		if(pml.ladder){
 			PM_StartTorsoAnim(BOTH_LADDER_STAND);
 			PM_StartLegsAnim(BOTH_LADDER_STAND);
 		}
+#endif
 		return;
 	}
 
 
 	footstep = qfalse;
 
+#ifndef SMOKINGUNS
+	if ( pm->ps->pm_flags & PMF_DUCKED ) {
+		bobmove = 0.5;	// ducked characters bob much faster
+		if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) {
+			PM_ContinueLegsAnim( LEGS_BACKCR );
+		}
+		else {
+			PM_ContinueLegsAnim( LEGS_WALKCR );
+		}
+#else
 	if(pml.ladder) {
 		PM_ContinueTorsoAnim( BOTH_LADDER );
 		PM_ContinueLegsAnim( BOTH_LADDER );
@@ -1673,6 +1815,7 @@ static void PM_Footsteps( void ) {
 		else {
 			PM_ContinueLegsAnim( LEGS_CROUCH_WALK );
 		}
+#endif
 		// ducked characters never play footsteps
 	/*
 	} else 	if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) {
@@ -1688,9 +1831,14 @@ static void PM_Footsteps( void ) {
 		if ( !( pm->cmd.buttons & BUTTON_WALKING ) ) {
 			bobmove = 0.4f;	// faster speeds bob faster
 			if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) {
+#ifndef SMOKINGUNS
+				PM_ContinueLegsAnim( LEGS_BACK );
+#else
 				PM_ContinueLegsAnim( LEGS_RUN_BACK );
+#endif
 			}
 			else {
+#ifdef SMOKINGUNS
 				if(!pm->cmd.forwardmove && pm->cmd.rightmove){
 					if(pm->cmd.rightmove > 0)
 						PM_ContinueLegsAnim( LEGS_SLIDE_RIGHT );
@@ -1699,13 +1847,18 @@ static void PM_Footsteps( void ) {
 				} else if(pm->cmd.rightmove)
 					PM_ContinueLegsAnim( LEGS_RUN_SLIDE );
 				else
+#endif
 					PM_ContinueLegsAnim( LEGS_RUN );
 			}
 			footstep = qtrue;
 		} else {
 			bobmove = 0.3f;	// walking bobs slow
 			if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) {
+#ifndef SMOKINGUNS
+				PM_ContinueLegsAnim( LEGS_BACKWALK );
+#else
 				PM_ContinueLegsAnim( LEGS_WALK_BACK );
+#endif
 			}
 			else {
 				PM_ContinueLegsAnim( LEGS_WALK );
@@ -1781,7 +1934,19 @@ PM_BeginWeaponChange
 ===============
 */
 static void PM_BeginWeaponChange( int weapon ) {
+#ifndef SMOKINGUNS
+	if ( weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS ) {
+		return;
+	}
 
+	if ( !( pm->ps->stats[STAT_WEAPONS] & ( 1 << weapon ) ) ) {
+		return;
+	}
+	
+	if ( pm->ps->weaponstate == WEAPON_DROPPING ) {
+		return;
+	}
+#else
 	int count_pistols = 0;
 
 	if ( (weapon < WP_NONE || weapon >= WP_NUM_WEAPONS) && weapon != WP_AKIMBO ) {
@@ -1907,8 +2072,14 @@ static void PM_BeginWeaponChange( int weapon ) {
 			pm->ps->stats[STAT_OLDWEAPON] = 0;
 		}
 	}
+#endif
 	// Play change sound
 	PM_AddEvent( EV_CHANGE_WEAPON );
+#ifndef SMOKINGUNS
+	pm->ps->weaponstate = WEAPON_DROPPING;
+	pm->ps->weaponTime += 200;
+	PM_StartTorsoAnim( TORSO_DROP );
+#endif
 }
 
 
@@ -1919,6 +2090,22 @@ PM_FinishWeaponChange
 */
 static void PM_FinishWeaponChange( void ) {
 	int		weapon;
+
+#ifndef SMOKINGUNS
+	weapon = pm->cmd.weapon;
+	if ( weapon < WP_NONE || weapon >= WP_NUM_WEAPONS ) {
+		weapon = WP_NONE;
+	}
+
+	if ( !( pm->ps->stats[STAT_WEAPONS] & ( 1 << weapon ) ) ) {
+		weapon = WP_NONE;
+	}
+
+	pm->ps->weapon = weapon;
+	pm->ps->weaponstate = WEAPON_RAISING;
+	pm->ps->weaponTime += 250;
+	PM_StartTorsoAnim( TORSO_RAISE );
+#else
 	int		weapon1, weapon2;
 	qboolean	remington_cocking_sound = qtrue;
 
@@ -2009,6 +2196,7 @@ static void PM_FinishWeaponChange( void ) {
 	if (remington_cocking_sound) {
 		PM_AddEvent2(EV_CHANGETO_SOUND, pm->ps->weapon);
 	}
+#endif
 }
 
 
@@ -2019,7 +2207,16 @@ PM_TorsoAnimation
 ==============
 */
 static void PM_TorsoAnimation( void ) {
-
+#ifndef SMOKINGUNS
+	if ( pm->ps->weaponstate == WEAPON_READY ) {
+		if ( pm->ps->weapon == WP_GAUNTLET ) {
+			PM_ContinueTorsoAnim( TORSO_STAND2 );
+		} else {
+			PM_ContinueTorsoAnim( TORSO_STAND );
+		}
+		return;
+	}
+#else
 	// start hold animation of torso when leg animations of jumping have ended
 	if((pm->ps->legsAnim &~ ANIM_TOGGLEBIT) != BOTH_JUMP &&
 		(pm->ps->legsAnim &~ ANIM_TOGGLEBIT) != BOTH_LAND &&
@@ -2064,7 +2261,9 @@ static void PM_TorsoAnimation( void ) {
 		}
 		return;
 	}
+#endif
 }
+
 
 /*
 ==============
@@ -2072,6 +2271,7 @@ PM_ReloadStart
 Starts the reload
 ==============
 */
+#ifdef SMOKINGUNS
 static qboolean PM_ReloadStart( qboolean weapon2, int *weaponTime, int *weaponstate ){
 	int weapon = weapon2 ? pm->ps->weapon2 : pm->ps->weapon;
 	int reload = weapon2 ? EF_RELOAD2 : EF_RELOAD;
@@ -2585,8 +2785,8 @@ static void PM_WeaponAction( int *weapon, int *weaponTime, int *weaponstate, qbo
 	}
 
 	// check for fire
-	if ( (! (pm->cmd.buttons & BUTTON_ATTACK) &&
-		! (pm->cmd.buttons & BUTTON_ALT_ATTACK) ||
+	if ( ((! (pm->cmd.buttons & BUTTON_ATTACK) &&
+		! (pm->cmd.buttons & BUTTON_ALT_ATTACK)) ||
 		(pm->cmd.buttons & BUTTON_RELOAD)) || pm->ps->weapon2) {
 
 		if(pm->cmd.buttons & BUTTON_RELOAD){
@@ -2769,6 +2969,7 @@ static void PM_WeaponAction( int *weapon, int *weaponTime, int *weaponstate, qbo
 	//let idle anim begin after firing
 	pm->ps->stats[IDLE_TIMER] = addTime + 2500 + rand()%5000;
 }
+#endif
 
 /*
 ==============
@@ -2778,26 +2979,51 @@ Generates weapon events and modifes the weapon counter
 ==============
 */
 static void PM_Weapon( void ) {
-//
-//	GENERAL CHECKS
-//
+#ifndef SMOKINGUNS
+	int		addTime;
+#endif
+
 	// don't allow attack until all buttons are up
 	if ( pm->ps->pm_flags & PMF_RESPAWNED ) {
 		return;
 	}
 
 	// ignore if spectator
+#ifndef SMOKINGUNS
+	if ( pm->ps->persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
+#else
 	if ( pm->ps->persistant[PERS_TEAM] >= TEAM_SPECTATOR ) {
+#endif
 		return;
 	}
 
 	// check for dead player
 	if ( pm->ps->stats[STAT_HEALTH] <= 0 ) {
 		pm->ps->weapon = WP_NONE;
+#ifdef SMOKINGUNS
 		pm->ps->weapon2 = WP_NONE;
+#endif
 		return;
 	}
 
+#ifndef SMOKINGUNS
+	// check for item using
+	if ( pm->cmd.buttons & BUTTON_USE_HOLDABLE ) {
+		if ( ! ( pm->ps->pm_flags & PMF_USE_ITEM_HELD ) ) {
+			if ( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_MEDKIT
+				&& pm->ps->stats[STAT_HEALTH] >= (pm->ps->stats[STAT_MAX_HEALTH] + 25) ) {
+				// don't use medkit if at max health
+			} else {
+				pm->ps->pm_flags |= PMF_USE_ITEM_HELD;
+				PM_AddEvent( EV_USE_ITEM0 + bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag );
+				pm->ps->stats[STAT_HOLDABLE_ITEM] = 0;
+			}
+			return;
+		}
+	} else {
+		pm->ps->pm_flags &= ~PMF_USE_ITEM_HELD;
+	}
+#else
 	//new weapon choose system
 	if(pm->ps->stats[STAT_FLAGS] & SF_WP_CHOOSE) {
 		if((!(pm->cmd.buttons & BUTTON_ATTACK) && (pm->ps->oldbuttons & BUTTON_ATTACK))
@@ -2823,15 +3049,14 @@ static void PM_Weapon( void ) {
 	if(pm->ps->stats[STAT_WP_MODE] && pm->ps->powerups[PW_SCOPE] != 2
 		&& pm->ps->weapon == WP_SHARPS)
 		pm->ps->stats[STAT_WP_MODE] = 0;
+#endif
 
-//
-//	TIMERS
-//
 	// make weapon function
 	if ( pm->ps->weaponTime > 0 ) {
 		pm->ps->weaponTime -= pml.msec;
 	}
 
+#ifdef SMOKINGUNS
 	if ( pm->ps->weapon2Time > 0) {
 		pm->ps->weapon2Time -= pml.msec;
 	}
@@ -2901,7 +3126,7 @@ static void PM_Weapon( void ) {
 			break;
 		case WP_SHARPS:
 			if(pm->ps->powerups[PW_SCOPE] != 2 || (pm->ps->oldbuttons & BUTTON_ALT_ATTACK) ||
-				pm->ps->weaponTime > 0 && pm->ps->stats[STAT_WP_MODE] != -3)
+				(pm->ps->weaponTime > 0 && pm->ps->stats[STAT_WP_MODE] != -3))
 				break;
 
 			if (pm->ps->stats[STAT_WP_MODE] == -3)
@@ -2929,10 +3154,136 @@ static void PM_Weapon( void ) {
 			break;
 		}
 	}
+#endif
 
 	// check for weapon change
 	// can't change if weapon is firing, but can change
 	// again if lowering or raising
+#ifndef SMOKINGUNS
+	if ( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING ) {
+		if ( pm->ps->weapon != pm->cmd.weapon ) {
+			PM_BeginWeaponChange( pm->cmd.weapon );
+		}
+	}
+
+	if ( pm->ps->weaponTime > 0 ) {
+		return;
+	}
+
+	// change weapon if time
+	if ( pm->ps->weaponstate == WEAPON_DROPPING ) {
+		PM_FinishWeaponChange();
+		return;
+	}
+
+	if ( pm->ps->weaponstate == WEAPON_RAISING ) {
+		pm->ps->weaponstate = WEAPON_READY;
+		if ( pm->ps->weapon == WP_GAUNTLET ) {
+			PM_StartTorsoAnim( TORSO_STAND2 );
+		} else {
+			PM_StartTorsoAnim( TORSO_STAND );
+		}
+		return;
+	}
+
+	// check for fire
+	if ( ! (pm->cmd.buttons & BUTTON_ATTACK) ) {
+		pm->ps->weaponTime = 0;
+		pm->ps->weaponstate = WEAPON_READY;
+		return;
+	}
+
+	// start the animation even if out of ammo
+	if ( pm->ps->weapon == WP_GAUNTLET ) {
+		// the guantlet only "fires" when it actually hits something
+		if ( !pm->gauntletHit ) {
+			pm->ps->weaponTime = 0;
+			pm->ps->weaponstate = WEAPON_READY;
+			return;
+		}
+		PM_StartTorsoAnim( TORSO_ATTACK2 );
+	} else {
+		PM_StartTorsoAnim( TORSO_ATTACK );
+	}
+
+	pm->ps->weaponstate = WEAPON_FIRING;
+
+	// check for out of ammo
+	if ( ! pm->ps->ammo[ pm->ps->weapon ] ) {
+		PM_AddEvent( EV_NOAMMO );
+		pm->ps->weaponTime += 500;
+		return;
+	}
+
+	// take an ammo away if not infinite
+	if ( pm->ps->ammo[ pm->ps->weapon ] != -1 ) {
+		pm->ps->ammo[ pm->ps->weapon ]--;
+	}
+
+	// fire weapon
+	PM_AddEvent( EV_FIRE_WEAPON );
+
+	switch( pm->ps->weapon ) {
+	default:
+	case WP_GAUNTLET:
+		addTime = 400;
+		break;
+	case WP_LIGHTNING:
+		addTime = 50;
+		break;
+	case WP_SHOTGUN:
+		addTime = 1000;
+		break;
+	case WP_MACHINEGUN:
+		addTime = 100;
+		break;
+	case WP_GRENADE_LAUNCHER:
+		addTime = 800;
+		break;
+	case WP_ROCKET_LAUNCHER:
+		addTime = 800;
+		break;
+	case WP_PLASMAGUN:
+		addTime = 100;
+		break;
+	case WP_RAILGUN:
+		addTime = 1500;
+		break;
+	case WP_BFG:
+		addTime = 200;
+		break;
+	case WP_GRAPPLING_HOOK:
+		addTime = 400;
+		break;
+#ifdef MISSIONPACK
+	case WP_NAILGUN:
+		addTime = 1000;
+		break;
+	case WP_PROX_LAUNCHER:
+		addTime = 800;
+		break;
+	case WP_CHAINGUN:
+		addTime = 30;
+		break;
+#endif
+	}
+
+#ifdef MISSIONPACK
+	if( bg_itemlist[pm->ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_SCOUT ) {
+		addTime /= 1.5;
+	}
+	else
+	if( bg_itemlist[pm->ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_AMMOREGEN ) {
+		addTime /= 1.3;
+  }
+  else
+#endif
+	if ( pm->ps->powerups[PW_HASTE] ) {
+		addTime /= 1.3;
+	}
+
+	pm->ps->weaponTime += addTime;
+#else
 	// spoon modified it so you can't change weapon if lowering or raising (dunno why)
 	// i've written it back, because of the last used weapon func.
 	// it can't work very nice, if you can't change weapon again. - iv
@@ -3026,6 +3377,7 @@ static void PM_Weapon( void ) {
 
 	if(pm->ps->weapon2)
 		PM_WeaponAction(&pm->ps->weapon2, &pm->ps->weapon2Time, &pm->ps->weapon2state, qtrue);
+#endif
 }
 
 /*
@@ -3037,15 +3389,19 @@ PM_Animate
 static void PM_Animate( void ) {
 	if ( pm->cmd.buttons & BUTTON_GESTURE ) {
 		if ( pm->ps->torsoTimer == 0 ) {
+#ifndef SMOKINGUNS
+			PM_StartTorsoAnim( TORSO_GESTURE );
+#else
 			if(bg_weaponlist[pm->ps->weapon].wp_sort == WPS_PISTOL)
 				PM_StartTorsoAnim( TORSO_TAUNT_PISTOL );
 			else
 				PM_StartTorsoAnim( TORSO_TAUNT );
+#endif
 
 			pm->ps->torsoTimer = TIMER_GESTURE;
 			PM_AddEvent( EV_TAUNT );
 		}
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 	} else if ( pm->cmd.buttons & BUTTON_GETFLAG ) {
 		if ( pm->ps->torsoTimer == 0 ) {
 			PM_StartTorsoAnim( TORSO_GETFLAG );
@@ -3076,7 +3432,7 @@ static void PM_Animate( void ) {
 			PM_StartTorsoAnim( TORSO_NEGATIVE );
 			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
 		}
-#endif*/
+#endif
 	}
 }
 
@@ -3102,8 +3458,10 @@ static void PM_DropTimers( void ) {
 		pm->ps->legsTimer -= pml.msec;
 		if ( pm->ps->legsTimer < 0 ) {
 			pm->ps->legsTimer = 0;
+#ifdef SMOKINGUNS
 			if(pm->ps->weaponstate == WEAPON_JUMPING)
 				pm->ps->weaponstate = WEAPON_READY;
+#endif
 		}
 	}
 
@@ -3126,6 +3484,7 @@ are being updated instead of a full move
 void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
 	short		temp;
 	int		i;
+#ifdef SMOKINGUNS
 	vec3_t oldangles;
 
 	VectorCopy(pm->ps->viewangles, oldangles);
@@ -3142,21 +3501,30 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
 		}
 		return;
 	}
+#endif
 
 	if ( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPINTERMISSION) {
 		return;		// no view changes at all
 	}
 
-	if (ps->pm_type != PM_SPECTATOR && ps->stats[STAT_HEALTH] <= 0 ) {
+	if ( ps->pm_type != PM_SPECTATOR && ps->stats[STAT_HEALTH] <= 0 ) {
 		return;		// no view changes at all
 	}
 
 	// circularly clamp the angles with deltas
 	for (i=0 ; i<3 ; i++) {
 		temp = cmd->angles[i] + ps->delta_angles[i];
-
-		//pitch
 		if ( i == PITCH ) {
+#ifndef SMOKINGUNS
+			// don't let the player look up or down more than 90 degrees
+			if ( temp > 16000 ) {
+				ps->delta_angles[i] = 16000 - cmd->angles[i];
+				temp = 16000;
+			} else if ( temp < -16000 ) {
+				ps->delta_angles[i] = -16000 - cmd->angles[i];
+				temp = -16000;
+			}
+#else
 			float maxangle = 16000;
 
 			if(pm->ps->stats[STAT_GATLING_MODE] && pm->ps->weapon == WP_GATLING){
@@ -3175,15 +3543,16 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
 				ps->delta_angles[i] = -maxangle - cmd->angles[i];
 				temp = -maxangle;
 			}
+#endif
 		}
-
 		ps->viewangles[i] = SHORT2ANGLE(temp);
 	}
 
+#ifdef SMOKINGUNS
 	//position player when on gatling
 	if(pm->ps->stats[STAT_GATLING_MODE] && pm->ps->weapon == WP_GATLING){
 		vec3_t angles, forward, oldorigin;
-		float height = ps->grapplePoint[2]+0.125f;
+		//float height = ps->grapplePoint[2]+0.125f;
 		float pheight = ps->origin[2];
 		trace_t trace;
 		vec3_t mins, maxs;
@@ -3269,7 +3638,9 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
 			pm->ps->origin[2] = pheight;
 		}
 	}
+#endif
 }
+
 
 /*
 ===================
@@ -3280,6 +3651,7 @@ Right now all I know is that this works for VERTICAL ladders.
 Ladders with angles on them (urban2 for AQ2) haven't been tested.
 ===================
 */
+#ifdef SMOKINGUNS
 static void PM_LadderMove( void ) {
 	int i;
 	vec3_t wishvel;
@@ -3397,7 +3769,7 @@ void CheckLadder( void )
 		pml.ladder = qfalse;
 	}
 }
-
+#endif
 
 
 /*
@@ -3409,8 +3781,9 @@ PmoveSingle
 void trap_SnapVector( float *v );
 
 void PmoveSingle (pmove_t *pmove) {
+#ifdef SMOKINGUNS
 	vec3_t origin; //just to save origin for PM_Freeze
-
+#endif
 	pm = pmove;
 
 	// this counter lets us debug movement problems with a journal
@@ -3435,6 +3808,10 @@ void PmoveSingle (pmove_t *pmove) {
 	// set the talk balloon flag
 	if ( pm->cmd.buttons & BUTTON_TALK ) {
 		pm->ps->eFlags |= EF_TALK;
+#ifndef SMOKINGUNS
+	} else {
+		pm->ps->eFlags &= ~EF_TALK;
+#else
 		// set the buy balloon flag, instead.
 		// EF_BUY is evaluated before EF_TALK
 		// in ./code/cgame/cg_players.c:CG_PlayerSprites(), so it's OK.
@@ -3450,17 +3827,23 @@ void PmoveSingle (pmove_t *pmove) {
 		}
 	} else {
 		pm->ps->eFlags &= ~( EF_TALK | EF_BUY );
+#endif
 	}
 
 	// set the firing flag for continuous beam weapons
 	if ( !(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION
+#ifndef SMOKINGUNS
+		&& ( pm->cmd.buttons & BUTTON_ATTACK ) && pm->ps->ammo[ pm->ps->weapon ] ) {
+#else
 		&& (( pm->cmd.buttons & BUTTON_ATTACK ) || ( pm->cmd.buttons & BUTTON_ALT_ATTACK ))
 		&& pm->ps->ammo[ pm->ps->weapon ] && pm->ps->weaponstate == WEAPON_FIRING) {
+#endif
 		pm->ps->eFlags |= EF_FIRING;
 	} else {
 		pm->ps->eFlags &= ~EF_FIRING;
 	}
 
+#ifdef SMOKINGUNS
 	if(pm->ps->weapon == WP_GATLING && pm->ps->stats[STAT_GATLING_MODE]){
 		pm->ps->powerups[PW_GATLING] = 1;
 	} else {
@@ -3475,6 +3858,7 @@ void PmoveSingle (pmove_t *pmove) {
 	if ( pm->cmd.buttons & BUTTON_CHOOSE_MODE && !(pm->ps->oldbuttons & BUTTON_CHOOSE_MODE) ) {
 		pm->ps->stats[STAT_FLAGS] |= SF_WP_CHOOSE;
 	}
+#endif
 
 	// clear the respawned flag if attack and use are cleared
 	if ( pm->ps->stats[STAT_HEALTH] > 0 &&
@@ -3544,11 +3928,13 @@ void PmoveSingle (pmove_t *pmove) {
 		return;
 	}
 
+#ifdef SMOKINGUNS
 	if (pm->ps->pm_type == PM_CHASECAM ) {
 		PM_NoclipMove ();
 		PM_DropTimers ();
 		return;
 	}
+#endif
 
 	if ( pm->ps->pm_type == PM_NOCLIP ) {
 		PM_NoclipMove ();
@@ -3557,10 +3943,12 @@ void PmoveSingle (pmove_t *pmove) {
 	}
 
 	if (pm->ps->pm_type == PM_FREEZE) {
+#ifdef SMOKINGUNS
 		VectorCopy(pm->ps->origin, origin);
 		PM_NoclipMove ();
 		PM_DropTimers ();
 		VectorCopy(origin, pm->ps->origin);
+#endif
 		return;		// no movement at all
 	}
 
@@ -3583,27 +3971,35 @@ void PmoveSingle (pmove_t *pmove) {
 	}
 
 	PM_DropTimers();
+#ifdef SMOKINGUNS
 	CheckLadder();  // ARTHUR TOMLIN check and see if we're on a ladder
+#endif
 
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 	if ( pm->ps->powerups[PW_INVULNERABILITY] ) {
 		PM_InvulnerabilityMove();
 	} else
-#endif*/
-/*	if ( pm->ps->powerups[PW_FLIGHT] ) {
+#endif
+#ifndef SMOKINGUNS
+	if ( pm->ps->powerups[PW_FLIGHT] ) {
 		// flight powerup doesn't allow jump and has different friction
 		PM_FlyMove();
-	} else */if (pm->ps->pm_flags & PMF_GRAPPLE_PULL) {
+	} else if (pm->ps->pm_flags & PMF_GRAPPLE_PULL) {
 		PM_GrappleMove();
 		// We can wiggle a bit
 		PM_AirMove();
 	} else if (pm->ps->pm_flags & PMF_TIME_WATERJUMP) {
+#else
+	if (pm->ps->pm_flags & PMF_TIME_WATERJUMP) {
+#endif
 		PM_WaterJumpMove();
 	} else if ( pm->waterlevel > 1 ) {
 		// swimming
 		PM_WaterMove();
+#ifdef SMOKINGUNS
 	} else if (pml.ladder) {
 		PM_LadderMove();
+#endif
 	} else if ( pml.walking ) {
 		// walking on ground
 		PM_WalkMove();
@@ -3685,5 +4081,4 @@ void Pmove (pmove_t *pmove) {
 	//PM_CheckStuck();
 
 }
-
 

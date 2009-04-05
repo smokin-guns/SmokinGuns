@@ -1094,6 +1094,7 @@ qboolean CG_OwnerDrawVisible(int flags) {
 		return !(cg_currentSelectedPlayer.integer == numSortedTeamPlayers);
 	}
 
+#ifndef SMOKINGUNS
 	if (flags & CG_SHOW_OTHERTEAMHASFLAG) {
 		return CG_OtherTeamHasFlag();
 	}
@@ -1110,6 +1111,7 @@ qboolean CG_OwnerDrawVisible(int flags) {
 		}
 		return qfalse;
 	}
+#endif
 
 	if (flags & CG_SHOW_ANYTEAMGAME) {
 		if( cgs.gametype >= GT_TEAM) {

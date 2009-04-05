@@ -21,9 +21,10 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // bg_slidemove.c -- part of bg_pmove functionality
 
-#include "q_shared.h"
+#include "../qcommon/q_shared.h"
 #include "bg_public.h"
 #include "bg_local.h"
 
@@ -238,6 +239,9 @@ void PM_StepSlideMove( qboolean gravity ) {
 //	float		down_dist, up_dist;
 //	vec3_t		delta, delta2;
 	vec3_t		up, down;
+#ifndef SMOKINGUNS
+	float		stepSize;
+#endif
 
 	VectorCopy (pm->ps->origin, start_o);
 	VectorCopy (pm->ps->velocity, start_v);
@@ -263,7 +267,11 @@ void PM_StepSlideMove( qboolean gravity ) {
 	up[2] += STEPSIZE;
 
 	// test the player position if they were a stepheight higher
+#ifndef SMOKINGUNS
+	pm->trace (&trace, start_o, pm->mins, pm->maxs, up, pm->ps->clientNum, pm->tracemask);
+#else
 	pm->trace (&trace, up, pm->mins, pm->maxs, up, pm->ps->clientNum, pm->tracemask);
+#endif
 	if ( trace.allsolid ) {
 		if ( pm->debugLevel ) {
 			Com_Printf("%i:bend can't step\n", c_pmove);
@@ -271,15 +279,26 @@ void PM_StepSlideMove( qboolean gravity ) {
 		return;		// can't step up
 	}
 
+#ifndef SMOKINGUNS
+	stepSize = trace.endpos[2] - start_o[2];
+#endif
 	// try slidemove from this position
+#ifndef SMOKINGUNS
+	VectorCopy (trace.endpos, pm->ps->origin);
+#else
 	VectorCopy (up, pm->ps->origin);
+#endif
 	VectorCopy (start_v, pm->ps->velocity);
 
 	PM_SlideMove( gravity );
 
 	// push down the final amount
 	VectorCopy (pm->ps->origin, down);
+#ifndef SMOKINGUNS
+	down[2] -= stepSize;
+#else
 	down[2] -= STEPSIZE;
+#endif
 	pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask);
 	if ( !trace.allsolid ) {
 		VectorCopy (trace.endpos, pm->ps->origin);

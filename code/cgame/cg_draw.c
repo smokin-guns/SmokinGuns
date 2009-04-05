@@ -233,7 +233,7 @@ Draws large numbers for status bar and powerups
 ==============
 */
 #ifdef SMOKINGUNS
-static void CG_DrawField (int x, int y, int width, int value) {
+void CG_DrawField (int x, int y, int width, int value) {
 	char	num[16], *ptr;
 	int		l;
 	int		frame;

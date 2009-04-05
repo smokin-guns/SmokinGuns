@@ -368,6 +368,7 @@ static void CG_NextOrder_f( void ) {
 	if (cgs.currentOrder < TEAMTASK_CAMP) {
 		cgs.currentOrder++;
 
+#ifndef SMOKINGUNS
 		if (cgs.currentOrder == TEAMTASK_RETRIEVE) {
 			if (!CG_OtherTeamHasFlag()) {
 				cgs.currentOrder++;
@@ -379,6 +380,7 @@ static void CG_NextOrder_f( void ) {
 				cgs.currentOrder++;
 			}
 		}
+#endif
 
 	} else {
 		cgs.currentOrder = TEAMTASK_OFFENSE;

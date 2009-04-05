@@ -1048,7 +1048,7 @@ static void CG_LoadClientInfo( int clientNum, clientInfo_t *ci ) {
 	char		teamname[MAX_QPATH];
 
 	teamname[0] = 0;
-#ifdef MISSIONPACK
+#ifdef SMOKINGUNS
 	if( cgs.gametype >= GT_TEAM) {
 		if( ci->team == TEAM_BLUE ) {
 			Q_strncpyz(teamname, cg_blueTeamName.string, sizeof(teamname) );
@@ -1741,7 +1741,11 @@ void CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation, float
 CG_ClearLerpFrame
 ===============
 */
+#ifndef SMOKINGUNS
 static void CG_ClearLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int animationNumber ) {
+#else
+void CG_ClearLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int animationNumber ) {
+#endif
 	lf->frameTime = lf->oldFrameTime = cg.time;
 #ifndef SMOKINGUNS
 	CG_SetLerpFrameAnimation( ci, lf, animationNumber );
@@ -3098,7 +3102,7 @@ void CG_Turret( centity_t *cent ){
 
 	VectorClear(angles);
 	if(cgs.clientinfo[cent->currentState.eventParm].infoValid){
-		angles[ROLL] = CG_MachinegunSpinAngle(player/*, (cent->pe.weapon.weaponAnim == WP_ANIM_RELOAD)*/);
+		angles[ROLL] = CG_MachinegunSpinAngle(player);
 		cent->pe.barrelAngle = angles[ROLL];
 	} else {
 		angles[ROLL] = cent->pe.barrelAngle;
@@ -3130,7 +3134,7 @@ void CG_Turret( centity_t *cent ){
 
 	VectorClear(angles);
 	if(cgs.clientinfo[cent->currentState.eventParm].infoValid){
-		angles[PITCH] = CG_MachinegunSpinAngle(player/*, (cent->pe.weapon.weaponAnim == WP_ANIM_RELOAD)*/);
+		angles[PITCH] = CG_MachinegunSpinAngle(player);
 		cent->pe.barrelAngle = angles[PITCH];
 	} else {
 		angles[PITCH] = cent->pe.barrelAngle;
