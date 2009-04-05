@@ -25,6 +25,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // compiled for the virtual machine
 
 // This file is NOT included on native builds
+#if !defined( BG_LIB_H ) && defined( Q3_VM )
+#define BG_LIB_H
+
+//Ignore __attribute__ on non-gcc platforms
+#ifndef __GNUC__
+#ifndef __attribute__
+#define __attribute__(x)
+#endif
+#endif
+
+#ifndef NULL
+#define NULL ((void *)0)
+#endif
 
 typedef int size_t;
 
@@ -49,6 +62,22 @@ typedef char *  va_list;
 #define LONG_MAX      2147483647L   /* maximum (signed) long value */
 #define ULONG_MAX     0xffffffffUL  /* maximum unsigned long value */
 
+#define isalnum(c)  (isalpha(c) || isdigit(c))
+#define isalpha(c)  (isupper(c) || islower(c))
+#define isascii(c)  ((c) > 0 && (c) <= 0x7f)
+#define iscntrl(c)  (((c) >= 0) && (((c) <= 0x1f) || ((c) == 0x7f)))
+#define isdigit(c)  ((c) >= '0' && (c) <= '9')
+#define isgraph(c)  ((c) != ' ' && isprint(c))
+#define islower(c)  ((c) >=  'a' && (c) <= 'z')
+#define isprint(c)  ((c) >= ' ' && (c) <= '~')
+#define ispunct(c)  (((c) > ' ' && (c) <= '~') && !isalnum(c))
+#define isspace(c)  ((c) ==  ' ' || (c) == '\f' || (c) == '\n' || (c) == '\r' || \
+                     (c) == '\t' || (c) == '\v')
+#define isupper(c)  ((c) >=  'A' && (c) <= 'Z')
+#define isxdigit(c) (isxupper(c) || isxlower(c))
+#define isxlower(c) (isdigit(c) || (c >= 'a' && c <= 'f'))
+#define isxupper(c) (isdigit(c) || (c >= 'A' && c <= 'F')) 
+
 // Misc functions
 typedef int cmp_t(const void *, const void *);
 void qsort(void *a, size_t n, size_t es, cmp_t *cmp);
@@ -70,10 +99,14 @@ double atof( const char *string );
 double _atof( const char **stringPtr );
 int atoi( const char *string );
 int _atoi( const char **stringPtr );
+#ifdef SMOKINGUNS
 int _atos( const char **stringPtr , char *dest , int limit );
+#endif
 
-int vsprintf( char *buffer, const char *fmt, va_list argptr );
-int sscanf( const char *buffer, const char *fmt, ... );
+int Q_vsnprintf( char *buffer, size_t length, const char *fmt, va_list argptr );
+int Q_snprintf( char *buffer, size_t length, const char *fmt, ... ) __attribute__ ((format (printf, 3, 4)));
+
+int sscanf( const char *buffer, const char *fmt, ... ) __attribute__ ((format (scanf, 2, 3)));
 
 // Memory functions
 void *memmove( void *dest, const void *src, size_t count );
@@ -91,3 +124,5 @@ double tan( double x );
 int abs( int n );
 double fabs( double x );
 double acos( double x );
+
+#endif // BG_LIB_H

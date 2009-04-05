@@ -42,21 +42,23 @@ ifndef BUILD_DIR
   BUILD_DIR         = ./build
 endif
 
-#STANDALONE_CFLAGS = -DFS_FOPENI
+STANDALONE_CFLAGS = -DFS_FOPENI
 #STANDALONE_CFLAGS = -DFS_MISSING -DFS_FOPENI
 
 #SDK_TARGETS = \
-#    $(B)/$(GAMEDIR)/cgame$(ARCH).$(SHLIBEXT) \
-#    $(B)/$(GAMEDIR)/qagame$(ARCH).$(SHLIBEXT) \
-#    $(B)/$(GAMEDIR)/ui$(ARCH).$(SHLIBEXT) \
+#      $(B)/$(GAMEDIR)/cgame$(ARCH).$(SHLIBEXT) \
+#      $(B)/$(GAMEDIR)/qagame$(ARCH).$(SHLIBEXT) \
+#      $(B)/$(GAMEDIR)/ui$(ARCH).$(SHLIBEXT) \
 #      $(B)/$(GAMEDIR)/vm/cgame.qvm \
 #      $(B)/$(GAMEDIR)/vm/qagame.qvm \
 #      $(B)/$(GAMEDIR)/vm/ui.qvm
 
 # By default, all game mod components are build but for now only UI is ported back
 SDK_TARGETS = \
-      $(B)/$(GAMEDIR)/vm/ui.qvm
-SDK_TARGETS += $(B)/$(GAMEDIR)/ui$(ARCH).$(SHLIBEXT)
+      $(B)/$(GAMEDIR)/vm/cgame.qvm \
+      $(B)/$(GAMEDIR)/vm/ui.qvm \
+      $(B)/$(GAMEDIR)/cgame$(ARCH).$(SHLIBEXT) \
+      $(B)/$(GAMEDIR)/ui$(ARCH).$(SHLIBEXT)
 SDKUIDIR = ui
 
 #############################################################################
@@ -90,7 +92,10 @@ Q3CGOBJ_SDK = \
   $(B)/$(GAMENAME)/ui/ui_shared.o \
   \
   $(B)/$(GAMENAME)/qcommon/q_math.o \
-  $(B)/$(GAMENAME)/qcommon/q_shared.o
+  $(B)/$(GAMENAME)/qcommon/q_shared.o \
+  \
+  $(B)/$(GAMENAME)/cgame/cg_sg_utils.o \
+  $(B)/$(GAMENAME)/cgame/cg_unlagged.o
 
 #############################################################################
 ## SMOKINGUNS GAME
