@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 
 /*****************************************************************************
  * name:		ai_vcmd.c
@@ -32,15 +33,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *****************************************************************************/
 
 #include "g_local.h"
-#include "botlib.h"
-#include "be_aas.h"
-#include "be_ea.h"
-#include "be_ai_char.h"
-#include "be_ai_chat.h"
-#include "be_ai_gen.h"
-#include "be_ai_goal.h"
-#include "be_ai_move.h"
-#include "be_ai_weap.h"
+#include "../botlib/botlib.h"
+#include "../botlib/be_aas.h"
+#include "../botlib/be_ea.h"
+#include "../botlib/be_ai_char.h"
+#include "../botlib/be_ai_chat.h"
+#include "../botlib/be_ai_gen.h"
+#include "../botlib/be_ai_goal.h"
+#include "../botlib/be_ai_move.h"
+#include "../botlib/be_ai_weap.h"
 //
 #include "ai_main.h"
 #include "ai_dmq3.h"
@@ -70,14 +71,14 @@ typedef struct voiceCommand_s
 BotVoiceChat_GetFlag
 ==================
 */
+#ifndef SMOKINGUNS
 void BotVoiceChat_GetFlag(bot_state_t *bs, int client, int mode) {
 	//
 	if (gametype == GT_CTF) {
 		if (!ctf_redflag.areanum || !ctf_blueflag.areanum)
 			return;
 	}
-#if 0
-//#ifdef MISSIONPACK
+#ifdef MISSIONPACK
 	else if (gametype == GT_1FCTF) {
 		if (!ctf_neutralflag.areanum || !ctf_redflag.areanum || !ctf_blueflag.areanum)
 			return;
@@ -109,6 +110,7 @@ void BotVoiceChat_GetFlag(bot_state_t *bs, int client, int mode) {
 	BotPrintTeamGoal(bs);
 #endif //DEBUG
 }
+#endif
 
 /*
 ==================
@@ -116,17 +118,16 @@ BotVoiceChat_Offense
 ==================
 */
 void BotVoiceChat_Offense(bot_state_t *bs, int client, int mode) {
+#ifndef SMOKINGUNS
 	if ( gametype == GT_CTF
-#if 0
-//#ifdef MISSIONPACK
+#ifdef MISSIONPACK
 		|| gametype == GT_1FCTF
 #endif
 		) {
 		BotVoiceChat_GetFlag(bs, client, mode);
 		return;
 	}
-#if 0
-//#ifdef MISSIONPACK
+#ifdef MISSIONPACK
 	if (gametype == GT_HARVESTER) {
 		//
 		bs->decisionmaker = client;
@@ -145,6 +146,7 @@ void BotVoiceChat_Offense(bot_state_t *bs, int client, int mode) {
 		BotRememberLastOrderedTask(bs);
 	}
 	else
+#endif
 #endif
 	{
 		//
@@ -174,8 +176,8 @@ BotVoiceChat_Defend
 ==================
 */
 void BotVoiceChat_Defend(bot_state_t *bs, int client, int mode) {
-#if 0
-//#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
+#ifdef MISSIONPACK
 	if ( gametype == GT_OBELISK || gametype == GT_HARVESTER) {
 		//
 		switch(BotTeam(bs)) {
@@ -187,8 +189,7 @@ void BotVoiceChat_Defend(bot_state_t *bs, int client, int mode) {
 	else
 #endif
 		if (gametype == GT_CTF
-#if 0
-//#ifdef MISSIONPACK
+#ifdef MISSIONPACK
 			|| gametype == GT_1FCTF
 #endif
 			) {
@@ -202,6 +203,7 @@ void BotVoiceChat_Defend(bot_state_t *bs, int client, int mode) {
 	else {
 		return;
 	}
+#endif
 	//
 	bs->decisionmaker = client;
 	bs->ordered = qtrue;
@@ -228,9 +230,11 @@ void BotVoiceChat_Defend(bot_state_t *bs, int client, int mode) {
 BotVoiceChat_DefendFlag
 ==================
 */
+#ifndef SMOKINGUNS
 void BotVoiceChat_DefendFlag(bot_state_t *bs, int client, int mode) {
 	BotVoiceChat_Defend(bs, client, mode);
 }
+#endif
 
 /*
 ==================
@@ -370,6 +374,7 @@ void BotVoiceChat_FollowMe(bot_state_t *bs, int client, int mode) {
 BotVoiceChat_FollowFlagCarrier
 ==================
 */
+#ifndef SMOKINGUNS
 void BotVoiceChat_FollowFlagCarrier(bot_state_t *bs, int client, int mode) {
 	int carrier;
 
@@ -412,6 +417,7 @@ void BotVoiceChat_ReturnFlag(bot_state_t *bs, int client, int mode) {
 	BotPrintTeamGoal(bs);
 #endif //DEBUG
 }
+#endif
 
 /*
 ==================
@@ -501,15 +507,21 @@ void BotVoiceChat_Dummy(bot_state_t *bs, int client, int mode) {
 }
 
 voiceCommand_t voiceCommands[] = {
+#ifndef SMOKINGUNS
 	{VOICECHAT_GETFLAG, BotVoiceChat_GetFlag},
+#endif
 	{VOICECHAT_OFFENSE, BotVoiceChat_Offense },
 	{VOICECHAT_DEFEND, BotVoiceChat_Defend },
+#ifndef SMOKINGUNS
 	{VOICECHAT_DEFENDFLAG, BotVoiceChat_DefendFlag },
+#endif
 	{VOICECHAT_PATROL, BotVoiceChat_Patrol },
 	{VOICECHAT_CAMP, BotVoiceChat_Camp },
 	{VOICECHAT_FOLLOWME, BotVoiceChat_FollowMe },
+#ifndef SMOKINGUNS
 	{VOICECHAT_FOLLOWFLAGCARRIER, BotVoiceChat_FollowFlagCarrier },
 	{VOICECHAT_RETURNFLAG, BotVoiceChat_ReturnFlag },
+#endif
 	{VOICECHAT_STARTLEADER, BotVoiceChat_StartLeader },
 	{VOICECHAT_STOPLEADER, BotVoiceChat_StopLeader },
 	{VOICECHAT_WHOISLEADER, BotVoiceChat_WhoIsLeader },

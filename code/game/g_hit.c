@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // by Spoon
 
 #include "g_local.h"
-#include "q_shared.h"
+#include "../qcommon/q_shared.h"
 
 /*
 =================
@@ -820,7 +820,7 @@ typedef struct hit_data_s {
 #define HIT_DEBUG
 qboolean G_ParseHitFile(hit_data_t *hit_data, int part){
 
-	int				len, f, i, j;
+	int				len, f, i;
 	fileHandle_t	file;
 	hit_tag_t		*ptag;
 	hit_header_t	header;
@@ -906,7 +906,9 @@ if(header.ident != HIT_IDENT){
 
 	if(part != PART_HEAD){
 		for(f = 0; f < header.numFrames; f++){
+#if defined Q3_VM || !defined LittleFloat
 			int j ;
+#endif
 			if(part==PART_UPPER)
 				ptag = &hit_data->tag_head[f];
 			else if(part==PART_LOWER)
@@ -939,7 +941,11 @@ if(header.ident != HIT_IDENT){
 	//
 
 	for( i = 0; i < header.numMeshes; i++){
+#if defined Q3_VM || !defined LittleShort	// QVM or SO on a big endian processor
 		int j, k, hit_num = -1;
+#else
+		int j, hit_num = -1;
+#endif
 		mesh_header_t m_header;
 
 		// load next file
@@ -1328,12 +1334,13 @@ void G_PlayerAngles( gentity_t *ent, vec3_t legs[3], vec3_t torso[3] ) {
 
 	// allow yaw to drift a bit
 	if ( ( client->ps.legsAnim & ~ANIM_TOGGLEBIT ) != LEGS_IDLE
-		|| ( client->ps.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_KNIFE_STAND
-		|| ( client->ps.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_PISTOL_STAND
-		|| ( client->ps.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_PISTOLS_STAND
-		|| ( client->ps.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_RIFLE_STAND
-		|| ( client->ps.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_GATLING_STAND
-		|| ( client->ps.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_HOLSTERED) {
+		|| ( // Tequila comment: Fixed a wrong test here generating gcc warning
+		( client->ps.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_KNIFE_STAND
+		&& ( client->ps.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_PISTOL_STAND
+		&& ( client->ps.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_PISTOLS_STAND
+		&& ( client->ps.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_RIFLE_STAND
+		&& ( client->ps.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_GATLING_STAND
+		&& ( client->ps.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_HOLSTERED)) {
 		// if not standing still, always point all in the same direction
 		client->torso.yawing = qtrue;	// always center
 		client->torso.pitching = qtrue;	// always center
