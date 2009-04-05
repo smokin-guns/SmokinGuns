@@ -231,7 +231,7 @@ Key digits:
 #define QGR_KEY_PICKUP_UNKNOWN			1111021109
 #define QGR_KEY_TIME_UNKNOWN			1111021110
 
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 // new to team arena
 #define QGR_KEY_FRAG_NAILGIN			1211021200
 #define QGR_KEY_SUICIDE_NAILGIN			1111021201
@@ -268,7 +268,7 @@ Key digits:
 #define QGR_KEY_SPLASH_TAKEN_CHAINGUN	1111021408
 #define QGR_KEY_PICKUP_CHAINGUN			1111021409
 #define QGR_KEY_TIME_CHAINGUN			1111021410
-#endif*/ /* MISSIONPACK */
+#endif /* MISSIONPACK */
 
 // ammo keys
 #define QGR_KEY_BOXES					1111030000
@@ -298,7 +298,7 @@ Key digits:
 #define QGR_KEY_BOXES_BFG_AMMO			1111030800
 #define QGR_KEY_ROUNDS_BFG_AMMO			1111030801
 
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 // new to team arena
 #define QGR_KEY_BOXES_NAILGUN_AMMO		1111030900
 #define QGR_KEY_ROUNDS_NAILGUN_AMMO	 	1111030901
@@ -308,7 +308,7 @@ Key digits:
 // new to team arena
 #define QGR_KEY_BOXES_CHAINGUN_AMMO 	1111031100
 #define QGR_KEY_ROUNDS_CHAINGUN_AMMO 	1111031101
-#endif*/ /* MISSIONPACK */
+#endif /* MISSIONPACK */
 
 // health keys
 #define QGR_KEY_HEALTH					1111040000
@@ -336,7 +336,7 @@ Key digits:
 #define QGR_KEY_REGEN					1111060500
 #define QGR_KEY_FLIGHT					1111060600
 
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 // persistant powerup keys
 // new to team arena
 #define QGR_KEY_SCOUT					1111160800
@@ -344,7 +344,7 @@ Key digits:
 #define QGR_KEY_DOUBLER					1111160802
 #define QGR_KEY_AMMOREGEN				1111160803
 
-#endif*/ //MISSIONPACK
+#endif //MISSIONPACK
 
 // holdable item keys
 #define QGR_KEY_MEDKIT					1111070000
@@ -353,7 +353,7 @@ Key digits:
 #define QGR_KEY_TELEPORTER				1111070100
 #define QGR_KEY_TELEPORTER_USE			1111070101
 
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 // new to team arena
 #define QGR_KEY_KAMIKAZE				1111070200
 #define QGR_KEY_KAMIKAZE_USE			1111070201
@@ -363,7 +363,7 @@ Key digits:
 // new to team arena
 #define QGR_KEY_INVULNERABILITY			1111070400
 #define QGR_KEY_INVULNERABILITY_USE		1111070401
-#endif*/ /* MISSIONPACK */
+#endif /* MISSIONPACK */
 
 // hazard keys
 #define QGR_KEY_HAZARD_DEATH			1111080000

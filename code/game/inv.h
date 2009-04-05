@@ -21,6 +21,11 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+
+#ifndef SMOKINGUNS
+#error "This file can only be used with Smokin' Guns sources"
+#endif
+
 #define INVENTORY_NONE				0
 //armor
 #define INVENTORY_ARMOR				1
