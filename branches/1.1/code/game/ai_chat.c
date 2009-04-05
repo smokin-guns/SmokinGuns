@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 
 /*****************************************************************************
  * name:		ai_chat.c
@@ -32,15 +33,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *****************************************************************************/
 
 #include "g_local.h"
-#include "botlib.h"
-#include "be_aas.h"
-#include "be_ea.h"
-#include "be_ai_char.h"
-#include "be_ai_chat.h"
-#include "be_ai_gen.h"
-#include "be_ai_goal.h"
-#include "be_ai_move.h"
-#include "be_ai_weap.h"
+#include "../botlib/botlib.h"
+#include "../botlib/be_aas.h"
+#include "../botlib/be_ea.h"
+#include "../botlib/be_ai_char.h"
+#include "../botlib/be_ai_chat.h"
+#include "../botlib/be_ai_gen.h"
+#include "../botlib/be_ai_goal.h"
+#include "../botlib/be_ai_move.h"
+#include "../botlib/be_ai_weap.h"
 //
 #include "ai_main.h"
 #include "ai_dmq3.h"
@@ -54,7 +55,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "match.h"				//string matching types and vars
 
 // for the voice chats
-#ifdef MISSIONPACK // bk001205
+#ifdef SMOKINGUNS
 #include "../../ui/menudef.h"
 #endif
 
@@ -281,20 +282,44 @@ BotWeaponNameForMeansOfDeath
 
 char *BotWeaponNameForMeansOfDeath(int mod) {
 	switch(mod) {
-	case MOD_KNIFE: return "Knife";
-	case MOD_REM58: return "Remington 58";
-	case MOD_SCHOFIELD: return "S&W Schofield";
-	case MOD_PEACEMAKER: return "Peacemaker";
-	case MOD_WINCHESTER66: return "Winchester";
-	case MOD_LIGHTNING: return "Colt Lightning";
-	case MOD_SHARPS: return "Sharps";
-	case MOD_REMINGTON_GAUGE: return "Shotgun";
-	case MOD_SAWEDOFF: return "Sawed Off";
-	case MOD_WINCH97: return "Winchester";
-	case MOD_GATLING: return "Gatling";
-	case MOD_DYNAMITE: return "Dynamite";
-	case MOD_MOLOTOV: return "Molotov";
-	default: return "[unknown weapon]";
+#ifndef SMOKINGUNS
+		case MOD_SHOTGUN: return "Shotgun";
+		case MOD_GAUNTLET: return "Gauntlet";
+		case MOD_MACHINEGUN: return "Machinegun";
+		case MOD_GRENADE:
+		case MOD_GRENADE_SPLASH: return "Grenade Launcher";
+		case MOD_ROCKET:
+		case MOD_ROCKET_SPLASH: return "Rocket Launcher";
+		case MOD_PLASMA:
+		case MOD_PLASMA_SPLASH: return "Plasmagun";
+		case MOD_RAILGUN: return "Railgun";
+		case MOD_LIGHTNING: return "Lightning Gun";
+		case MOD_BFG:
+		case MOD_BFG_SPLASH: return "BFG10K";
+#ifdef MISSIONPACK
+		case MOD_NAIL: return "Nailgun";
+		case MOD_CHAINGUN: return "Chaingun";
+		case MOD_PROXIMITY_MINE: return "Proximity Launcher";
+		case MOD_KAMIKAZE: return "Kamikaze";
+		case MOD_JUICED: return "Prox mine";
+#endif
+		case MOD_GRAPPLE: return "Grapple";
+#else
+		case MOD_KNIFE: return "Knife";
+		case MOD_REM58: return "Remington 58";
+		case MOD_SCHOFIELD: return "S&W Schofield";
+		case MOD_PEACEMAKER: return "Peacemaker";
+		case MOD_WINCHESTER66: return "Winchester";
+		case MOD_LIGHTNING: return "Colt Lightning";
+		case MOD_SHARPS: return "Sharps";
+		case MOD_REMINGTON_GAUGE: return "Shotgun";
+		case MOD_SAWEDOFF: return "Sawed Off";
+		case MOD_WINCH97: return "Winchester";
+		case MOD_GATLING: return "Gatling";
+		case MOD_DYNAMITE: return "Dynamite";
+		case MOD_MOLOTOV: return "Molotov";
+#endif
+		default: return "[unknown weapon]";
 	}
 }
 
@@ -306,13 +331,28 @@ BotRandomWeaponName
 char *BotRandomWeaponName(void) {
 	int rnd;
 
-#if 0
-//#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 	rnd = random() * 11.9;
 #else
 	rnd = random() * 8.9;
 #endif
 	switch(rnd) {
+#ifndef SMOKINGUNS
+		case 0: return "Gauntlet";
+		case 1: return "Shotgun";
+		case 2: return "Machinegun";
+		case 3: return "Grenade Launcher";
+		case 4: return "Rocket Launcher";
+		case 5: return "Plasmagun";
+		case 6: return "Railgun";
+		case 7: return "Lightning Gun";
+#ifdef MISSIONPACK
+		case 8: return "Nailgun";
+		case 9: return "Chaingun";
+		case 10: return "Proximity Launcher";
+#endif
+		default: return "BFG10K";
+#else
 		case 0:
 		case 1:
 		case 2:
@@ -322,13 +362,8 @@ char *BotRandomWeaponName(void) {
 		case 6:
 		case 7:
 			return va("%s", bg_weaponlist[rnd].name);
-#if 0
-//#ifdef MISSIONPACK
-		case 8: return "Nailgun";
-		case 9: return "Chaingun";
-		case 10: return "Proximity Launcher";
-#endif
 		default: return "Colt Peacemaker";
+#endif
 	}
 }
 
@@ -375,7 +410,14 @@ int BotValidChatPosition(bot_state_t *bs) {
 
 	//if the bot is dead all positions are valid
 	if (BotIsDead(bs)) return qtrue;
-
+#ifndef SMOKINGUNS
+	//never start chatting with a powerup
+	if (bs->inventory[INVENTORY_QUAD] ||
+		bs->inventory[INVENTORY_HASTE] ||
+		bs->inventory[INVENTORY_INVISIBILITY] ||
+		bs->inventory[INVENTORY_REGEN] ||
+		bs->inventory[INVENTORY_FLIGHT]) return qfalse;
+#endif
 	//must be on the ground
 	//if (bs->cur_ps.groundEntityNum != ENTITYNUM_NONE) return qfalse;
 	//do not chat if in lava or slime
@@ -412,7 +454,11 @@ int BotChat_EnterGame(bot_state_t *bs) {
 	//don't chat in teamplay
 	if (TeamPlayIsOn()) return qfalse;
 	// don't chat in tournament mode
+#ifndef SMOKINGUNS
+	if (gametype == GT_TOURNAMENT) return qfalse;
+#else
 	if (gametype == GT_DUEL) return qfalse;
+#endif
 	rnd = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_ENTEREXITGAME, 0, 1);
 	if (!bot_fastchat.integer) {
 		if (random() > rnd) return qfalse;
@@ -445,7 +491,11 @@ int BotChat_ExitGame(bot_state_t *bs) {
 	//don't chat in teamplay
 	if (TeamPlayIsOn()) return qfalse;
 	// don't chat in tournament mode
+#ifndef SMOKINGUNS
+	if (gametype == GT_TOURNAMENT) return qfalse;
+#else
 	if (gametype == GT_DUEL) return qfalse;
+#endif
 	rnd = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_ENTEREXITGAME, 0, 1);
 	if (!bot_fastchat.integer) {
 		if (random() > rnd) return qfalse;
@@ -477,12 +527,16 @@ int BotChat_StartLevel(bot_state_t *bs) {
 	if (BotIsObserver(bs)) return qfalse;
 	if (bs->lastchat_time > FloatTime() - TIME_BETWEENCHATTING) return qfalse;
 	//don't chat in teamplay
-	/*if (TeamPlayIsOn()) {
+#ifndef SMOKINGUNS
+	if (TeamPlayIsOn()) {
 	    trap_EA_Command(bs->client, "vtaunt");
 	    return qfalse;
-	}*/
+	}
 	// don't chat in tournament mode
+	if (gametype == GT_TOURNAMENT) return qfalse;
+#else
 	if (gametype == GT_DUEL) return qfalse;
+#endif
 	rnd = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_STARTENDLEVEL, 0, 1);
 	if (!bot_fastchat.integer) {
 		if (random() > rnd) return qfalse;
@@ -509,15 +563,19 @@ int BotChat_EndLevel(bot_state_t *bs) {
 	if (BotIsObserver(bs)) return qfalse;
 	if (bs->lastchat_time > FloatTime() - TIME_BETWEENCHATTING) return qfalse;
 	// teamplay
-	/*if (TeamPlayIsOn())
+#ifndef SMOKINGUNS
+	if (TeamPlayIsOn())
 	{
 		if (BotIsFirstInRankings(bs)) {
 			trap_EA_Command(bs->client, "vtaunt");
 		}
 		return qtrue;
-	}*/
+	}
 	// don't chat in tournament mode
+	if (gametype == GT_TOURNAMENT) return qfalse;
+#else
 	if (gametype == GT_DUEL) return qfalse;
+#endif
 	rnd = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_STARTENDLEVEL, 0, 1);
 	if (!bot_fastchat.integer) {
 		if (random() > rnd) return qfalse;
@@ -569,7 +627,11 @@ int BotChat_Death(bot_state_t *bs) {
 	if (bs->lastchat_time > FloatTime() - TIME_BETWEENCHATTING) return qfalse;
 	rnd = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_DEATH, 0, 1);
 	// don't chat in tournament mode
+#ifndef SMOKINGUNS
+	if (gametype == GT_TOURNAMENT) return qfalse;
+#else
 	if (gametype == GT_DUEL) return qfalse;
+#endif
 	//if fast chatting is off
 	if (!bot_fastchat.integer) {
 		if (random() > rnd) return qfalse;
@@ -589,10 +651,12 @@ int BotChat_Death(bot_state_t *bs) {
 	else
 	{
 		//teamplay
-		/*if (TeamPlayIsOn()) {
+#ifndef SMOKINGUNS
+		if (TeamPlayIsOn()) {
 			trap_EA_Command(bs->client, "vtaunt");
 			return qtrue;
-		}*/
+		}
+#endif
 		//
 		if (bs->botdeathtype == MOD_WATER)
 			BotAI_BotInitialChat(bs, "death_drown", BotRandomOpponentName(bs), NULL);
@@ -611,6 +675,34 @@ int BotChat_Death(bot_state_t *bs) {
 			BotAI_BotInitialChat(bs, "death_suicide", BotRandomOpponentName(bs), NULL);
 		else if (bs->botdeathtype == MOD_TELEFRAG)
 			BotAI_BotInitialChat(bs, "death_telefrag", name, NULL);
+#ifndef SMOKINGUNS
+#ifdef MISSIONPACK
+		else if (bs->botdeathtype == MOD_KAMIKAZE && trap_BotNumInitialChats(bs->cs, "death_kamikaze"))
+			BotAI_BotInitialChat(bs, "death_kamikaze", name, NULL);
+#endif
+		else {
+			if ((bs->botdeathtype == MOD_GAUNTLET ||
+				bs->botdeathtype == MOD_RAILGUN ||
+				bs->botdeathtype == MOD_BFG ||
+				bs->botdeathtype == MOD_BFG_SPLASH) && random() < 0.5) {
+
+				if (bs->botdeathtype == MOD_GAUNTLET)
+					BotAI_BotInitialChat(bs, "death_gauntlet",
+							name,												// 0
+							BotWeaponNameForMeansOfDeath(bs->botdeathtype),		// 1
+							NULL);
+				else if (bs->botdeathtype == MOD_RAILGUN)
+					BotAI_BotInitialChat(bs, "death_rail",
+							name,												// 0
+							BotWeaponNameForMeansOfDeath(bs->botdeathtype),		// 1
+							NULL);
+				else
+					BotAI_BotInitialChat(bs, "death_bfg",
+							name,												// 0
+							BotWeaponNameForMeansOfDeath(bs->botdeathtype),		// 1
+							NULL);
+			}
+#else
 		else {
 			if ((bs->botdeathtype == MOD_KNIFE) && random() < 0.5) {
 
@@ -619,8 +711,8 @@ int BotChat_Death(bot_state_t *bs) {
 							name,												// 0
 							BotWeaponNameForMeansOfDeath(bs->botdeathtype),		// 1
 							NULL);
-
 			}
+#endif
 			//choose between insult and praise
 			else if (random() < trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_INSULT, 0, 1)) {
 				BotAI_BotInitialChat(bs, "death_insult",
@@ -654,7 +746,11 @@ int BotChat_Kill(bot_state_t *bs) {
 	if (bs->lastchat_time > FloatTime() - TIME_BETWEENCHATTING) return qfalse;
 	rnd = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_KILL, 0, 1);
 	// don't chat in tournament mode
+#ifndef SMOKINGUNS
+	if (gametype == GT_TOURNAMENT) return qfalse;
+#else
 	if (gametype == GT_DUEL) return qfalse;
+#endif
 	//if fast chat is off
 	if (!bot_fastchat.integer) {
 		if (random() > rnd) return qfalse;
@@ -675,10 +771,26 @@ int BotChat_Kill(bot_state_t *bs) {
 	else
 	{
 		//don't chat in teamplay
-		/*if (TeamPlayIsOn()) {
+#ifndef SMOKINGUNS
+		if (TeamPlayIsOn()) {
 			trap_EA_Command(bs->client, "vtaunt");
 			return qfalse;			// don't wait
-		}*/
+		}
+		//
+		if (bs->enemydeathtype == MOD_GAUNTLET) {
+			BotAI_BotInitialChat(bs, "kill_gauntlet", name, NULL);
+		}
+		else if (bs->enemydeathtype == MOD_RAILGUN) {
+			BotAI_BotInitialChat(bs, "kill_rail", name, NULL);
+		}
+		else if (bs->enemydeathtype == MOD_TELEFRAG) {
+			BotAI_BotInitialChat(bs, "kill_telefrag", name, NULL);
+		}
+#ifdef MISSIONPACK
+		else if (bs->botdeathtype == MOD_KAMIKAZE && trap_BotNumInitialChats(bs->cs, "kill_kamikaze"))
+			BotAI_BotInitialChat(bs, "kill_kamikaze", name, NULL);
+#endif
+#else
 		//
 		if (bs->enemydeathtype == MOD_KNIFE) {
 			BotAI_BotInitialChat(bs, "kill_gauntlet", name, NULL);
@@ -686,6 +798,7 @@ int BotChat_Kill(bot_state_t *bs) {
 		else if (bs->enemydeathtype == MOD_TELEFRAG) {
 			BotAI_BotInitialChat(bs, "kill_telefrag", name, NULL);
 		}
+#endif
 		//choose between insult and praise
 		else if (random() < trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_INSULT, 0, 1)) {
 			BotAI_BotInitialChat(bs, "kill_insult", name, NULL);
@@ -715,7 +828,11 @@ int BotChat_EnemySuicide(bot_state_t *bs) {
 	//don't chat in teamplay
 	if (TeamPlayIsOn()) return qfalse;
 	// don't chat in tournament mode
+#ifndef SMOKINGUNS
+	if (gametype == GT_TOURNAMENT) return qfalse;
+#else
 	if (gametype == GT_DUEL) return qfalse;
+#endif
 	//if fast chat is off
 	if (!bot_fastchat.integer) {
 		if (random() > rnd) return qfalse;
@@ -755,7 +872,11 @@ int BotChat_HitTalking(bot_state_t *bs) {
 	//don't chat in teamplay
 	if (TeamPlayIsOn()) return qfalse;
 	// don't chat in tournament mode
+#ifndef SMOKINGUNS
+	if (gametype == GT_TOURNAMENT) return qfalse;
+#else
 	if (gametype == GT_DUEL) return qfalse;
+#endif
 	//if fast chat is off
 	if (!bot_fastchat.integer) {
 		if (random() > rnd * 0.5) return qfalse;
@@ -795,7 +916,11 @@ int BotChat_HitNoDeath(bot_state_t *bs) {
 	//don't chat in teamplay
 	if (TeamPlayIsOn()) return qfalse;
 	// don't chat in tournament mode
+#ifndef SMOKINGUNS
+	if (gametype == GT_TOURNAMENT) return qfalse;
+#else
 	if (gametype == GT_DUEL) return qfalse;
+#endif
 	//if fast chat is off
 	if (!bot_fastchat.integer) {
 		if (random() > rnd * 0.5) return qfalse;
@@ -833,7 +958,11 @@ int BotChat_HitNoKill(bot_state_t *bs) {
 	//don't chat in teamplay
 	if (TeamPlayIsOn()) return qfalse;
 	// don't chat in tournament mode
+#ifndef SMOKINGUNS
+	if (gametype == GT_TOURNAMENT) return qfalse;
+#else
 	if (gametype == GT_DUEL) return qfalse;
+#endif
 	//if fast chat is off
 	if (!bot_fastchat.integer) {
 		if (random() > rnd * 0.5) return qfalse;
@@ -867,7 +996,11 @@ int BotChat_Random(bot_state_t *bs) {
 	if (BotIsObserver(bs)) return qfalse;
 	if (bs->lastchat_time > FloatTime() - TIME_BETWEENCHATTING) return qfalse;
 	// don't chat in tournament mode
+#ifndef SMOKINGUNS
+	if (gametype == GT_TOURNAMENT) return qfalse;
+#else
 	if (gametype == GT_DUEL) return qfalse;
+#endif
 	//don't chat when doing something important :)
 	if (bs->ltgtype == LTG_TEAMHELP ||
 		bs->ltgtype == LTG_TEAMACCOMPANY ||
@@ -891,10 +1024,12 @@ int BotChat_Random(bot_state_t *bs) {
 	else {
 		EasyClientName(bs->lastkilledplayer, name, sizeof(name));
 	}
-	/*if (TeamPlayIsOn()) {
+#ifndef SMOKINGUNS
+	if (TeamPlayIsOn()) {
 		trap_EA_Command(bs->client, "vtaunt");
 		return qfalse;			// don't wait
-	}*/
+	}
+#endif
 	//
 	if (random() < trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_MISC, 0, 1)) {
 		BotAI_BotInitialChat(bs, "random_misc",

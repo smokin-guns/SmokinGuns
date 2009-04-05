@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 
 /*****************************************************************************
  * name:		ai_team.c
@@ -32,15 +33,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *****************************************************************************/
 
 #include "g_local.h"
-#include "botlib.h"
-#include "be_aas.h"
-#include "be_ea.h"
-#include "be_ai_char.h"
-#include "be_ai_chat.h"
-#include "be_ai_gen.h"
-#include "be_ai_goal.h"
-#include "be_ai_move.h"
-#include "be_ai_weap.h"
+#include "../botlib/botlib.h"
+#include "../botlib/be_aas.h"
+#include "../botlib/be_ea.h"
+#include "../botlib/be_ai_char.h"
+#include "../botlib/be_ai_chat.h"
+#include "../botlib/be_ai_gen.h"
+#include "../botlib/be_ai_goal.h"
+#include "../botlib/be_ai_move.h"
+#include "../botlib/be_ai_weap.h"
 //
 #include "ai_main.h"
 #include "ai_dmq3.h"
@@ -56,6 +57,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../../ui/menudef.h"
 
 //ctf task preferences for a client
+#ifndef SMOKINGUNS
 typedef struct bot_ctftaskpreference_s
 {
 	char		name[36];
@@ -63,7 +65,7 @@ typedef struct bot_ctftaskpreference_s
 } bot_ctftaskpreference_t;
 
 bot_ctftaskpreference_t ctftaskpreferences[MAX_CLIENTS];
-
+#endif
 
 /*
 ==================
@@ -132,20 +134,21 @@ int BotSortTeamMatesByBaseTravelTime(bot_state_t *bs, int *teammates, int maxtea
 	int traveltimes[MAX_CLIENTS];
 	bot_goal_t *goal = NULL;
 
+#ifndef SMOKINGUNS
 	if (gametype == GT_CTF || gametype == GT_1FCTF) {
 		if (BotTeam(bs) == TEAM_RED)
 			goal = &ctf_redflag;
 		else
 			goal = &ctf_blueflag;
 	}
-#if 0
-//#ifdef MISSIONPACK
+#ifdef MISSIONPACK
 	else {
 		if (BotTeam(bs) == TEAM_RED)
 			goal = &redobelisk;
 		else
 			goal = &blueobelisk;
 	}
+#endif
 #endif
 	if (!maxclients)
 		maxclients = trap_Cvar_VariableIntegerValue("sv_maxclients");
@@ -185,6 +188,7 @@ int BotSortTeamMatesByBaseTravelTime(bot_state_t *bs, int *teammates, int maxtea
 BotSetTeamMateTaskPreference
 ==================
 */
+#ifndef SMOKINGUNS
 void BotSetTeamMateTaskPreference(bot_state_t *bs, int teammate, int preference) {
 	char teammatename[MAX_NETNAME];
 
@@ -192,12 +196,14 @@ void BotSetTeamMateTaskPreference(bot_state_t *bs, int teammate, int preference)
 	ClientName(teammate, teammatename, sizeof(teammatename));
 	strcpy(ctftaskpreferences[teammate].name, teammatename);
 }
+#endif
 
 /*
 ==================
 BotGetTeamMateTaskPreference
 ==================
 */
+#ifndef SMOKINGUNS
 int BotGetTeamMateTaskPreference(bot_state_t *bs, int teammate) {
 	char teammatename[MAX_NETNAME];
 
@@ -206,6 +212,7 @@ int BotGetTeamMateTaskPreference(bot_state_t *bs, int teammate) {
 	if (Q_stricmp(teammatename, ctftaskpreferences[teammate].name)) return 0;
 	return ctftaskpreferences[teammate].preference;
 }
+#endif
 
 /*
 ==================
@@ -274,8 +281,7 @@ BotSayTeamOrders
 ==================
 */
 void BotSayTeamOrder(bot_state_t *bs, int toclient) {
-#if 0
-//#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 	// voice chats only
 	char buf[MAX_MESSAGE_SIZE];
 
@@ -291,8 +297,7 @@ BotVoiceChat
 ==================
 */
 void BotVoiceChat(bot_state_t *bs, int toclient, char *voicechat) {
-#if 0
-//#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 	if (toclient == -1)
 		// voice only say team
 		trap_EA_Command(bs->client, va("vsay_team %s", voicechat));
@@ -308,8 +313,7 @@ BotVoiceChatOnly
 ==================
 */
 void BotVoiceChatOnly(bot_state_t *bs, int toclient, char *voicechat) {
-#if 0
-//#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 	if (toclient == -1)
 		// voice only say team
 		trap_EA_Command(bs->client, va("vosay_team %s", voicechat));
@@ -325,8 +329,7 @@ BotSayVoiceTeamOrder
 ==================
 */
 void BotSayVoiceTeamOrder(bot_state_t *bs, int toclient, char *voicechat) {
-#if 0
-//#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 	BotVoiceChat(bs, toclient, voicechat);
 #endif
 }
@@ -336,6 +339,7 @@ void BotSayVoiceTeamOrder(bot_state_t *bs, int toclient, char *voicechat) {
 BotCTFOrders
 ==================
 */
+#ifndef SMOKINGUNS
 void BotCTFOrders_BothFlagsNotAtBase(bot_state_t *bs) {
 	int numteammates, defenders, attackers, i, other;
 	int teammates[MAX_CLIENTS];
@@ -444,12 +448,14 @@ void BotCTFOrders_BothFlagsNotAtBase(bot_state_t *bs) {
 		}
 	}
 }
+#endif
 
 /*
 ==================
 BotCTFOrders
 ==================
 */
+#ifndef SMOKINGUNS
 void BotCTFOrders_FlagNotAtBase(bot_state_t *bs) {
 	int numteammates, defenders, attackers, i;
 	int teammates[MAX_CLIENTS];
@@ -585,12 +591,14 @@ void BotCTFOrders_FlagNotAtBase(bot_state_t *bs) {
 		}
 	}
 }
+#endif
 
 /*
 ==================
 BotCTFOrders
 ==================
 */
+#ifndef SMOKINGUNS
 void BotCTFOrders_EnemyFlagNotAtBase(bot_state_t *bs) {
 	int numteammates, defenders, attackers, i, other;
 	int teammates[MAX_CLIENTS];
@@ -687,6 +695,7 @@ void BotCTFOrders_EnemyFlagNotAtBase(bot_state_t *bs) {
 		}
 	}
 }
+#endif
 
 
 /*
@@ -694,6 +703,7 @@ void BotCTFOrders_EnemyFlagNotAtBase(bot_state_t *bs) {
 BotCTFOrders
 ==================
 */
+#ifndef SMOKINGUNS
 void BotCTFOrders_BothFlagsAtBase(bot_state_t *bs) {
 	int numteammates, defenders, attackers, i;
 	int teammates[MAX_CLIENTS];
@@ -829,12 +839,14 @@ void BotCTFOrders_BothFlagsAtBase(bot_state_t *bs) {
 		}
 	}
 }
+#endif
 
 /*
 ==================
 BotCTFOrders
 ==================
 */
+#ifndef SMOKINGUNS
 void BotCTFOrders(bot_state_t *bs) {
 	int flagstatus;
 
@@ -849,6 +861,7 @@ void BotCTFOrders(bot_state_t *bs) {
 		case 3: BotCTFOrders_BothFlagsNotAtBase(bs); break;
 	}
 }
+#endif
 
 
 /*
@@ -942,8 +955,7 @@ void BotTeamOrders(bot_state_t *bs) {
 	}
 }
 
-#if 0
-//#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 
 /*
 ==================
@@ -1941,7 +1953,6 @@ void BotTeamAI(bot_state_t *bs) {
 	//
 	if ( gametype < GT_TEAM  )
 		return;
-
 	// make sure we've got a valid team leader
 	if (!BotValidTeamLeader(bs)) {
 		//
@@ -1968,7 +1979,7 @@ void BotTeamAI(bot_state_t *bs) {
 				BotSayVoiceTeamOrder(bs, -1, VOICECHAT_STARTLEADER);
 				ClientName(bs->client, netname, sizeof(netname));
 				strncpy(bs->teamleader, netname, sizeof(bs->teamleader));
-				bs->teamleader[sizeof(bs->teamleader)] = '\0';
+				bs->teamleader[sizeof(bs->teamleader)-1] = '\0';
 				bs->becometeamleader_time = 0;
 			}
 			return;
@@ -1999,6 +2010,7 @@ void BotTeamAI(bot_state_t *bs) {
 			}
 			break;
 		}
+#ifndef SMOKINGUNS
 		case GT_CTF:
 		{
 			//if the number of team mates changed or the flag status changed
@@ -2026,8 +2038,7 @@ void BotTeamAI(bot_state_t *bs) {
 			}
 			break;
 		}
-#if 0
-//#ifdef MISSIONPACK
+#ifdef MISSIONPACK
 		case GT_1FCTF:
 		{
 			if (bs->numteammates != numteammates || bs->flagstatuschanged || bs->forceorders) {
@@ -2083,6 +2094,7 @@ void BotTeamAI(bot_state_t *bs) {
 			}
 			break;
 		}
+#endif
 #endif
 	}
 }

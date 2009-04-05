@@ -20,7 +20,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-// g_wq_utils.c -- misc utility functions for the game module
+// g_sg_utils.c -- misc utility functions for the game module
 // by Spoon
 
 #include "g_local.h"
@@ -184,13 +184,13 @@ void G_SetItemBox (gentity_t *ent){
 }
 /*
 =============
-WQ_ThrowWeapon
+G_ThrowWeapon
 
 Spoon
 =============
 */
 
-void WQ_ThrowWeapon( int weapon, gentity_t *ent )
+void G_ThrowWeapon( int weapon, gentity_t *ent )
 {
 	playerState_t	*ps;
 	gitem_t			*item;
@@ -206,7 +206,7 @@ void WQ_ThrowWeapon( int weapon, gentity_t *ent )
 
 	item = BG_FindItemForWeapon( weapon );
 
-	drop = WQ_dropWeapon( ent, item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM );
+	drop = G_dropWeapon( ent, item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM );
 
 	if(drop){
 		trap_SendServerCommand( ent-g_entities, va("print \"%s dropped.\n\"", item->pickup_name));
@@ -262,8 +262,8 @@ void LetGoOfGatling(gclient_t *client, gentity_t *gatling) {
 	}
 
 	if(!client->ps.stats[STAT_OLDWEAPON] ||
-			  client->ps.stats[STAT_OLDWEAPON] == WP_GATLING &&
-			  !(client->ps.stats[STAT_FLAGS] & SF_GAT_CARRY)) {
+			  (client->ps.stats[STAT_OLDWEAPON] == WP_GATLING &&
+			  !(client->ps.stats[STAT_FLAGS] & SF_GAT_CARRY))) {
 		int i;
 
 		for ( i = WP_GATLING ; i > 0 ; i-- ) {
@@ -293,6 +293,9 @@ static void Gatling_Think( gentity_t *self) {
 	gclient_t *client;
 	vec3_t end;
 	trace_t trace;
+	
+	// Tequila: Fixed gcc warning about maybe uninitialized use of client
+	client = self->client;
 
 	if(self->s.eventParm != -1){
 		client = g_entities[self->s.eventParm].client;//&level.clients[ self->s.eventParm ];
@@ -354,7 +357,7 @@ static void Gatling_Think( gentity_t *self) {
 		if(client->ps.stats[STAT_HEALTH] <= 0){
 			gitem_t *item = BG_FindItemForWeapon(WP_GATLING);
 
-			WQ_dropWeapon( self, item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM );
+			G_dropWeapon( self, item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM );
 			G_FreeEntity(self);
 			return;
 		}
@@ -413,7 +416,7 @@ static void Gatling_Think( gentity_t *self) {
 		qboolean nogatling = qfalse;
 
 		//change the contents
-		if(self->r.contents = MASK_SHOT){
+		if(self->r.contents == MASK_SHOT){
 			self->r.contents = CONTENTS_CORPSE;
 			trap_LinkEntity(self);
 		}
@@ -554,13 +557,13 @@ gentity_t *LaunchGatling( gentity_t *ent ) {
 
 /*
 =============
-WQ_GatlingBuildUp
+G_GatlingBuildUp
 
 Spoon
 =============
 */
 #define CHECK_PLANAR 0.95f
-void WQ_GatlingBuildUp( gentity_t *ent ) {
+void G_GatlingBuildUp( gentity_t *ent ) {
 	gclient_t	*client;
 	gentity_t	*gatling;
 
