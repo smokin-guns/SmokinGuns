@@ -21,23 +21,26 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // g_local.h -- local definitions for game module
 
-#include "q_shared.h"
+#include "../qcommon/q_shared.h"
 #include "bg_public.h"
 #include "g_public.h"
 
 //==================================================================
 
 // the "gameversion" client command will print this plus compile date
-#define	GAMEVERSION	GAMENAME
+#define	GAMEVERSION	BASEGAME
 
 #define BODY_QUEUE_SIZE		8
 
 #define INFINITE			1000000
 
 #define	FRAMETIME			100					// msec
+#ifdef SMOKINGUNS
 #define	EVENT_VALID_MSEC	300
+#endif
 #define	CARNAGE_REWARD_TIME	3000
 #define REWARD_SPRITE_TIME	2000
 
@@ -53,27 +56,34 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define FL_NO_BOTS				0x00002000	// spawn point not for bot use
 #define FL_NO_HUMANS			0x00004000	// spawn point just for bots
 #define FL_FORCE_GESTURE		0x00008000	// force gesture on client
+#ifdef SMOKINGUNS
 #define FL_THROWN_ITEM			0x00010000	// thrown item
 #define FL_BUY_ITEM				0x00020000	// item that is bought to prevent startsolid
 											// problems
 #define FL_INITIALIZED			0x00040000	// is entity already initialized? (doors, etc.)
 #define FL_BREAKABLE_INIT		0x00080000	// is the breakable type initialized?
+#endif
 
 // movers are things like doors, plats, buttons, etc
 typedef enum {
 	MOVER_POS1,
 	MOVER_POS2,
 	MOVER_1TO2,
+#ifndef SMOKINGUNS
+	MOVER_2TO1
+#else
 	MOVER_2TO1,
 	MOVER_STATIC
+#endif
 } moverState_t;
 
 #define SP_PODIUM_MODEL		"models/mapobjects/podium/podium4.md3"
 
 //============================================================================
 
-//g_wq_utils
+//g_sg_utils
 //copied definitions of cgame for better player-hit-detection
+#ifdef SMOKINGUNS
 typedef struct {
 	int			oldFrame;
 	int			oldFrameTime;		// time when ->oldFrame was exactly on
@@ -94,6 +104,7 @@ typedef struct {
 
 	int	weaponAnim;
 } lerpFrame_t;
+#endif
 
 typedef struct gentity_s gentity_t;
 typedef struct gclient_s gclient_t;
@@ -191,10 +202,10 @@ struct gentity_s {
 	gentity_t	*teamchain;		// next entity in team
 	gentity_t	*teammaster;	// master of the team
 
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 	int			kamikazeTime;
 	int			kamikazeShockTime;
-#endif*/
+#endif
 
 	int			watertype;
 	int			waterlevel;
@@ -206,6 +217,7 @@ struct gentity_s {
 	float		random;
 
 	gitem_t		*item;			// for bonus items
+#ifdef SMOKINGUNS
 	qboolean	teamchange;		// just to check what teamchange is used
 
 	//new properties
@@ -219,6 +231,7 @@ struct gentity_s {
 
 	// marks a spawnpoint as trio
 	qboolean trio;
+#endif
 };
 
 
@@ -232,9 +245,13 @@ typedef enum {
 	SPECTATOR_NOT,
 	SPECTATOR_FREE,
 	SPECTATOR_FOLLOW,
+#ifndef SMOKINGUNS
+	SPECTATOR_SCOREBOARD
+#else
 	SPECTATOR_SCOREBOARD,
 	SPECTATOR_CHASECAM,
 	SPECTATOR_FIXEDCAM
+#endif
 } spectatorState_t;
 
 typedef enum {
@@ -282,9 +299,11 @@ typedef struct {
 #define MAX_NETNAME			36
 #define	MAX_VOTE_COUNT		3
 
+#ifdef SMOKINGUNS
 //unlagged - true ping
 #define NUM_PING_SAMPLES 64
 //unlagged - true ping
+#endif
 
 // client data that stays across multiple respawns, but is cleared
 // on each level change or team change at ClientBegin()
@@ -302,6 +321,7 @@ typedef struct {
 	int			voteCount;			// to prevent people from constantly calling votes
 	int			teamVoteCount;		// to prevent people from constantly calling votes
 	qboolean	teamInfo;			// send team overlay updates?
+#ifdef SMOKINGUNS
 //unlagged - client options
 	// these correspond with variables in the userinfo string
 	int			delag;
@@ -323,9 +343,11 @@ typedef struct {
 	int			savedMoney;			// copy of ps.stats[STAT_MONEY]
 	int			savedWins;			// copy of ps.stats[STAT_WINS]
 	int			savedScore;			// copy of ps.persistant[PERS_SCORE]
+#endif
 
 } clientPersistant_t;
 
+#ifdef SMOKINGUNS
 //unlagged - backward reconciliation #1
 // the size of history we'll keep
 #define NUM_CLIENT_HISTORY 17
@@ -342,6 +364,7 @@ typedef struct {
 	lerpFrame_t torso, legs;
 } clientHistory_t;
 //unlagged - backward reconciliation #1
+#endif
 
 // this structure is cleared on each ClientSpawn(),
 // except for 'client->pers' and 'client->sess'
@@ -363,7 +386,9 @@ struct gclient_s {
 	int			buttons;
 	int			oldbuttons;
 	int			latched_buttons;
+#ifdef SMOKINGUNS
 	int			oldupmove;			// smokinguns
+#endif
 
 	vec3_t		oldOrigin;
 
@@ -385,13 +410,14 @@ struct gclient_s {
 	int			lasthurt_client;	// last client that damaged this client
 	int			lasthurt_mod;		// type of damage the client did
 
+#ifdef SMOKINGUNS
 	int			lasthurt_location;	// Where the client was hit.
 	int			lasthurt_direction;
 	int			lasthurt_part;
 
 	int			lasthurt_victim;
 	int			lasthurt_anim;		// death-animation
-
+#endif
 
 	// timers
 	int			respawnTime;		// can respawn when time > this, force after g_forcerespwan
@@ -412,15 +438,16 @@ struct gclient_s {
 	// like health / armor countdowns and regeneration
 	int			timeResidual;
 
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 	gentity_t	*persistantPowerup;
 	int			portalID;
 	int			ammoTimes[WP_NUM_WEAPONS];
 	int			invulnerabilityTime;
-#endif*/
+#endif
 
 	char		*areabits;
 
+#ifdef SMOKINGUNS
 //unlagged - backward reconciliation #1
 	// the serverTime the button was pressed
 	// (stored before pmove_fixed changes serverTime)
@@ -470,18 +497,25 @@ struct gclient_s {
 	// when using a deployed gatling, and at the same time having one in the inventory,
 	// the ammo count for the latter one is saved here
 	int				carriedGatlingAmmo;
+#endif
 };
 
 //movestates
+#ifdef SMOKINGUNS
 #define	MS_CROUCHED	1	//if crouching
 #define	MS_WALK		2	//if walking
 #define	MS_JUMP		4	//if jumping
+#endif
 
 //
 // this structure is cleared as each map is entered
 //
 #define	MAX_SPAWN_VARS			64
+#ifndef SMOKINGUNS
+#define	MAX_SPAWN_VARS_CHARS	4096
+#else
 #define	MAX_SPAWN_VARS_CHARS	2048
+#endif
 
 typedef struct {
 	struct gclient_s	*clients;		// [maxclients]
@@ -493,8 +527,10 @@ typedef struct {
 	int			warmupTime;			// restart match at this time
 
 	//Round-system by Spoon
+#ifdef SMOKINGUNS
 	int			nextroundstart;
 	qboolean	validround;
+#endif
 
 	fileHandle_t	logFile;
 
@@ -503,7 +539,6 @@ typedef struct {
 
 	int			framenum;
 	int			time;					// in msec
-
 	int			previousTime;			// so movers can back up when blocked
 
 	int			startTime;				// level.time the map was started
@@ -566,14 +601,16 @@ typedef struct {
 	gentity_t	*locationHead;			// head of the location list
 	int			bodyQueIndex;			// dead bodies
 	gentity_t	*bodyQue[BODY_QUEUE_SIZE];
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 	int			portalSequence;
-#endif*/
+#endif
 
+#ifdef SMOKINGUNS
 //unlagged - backward reconciliation #4
 	// actual time this server frame started
 	int			frameStartTime;
 //unlagged - backward reconciliation #4
+#endif
 } level_locals_t;
 
 
@@ -597,9 +634,11 @@ void BroadcastTeamChange( gclient_t *client, int oldTeam );
 void SetTeam( gentity_t *ent, char *s );
 void Cmd_FollowCycle_f( gentity_t *ent, int dir );
 //Spoon
+#ifdef SMOKINGUNS
 void ChaseCam_Start( gentity_t *ent, int dir );
 void ChaseCam_Stop( gentity_t *ent );
 void ChaseCam_Change( gentity_t *ent );
+#endif
 
 //
 // g_items.c
@@ -611,7 +650,11 @@ void RespawnItem( gentity_t *ent );
 void UseHoldableItem( gentity_t *ent );
 void PrecacheItem (gitem_t *it);
 gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle );
+#ifndef SMOKINGUNS
+gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity );
+#else
 gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int droppedflags);
+#endif
 void SetRespawn (gentity_t *ent, float delay);
 void G_SpawnItem (gentity_t *ent, gitem_t *item);
 void FinishSpawningItem( gentity_t *ent );
@@ -654,66 +697,84 @@ float vectoyaw( const vec3_t vec );
 void G_AddPredictableEvent( gentity_t *ent, int event, int eventParm );
 void G_AddEvent( gentity_t *ent, int event, int eventParm );
 void G_SetOrigin( gentity_t *ent, vec3_t origin );
-//void AddRemap(const char *oldShader, const char *newShader, float timeOffset);
-//const char *BuildShaderStateConfig();
+#ifndef SMOKINGUNS
+void AddRemap(const char *oldShader, const char *newShader, float timeOffset);
+const char *BuildShaderStateConfig( void );
+#else
 qboolean G_IsAnyClientWithinRadius( const vec3_t org, float rad, int ignoreTeam );
+#endif
 
 //
 // g_combat.c
 //
+#ifdef SMOKINGUNS
 void G_LookForBreakableType(gentity_t *ent);
+#endif
 qboolean CanDamage (gentity_t *targ, vec3_t origin);
+#ifndef SMOKINGUNS
+void G_Damage (gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, int mod);
+#else
 void G_Damage (gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, float damage, int dflags, int mod);
+#endif
 qboolean G_RadiusDamage (vec3_t origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, int mod);
 int G_InvulnerabilityEffect( gentity_t *targ, vec3_t dir, vec3_t point, vec3_t impactpoint, vec3_t bouncedir );
 void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath );
 void TossClientItems( gentity_t *self );
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 void TossClientPersistantPowerups( gentity_t *self );
-#endif*/
+#endif
 void TossClientCubes( gentity_t *self );
+#ifdef SMOKINGUNS
 void LookAtKiller( gentity_t *self, gentity_t *attacker );
-
+#endif
 
 // damage flags
 #define DAMAGE_RADIUS				0x00000001	// damage was indirect
 #define DAMAGE_NO_ARMOR				0x00000002	// armour does not protect from this damage
 #define DAMAGE_NO_KNOCKBACK			0x00000004	// do not affect velocity, just view angles
 #define DAMAGE_NO_PROTECTION		0x00000008  // armor, shields, invulnerability, and godmode have no effect
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 #define DAMAGE_NO_TEAM_PROTECTION	0x00000010  // armor, shields, invulnerability, and godmode have no effect
-#endif*/
+#endif
 
 //
 // g_missile.c
 //
 void G_RunMissile( gentity_t *ent );
+#ifdef SMOKINGUNS
 void G_ExplodeMissile( gentity_t *ent );
 void G_InstantExplode(vec3_t orig, gentity_t *attacker);
+#endif
 gentity_t *fire_blaster (gentity_t *self, vec3_t start, vec3_t aimdir);
-//gentity_t *fire_plasma (gentity_t *self, vec3_t start, vec3_t aimdir);
+#ifndef SMOKINGUNS
+gentity_t *fire_plasma (gentity_t *self, vec3_t start, vec3_t aimdir);
+#endif
 gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t aimdir);
+#ifndef SMOKINGUNS
+gentity_t *fire_rocket (gentity_t *self, vec3_t start, vec3_t dir);
+gentity_t *fire_bfg (gentity_t *self, vec3_t start, vec3_t dir);
+gentity_t *fire_grapple (gentity_t *self, vec3_t start, vec3_t dir);
+#ifdef MISSIONPACK
+gentity_t *fire_nail( gentity_t *self, vec3_t start, vec3_t forward, vec3_t right, vec3_t up );
+gentity_t *fire_prox( gentity_t *self, vec3_t start, vec3_t aimdir );
+#endif
+#else
 // Smokin'Guns missiles
 gentity_t *fire_dynamite (gentity_t *self, vec3_t start, vec3_t dir, int speed);
 gentity_t *fire_molotov (gentity_t *self, vec3_t start, vec3_t dir, int speed);
 gentity_t *fire_alcohol (gentity_t *self, vec3_t start, vec3_t dir, int speed);
 gentity_t *fire_knife (gentity_t *self, vec3_t start, vec3_t dir, int speed);
-
-//gentity_t *fire_rocket (gentity_t *self, vec3_t start, vec3_t dir);
-//gentity_t *fire_bfg (gentity_t *self, vec3_t start, vec3_t dir);
-//gentity_t *fire_grapple (gentity_t *self, vec3_t start, vec3_t dir);
-/*#ifdef MISSIONPACK
-gentity_t *fire_nail( gentity_t *self, vec3_t start, vec3_t forward, vec3_t right, vec3_t up );
-gentity_t *fire_prox( gentity_t *self, vec3_t start, vec3_t aimdir );
-#endif*/
+#endif
 
 
 //
 // g_mover.c
 //
 void G_RunMover( gentity_t *ent );
+#ifdef SMOKINGUNS
 void G_BreakableRespawn( gentity_t *ent);
 void G_MoverContents(qboolean change);
+#endif
 void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace );
 
 //
@@ -726,10 +787,10 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 // g_misc.c
 //
 void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles );
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 void DropPortalSource( gentity_t *ent );
 void DropPortalDestination( gentity_t *ent );
-#endif*/
+#endif
 
 
 //
@@ -737,11 +798,14 @@ void DropPortalDestination( gentity_t *ent );
 //
 qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker );
 void CalcMuzzlePoint ( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint );
-//void SnapVectorTowards( vec3_t v, vec3_t to );
+#ifndef SMOKINGUNS
+void SnapVectorTowards( vec3_t v, vec3_t to );
+#endif
 qboolean CheckGauntletAttack( gentity_t *ent );
 void Weapon_HookFree (gentity_t *ent);
 void Weapon_HookThink (gentity_t *ent);
 
+#ifdef SMOKINGUNS
 //unlagged - g_unlagged.c
 void G_ResetHistory( gentity_t *ent );
 void G_StoreHistory( gentity_t *ent );
@@ -753,6 +817,7 @@ void G_UnTimeShiftClient( gentity_t *client );
 void G_PredictPlayerMove( gentity_t *ent, float frametime );
 void BG_CopyLerpFrame(lerpFrame_t *org, lerpFrame_t *targ);  // g_wq_utils.c
 //unlagged - g_unlagged.c
+#endif
 
 
 //
@@ -762,7 +827,11 @@ team_t TeamCount( int ignoreClientNum, int team );
 int TeamLeader( int team );
 team_t PickTeam( int ignoreClientNum );
 void SetClientViewAngle( gentity_t *ent, vec3_t angle );
+#ifndef SMOKINGUNS
+gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles );
+#else
 gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, int mappart, gclient_t *client );
+#endif
 void CopyToBodyQue( gentity_t *ent );
 void respawn (gentity_t *ent);
 void BeginIntermission (void);
@@ -772,11 +841,12 @@ void InitBodyQue (void);
 void ClientSpawn( gentity_t *ent );
 void player_die (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
 void AddScore( gentity_t *ent, vec3_t origin, int score );
+#ifdef SMOKINGUNS
 void AddScoreRTP( gentity_t *ent, int score );
 void AddScoreRTPTeam( int team, int score );
+#endif
 void CalculateRanks( void );
 qboolean SpotWouldTelefrag( gentity_t *spot );
-
 
 //
 // g_svcmds.c
@@ -788,10 +858,14 @@ qboolean G_FilterPacket (char *from);
 //
 // g_weapon.c
 //
-void FireWeapon( gentity_t *ent, qboolean altfire, int weapon );
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
+void FireWeapon( gentity_t *ent );
+#ifdef MISSIONPACK
 void G_StartKamikaze( gentity_t *ent );
-#endif*/
+#endif
+#else
+void FireWeapon( gentity_t *ent, qboolean altfire, int weapon );
+#endif
 
 //
 // p_hud.c
@@ -812,8 +886,12 @@ void DeathmatchScoreboardMessage (gentity_t *client);
 //
 // g_main.c
 //
+#ifndef SMOKINGUNS
+void FindIntermissionPoint( void );
+#else
 void FindIntermissionPoint( int mappart );
-void SetLeader( int team, int client);
+#endif
+void SetLeader(int team, int client);
 void CheckTeamLeader( int team );
 void G_RunThink (gentity_t *ent);
 void QDECL G_LogPrintf( const char *fmt, ... );
@@ -837,7 +915,9 @@ void ClientThink( int clientNum );
 void ClientEndFrame( gentity_t *ent );
 void G_RunClient( gentity_t *ent );
 //Spoon
+#ifdef SMOKINGUNS
 int G_AnimLength( int anim, int weapon);
+#endif
 
 //
 // g_team.c
@@ -857,7 +937,11 @@ void Svcmd_GameMem_f( void );
 // g_session.c
 //
 void G_ReadSessionData( gclient_t *client );
+#ifndef SMOKINGUNS
+void G_InitSessionData( gclient_t *client, char *userinfo );
+#else
 void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot );
+#endif
 
 void G_InitWorldSession( void );
 void G_WriteSessionData( void );
@@ -907,7 +991,7 @@ void BotTestAAS(vec3_t origin);
 extern	level_locals_t	level;
 extern	gentity_t		g_entities[MAX_GENTITIES];
 
-#define	FOFS(x) ((int)&(((gentity_t *)0)->x))
+#define	FOFS(x) ((size_t)&(((gentity_t *)0)->x))
 
 extern	vmCvar_t	g_gametype;
 extern	vmCvar_t	g_dedicated;
@@ -916,13 +1000,19 @@ extern	vmCvar_t	g_maxclients;			// allow this many total, including spectators
 extern	vmCvar_t	g_maxGameClients;		// allow this many active
 extern	vmCvar_t	g_restarted;
 
-extern	vmCvar_t	g_moneyrespawn;
-extern	vmCvar_t	g_exp_shotgunpattern;
+#ifdef SMOKINGUNS
+extern	vmCvar_t	g_moneyRespawn;
+extern	vmCvar_t	g_newShotgunPattern;
 extern	vmCvar_t	g_duellimit;
+#endif
 extern	vmCvar_t	g_dmflags;
 extern	vmCvar_t	g_fraglimit;
 extern	vmCvar_t	g_timelimit;
+#ifndef SMOKINGUNS
+extern	vmCvar_t	g_capturelimit;
+#else
 extern	vmCvar_t	g_scorelimit;
+#endif
 extern	vmCvar_t	g_friendlyFire;
 extern	vmCvar_t	g_password;
 extern	vmCvar_t	g_needpass;
@@ -943,7 +1033,9 @@ extern	vmCvar_t	g_warmup;
 extern	vmCvar_t	g_doWarmup;
 extern	vmCvar_t	g_blood;
 extern	vmCvar_t	g_allowVote;
+#ifdef SMOKINGUNS
 extern	vmCvar_t	g_allowVoteKick;
+#endif
 extern	vmCvar_t	g_teamAutoJoin;
 extern	vmCvar_t	g_teamForceBalance;
 extern	vmCvar_t	g_banIPs;
@@ -963,6 +1055,7 @@ extern	vmCvar_t	g_enableDust;
 extern	vmCvar_t	g_enableBreath;
 extern	vmCvar_t	g_singlePlayer;
 extern	vmCvar_t	g_proxMineTimeout;
+#ifdef SMOKINGUNS
 //unlagged - server options
 // some new server-side variables
 extern	vmCvar_t	g_delagHitscan;
@@ -999,6 +1092,8 @@ extern	int			g_roundendtime;
 extern	int			g_roundstarttime;
 
 extern	int			g_session;
+
+extern	int			g_humancount;
 
 // duel definitions
 typedef struct mappart_s {
@@ -1046,7 +1141,7 @@ extern	vmCvar_t	g_blueteamcount;
 extern	vmCvar_t	g_redteamscore;
 extern	vmCvar_t	g_blueteamscore;
 
-extern	vmCvar_t	g_robber_reward;
+extern	vmCvar_t	g_robberReward;
 
 extern	vmCvar_t	g_splitChat;
 
@@ -1056,6 +1151,7 @@ extern	vmCvar_t	g_splitChat;
 extern	vmCvar_t	m_maxreward;
 extern	vmCvar_t	m_teamwin;
 extern	vmCvar_t	m_teamlose;
+#endif
 
 void	trap_Printf( const char *fmt );
 void	trap_Error( const char *fmt );
@@ -1085,7 +1181,6 @@ void	trap_GetUserinfo( int num, char *buffer, int bufferSize );
 void	trap_SetUserinfo( int num, const char *buffer );
 void	trap_GetServerinfo( char *buffer, int bufferSize );
 void	trap_SetBrushModel( gentity_t *ent, const char *name );
-//int		trap_Trace_New( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask );
 void	trap_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask );
 int		trap_PointContents( const vec3_t point, int passEntityNum );
 qboolean trap_InPVS( const vec3_t p1, const vec3_t p2 );
@@ -1262,11 +1357,12 @@ int		trap_GeneticParentsAndChildSelection(int numranks, float *ranks, int *paren
 
 void	trap_SnapVector( float *v );
 
-//g_wq_utils.c
+//g_sg_utils.c
+#ifdef SMOKINGUNS
 void G_SetItemBox (gentity_t *ent);
-void WQ_ThrowWeapon( int weapon, gentity_t *ent );
-void WQ_GatlingBuildUp( gentity_t *ent );
-gentity_t *WQ_dropWeapon( gentity_t *ent, gitem_t *item, float angle, int flags );
+void G_ThrowWeapon( int weapon, gentity_t *ent );
+void G_GatlingBuildUp( gentity_t *ent );
+gentity_t *G_dropWeapon( gentity_t *ent, gitem_t *item, float angle, int flags );
 int G_HitModelCheck(hit_data_t *data, vec3_t origin,
 				   vec3_t angles, vec3_t torso_angles, vec3_t head_angles,
 				   lerpFrame_t *torso, lerpFrame_t *legs,
@@ -1286,3 +1382,4 @@ void ClearDuelData(qboolean all);
 //new trap-functions
 void trap_Trace_New( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask );
 int trap_Trace_New2( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask );
+#endif
