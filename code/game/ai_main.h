@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 
 /*****************************************************************************
  * name:		ai_main.h
@@ -36,14 +37,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define MAX_ITEMS					256
 //bot flags
-#define BFL_STRAFERIGHT				0x0000001	//strafe to the right
-#define BFL_ATTACKED				0x0000002	//bot has attacked last ai frame
-#define BFL_ATTACKJUMPED			0x0000004	//bot jumped during attack last frame
-#define BFL_AIMATENEMY				0x0000008	//bot aimed at the enemy this frame
-#define BFL_AVOIDRIGHT				0x0000010	//avoid obstacles by going to the right
-#define BFL_IDEALVIEWSET			0x0000020	//bot has ideal view angles set
-#define BFL_FIGHTSUICIDAL			0x0000040	//bot is in a suicidal fight
+#define BFL_STRAFERIGHT				1	//strafe to the right
+#define BFL_ATTACKED				2	//bot has attacked last ai frame
+#define BFL_ATTACKJUMPED			4	//bot jumped during attack last frame
+#define BFL_AIMATENEMY				8	//bot aimed at the enemy this frame
+#define BFL_AVOIDRIGHT				16	//avoid obstacles by going to the right
+#define BFL_IDEALVIEWSET			32	//bot has ideal view angles set
+#define BFL_FIGHTSUICIDAL			64	//bot is in a suicidal fight
 
+#ifdef SMOKINGUNS
 #define	BFL_RELOAD					0x0000080
 #define	BFL_RELOAD2					0x0000100
 #define BFL_ATTACK					0x0000200
@@ -57,6 +59,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	BFL_SEEK					0x0020000 // bot seeks around
 #define BFL_NOGOAL					0x0040000 // get no goal
 #define	BFL_ACT_BUTTON				0x0080000
+#endif
 
 
 //long term goal types
@@ -104,7 +107,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define PRESENCE_NORMAL				2
 #define PRESENCE_CROUCH				4
 //
+#ifndef SMOKINGUNS
+#define MAX_PROXMINES				64
+#else
 #define MAX_EXPLOSIVES				64
+#endif
 
 //check points
 typedef struct bot_waypoint_s
@@ -135,6 +142,7 @@ typedef struct bot_activategoal_s
 	struct bot_activategoal_s *next;		//next activate goal on stack
 } bot_activategoal_t;
 
+#ifdef SMOKINGUNS
 typedef struct bot_orient_s {
 	vec3_t endpos; // current point, the bot is going to
 	vec3_t startpos; // current point where the bot came from
@@ -146,6 +154,7 @@ typedef struct bot_orient_s {
 
 	qboolean nodes[MAX_AINODES]; // which nodes have been already used?
 } bot_orient_t;
+#endif
 
 //bot state
 typedef struct bot_state_s
@@ -234,9 +243,10 @@ typedef struct bot_state_s
 	vec3_t enemyorigin;								//enemy origin 0.5 secs ago during battle
 	//
 	int kamikazebody;								//kamikaze body
-
-	//int	explosives[MAX_EXPLOSIVES];
-	//int numexplosives;
+#ifndef SMOKINGUNS
+	int proxmines[MAX_PROXMINES];
+	int numproxmines;
+#else
 	vec3_t escape_point;
 	vec3_t avoid_point;
 	vec3_t force_point;
@@ -246,6 +256,7 @@ typedef struct bot_state_s
 	int buytime;
 
 	int cmdweapon;
+#endif
 	//
 	int character;									//the bot character
 	int ms;											//move state of the bot
@@ -317,8 +328,10 @@ typedef struct bot_state_s
 	bot_waypoint_t *curpatrolpoint;					//current patrol point the bot is going for
 	int patrolflags;								//patrol flags
 
+#ifdef SMOKINGUNS
 	bot_orient_t orientation;
 	bot_goal_t	save_goal;
+#endif
 } bot_state_t;
 
 //resets the whole bot state

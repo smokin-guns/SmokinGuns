@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 
 // g_public.h -- game module information visible to server
 
@@ -429,7 +430,7 @@ typedef enum {
 } gameExport_t;
 
 // hika comments: this part Spoon added is only for the mod
-#if defined SMOKINGUNS_SO || defined Q3_VM
+#if defined SMOKINGUNS && ( defined CGAME || defined QAGAME || defined UI )
 typedef struct shaderInfo_s {
 	int			surfaceFlags;
 } shaderInfo_t;
