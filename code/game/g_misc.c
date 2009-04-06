@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // g_misc.c
 
 #include "g_local.h"
@@ -82,7 +83,11 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 
 	// use temp events at source and destination to prevent the effect
 	// from getting dropped by a second player event
+#ifndef SMOKINGUNS
+	if ( player->client->sess.sessionTeam != TEAM_SPECTATOR ) {
+#else
 	if ( player->client->sess.sessionTeam < TEAM_SPECTATOR ) {
+#endif
 		tent = G_TempEntity( player->client->ps.origin, EV_PLAYER_TELEPORT_OUT );
 		tent->s.clientNum = player->s.clientNum;
 
@@ -105,16 +110,22 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	// toggle the teleport bit so the client knows to not lerp
 	player->client->ps.eFlags ^= EF_TELEPORT_BIT;
 
+#ifdef SMOKINGUNS
 //unlagged - backward reconciliation #3
 	// we don't want players being backward-reconciled back through teleporters
 	G_ResetHistory( player );
 //unlagged - backward reconciliation #3
+#endif
 
 	// set angles
 	SetClientViewAngle( player, angles );
 
 	// kill anything at the destination
+#ifndef SMOKINGUNS
+	if ( player->client->sess.sessionTeam != TEAM_SPECTATOR ) {
+#else
 	if ( player->client->sess.sessionTeam < TEAM_SPECTATOR ) {
+#endif
 		G_KillBox (player);
 	}
 
@@ -124,7 +135,11 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	// use the precise origin for linking
 	VectorCopy( player->client->ps.origin, player->r.currentOrigin );
 
+#ifndef SMOKINGUNS
+	if ( player->client->sess.sessionTeam != TEAM_SPECTATOR ) {
+#else
 	if ( player->client->sess.sessionTeam < TEAM_SPECTATOR ) {
+#endif
 		trap_LinkEntity (player);
 	}
 }
@@ -181,8 +196,19 @@ void locateCamera( gentity_t *ent ) {
 		ent->s.frame = 75;
 	}
 
+#ifndef SMOKINGUNS
+	// swing camera ?
+	if ( owner->spawnflags & 4 ) {
+		// set to 0 for no rotation at all
+		ent->s.powerups = 0;
+	}
+	else {
+		ent->s.powerups = 1;
+	}
+#else
 	// set to 0 for no rotation at all
 	ent->s.powerups = 1;
+#endif
 
 	// clientNum holds the rotate offset
 	ent->s.clientNum = owner->s.clientNum;
@@ -221,7 +247,7 @@ void SP_misc_portal_surface(gentity_t *ent) {
 	}
 }
 
-/*QUAKED misc_portal_camera (0 0 1) (-8 -8 -8) (8 8 8) slowrotate fastrotate
+/*QUAKED misc_portal_camera (0 0 1) (-8 -8 -8) (8 8 8) slowrotate fastrotate noswing
 The target for a misc_portal_director.  You can set either angles or target another entity to determine the direction of view.
 "roll" an angle modifier to orient the camera around the target vector;
 */
@@ -271,8 +297,19 @@ void Use_Shooter( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	VectorNormalize( dir );
 
 	switch ( ent->s.weapon ) {
+#ifndef SMOKINGUNS
+	case WP_GRENADE_LAUNCHER:
+		fire_grenade( ent, ent->s.origin, dir );
+		break;
+	case WP_ROCKET_LAUNCHER:
+		fire_rocket( ent, ent->s.origin, dir );
+		break;
+	case WP_PLASMAGUN:
+		fire_plasma( ent, ent->s.origin, dir );
+#else
 	case WP_DYNAMITE:
 		fire_dynamite( ent, ent->s.origin, dir, 700 );
+#endif
 		break;
 	}
 
@@ -290,7 +327,9 @@ void InitShooter( gentity_t *ent, int weapon ) {
 	ent->use = Use_Shooter;
 	ent->s.weapon = weapon;
 
+#ifdef SMOKINGUNS
 	if(weapon != WP_NONE)
+#endif
 		RegisterItem( BG_FindItemForWeapon( weapon ) );
 
 	G_SetMovedir( ent->s.angles, ent->movedir );
@@ -307,16 +346,38 @@ void InitShooter( gentity_t *ent, int weapon ) {
 	trap_LinkEntity( ent );
 }
 
+#ifndef SMOKINGUNS
+/*QUAKED shooter_rocket (1 0 0) (-16 -16 -16) (16 16 16)
+Fires at either the target or the current direction.
+"random" the number of degrees of deviance from the taget. (1.0 default)
+*/
+void SP_shooter_rocket( gentity_t *ent ) {
+	InitShooter( ent, WP_ROCKET_LAUNCHER );
+}
+
+/*QUAKED shooter_plasma (1 0 0) (-16 -16 -16) (16 16 16)
+Fires at either the target or the current direction.
+"random" is the number of degrees of deviance from the taget. (1.0 default)
+*/
+void SP_shooter_plasma( gentity_t *ent ) {
+	InitShooter( ent, WP_PLASMAGUN);
+}
+#endif
+
 /*QUAKED shooter_grenade (1 0 0) (-16 -16 -16) (16 16 16)
 Fires at either the target or the current direction.
 "random" is the number of degrees of deviance from the taget. (1.0 default)
 */
 void SP_shooter_grenade( gentity_t *ent ) {
+#ifndef SMOKINGUNS
+	InitShooter( ent, WP_GRENADE_LAUNCHER);
+#else
 	InitShooter( ent, WP_DYNAMITE);
+#endif
 }
 
-#if 0
-//#ifdef MISSIONPACK
+
+#ifndef SMOKINGUNS
 static void PortalDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod) {
 	G_FreeEntity( self );
 	//FIXME do something more interesting
@@ -374,7 +435,6 @@ static void PortalTouch( gentity_t *self, gentity_t *other, trace_t *trace) {
 //		return;
 //	}
 
-#ifndef SMOKINGUNS
 	if ( other->client->ps.powerups[PW_NEUTRALFLAG] ) {		// only happens in One Flag CTF
 		Drop_Item( other, BG_FindItemForPowerup( PW_NEUTRALFLAG ), 0 );
 		other->client->ps.powerups[PW_NEUTRALFLAG] = 0;
@@ -387,7 +447,6 @@ static void PortalTouch( gentity_t *self, gentity_t *other, trace_t *trace) {
 		Drop_Item( other, BG_FindItemForPowerup( PW_BLUEFLAG ), 0 );
 		other->client->ps.powerups[PW_BLUEFLAG] = 0;
 	}
-#endif
 
 	// find the destination
 	destination = NULL;
