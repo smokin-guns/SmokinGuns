@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
+//
 // g_arenas.c
 //
 
@@ -44,10 +45,10 @@ void UpdateTournamentInfo( void ) {
 	int			playerClientNum;
 	int			n, accuracy, perfect,	msglen;
 	int			buflen;
-/*#ifdef MISSIONPACK
-	int			score1, score2;
+#ifndef SMOKINGUNS
+  int score1, score2;
 	qboolean won;
-#endif*/
+#endif
 	char		buf[32];
 	char		msg[MAX_STRING_CHARS];
 
@@ -70,12 +71,17 @@ void UpdateTournamentInfo( void ) {
 
 	CalculateRanks();
 
-	if ( level.clients[playerClientNum].sess.sessionTeam >= TEAM_SPECTATOR ) {
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
+	if ( level.clients[playerClientNum].sess.sessionTeam == TEAM_SPECTATOR ) {
+#ifdef MISSIONPACK
 		Com_sprintf( msg, sizeof(msg), "postgame %i %i 0 0 0 0 0 0 0 0 0 0 0", level.numNonSpectatorClients, playerClientNum );
-#else*/
+#else
 		Com_sprintf( msg, sizeof(msg), "postgame %i %i 0 0 0 0 0 0", level.numNonSpectatorClients, playerClientNum );
-//#endif
+#endif
+#else
+	if ( level.clients[playerClientNum].sess.sessionTeam >= TEAM_SPECTATOR ) {
+		Com_sprintf( msg, sizeof(msg), "postgame %i %i 0 0 0 0 0 0", level.numNonSpectatorClients, playerClientNum );
+#endif
 	}
 	else {
 		if( player->client->accuracy_shots ) {
@@ -84,9 +90,10 @@ void UpdateTournamentInfo( void ) {
 		else {
 			accuracy = 0;
 		}
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
+#ifdef MISSIONPACK
 		won = qfalse;
-		if (g_gametype.integer >= GT_RTP) {
+		if (g_gametype.integer >= GT_CTF) {
 			score1 = level.teamScores[TEAM_RED];
 			score2 = level.teamScores[TEAM_BLUE];
 			if (level.clients[playerClientNum].sess.sessionTeam	== TEAM_RED) {
@@ -109,18 +116,21 @@ void UpdateTournamentInfo( void ) {
 		} else {
 			perfect = 0;
 		}
-		Com_sprintf( msg, sizeof(msg), "postgame %i %i %i %i %i %i %i %i %i %i %i %i %i", level.numNonSpectatorClients, playerClientNum, accuracy,
+		Com_sprintf( msg, sizeof(msg), "postgame %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.numNonSpectatorClients, playerClientNum, accuracy,
 			player->client->ps.persistant[PERS_IMPRESSIVE_COUNT], player->client->ps.persistant[PERS_EXCELLENT_COUNT],player->client->ps.persistant[PERS_DEFEND_COUNT],
 			player->client->ps.persistant[PERS_ASSIST_COUNT], player->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT], player->client->ps.persistant[PERS_SCORE],
-			perfect, score1, score2, level.time );
+			perfect, score1, score2, level.time, player->client->ps.persistant[PERS_CAPTURES] );
 
-#else*/
+#else
 		perfect = ( level.clients[playerClientNum].ps.persistant[PERS_RANK] == 0 && player->client->ps.persistant[PERS_KILLED] == 0 ) ? 1 : 0;
-		/*Com_sprintf( msg, sizeof(msg), "postgame %i %i %i %i %i %i %i %i", level.numNonSpectatorClients, playerClientNum, accuracy,
+		Com_sprintf( msg, sizeof(msg), "postgame %i %i %i %i %i %i %i %i", level.numNonSpectatorClients, playerClientNum, accuracy,
 			player->client->ps.persistant[PERS_IMPRESSIVE_COUNT], player->client->ps.persistant[PERS_EXCELLENT_COUNT],
 			player->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT], player->client->ps.persistant[PERS_SCORE],
-			perfect );*/
-//#endif
+			perfect );
+#endif
+#else
+		perfect = ( level.clients[playerClientNum].ps.persistant[PERS_RANK] == 0 && player->client->ps.persistant[PERS_KILLED] == 0 ) ? 1 : 0;
+#endif
 	}
 
 	msglen = strlen( msg );
@@ -163,6 +173,15 @@ static gentity_t *SpawnModelOnVictoryPad( gentity_t *pad, vec3_t offset, gentity
 	body->s.pos.trType = TR_STATIONARY;
 	body->s.groundEntityNum = ENTITYNUM_WORLD;
 	body->s.legsAnim = LEGS_IDLE;
+#ifndef SMOKINGUNS
+	body->s.torsoAnim = TORSO_STAND;
+	if( body->s.weapon == WP_NONE ) {
+		body->s.weapon = WP_MACHINEGUN;
+	}
+	if( body->s.weapon == WP_GAUNTLET) {
+		body->s.torsoAnim = TORSO_STAND2;
+	}
+#else
 	if( body->s.weapon == WP_NONE ) {
 		body->s.weapon = WP_PEACEMAKER;
 	}
@@ -188,7 +207,7 @@ static gentity_t *SpawnModelOnVictoryPad( gentity_t *pad, vec3_t offset, gentity
 		body->s.torsoAnim = TORSO_RIFLE_STAND;
 		break;
 	}
-
+#endif
 	body->s.event = 0;
 	body->r.svFlags = ent->r.svFlags;
 	VectorCopy (ent->r.mins, body->r.mins);
@@ -223,6 +242,14 @@ static gentity_t *SpawnModelOnVictoryPad( gentity_t *pad, vec3_t offset, gentity
 static void CelebrateStop( gentity_t *player ) {
 	int		anim;
 
+#ifndef SMOKINGUNS
+	if( player->s.weapon == WP_GAUNTLET) {
+		anim = TORSO_STAND2;
+	}
+	else {
+		anim = TORSO_STAND;
+	}
+#else
 	switch(player->s.weapon){
 	case WP_KNIFE:
 	case WP_DYNAMITE:
@@ -244,13 +271,18 @@ static void CelebrateStop( gentity_t *player ) {
 		anim = TORSO_RIFLE_STAND;
 		break;
 	}
+#endif
 	player->s.torsoAnim = ( ( player->s.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | anim;
 }
 
 
 #define	TIMER_GESTURE	(34*66+50)
 static void CelebrateStart( gentity_t *player ) {
+#ifndef SMOKINGUNS
+	player->s.torsoAnim = ( ( player->s.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | TORSO_GESTURE;
+#else
 	player->s.torsoAnim = ( ( player->s.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | TORSO_TAUNT;
+#endif
 	player->nextthink = level.time + TIMER_GESTURE;
 	player->think = CelebrateStop;
 

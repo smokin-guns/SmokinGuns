@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // g_utils.c -- misc utility functions for game module
 
 #include "g_local.h"
@@ -33,7 +34,8 @@ typedef struct {
 
 #define MAX_SHADER_REMAPS 128
 
-/*int remapCount = 0;
+#ifndef SMOKINGUNS
+int remapCount = 0;
 shaderRemap_t remappedShaders[MAX_SHADER_REMAPS];
 
 void AddRemap(const char *oldShader, const char *newShader, float timeOffset) {
@@ -53,10 +55,10 @@ void AddRemap(const char *oldShader, const char *newShader, float timeOffset) {
 		remappedShaders[remapCount].timeOffset = timeOffset;
 		remapCount++;
 	}
-}*/
+}
 
-/*const char *BuildShaderStateConfig() {
-	static char	buff[MAX_STRING_CHARS];
+const char *BuildShaderStateConfig(void) {
+	static char	buff[MAX_STRING_CHARS*4];
 	char out[(MAX_QPATH * 2) + 5];
 	int i;
 
@@ -66,7 +68,8 @@ void AddRemap(const char *oldShader, const char *newShader, float timeOffset) {
 		Q_strcat( buff, sizeof( buff ), out);
 	}
 	return buff;
-}*/
+}
+#endif
 
 /*
 =========================================================================
@@ -240,11 +243,13 @@ void G_UseTargets( gentity_t *ent, gentity_t *activator ) {
 		return;
 	}
 
-	/*if (ent->targetShaderName && ent->targetShaderNewName) {
+#ifndef SMOKINGUNS
+	if (ent->targetShaderName && ent->targetShaderNewName) {
 		float f = level.time * 0.001;
 		AddRemap(ent->targetShaderName, ent->targetShaderNewName, f);
 		trap_SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
-	}*/
+	}
+#endif
 
 	if ( !ent->target ) {
 		return;
@@ -257,8 +262,10 @@ void G_UseTargets( gentity_t *ent, gentity_t *activator ) {
 		} else {
 			if ( t->use ) {
 				// disable triggering when using activatable doors
+#ifdef SMOKINGUNS
 				if(t->s.eType == ET_MOVER && t->s.angles2[0] == -1000){
 				} else
+#endif
 					t->use (t, ent, activator);
 			}
 		}
@@ -342,7 +349,9 @@ void G_SetMovedir( vec3_t angles, vec3_t movedir ) {
 	} else {
 		AngleVectors (angles, movedir, NULL, NULL);
 	}
+#ifdef SMOKINGUNS
 	VectorNormalize(movedir);
+#endif
 	VectorClear( angles );
 }
 
@@ -376,8 +385,10 @@ void G_InitGentity( gentity_t *e ) {
 	e->r.ownerNum = ENTITYNUM_NONE;
 	// Tequila comment: Force BROADCAST server flag for client entity as it seems missed
 	// by at least entity 0 and other clients could not show that entity (invisibility bug)
+#ifdef SMOKINGUNS
 	if ( e->s.number < MAX_CLIENTS )
 		e->r.svFlags |= SVF_BROADCAST ;
+#endif
 }
 
 /*
@@ -504,7 +515,9 @@ gentity_t *G_TempEntity( vec3_t origin, int event ) {
 	e->freeAfterEvent = qtrue;
 
 	VectorCopy( origin, snapped );
-	//SnapVector( snapped );		// save network bandwidth
+#ifndef SMOKINGUNS
+	SnapVector( snapped );		// save network bandwidth
+#endif
 	G_SetOrigin( e, snapped );
 
 	// find cluster for PVS
@@ -548,7 +561,6 @@ void G_KillBox (gentity_t *ent) {
 		}
 
 		// nail it
-
 		G_Damage ( hit, ent, ent, NULL, NULL,
 			100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG);
 	}
@@ -685,6 +697,7 @@ ignoreTeam can be TEAM_RED or TEAM_BLUE for team games that use
 spawnpoints that are spread out (unlike CTF), or -1 otherwise.
 ================
 */
+#ifdef SMOKINGUNS
 qboolean G_IsAnyClientWithinRadius( const vec3_t org, float rad, int ignoreTeam ) {
 	int length, i, j;
 	float radSqr;
@@ -711,3 +724,4 @@ qboolean G_IsAnyClientWithinRadius( const vec3_t org, float rad, int ignoreTeam 
 
 	return qfalse;
 }
+#endif
