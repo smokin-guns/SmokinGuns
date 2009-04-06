@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 #include "g_local.h"
 
 // this file is only included when building a dll
@@ -29,17 +30,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #error "Do not use in VM build"
 #endif
 
-static int (QDECL *syscall)( int arg, ... ) = (int (QDECL *)( int, ...))-1;
+static intptr_t (QDECL *syscall)( intptr_t arg, ... ) = (intptr_t (QDECL *)( intptr_t, ...))-1;
 
 
-void dllEntry( int (QDECL *syscallptr)( int arg,... ) ) {
+void dllEntry( intptr_t (QDECL *syscallptr)( intptr_t arg,... ) ) {
 	syscall = syscallptr;
 }
 
 int PASSFLOAT( float x ) {
-	float	floatTemp;
-	floatTemp = x;
-	return *(int *)&floatTemp;
+	floatint_t fi;
+	fi.f = x;
+	return fi.i;
 }
 
 void	trap_Printf( const char *fmt ) {
@@ -144,22 +145,18 @@ void trap_GetServerinfo( char *buffer, int bufferSize ) {
 }
 
 void trap_SetBrushModel( gentity_t *ent, const char *name ) {
+#ifndef SMOKINGUNS
+	syscall( G_SET_BRUSH_MODEL, ent, name );
+#else
 	// only set it if not already set
 	if(!(ent->flags & FL_INITIALIZED))
 		syscall( G_SET_BRUSH_MODEL, ent, name );
 	ent->flags |= FL_INITIALIZED;
+#endif
 }
 
 void trap_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask ) {
-	//int shaderNum;
-
-	syscall( G_TRACE, results, start, mins, maxs, end, passEntityNum, contentmask);
-
-	//added by Spoon to decompress surfaceFlags
-	//shaderNum = results->surfaceFlags;
-	//results->surfaceFlags = shaderInfo[shaderNum].surfaceFlags;
-
-	//G_Printf("%i %i\n", shaderInfo[shaderNum].surfaceFlags, results->surfaceFlags);
+	syscall( G_TRACE, results, start, mins, maxs, end, passEntityNum, contentmask );
 }
 
 void trap_TraceCapsule( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask ) {
@@ -302,9 +299,9 @@ void trap_AAS_PresenceTypeBoundingBox(int presencetype, vec3_t mins, vec3_t maxs
 }
 
 float trap_AAS_Time(void) {
-	int temp;
-	temp = syscall( BOTLIB_AAS_TIME );
-	return (*(float*)&temp);
+	floatint_t fi;
+	fi.i = syscall( BOTLIB_AAS_TIME );
+	return fi.f;
 }
 
 int trap_AAS_PointAreaNum(vec3_t point) {
@@ -488,15 +485,15 @@ void trap_BotFreeCharacter(int character) {
 }
 
 float trap_Characteristic_Float(int character, int index) {
-	int temp;
-	temp = syscall( BOTLIB_AI_CHARACTERISTIC_FLOAT, character, index );
-	return (*(float*)&temp);
+	floatint_t fi;
+	fi.i = syscall( BOTLIB_AI_CHARACTERISTIC_FLOAT, character, index );
+	return fi.f;
 }
 
 float trap_Characteristic_BFloat(int character, int index, float min, float max) {
-	int temp;
-	temp = syscall( BOTLIB_AI_CHARACTERISTIC_BFLOAT, character, index, PASSFLOAT(min), PASSFLOAT(max) );
-	return (*(float*)&temp);
+	floatint_t fi;
+	fi.i = syscall( BOTLIB_AI_CHARACTERISTIC_BFLOAT, character, index, PASSFLOAT(min), PASSFLOAT(max) );
+	return fi.f;
 }
 
 int trap_Characteristic_Integer(int character, int index) {
@@ -664,9 +661,9 @@ int trap_BotGetMapLocationGoal(char *name, void /* struct bot_goal_s */ *goal) {
 }
 
 float trap_BotAvoidGoalTime(int goalstate, int number) {
-	int temp;
-	temp = syscall( BOTLIB_AI_AVOID_GOAL_TIME, goalstate, number );
-	return (*(float*)&temp);
+	floatint_t fi;
+	fi.i = syscall( BOTLIB_AI_AVOID_GOAL_TIME, goalstate, number );
+	return fi.f;
 }
 
 void trap_BotSetAvoidGoalTime(int goalstate, int number, float avoidtime) {

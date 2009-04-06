@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 #include "g_local.h"
 
 
@@ -55,7 +56,7 @@ void G_WriteClientSessionData( gclient_t *client ) {
 		client->sess.teamLeader
 		);
 
-	var = va( "session%i", client - level.clients );
+	var = va( "session%i", (int)(client - level.clients) );
 
 	trap_Cvar_Set( var, s );
 }
@@ -70,31 +71,29 @@ Called on a reconnect
 void G_ReadSessionData( gclient_t *client ) {
 	char	s[MAX_STRING_CHARS];
 	const char	*var;
-
-	// bk001205 - format
 	int teamLeader;
 	int spectatorState;
 	int sessionTeam;
 
-	var = va( "session%i", client - level.clients );
+	var = va( "session%i", (int)(client - level.clients) );
 	trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
 	sscanf( s, "%i %i %i %i %i %i %i",
-		&sessionTeam,                 // bk010221 - format
+		&sessionTeam,
 		&client->sess.spectatorTime,
-		&spectatorState,              // bk010221 - format
+		&spectatorState,
 		&client->sess.spectatorClient,
 		&client->sess.wins,
 		&client->sess.losses,
-		&teamLeader                   // bk010221 - format
+		&teamLeader
 		);
 
-	// bk001205 - format issues
 	client->sess.sessionTeam = (team_t)sessionTeam;
 	client->sess.spectatorState = (spectatorState_t)spectatorState;
 	client->sess.teamLeader = (qboolean)teamLeader;
 
 	//make all players spectators at start, to rechoose their weapons
+#ifdef SMOKINGUNS
 	if ( g_gametype.integer >= GT_RTP || g_gametype.integer == GT_DUEL){
 
 		client->sess.sessionTeam = TEAM_SPECTATOR;
@@ -108,6 +107,7 @@ void G_ReadSessionData( gclient_t *client ) {
 			client->realspec = qfalse;
 		//G_WriteClientSessionData( client );
 	}
+#endif
 }
 
 
@@ -118,14 +118,22 @@ G_InitSessionData
 Called on a first-time connect
 ================
 */
+#ifndef SMOKINGUNS
+void G_InitSessionData( gclient_t *client, char *userinfo ) {
+#else
 void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot ) {
+#endif
 	clientSession_t	*sess;
 	const char		*value;
 
 	sess = &client->sess;
 
 	// initial team determination
+#ifndef SMOKINGUNS
+	if ( g_gametype.integer >= GT_TEAM ) {
+#else
 	if ( g_gametype.integer == GT_TEAM ) {
+#endif
 		if ( g_teamAutoJoin.integer ) {
 			sess->sessionTeam = PickTeam( -1 );
 			BroadcastTeamChange( client, -1 );
@@ -150,6 +158,15 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot ) {
 					sess->sessionTeam = TEAM_FREE;
 				}
 				break;
+#ifndef SMOKINGUNS
+			case GT_TOURNAMENT:
+				// if the game is full, go into a waiting mode
+				if ( level.numNonSpectatorClients >= 2 ) {
+					sess->sessionTeam = TEAM_SPECTATOR;
+				} else {
+					sess->sessionTeam = TEAM_FREE;
+				}
+#else
 			case GT_RTP:
 			case GT_BR:
 
@@ -165,6 +182,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot ) {
 				}
 
 				sess->sessionTeam = TEAM_SPECTATOR;
+#endif
 				break;
 			}
 		}
@@ -186,7 +204,9 @@ G_InitWorldSession
 void G_InitWorldSession( void ) {
 	char	s[MAX_STRING_CHARS];
 	int		gt;
+#ifdef SMOKINGUNS
 	int		i;
+#endif
 
 	trap_Cvar_VariableStringBuffer( "session", s, sizeof(s) );
 	gt = atoi( s );
@@ -199,6 +219,7 @@ void G_InitWorldSession( void ) {
 	}
 
 	// init the data
+#ifdef SMOKINGUNS
 	switch ( g_gametype.integer ) {
 	case GT_RTP:
 	case GT_BR:
@@ -231,7 +252,7 @@ void G_InitWorldSession( void ) {
 		}
 		break;
 	}
-
+#endif
 }
 
 /*
