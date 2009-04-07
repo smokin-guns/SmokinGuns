@@ -1773,7 +1773,7 @@ extern	vmCvar_t		cg_mapLOD;
 extern	vmCvar_t		cg_newShotgunPattern;
 
 // Smokin'Guns Cvars
-//extern	vmCvar_t		cg_wq_lefthanded;
+//extern	vmCvar_t		cg_sg_lefthanded;
 
 extern	vmCvar_t		cg_buydebug;
 extern	vmCvar_t		cg_serverfraglimit;
