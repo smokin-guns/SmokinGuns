@@ -3850,7 +3850,7 @@ void PmoveSingle (pmove_t *pmove) {
 		pm->ps->powerups[PW_GATLING] = 0;
 	}
 
-	// wq3
+	// Smokin' Guns
 	if ( pm->cmd.buttons & BUTTON_CHOOSE_CANCEL ) {
 		pm->ps->stats[STAT_FLAGS] &= ~SF_WP_CHOOSE;
 	}
