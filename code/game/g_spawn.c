@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 
 #include "g_local.h"
 
@@ -119,9 +120,11 @@ field_t fields[] = {
 	{"targetShaderNewName", FOFS(targetShaderNewName), F_LSTRING},
 
 	//new properties
+#ifdef SMOKINGUNS
 	{"part", FOFS(mappart), F_INT},
 	{"trio", FOFS(trio), F_INT},
 	{"name", FOFS(mappartname), F_LSTRING},
+#endif
 
 	{NULL}
 };
@@ -148,20 +151,26 @@ void SP_func_pendulum( gentity_t *ent );
 void SP_func_button (gentity_t *ent);
 void SP_func_door (gentity_t *ent);
 //Spoon funcs
+#ifdef SMOKINGUNS
 void SP_func_door_rotating (gentity_t *ent);
 void SP_func_flare (gentity_t *ent);
 void SP_func_breakable (gentity_t *ent);
 void SP_func_smoke (gentity_t *ent);
+#endif
 
 void SP_func_train (gentity_t *ent);
 void SP_func_timer (gentity_t *self);
 
 void SP_trigger_always (gentity_t *ent);
 void SP_trigger_multiple (gentity_t *ent);
+#ifndef SMOKINGUNS
 void SP_trigger_push (gentity_t *ent);
 void SP_trigger_teleport (gentity_t *ent);
+#endif
 void SP_trigger_hurt (gentity_t *ent);
+#ifdef SMOKINGUNS
 void SP_trigger_escape (gentity_t *ent);
+#endif
 
 void SP_target_remove_powerups( gentity_t *ent );
 void SP_target_give (gentity_t *ent);
@@ -176,7 +185,9 @@ void SP_target_relay (gentity_t *ent);
 void SP_target_kill (gentity_t *ent);
 void SP_target_position (gentity_t *ent);
 void SP_target_location (gentity_t *ent);
+#ifndef SMOKINGUNS
 void SP_target_push (gentity_t *ent);
+#endif
 
 void SP_light (gentity_t *self);
 void SP_info_null (gentity_t *self);
@@ -189,8 +200,10 @@ void SP_misc_model(gentity_t *ent);
 void SP_misc_portal_camera(gentity_t *ent);
 void SP_misc_portal_surface(gentity_t *ent);
 
-//void SP_shooter_rocket( gentity_t *ent );
-//void SP_shooter_plasma( gentity_t *ent );
+#ifndef SMOKINGUNS
+void SP_shooter_rocket( gentity_t *ent );
+void SP_shooter_plasma( gentity_t *ent );
+#endif
 void SP_shooter_grenade( gentity_t *ent );
 
 void SP_team_CTF_redplayer( gentity_t *ent );
@@ -199,12 +212,12 @@ void SP_team_CTF_blueplayer( gentity_t *ent );
 void SP_team_CTF_redspawn( gentity_t *ent );
 void SP_team_CTF_bluespawn( gentity_t *ent );
 
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 void SP_team_blueobelisk( gentity_t *ent );
 void SP_team_redobelisk( gentity_t *ent );
 void SP_team_neutralobelisk( gentity_t *ent );
-#endif*/
-void SP_item_botroam( gentity_t *ent ) {};
+#endif
+void SP_item_botroam( gentity_t *ent ) { }
 
 spawn_t	spawns[] = {
 	// info entities don't do anything at all, but provide positional
@@ -220,10 +233,12 @@ spawn_t	spawns[] = {
 	{"func_button", SP_func_button},
 	{"func_door", SP_func_door},
 	//Spoon funcs
+#ifdef SMOKINGUNS
 	{"func_door_rotating", SP_func_door_rotating},
 	{"func_flare", SP_func_flare},
 	{"func_breakable", SP_func_breakable},
 	{"func_smoke", SP_func_smoke},
+#endif
 
 	{"func_static", SP_func_static},
 	{"func_rotating", SP_func_rotating},
@@ -240,12 +255,16 @@ spawn_t	spawns[] = {
 	// could not be client side predicted (push and teleport).
 	{"trigger_always", SP_trigger_always},
 	{"trigger_multiple", SP_trigger_multiple},
+#ifndef SMOKINGUNS
 	{"trigger_push", SP_trigger_push},
 	{"trigger_teleport", SP_trigger_teleport},
+#endif
 	{"trigger_hurt", SP_trigger_hurt},
 
 	//used for br when escaping
+#ifdef SMOKINGUNS
 	{"trigger_escape", SP_trigger_escape},
+#endif
 
 	// targets perform no action by themselves, but must be triggered
 	// by another entity
@@ -261,7 +280,9 @@ spawn_t	spawns[] = {
 	{"target_kill", SP_target_kill},
 	{"target_position", SP_target_position},
 	{"target_location", SP_target_location},
+#ifndef SMOKINGUNS
 	{"target_push", SP_target_push},
+#endif
 
 	{"light", SP_light},
 	{"path_corner", SP_path_corner},
@@ -271,9 +292,13 @@ spawn_t	spawns[] = {
 	{"misc_portal_surface", SP_misc_portal_surface},
 	{"misc_portal_camera", SP_misc_portal_camera},
 
-	//{"shooter_rocket", SP_shooter_rocket},
+#ifndef SMOKINGUNS
+	{"shooter_rocket", SP_shooter_rocket},
+#endif
 	{"shooter_grenade", SP_shooter_grenade},
-	//{"shooter_plasma", SP_shooter_plasma},
+#ifndef SMOKINGUNS
+	{"shooter_plasma", SP_shooter_plasma},
+#endif
 
 	{"team_CTF_redplayer", SP_team_CTF_redplayer},
 	{"team_CTF_blueplayer", SP_team_CTF_blueplayer},
@@ -281,14 +306,14 @@ spawn_t	spawns[] = {
 	{"team_CTF_redspawn", SP_team_CTF_redspawn},
 	{"team_CTF_bluespawn", SP_team_CTF_bluespawn},
 
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 	{"team_redobelisk", SP_team_redobelisk},
 	{"team_blueobelisk", SP_team_blueobelisk},
 	{"team_neutralobelisk", SP_team_neutralobelisk},
-#endif*/
+#endif
 	{"item_botroam", SP_item_botroam},
 
-	{0, 0}
+	{NULL, 0}
 };
 
 /*
@@ -310,14 +335,15 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 
 	// check item spawn functions
 	for ( item=bg_itemlist+1 ; item->classname ; item++ ) {
-
 		if ( !strcmp(item->classname, ent->classname) ) {
 
+#ifdef SMOKINGUNS
 			if(g_gametype.integer != GT_BR && !Q_stricmp(item->classname, "item_money"))
 				return qfalse;
 
 			if(g_gametype.integer >= GT_RTP && !Q_stricmp(item->classname, "pickup_money"))
 				return qfalse;
+#endif
 
 			G_SpawnItem( ent, item );
 			return qtrue;
@@ -387,7 +413,9 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
 	byte	*b;
 	float	v;
 	vec3_t	vec;
+#ifdef SMOKINGUNS
 	char	string[64];
+#endif
 
 	for ( f=fields ; f->name ; f++ ) {
 		if ( !Q_stricmp(f->name, key) ) {
@@ -397,11 +425,13 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
 			switch( f->type ) {
 			case F_LSTRING:
 				*(char **)(b+f->ofs) = G_NewString (value);
+#ifdef SMOKINGUNS
 				strcpy(string, G_NewString(value));
 
 				if(!Q_stricmp(key, "name")){
 					strcpy(intermission_names[ent->mappart-1], string);
 				}
+#endif
 
 				break;
 			case F_VECTOR:
@@ -478,6 +508,22 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 		}
 	}
 
+#ifndef SMOKINGUNS
+#ifdef MISSIONPACK
+	G_SpawnInt( "notta", "0", &i );
+	if ( i ) {
+		G_FreeEntity( ent );
+		return;
+	}
+#else
+	G_SpawnInt( "notq3a", "0", &i );
+	if ( i ) {
+		G_FreeEntity( ent );
+		return;
+	}
+#endif
+#endif
+
 	if( G_SpawnString( "gametype", NULL, &value ) ) {
 		if( g_gametype.integer >= GT_FFA && g_gametype.integer < GT_MAX_GAME_TYPE ) {
 			gametypeName = gametypeNames[g_gametype.integer];
@@ -513,7 +559,7 @@ char *G_AddSpawnVarToken( const char *string ) {
 
 	l = strlen( string );
 	if ( level.numSpawnVarChars + l + 1 > MAX_SPAWN_VARS_CHARS ) {
-		G_Error( "G_AddSpawnVarToken: MAX_SPAWN_VARS" );
+		G_Error( "G_AddSpawnVarToken: MAX_SPAWN_CHARS" );
 	}
 
 	dest = level.spawnVarChars + level.numSpawnVarChars;
@@ -610,12 +656,18 @@ void SP_worldspawn( void ) {
 
 	trap_SetConfigstring( CS_MOTD, g_motd.string );		// message of the day
 
+#ifndef SMOKINGUNS
+	G_SpawnString( "gravity", "800", &s );
+#else
 	G_SpawnString( "gravity", "900", &s );
+#endif
 	trap_Cvar_Set( "g_gravity", s );
 
 	//Spoon for Round Teamplay points
+#ifdef SMOKINGUNS
 	//G_SpawnString( "startpoints", "4", &s );
-	//trap_Cvar_Set( "wq_rtppoints", s);
+	//trap_Cvar_Set( "sg_rtppoints", s);
+#endif
 
 	G_SpawnString( "enableDust", "0", &s );
 	trap_Cvar_Set( "g_enableDust", s );
