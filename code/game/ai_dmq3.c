@@ -3225,7 +3225,7 @@ float BotEntityVisible(int viewer, vec3_t eye, vec3_t viewangles, float fov, int
 			// vectors are replaced with "trace.endpos" which is buggy IMO:
 			// It does not take into account the reversal of start and end
 			// some lines above where the water test is perfromed.
-			// For WQ3 this could not be tested since there are no maps
+			// For Smokin' Guns this could not be tested since there are no maps
 			// with fog (and water)
 			// Note also, that the current glass detection logic
 			// also overwrites trace.
