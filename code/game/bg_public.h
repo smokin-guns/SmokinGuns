@@ -199,15 +199,15 @@ typedef enum {
 	//-- team games go after this --
 
 	GT_TEAM,			// team deathmatch
-#ifdef SMOKINGUNS
-	GT_RTP,				// round teamplay
-	GT_BR,				// bank robbery
-#else
+#ifndef SMOKINGUNS
 	//all following gametypes are not valid in smokinguns
 	GT_CTF,				// capture the flag
 	GT_1FCTF,
 	GT_OBELISK,
 	GT_HARVESTER,
+#else
+	GT_RTP,				// round teamplay
+	GT_BR,				// bank robbery
 #endif
 	GT_MAX_GAME_TYPE
 } gametype_t;
