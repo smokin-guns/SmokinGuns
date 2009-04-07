@@ -491,7 +491,7 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_plOut, "cg_plOut", "0", CVAR_USERINFO | CVAR_CHEAT },
 //unlagged - client options
 	//SG Cvars
-//	{ &cg_wq_lefthanded, "wq_lefthanded", "0", CVAR_ARCHIVE},
+//	{ &cg_sg_lefthanded, "sg_lefthanded", "0", CVAR_ARCHIVE},
 
 	{ &cg_buydebug, "cg_buydebug", "0", CVAR_ARCHIVE },
 	// used by the scoreboard, in score.menu
