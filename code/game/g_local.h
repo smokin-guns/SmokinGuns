@@ -800,8 +800,10 @@ qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker );
 void CalcMuzzlePoint ( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint );
 #ifndef SMOKINGUNS
 void SnapVectorTowards( vec3_t v, vec3_t to );
-#endif
 qboolean CheckGauntletAttack( gentity_t *ent );
+#else
+qboolean CheckKnifeAttack( gentity_t *ent );
+#endif
 void Weapon_HookFree (gentity_t *ent);
 void Weapon_HookThink (gentity_t *ent);
 
@@ -815,7 +817,7 @@ void G_DoTimeShiftFor( gentity_t *ent );
 void G_UndoTimeShiftFor( gentity_t *ent );
 void G_UnTimeShiftClient( gentity_t *client );
 void G_PredictPlayerMove( gentity_t *ent, float frametime );
-void BG_CopyLerpFrame(lerpFrame_t *org, lerpFrame_t *targ);  // g_wq_utils.c
+void BG_CopyLerpFrame(lerpFrame_t *org, lerpFrame_t *targ);  // g_sg_utils.c
 //unlagged - g_unlagged.c
 #endif
 
@@ -1071,7 +1073,7 @@ extern	vmCvar_t	du_forcetrio;
 
 
 //Spoon Start
-extern	vmCvar_t	wq_rtppoints;
+extern	vmCvar_t	sg_rtppoints;
 extern	vmCvar_t	g_deathcam;
 
 // shows current version (make sure the game was updated correctly)
@@ -1125,11 +1127,10 @@ extern	qboolean	g_robbed;
 extern	int			g_robteam;
 extern	int			g_defendteam;
 
-extern	int			wq_redspawn;
-extern	int			wq_bluespawn;
+extern	int			sg_redspawn;
+extern	int			sg_bluespawn;
 
 extern	vmCvar_t	g_chaseonly;
-extern	vmCvar_t	wq_rtppoints;
 extern	vmCvar_t	g_specsareflies;
 
 extern	vmCvar_t	g_roundtime;
