@@ -21,10 +21,12 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 
 #include "g_local.h"
 
 // spawnflags for doors, dont forget to change for ClearItems
+#ifdef SMOKINGUNS
 #define DOOR_RETURN 8
 #define TRIGGER_DOOR 16
 
@@ -32,6 +34,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define DOOR_ROTATING_X_AXIS 32
 #define DOOR_ROTATING_Y_AXIS 64
 #define DOOR_ROTATING_ONE_WAY 128
+#endif
 
 /*
 ===============================================================================
@@ -68,9 +71,17 @@ gentity_t	*G_TestEntityPosition( gentity_t *ent ) {
 		mask = MASK_SOLID;
 	}
 	if ( ent->client ) {
+#ifndef SMOKINGUNS
+		trap_Trace( &tr, ent->client->ps.origin, ent->r.mins, ent->r.maxs, ent->client->ps.origin, ent->s.number, mask );
+#else
 		trap_Trace_New( &tr, ent->client->ps.origin, ent->r.mins, ent->r.maxs, ent->client->ps.origin, ent->s.number, mask );
+#endif
 	} else {
+#ifndef SMOKINGUNS
+		trap_Trace( &tr, ent->s.pos.trBase, ent->r.mins, ent->r.maxs, ent->s.pos.trBase, ent->s.number, mask );
+#else
 		trap_Trace_New( &tr, ent->s.pos.trBase, ent->r.mins, ent->r.maxs, ent->s.pos.trBase, ent->s.number, mask );
+#endif
 	}
 
 	if (tr.startsolid)
@@ -79,6 +90,45 @@ gentity_t	*G_TestEntityPosition( gentity_t *ent ) {
 	return NULL;
 }
 
+/*
+================
+G_CreateRotationMatrix
+================
+*/
+#ifndef SMOKINGUNS
+void G_CreateRotationMatrix(vec3_t angles, vec3_t matrix[3]) {
+	AngleVectors(angles, matrix[0], matrix[1], matrix[2]);
+	VectorInverse(matrix[1]);
+}
+
+/*
+================
+G_TransposeMatrix
+================
+*/
+void G_TransposeMatrix(vec3_t matrix[3], vec3_t transpose[3]) {
+	int i, j;
+	for (i = 0; i < 3; i++) {
+		for (j = 0; j < 3; j++) {
+			transpose[i][j] = matrix[j][i];
+		}
+	}
+}
+
+/*
+================
+G_RotatePoint
+================
+*/
+void G_RotatePoint(vec3_t point, vec3_t matrix[3]) {
+	vec3_t tvec;
+
+	VectorCopy(point, tvec);
+	point[0] = DotProduct(matrix[0], tvec);
+	point[1] = DotProduct(matrix[1], tvec);
+	point[2] = DotProduct(matrix[2], tvec);
+}
+#endif
 
 /*
 ==================
@@ -88,7 +138,11 @@ Returns qfalse if the move is blocked
 ==================
 */
 qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, vec3_t amove ) {
+#ifndef SMOKINGUNS
+	vec3_t		matrix[3], transpose[3];
+#else
 	vec3_t		forward, right, up;
+#endif
 	vec3_t		org, org2, move2;
 	gentity_t	*block;
 
@@ -113,10 +167,28 @@ qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, v
 	pushed_p++;
 
 	// we need this for pushing things later
+#ifdef SMOKINGUNS
 	VectorSubtract (vec3_origin, amove, org);
 	AngleVectors (org, forward, right, up);
+#endif
 
 	// try moving the contacted entity
+#ifndef SMOKINGUNS
+	// figure movement due to the pusher's amove
+	G_CreateRotationMatrix( amove, transpose );
+	G_TransposeMatrix( transpose, matrix );
+	if ( check->client ) {
+		VectorSubtract (check->client->ps.origin, pusher->r.currentOrigin, org);
+	}
+	else {
+		VectorSubtract (check->s.pos.trBase, pusher->r.currentOrigin, org);
+	}
+	VectorCopy( org, org2 );
+	G_RotatePoint( org2, matrix );
+	VectorSubtract (org2, org, move2);
+	// add movement
+	VectorAdd (check->s.pos.trBase, move, check->s.pos.trBase);
+#else
 	VectorAdd (check->s.pos.trBase, move, check->s.pos.trBase);
 	if (check->client) {
 		// make sure the client's view rotates when on a rotating mover
@@ -129,10 +201,15 @@ qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, v
 	org2[1] = -DotProduct (org, right);
 	org2[2] = DotProduct (org, up);
 	VectorSubtract (org2, org, move2);
+#endif
 	VectorAdd (check->s.pos.trBase, move2, check->s.pos.trBase);
 	if ( check->client ) {
 		VectorAdd (check->client->ps.origin, move, check->client->ps.origin);
 		VectorAdd (check->client->ps.origin, move2, check->client->ps.origin);
+#ifndef SMOKINGUNS
+		// make sure the client's view rotates when on a rotating mover
+		check->client->ps.delta_angles[YAW] += ANGLE2SHORT(amove[YAW]);
+#endif
 	}
 
 	// may have pushed them off an edge
@@ -182,7 +259,11 @@ qboolean G_CheckProxMinePosition( gentity_t *check ) {
 
 	VectorMA(check->s.pos.trBase, 0.125, check->movedir, start);
 	VectorMA(check->s.pos.trBase, 2, check->movedir, end);
+#ifndef SMOKINGUNS
+	trap_Trace( &tr, start, NULL, NULL, end, check->s.number, MASK_SOLID );
+#else
 	trap_Trace_New( &tr, start, NULL, NULL, end, check->s.number, MASK_SOLID );
+#endif
 
 	if (tr.startsolid || tr.fraction < 1)
 		return qfalse;
@@ -245,6 +326,7 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 
 	*obstacle = NULL;
 
+
 	// mins/maxs are the bounds at the destination
 	// totalMins / totalMaxs are the bounds for the entire move
 	if ( pusher->r.currentAngles[0] || pusher->r.currentAngles[1] || pusher->r.currentAngles[2]
@@ -289,10 +371,49 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 	for ( e = 0 ; e < listedEntities ; e++ ) {
 		check = &g_entities[ entityList[ e ] ];
 
+#ifndef SMOKINGUNS
+		if ( check->s.eType == ET_MISSILE ) {
+			// if it is a prox mine
+			if ( !strcmp(check->classname, "prox mine") ) {
+				// if this prox mine is attached to this mover try to move it with the pusher
+				if ( check->enemy == pusher ) {
+					if (!G_TryPushingProxMine( check, pusher, move, amove )) {
+						//explode
+						check->s.loopSound = 0;
+						G_AddEvent( check, EV_PROXIMITY_MINE_TRIGGER, 0 );
+						G_ExplodeMissile(check);
+						if (check->activator) {
+							G_FreeEntity(check->activator);
+							check->activator = NULL;
+						}
+						//G_Printf("prox mine explodes\n");
+					}
+				}
+				else {
+					//check if the prox mine is crushed by the mover
+					if (!G_CheckProxMinePosition( check )) {
+						//explode
+						check->s.loopSound = 0;
+						G_AddEvent( check, EV_PROXIMITY_MINE_TRIGGER, 0 );
+						G_ExplodeMissile(check);
+						if (check->activator) {
+							G_FreeEntity(check->activator);
+							check->activator = NULL;
+						}
+						//G_Printf("prox mine explodes\n");
+					}
+				}
+				continue;
+			}
+		}
+#endif
 		// only push items and players
+#ifndef SMOKINGUNS
+		if ( check->s.eType != ET_ITEM && check->s.eType != ET_PLAYER && !check->physicsObject ) {
+#else
 		if ( (check->s.eType != ET_ITEM && check->s.eType != ET_PLAYER && check->s.eType != ET_TURRET
-			&& !check->physicsObject )
-			/*|| Q_stricmp(check->classname, "func_train")*/) {
+			&& !check->physicsObject ) ) {
+#endif
 			continue;
 		}
 
@@ -307,14 +428,13 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 			|| check->r.absmax[2] <= mins[2] ) {
 				continue;
 			}
-
-
 			// see if the ent's bbox is inside the pusher's final position
 			// this does allow a fast moving object to pass through a thin entity...
 			if (!G_TestEntityPosition (check)) {
 				continue;
 			}
 		}
+
 		// the entity needs to be pushed
 		if ( G_TryPushingEntity( check, pusher, move, amove ) ) {
 			continue;
@@ -324,11 +444,17 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 
 		// bobbing entities are instant-kill and never get blocked
 		if ( pusher->s.pos.trType == TR_SINE || pusher->s.apos.trType == TR_SINE ) {
+#ifndef SMOKINGUNS
+			G_Damage( check, pusher, pusher, NULL, NULL, 99999, 0, MOD_CRUSH );
+			continue;
+#else
 			if(pusher->damage > 0){
 				G_Damage( check, pusher, pusher, NULL, NULL, 99999, 0, MOD_CRUSH );
 				continue;
 			}
+#endif
 		}
+
 
 		// save off the obstacle so we can call the block function (crush, etc)
 		*obstacle = check;
@@ -399,6 +525,15 @@ void G_MoverTeam( gentity_t *ent ) {
 	// the move succeeded
 	for ( part = ent ; part ; part = part->teamchain ) {
 		// call the reached function if time is at or past end point
+#ifndef SMOKINGUNS
+		if ( part->s.pos.trType == TR_LINEAR_STOP ) {
+			if ( level.time >= part->s.pos.trTime + part->s.pos.trDuration ) {
+				if ( part->reached ) {
+					part->reached( part );
+				}
+			}
+		}
+#else
 		if(!Q_stricmp(ent->classname, "func_door_rotating")){
 			if ( part->s.apos.trType == TR_LINEAR_STOP ) {
 				if ( level.time >= part->s.apos.trTime + part->s.apos.trDuration ) {
@@ -416,6 +551,7 @@ void G_MoverTeam( gentity_t *ent ) {
 				}
 			}
 		}
+#endif
 	}
 }
 
@@ -459,11 +595,14 @@ SetMoverState
 void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
 	vec3_t			delta;
 	float			f;
-	
+
+#ifdef SMOKINGUNS
 	if ( ent->moverState == MOVER_STATIC )  return ;
-	
+#endif
+
 	ent->moverState = moverState;
 
+#ifdef SMOKINGUNS
 	if(!Q_stricmp(ent->classname, "func_door_rotating")){
 
 		ent->s.apos.trTime = time;
@@ -491,9 +630,12 @@ void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
 			VectorScale( delta, f, ent->s.apos.trDelta );
 			ent->s.apos.trType = TR_LINEAR_STOP;
 			break;
+		default: // Tequila comment: Avoid a compilation warning about MOVER_STATIC
+			break;
 		}
 
 	} else {
+#endif
 
 		ent->s.pos.trTime = time;
 		switch( moverState ) {
@@ -519,7 +661,11 @@ void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
 			VectorScale( delta, f, ent->s.pos.trDelta );
 			ent->s.pos.trType = TR_LINEAR_STOP;
 			break;
+#ifdef SMOKINGUNS
+		default: // Tequila comment: Avoid a compilation warning about MOVER_STATIC
+			break;
 		}
+#endif
 	}
 	BG_EvaluateTrajectory( &ent->s.pos, level.time, ent->r.currentOrigin );
 	trap_LinkEntity( ent );
@@ -581,11 +727,16 @@ void Reached_BinaryMover( gentity_t *ent ) {
 		}
 
 		// return to pos1 after a delay
+#ifndef SMOKINGUNS
+		ent->think = ReturnToPos1;
+		ent->nextthink = level.time + ent->wait;
+#else
 		if(ent->s.angles2[0] != -1000 ||
 			(ent->spawnflags & DOOR_RETURN)){
 			ent->think = ReturnToPos1;
 			ent->nextthink = level.time + ent->wait;
 		}
+#endif
 
 		// fire targets
 		if ( !ent->activator ) {
@@ -633,6 +784,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 		// triggered, level.time hasn't been advanced yet
 
 		//calculate the side to which the door should open
+#ifdef SMOKINGUNS
 		if(!(Q_stricmp(ent->classname, "func_door_rotating"))){
 			int		axis;
 
@@ -697,6 +849,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 				}
 			}
 		}
+#endif
 		MatchTeam( ent, MOVER_1TO2, level.time + 50 );
 
 		// starting sound
@@ -711,19 +864,25 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 		if ( ent->teammaster == ent || !ent->teammaster ) {
 			trap_AdjustAreaPortalState( ent, qtrue );
 		}
+		return;
 	}
 
 	// if all the way up, just delay before coming down
-	else if ( ent->moverState == MOVER_POS2 ) {
+	if ( ent->moverState == MOVER_POS2 ) {
+#ifndef SMOKINGUNS
+		ent->nextthink = level.time + ent->wait;
+#else
 		if(ent->s.angles2[0] == -1000 && !(ent->spawnflags & DOOR_RETURN)){
 			ReturnToPos1(ent);
 		} else {
 			ent->nextthink = level.time + ent->wait;
 		}
+#endif
+		return;
 	}
 
 	// only partway down before reversing
-	else if ( ent->moverState == MOVER_2TO1 ) {
+	if ( ent->moverState == MOVER_2TO1 ) {
 		total = ent->s.pos.trDuration;
 		partial = level.time - ent->s.pos.trTime;
 		if ( partial > total ) {
@@ -735,10 +894,11 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 		if ( ent->sound1to2 ) {
 			G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound1to2 );
 		}
+		return;
 	}
 
 	// only partway up before reversing
-	else if ( ent->moverState == MOVER_1TO2 ) {
+	if ( ent->moverState == MOVER_1TO2 ) {
 		total = ent->s.pos.trDuration;
 		partial = level.time - ent->s.pos.trTime;
 		if ( partial > total ) {
@@ -750,9 +910,11 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 		if ( ent->sound2to1 ) {
 			G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound2to1 );
 		}
+		return;
 	}
 
 	// now look for other doors which have the same targetname
+#ifdef SMOKINGUNS
 	if(ent->s.angles2[0] == -1000 && ent->s.angles2[1] == 0 &&
 		ent->targetname && ent->targetname[0]){
 		int i;
@@ -771,6 +933,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 			}
 		}
 	}
+#endif
 }
 
 
@@ -803,7 +966,9 @@ void InitMover( gentity_t *ent ) {
 	}
 	
 	// Joe Kari: this prevent from collision with func_static far clipping
+#ifdef SMOKINGUNS
 	ent->s.powerups = FARCLIP_NONE ;
+#endif
 
 	// if the "color" or "light" keys are set, setup constantLight
 	lightSet = G_SpawnFloat( "light", "100", &light );
@@ -844,6 +1009,18 @@ void InitMover( gentity_t *ent ) {
 	VectorCopy( ent->pos1, ent->s.pos.trBase );
 
 	// calculate time to reach second position from speed
+#ifndef SMOKINGUNS
+	VectorSubtract( ent->pos2, ent->pos1, move );
+	distance = VectorLength( move );
+	if ( ! ent->speed ) {
+		ent->speed = 100;
+	}
+	VectorScale( move, ent->speed, ent->s.pos.trDelta );
+	ent->s.pos.trDuration = distance * 1000 / ent->speed;
+	if ( ent->s.pos.trDuration <= 0 ) {
+		ent->s.pos.trDuration = 1;
+	}
+#else
 	if(Q_stricmp(ent->classname, "func_door_rotating")){
 		ent->s.pos.trType = TR_STATIONARY;
 		VectorCopy( ent->pos1, ent->s.pos.trBase );
@@ -874,7 +1051,8 @@ void InitMover( gentity_t *ent ) {
 		}
 	}
 
-	ent->r.contents = /*(*/CONTENTS_BODY;//|CONTENTS_SOLID);
+	ent->r.contents = CONTENTS_BODY;
+#endif
 }
 
 
@@ -923,6 +1101,7 @@ void Blocked_Door( gentity_t *ent, gentity_t *other ) {
 Touch_DoorTriggerSpectator
 ================
 */
+#ifndef SMOKINGUNS
 static void Touch_DoorTriggerSpectator( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	int i, axis;
 	vec3_t origin, dir, angles;
@@ -945,6 +1124,7 @@ static void Touch_DoorTriggerSpectator( gentity_t *ent, gentity_t *other, trace_
 	vectoangles(dir, angles);
 	TeleportPlayer(other, origin, angles );
 }
+#endif
 
 /*
 ================
@@ -952,14 +1132,18 @@ Touch_DoorTrigger
 ================
 */
 void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace ) {
-	/*if ( other->client && other->client->sess.sessionTeam >= TEAM_SPECTATOR ) {
+#ifndef SMOKINGUNS
+	if ( other->client && other->client->sess.sessionTeam == TEAM_SPECTATOR ) {
 		// if the door is not open and not opening
 		if ( ent->parent->moverState != MOVER_1TO2 &&
 			ent->parent->moverState != MOVER_POS2) {
 			Touch_DoorTriggerSpectator( ent, other, trace );
 		}
 	}
-	else*/ if ( ent->parent->moverState != MOVER_1TO2 ) {
+	else if ( ent->parent->moverState != MOVER_1TO2 ) {
+#else
+	if ( ent->parent->moverState != MOVER_1TO2 ) {
+#endif
 		Use_BinaryMover( ent->parent, ent, other );
 	}
 }
@@ -1021,6 +1205,7 @@ void Think_MatchTeam( gentity_t *ent ) {
 	MatchTeam( ent, ent->moverState, level.time );
 }
 
+
 /*QUAKED func_door (0 .5 .8) ? START_OPEN x CRUSHER
 TOGGLE		wait in both the start and end states for a trigger event.
 START_OPEN	the door to moves to its destination when spawned, and operate in reverse.  It is used to temporarily or permanently close off an area when triggered (not useful for touch or takedamage doors).
@@ -1057,18 +1242,40 @@ void SP_func_door (gentity_t *ent) {
 		ent->wait = 2;
 	ent->wait *= 1000;
 
-	// default damage of 0 points
-	G_SpawnInt( "dmg", "0", &ent->damage );
-
 	// default lip of 8 units
 	G_SpawnFloat( "lip", "8", &lip );
+
+#ifndef SMOKINGUNS
+	// default damage of 2 points
+	G_SpawnInt( "dmg", "2", &ent->damage );
+#else
+	// default damage of 0 points
+	G_SpawnInt( "dmg", "0", &ent->damage );
+#endif
 
 	// first position at start
 	VectorCopy( ent->s.origin, ent->pos1 );
 
 	// calculate second position
 	trap_SetBrushModel( ent, ent->model );
+#ifndef SMOKINGUNS
+	G_SetMovedir (ent->s.angles, ent->movedir);
+	abs_movedir[0] = fabs(ent->movedir[0]);
+	abs_movedir[1] = fabs(ent->movedir[1]);
+	abs_movedir[2] = fabs(ent->movedir[2]);
+	VectorSubtract( ent->r.maxs, ent->r.mins, size );
+	distance = DotProduct( abs_movedir, size ) - lip;
+	VectorMA( ent->pos1, distance, ent->movedir, ent->pos2 );
 
+	// if "start_open", reverse position 1 and 2
+	if ( ent->spawnflags & 1 ) {
+		vec3_t	temp;
+
+		VectorCopy( ent->pos2, temp );
+		VectorCopy( ent->s.origin, ent->pos2 );
+		VectorCopy( temp, ent->pos1 );
+	}
+#else
 	if(!ent->movedir[0] && !ent->movedir[1] &&!ent->movedir[2]){
 		G_SetMovedir (ent->s.angles, ent->movedir);
 
@@ -1088,24 +1295,31 @@ void SP_func_door (gentity_t *ent) {
 			VectorCopy( temp, ent->pos1 );
 		}
 	}
+#endif
 
 	InitMover( ent );
 
 	ent->nextthink = level.time + FRAMETIME;
 
+#ifndef SMOKINGUNS
 	if ( ! (ent->flags & FL_TEAMSLAVE ) ) {
-		/*int health;
+		int health;
 
 		G_SpawnInt( "health", "0", &health );
 		if ( health ) {
 			ent->takedamage = qtrue;
 		}
 		if ( ent->targetname || health ) {
-			// non touch/shoot doors*/
+			// non touch/shoot doors
 			ent->think = Think_MatchTeam;
-		/*} else {
+		} else {
 			ent->think = Think_SpawnNewDoorTrigger;
-		}*/
+		}
+	}
+
+#else
+	if ( ! (ent->flags & FL_TEAMSLAVE ) ) {
+		ent->think = Think_MatchTeam;
 	}
 
 	// marks the door as being usable
@@ -1113,8 +1327,11 @@ void SP_func_door (gentity_t *ent) {
 		VectorClear(ent->s.angles2);
 		ent->s.angles2[0] = -1000;
 	}
+#endif
+
 }
 
+#ifdef SMOKINGUNS
 /*QUAKED func_door_rotating (0 .5 .8) ? START_OPEN - CRUSHER RETURN TRIGGER_DOOR
 START_OPEN	the door to moves to its destination when spawned, and operate in reverse.  It is used to temporarily or permanently close off an area when triggered (not useful for touch or takedamage doors).
 CRUSHER : door will not reverse direction when blocked and will keep damaging player until he dies or gets out of the way.
@@ -1169,9 +1386,6 @@ void SP_func_door_rotating (gentity_t *ent) {
 
 		ent->wait *= 1000;
 
-		// default lip of 8 units
-		//G_SpawnFloat( "lip", "8", &lip );
-
 		// default damage of 0 points
 		G_SpawnInt( "dmg", "0", &ent->damage );
 
@@ -1193,18 +1407,7 @@ void SP_func_door_rotating (gentity_t *ent) {
 	ent->nextthink = level.time + FRAMETIME;
 
 	if ( ! (ent->flags & FL_TEAMSLAVE ) ) {
-		/*int health;
-
-		G_SpawnInt( "health", "0", &health );
-		if ( health ) {
-			ent->takedamage = qtrue;
-		}*/
-		//if ( ent->targetname /*|| health*/ ) {
-			// non touch/shoot doors
-			ent->think = Think_MatchTeam;
-		/*} else {
-			ent->think = Think_SpawnNewDoorTrigger;
-		}*/
+		ent->think = Think_MatchTeam;
 	}
 	VectorCopy( ent->s.origin, ent->s.pos.trBase );
 	VectorCopy( ent->s.pos.trBase, ent->r.currentOrigin );
@@ -1222,12 +1425,8 @@ void SP_func_door_rotating (gentity_t *ent) {
 void func_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath ) {
 
 	gentity_t	*temp;
-	gentity_t	*obstacle = NULL;
-	//char		prefix[64];
 
 	//remove from world
-	//self->r.svFlags |= SVF_NOCLIENT;
-	//self->s.eFlags |= EF_NODRAW;
 	self->r.contents = CONTENTS_MOVER;
 	self->takedamage = qfalse;
 	self->flags |= EF_BROKEN;
@@ -1250,13 +1449,12 @@ void func_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t *attac
 	temp->r.svFlags |= SVF_BROADCAST;
 
 	// set surfaceType // with the torsoAnim set to 1 it transfers a surfaceFlag
-	// ->otherwise spawnflag
 	if(self->trio){
 		// save in float because of more memory
 		temp->s.angles2[0] = self->trio;
 		temp->s.torsoAnim = 1;
 	} else {
-		temp->s.eventParm = self->count;//self->spawnflags;
+		temp->s.eventParm = self->count;
 		temp->s.torsoAnim = 0;
 	}
 
@@ -1264,19 +1462,6 @@ void func_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t *attac
 }
 
 //QUAKED func_breakable (0 .5 .8) ?
-/*
-*/
-
-/*void glasscheck(gentity_t *self){
-	if(self->health <= 0){
-		self->r.svFlags |= SVF_NOCLIENT;
-		self->s.eFlags |= EF_NODRAW;
-		self->flags |= EF_BROKEN;
-		trap_LinkEntity(self);
-	}
-
-	self->nextthink = level.time + 300;
-}*/
 
 // spawnflags, manually set breakables types
 #define TYPE_METAL	4
@@ -1286,7 +1471,6 @@ void func_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t *attac
 #define	TYPE_GLASS	64
 #define	TYPE_STONE	128
 void SP_func_breakable (gentity_t *ent){
-//	G_SpawnInt( "health", "0", &ent->health );
 	float	size;
 	char	*s;
 	gitem_t	*item;
@@ -1349,8 +1533,6 @@ void SP_func_breakable (gentity_t *ent){
 	ent->r.svFlags &= ~SVF_NOCLIENT;
 	ent->s.eFlags &= ~EF_NODRAW;
 	ent->flags = 0;
-	//ent->think = glasscheck;
-	//ent->nextthink = level.time + 300;
 
 	// initialize it, if nessecary
 	G_LookForBreakableType(ent);
@@ -1430,20 +1612,6 @@ void G_BreakableRespawn( gentity_t *ent){
 
 		// it's in the field of vision
 		if(!cont){
-			//trace_t trace;
-			// do a trace and see if there are obstacles,
-			// if yes check their distance to the breakable
-			/*trap_Trace(&trace, eye, NULL, NULL, ent->r.currentOrigin, i, MASK_SHOT);
-			if(trace.entityNum != ent->s.number){
-				vec3_t end1;
-
-				VectorCopy(trace.endpos, end1);
-				// do a second trace from the other side
-				trap_Trace(&trace, ent->r.currentOrigin, NULL, NULL, eye, i, MASK_SHOT);
-				if(Distance(trace.endpos, end1) > MIN_OBSTACLE_SIZE){
-					continue;
-				}
-			}*/
 			return;
 		}
 	}
@@ -1558,6 +1726,7 @@ void SP_func_flare (gentity_t *ent) {
 
 	trap_LinkEntity(ent);
 }
+#endif
 
 /*
 ===============================================================================
@@ -1601,6 +1770,7 @@ void Touch_PlatCenterTrigger(gentity_t *ent, gentity_t *other, trace_t *trace ) 
 		Use_BinaryMover( ent->parent, ent, other );
 	}
 }
+
 
 /*
 ================
@@ -1995,10 +2165,18 @@ A bmodel that just sits there, doing nothing.  Can be used for conditional walls
 "color"		constantLight color
 "light"		constantLight radius
 */
+#ifndef SMOKINGUNS
+void SP_func_static( gentity_t *ent ) {
+	trap_SetBrushModel( ent, ent->model );
+	InitMover( ent );
+	VectorCopy( ent->s.origin, ent->s.pos.trBase );
+	VectorCopy( ent->s.origin, ent->r.currentOrigin );
+}
+#else
 void SP_func_static( gentity_t *ent )
 {
 	
-	// Joe Kari: new func_static with far clipping support
+	// Joe Kari: new func_static (totally rewritten) with far-clipping and level of detail support
 	// with reminder-style comment
 	
 	float		light ;
@@ -2006,6 +2184,7 @@ void SP_func_static( gentity_t *ent )
 	qboolean	lightSet , colorSet ;
 	char		*value ;
 	char		tmp_char[32] ;
+	int		tmp_int ;
 	
 	// register brush model to physical engine
 	trap_SetBrushModel( ent , ent->model ) ;
@@ -2041,7 +2220,7 @@ void SP_func_static( gentity_t *ent )
 	// for drawing, but clip against the brushes
 	if ( ent->model2 )  ent->s.modelindex2 = G_ModelIndex( ent->model2 ) ;
 
-	// get the value for the key "farclip_*" and copy it to powerups, legsAnim and torsoAnim field
+	// get the value for the key "farclip" and copy it to powerups (8 lower bits), legsAnim and torsoAnim field
 	
 	G_SpawnString( "farclip" , "none" , &value ) ;
 	sscanf( value , "%31s %i %i" , tmp_char , &ent->s.legsAnim , &ent->s.torsoAnim ) ;
@@ -2072,9 +2251,6 @@ void SP_func_static( gentity_t *ent )
 	else if ( !Q_stricmp( "square_infinite_y" , tmp_char ) )  ent->s.powerups = FARCLIP_SQUARE_INFINITE_Y ;
 	else  ent->s.powerups = FARCLIP_NONE ;
 	
-	//G_Printf( "^4%s (%i) : %i - %i\n" , tmp_char , ent->s.powerups , ent->s.legsAnim , ent->s.torsoAnim ) ;
-	
-	
 	if ( ent->s.powerups )
 	{
 		// "legsAnim" has only 8 bits over network, so the far clip value is rounded to multiple of 64
@@ -2086,10 +2262,26 @@ void SP_func_static( gentity_t *ent )
 		if ( ent->s.torsoAnim < 1 )  ent->s.torsoAnim = 1 ;
 	}
 	
+	//G_Printf( "^4%s (%i) : %i - %i\n" , tmp_char , ent->s.powerups , ent->s.legsAnim , ent->s.torsoAnim ) ;
+	
+	
+	// get the value for the key "lod" (Level Of Detail) and copy it to upper bits of powerups (bits 9 to 12)
+	
+	G_SpawnString( "lod" , "none" , &value ) ;
+	sscanf( value , "%5s %i" , tmp_char , &tmp_int ) ;
+	
+	if ( !Q_stricmp( "min" , tmp_char ) )  ent->s.powerups |= MAPLOD_BINARY_MASK | MAPLOD_GTE_BINARY_MASK | ( ( tmp_int & 3 ) << 8 ) ;
+	else if ( !Q_stricmp( "max" , tmp_char ) )  ent->s.powerups |= MAPLOD_BINARY_MASK | ( ( tmp_int & 3 ) << 8 ) ;
+	
+	
+	//G_Printf( "^5%s (%i) : %i - %i\n" , tmp_char , ent->s.powerups , ent->s.legsAnim , ent->s.torsoAnim ) ;
+	
+	
 	// should determinate in which cluster the entity is ??
 	trap_LinkEntity( ent ) ;
 	
 }
+#endif
 
 
 /*
@@ -2217,7 +2409,11 @@ void SP_func_pendulum(gentity_t *ent) {
 	float		speed;
 
 	G_SpawnFloat( "speed", "30", &speed );
+#ifndef SMOKINGUNS
+	G_SpawnInt( "dmg", "2", &ent->damage );
+#else
 	G_SpawnInt( "dmg", "0", &ent->damage );
+#endif
 	G_SpawnFloat( "phase", "0", &phase );
 
 	trap_SetBrushModel( ent, ent->model );
