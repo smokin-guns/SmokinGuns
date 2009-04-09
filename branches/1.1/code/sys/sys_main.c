@@ -31,13 +31,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <ctype.h>
 #include <errno.h>
 
-#if 0 // defined SMOKINGUNS && defined DEDICATED
-#include <unistd.h>
-#include <sys/types.h>
-#include <pwd.h>
-#include <libgen.h>
-#endif
-
 #ifndef DEDICATED
 #ifdef USE_LOCAL_HEADERS
 #	include "SDL.h"
@@ -485,7 +478,9 @@ void Sys_ParseArgs( int argc, char **argv )
 #else
 			fprintf( stdout, Q3_VERSION " client (%s, %s)\n", date, time );
 #endif
-			fprintf( stdout, "Release: " SG_RELEASE "\n" );
+#define XSTRING(x)				STRING(x)
+#define STRING(x)					#x
+			fprintf( stdout, "Release: " XSTRING(SG_RELEASE) "\n" );
 			fprintf( stdout, "Flavour: " OS_STRING " " ARCH_STRING "\n" );
 #else
 #ifdef DEDICATED
@@ -565,8 +560,10 @@ int main( int argc, char **argv )
 	// Run time
 	const SDL_version *ver = SDL_Linked_Version( );
 
+#ifndef SMOKINGUNS
 #define STRING(s) #s
 #define XSTRING(s) STRING(s)
+#endif
 #define MINSDL_VERSION \
 	XSTRING(MINSDL_MAJOR) "." \
 	XSTRING(MINSDL_MINOR) "." \

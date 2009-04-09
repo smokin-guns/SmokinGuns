@@ -676,7 +676,6 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, int shaderNum ) {
 
 		return;
 	}
-#endif
 
 	if (!strcmp(ent->classname, "hook")) {
 		gentity_t *nent;
@@ -715,15 +714,14 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, int shaderNum ) {
 		ent->nextthink = level.time + FRAMETIME;
 
 		ent->parent->client->ps.pm_flags |= PMF_GRAPPLE_PULL;
-#ifndef SMOKINGUNS
 		VectorCopy( ent->r.currentOrigin, ent->parent->client->ps.grapplePoint);
-#endif
 
 		trap_LinkEntity( ent );
 		trap_LinkEntity( nent );
 
 		return;
 	}
+#endif
 
 	// is it cheaper in bandwidth to just remove this ent and create a new
 	// one, rather than changing the missile into the explosion?

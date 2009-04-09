@@ -887,7 +887,7 @@ qboolean G_ParseHitFile(hit_data_t *hit_data, int part){
 #endif
 	pos += sizeof(short);
 
-if(header.ident != HIT_IDENT){
+	if(header.ident != HIT_IDENT){
 #ifdef HIT_DEBUG
 		G_Error(
 #else
@@ -898,7 +898,7 @@ if(header.ident != HIT_IDENT){
 		sizeof(header.ident), sizeof(header.numFrames), sizeof(header.numMeshes),
 		sizeof(short), sizeof(int));
 		return qfalse;
-}
+	}
 
 	//
 	// tags
@@ -926,8 +926,8 @@ if(header.ident != HIT_IDENT){
 			BG_StringRead((char*)ptag, (char*)(buf+pos), sizeof(hit_tag_t));
 #if defined Q3_VM || !defined LittleFloat	// QVM or SO on a big endian processor
 			for (j = 0; j < 3; j++) { // fix endianness
-				ptag->angles[j] = LittleFloat((const float *)&ptag->angles[j]);
-				ptag->origin[j] = LittleFloat((const float *)&ptag->origin[j]);
+				ptag->angles[j] = LittleFloat(((const float *)&ptag->angles)[j]);
+				ptag->origin[j] = LittleFloat(((const float *)&ptag->origin)[j]);
 			}
 #endif
 			AnglesNormalize180(ptag->angles);
@@ -1127,7 +1127,7 @@ static void G_SetLerpFrameAnimation( lerpFrame_t *lf, int newAnimation) {
 		G_Error( "Server: Bad animation number: %i", newAnimation );
 	}
 
-	anim = &hit_data.animations[newAnimation ];//&data->animations[ newAnimation ];
+	anim = &hit_data.animations[newAnimation ];
 	//G_Printf("%i %i %f\n", anim->firstFrame, anim->numFrames, anim->frameLerp);
 	//G_Printf("%i %i %f\n", hit_data[hit_data_num].animations[newAnimation].firstFrame,
 	//	hit_data[hit_data_num].animations[newAnimation].numFrames,

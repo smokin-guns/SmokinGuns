@@ -75,11 +75,15 @@ const char *OtherTeamName(int team);
 const char *TeamColorString(int team);
 void AddTeamScore(vec3_t origin, int team, int score);
 
+#ifndef SMOKINGUNS
 void Team_DroppedFlagThink(gentity_t *ent);
 void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker);
 void Team_CheckHurtCarrier(gentity_t *targ, gentity_t *attacker);
+#endif
 void Team_InitGame(void);
+#ifndef SMOKINGUNS
 void Team_ReturnFlag(int team);
+#endif
 void Team_FreeEntity(gentity_t *ent);
 #ifndef SMOKINGUNS
 gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3_t angles );
@@ -91,4 +95,6 @@ qboolean Team_GetLocationMsg(gentity_t *ent, char *loc, int loclen);
 void TeamplayInfoMessage( gentity_t *ent );
 void CheckTeamStatus(void);
 
+#ifndef SMOKINGUNS
 int Pickup_Team( gentity_t *ent, gentity_t *other );
+#endif

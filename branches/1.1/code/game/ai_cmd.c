@@ -1025,6 +1025,7 @@ void BotMatch_RushBase(bot_state_t *bs, bot_match_t *match) {
 BotMatch_TaskPreference
 ==================
 */
+#ifndef SMOKINGUNS
 void BotMatch_TaskPreference(bot_state_t *bs, bot_match_t *match) {
 	char netname[MAX_NETNAME];
 	char teammatename[MAX_MESSAGE_SIZE];
@@ -1066,6 +1067,7 @@ void BotMatch_TaskPreference(bot_state_t *bs, bot_match_t *match) {
 	BotVoiceChatOnly(bs, teammate, VOICECHAT_YES);
 	trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
 }
+#endif
 
 /*
 ==================
@@ -1368,10 +1370,6 @@ BotMatch_WhoIsTeamLeader
 */
 void BotMatch_WhoIsTeamLeader(bot_state_t *bs, bot_match_t *match) {
 	char netname[MAX_MESSAGE_SIZE];
-
-#ifdef SMOKINGUNS
-	return;
-#endif
 
 	if (!TeamPlayIsOn()) return;
 
