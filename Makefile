@@ -880,7 +880,7 @@ else
   DEPEND_CFLAGS =
 endif
 
-BASE_CFLAGS += -DPRODUCT_VERSION=\\\"$(VERSION)\\\"
+BASE_CFLAGS += -DPRODUCT_VERSION=$(VERSION)
 ifdef SDK_RELEASE
 BASE_CFLAGS += -D$(SDK_RELEASE)
 endif
@@ -1076,6 +1076,11 @@ TOOLS_CFLAGS = $(TOOLS_OPTIMIZE) \
 TOOLS_LIBS =
 TOOLS_LDFLAGS =
 
+# Tequila comment: Moved defined from line 435 for QVM build on MacOS X
+ifeq ($(PLATFORM),darwin)
+	TOOLS_CFLAGS += -DMACOS_X
+endif
+
 ifeq ($(GENERATE_DEPENDENCIES),1)
 	TOOLS_CFLAGS += -MMD
 endif
@@ -1207,7 +1212,7 @@ $(Q)$(Q3LCC) -D$(SDK_GAMENAME) -DCGAME -o $@ $<
 endef
 endif
 
-ifdef SDK_GAMENAME
+ifndef SDK_GAMENAME
 define DO_GAME_Q3LCC
 $(echo_cmd) "GAME_Q3LCC $<"
 $(Q)$(Q3LCC) -DQAGAME -o $@ $<
@@ -1215,7 +1220,7 @@ endef
 else
 define DO_GAME_Q3LCC
 $(echo_cmd) "GAME_Q3LCC $<"
-$(Q)$(Q3LCC) -D$(SDK_GAMENAME) -DQAGAME -o $@ $<
+$(Q)$(Q3LCC) -D$(SDK_GAMENAME) -DPRODUCT_VERSION=$(VERSION) -D$(SDK_RELEASE) -DQAGAME -o $@ $<
 endef
 endif
 

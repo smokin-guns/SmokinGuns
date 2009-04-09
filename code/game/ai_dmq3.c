@@ -195,6 +195,7 @@ int BotOppositeTeam(bot_state_t *bs) {
 BotEnemyFlag
 ==================
 */
+#ifndef SMOKINGUNS
 bot_goal_t *BotEnemyFlag(bot_state_t *bs) {
 	if (BotTeam(bs) == TEAM_RED) {
 		return &ctf_blueflag;
@@ -203,12 +204,14 @@ bot_goal_t *BotEnemyFlag(bot_state_t *bs) {
 		return &ctf_redflag;
 	}
 }
+#endif
 
 /*
 ==================
 BotTeamFlag
 ==================
 */
+#ifndef SMOKINGUNS
 bot_goal_t *BotTeamFlag(bot_state_t *bs) {
 	if (BotTeam(bs) == TEAM_RED) {
 		return &ctf_redflag;
@@ -217,6 +220,7 @@ bot_goal_t *BotTeamFlag(bot_state_t *bs) {
 		return &ctf_blueflag;
 	}
 }
+#endif
 
 
 /*
@@ -259,18 +263,18 @@ qboolean EntityCarriesFlag(aas_entityinfo_t *entinfo) {
 EntityIsInvisible
 ==================
 */
-#ifndef SMOKINGUNS
 qboolean EntityIsInvisible(aas_entityinfo_t *entinfo) {
 	// the flag is always visible
+#ifndef SMOKINGUNS
 	if (EntityCarriesFlag(entinfo)) {
 		return qfalse;
 	}
 	if (entinfo->powerups & (1 << PW_INVIS)) {
 		return qtrue;
 	}
+#endif
 	return qfalse;
 }
-#endif
 
 /*
 ==================
@@ -3097,14 +3101,10 @@ qboolean BotIsARealEnemy(int client, int other){
 		if((c_team == TEAM_RED || c_team == TEAM_BLUE) &&
 			c_team == o_team){
 			return qfalse;
-		} else {
-			return qtrue;
 		}
 	} else {
 		if(o_team >= TEAM_SPECTATOR)
 			return qfalse;
-		else
-			return qtrue;
 	}
 	return qtrue;
 }
@@ -3406,7 +3406,9 @@ int BotFindEnemy(bot_state_t *bs, int curenemy) {
 				//update some stuff for this enemy
 				BotUpdateBattleInventory(bs, i);
 				//if the bot doesn't really want to fight
+#ifndef SMOKINGUNS
 				if (BotWantsToRetreat(bs)) continue;
+#endif
 			}
 		}
 		//found an enemy

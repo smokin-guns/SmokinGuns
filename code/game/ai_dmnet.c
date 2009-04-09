@@ -196,6 +196,7 @@ int BotNearbyGoal(bot_state_t *bs, int tfl, bot_goal_t *ltg, float range) {
 	//check if the bot should go for air
 	if (BotGoForAir(bs, tfl, ltg, range)) return qtrue;
 	//if the bot is carrying the enemy flag
+#ifndef SMOKINGUNS
 	if (BotCTFCarryingFlag(bs)) {
 		//if the bot is just a few secs away from the base
 		if (trap_AAS_AreaTravelTimeToGoalArea(bs->areanum, bs->origin,
@@ -204,6 +205,7 @@ int BotNearbyGoal(bot_state_t *bs, int tfl, bot_goal_t *ltg, float range) {
 			range = 50;
 		}
 	}
+#endif
 	//
 	ret = trap_BotChooseNBGItem(bs->gs, bs->origin, bs->inventory, tfl, ltg, range);
 	/*
@@ -1128,12 +1130,16 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 		if (VectorLengthSquared(dir) < Square(70)) {
 			trap_BotResetAvoidReach(bs->ms);
 			bs->defendaway_time = FloatTime() + 3 + 3 * random();
+#ifndef SMOKINGUNS
 			if (BotHasPersistantPowerupAndWeapon(bs)) {
 				bs->defendaway_range = 100;
 			}
 			else {
 				bs->defendaway_range = 350;
 			}
+#else
+			bs->defendaway_range = 350;
+#endif
 		}
 		return qtrue;
 	}
@@ -1371,13 +1377,18 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 				default: bs->ltgtype = 0; return qfalse;
 			}
 			//if not carrying the flag anymore
+#ifndef SMOKINGUNS
 			if (!BotCTFCarryingFlag(bs)) bs->ltgtype = 0;
+#else
+			bs->ltgtype = 0;
+#endif
 			//quit rushing after 2 minutes
 			if (bs->teamgoal_time < FloatTime()) bs->ltgtype = 0;
 			//if touching the base flag the bot should loose the enemy flag
 			if (trap_BotTouchingGoal(bs->origin, goal)) {
 				//if the bot is still carrying the enemy flag then the
 				//base flag is gone, now just walk near the base a bit
+#ifndef SMOKINGUNS
 				if (BotCTFCarryingFlag(bs)) {
 					trap_BotResetAvoidReach(bs->ms);
 					bs->rushbaseaway_time = FloatTime() + 5 + 10 * random();
@@ -1386,6 +1397,9 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 				else {
 					bs->ltgtype = 0;
 				}
+#else
+				bs->ltgtype = 0;
+#endif
 			}
 			BotAlternateRoute(bs, goal);
 			return qtrue;
@@ -2356,11 +2370,15 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 		bs->weaponnum = moveresult.weapon;
 	// if there is an enemy
 	if (BotFindEnemy(bs, -1)) {
+#ifndef SMOKINGUNS
 		if (BotWantsToRetreat(bs)) {
 			//keep the current long term goal and retreat
 			AIEnter_Battle_NBG(bs, "activate entity: found enemy");
 		}
 		else {
+#else
+		{
+#endif
 			trap_BotResetLastAvoidReach(bs->ms);
 			//empty the goal stack
 			trap_BotEmptyGoalStack(bs->gs);
@@ -2424,9 +2442,11 @@ int AINode_Seek_NBG(bot_state_t *bs) {
 	//if in lava or slime the bot should be able to get out
 	if (BotInLavaOrSlime(bs)) bs->tfl |= TFL_LAVA|TFL_SLIME;
 	//
+#ifndef SMOKINGUNS
 	if (BotCanAndWantsToRocketJump(bs)) {
 		bs->tfl |= TFL_ROCKETJUMP;
 	}
+#endif
 	//map specific code
 	BotMapScripts(bs);
 	//no enemy
@@ -2525,11 +2545,15 @@ int AINode_Seek_NBG(bot_state_t *bs) {
 	if (moveresult.flags & MOVERESULT_MOVEMENTWEAPON) bs->weaponnum = moveresult.weapon;
 	//if there is an enemy
 	if (BotFindEnemy(bs, -1)) {
+#ifndef SMOKINGUNS
 		if (BotWantsToRetreat(bs)) {
 			//keep the current long term goal and retreat
 			AIEnter_Battle_NBG(bs, "seek nbg: found enemy");
 		}
 		else {
+#else
+		{
+#endif
 			trap_BotResetLastAvoidReach(bs->ms);
 			//empty the goal stack
 			trap_BotEmptyGoalStack(bs->gs);
@@ -2607,9 +2631,11 @@ int AINode_Seek_LTG(bot_state_t *bs)
 	//if in lava or slime the bot should be able to get out
 	if (BotInLavaOrSlime(bs)) bs->tfl |= TFL_LAVA|TFL_SLIME;
 	//
+#ifndef SMOKINGUNS
 	if (BotCanAndWantsToRocketJump(bs)) {
 		bs->tfl |= TFL_ROCKETJUMP;
 	}
+#endif
 	//map specific code
 	BotMapScripts(bs);
 	//no enemy
@@ -2622,12 +2648,16 @@ int AINode_Seek_LTG(bot_state_t *bs)
 	}
 	//if there is an enemy
 	if (BotFindEnemy(bs, -1)) {
+#ifndef SMOKINGUNS
 		if (BotWantsToRetreat(bs)) {
 			//keep the current long term goal and retreat
 			AIEnter_Battle_Retreat(bs, "seek ltg: found enemy");
 			return qfalse;
 		}
 		else {
+#else
+		{
+#endif
 			trap_BotResetLastAvoidReach(bs->ms);
 			//empty the goal stack
 			trap_BotEmptyGoalStack(bs->gs);
@@ -2913,9 +2943,11 @@ int AINode_Battle_Fight(bot_state_t *bs) {
 	//if in lava or slime the bot should be able to get out
 	if (BotInLavaOrSlime(bs)) bs->tfl |= TFL_LAVA|TFL_SLIME;
 	//
+#ifndef SMOKINGUNS
 	if (BotCanAndWantsToRocketJump(bs)) {
 		bs->tfl |= TFL_ROCKETJUMP;
 	}
+#endif
 	//choose the best weapon to fight with
 	BotChooseWeapon(bs);
 
@@ -2952,12 +2984,14 @@ int AINode_Battle_Fight(bot_state_t *bs) {
 	//attack the enemy if possible
 	BotCheckAttack(bs);
 	//if the bot wants to retreat
+#ifndef SMOKINGUNS
 	if (!(bs->flags & BFL_FIGHTSUICIDAL)) {
 		if (BotWantsToRetreat(bs)) {
 			AIEnter_Battle_Retreat(bs, "battle fight: wants to retreat");
 			return qtrue;
 		}
 	}
+#endif
 	return qtrue;
 }
 
@@ -3027,9 +3061,11 @@ int AINode_Battle_Chase(bot_state_t *bs)
 	//if in lava or slime the bot should be able to get out
 	if (BotInLavaOrSlime(bs)) bs->tfl |= TFL_LAVA|TFL_SLIME;
 	//
+#ifndef SMOKINGUNS
 	if (BotCanAndWantsToRocketJump(bs)) {
 		bs->tfl |= TFL_ROCKETJUMP;
 	}
+#endif
 	//map specific code
 	BotMapScripts(bs);
 	//create the chase goal
@@ -3115,10 +3151,12 @@ int AINode_Battle_Chase(bot_state_t *bs)
 	//if the bot is in the area the enemy was last seen in
 	if (bs->areanum == bs->lastenemyareanum) bs->chase_time = 0;
 	//if the bot wants to retreat (the bot could have been damage during the chase)
+#ifndef SMOKINGUNS
 	if (BotWantsToRetreat(bs)) {
 		AIEnter_Battle_Retreat(bs, "battle chase: wants to retreat");
 		return qtrue;
 	}
+#endif
 	return qtrue;
 }
 
@@ -3395,9 +3433,11 @@ int AINode_Battle_NBG(bot_state_t *bs) {
 	//if in lava or slime the bot should be able to get out
 	if (BotInLavaOrSlime(bs)) bs->tfl |= TFL_LAVA|TFL_SLIME;
 	//
+#ifndef SMOKINGUNS
 	if (BotCanAndWantsToRocketJump(bs)) {
 		bs->tfl |= TFL_ROCKETJUMP;
 	}
+#endif
 	//map specific code
 	BotMapScripts(bs);
 	//update the last time the enemy was visible

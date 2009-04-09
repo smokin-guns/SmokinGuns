@@ -219,6 +219,7 @@ int BotGetTeamMateTaskPreference(bot_state_t *bs, int teammate) {
 BotSortTeamMatesByTaskPreference
 ==================
 */
+#ifndef SMOKINGUNS
 int BotSortTeamMatesByTaskPreference(bot_state_t *bs, int *teammates, int numteammates) {
 	int defenders[MAX_CLIENTS], numdefenders;
 	int attackers[MAX_CLIENTS], numattackers;
@@ -251,6 +252,7 @@ int BotSortTeamMatesByTaskPreference(bot_state_t *bs, int *teammates, int numtea
 
 	return numteammates;
 }
+#endif
 
 /*
 ==================

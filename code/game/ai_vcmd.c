@@ -466,8 +466,10 @@ void BotVoiceChat_WhoIsLeader(bot_state_t *bs, int client, int mode) {
 BotVoiceChat_WantOnDefense
 ==================
 */
+#ifndef SMOKINGUNS
 void BotVoiceChat_WantOnDefense(bot_state_t *bs, int client, int mode) {
 	char netname[MAX_NETNAME];
+
 	int preference;
 
 	preference = BotGetTeamMateTaskPreference(bs, client);
@@ -502,6 +504,7 @@ void BotVoiceChat_WantOnOffense(bot_state_t *bs, int client, int mode) {
 	BotVoiceChatOnly(bs, client, VOICECHAT_YES);
 	trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
 }
+#endif
 
 void BotVoiceChat_Dummy(bot_state_t *bs, int client, int mode) {
 }
@@ -525,8 +528,10 @@ voiceCommand_t voiceCommands[] = {
 	{VOICECHAT_STARTLEADER, BotVoiceChat_StartLeader },
 	{VOICECHAT_STOPLEADER, BotVoiceChat_StopLeader },
 	{VOICECHAT_WHOISLEADER, BotVoiceChat_WhoIsLeader },
+#ifndef SMOKINGUNS
 	{VOICECHAT_WANTONDEFENSE, BotVoiceChat_WantOnDefense },
 	{VOICECHAT_WANTONOFFENSE, BotVoiceChat_WantOnOffense },
+#endif
 	{NULL, BotVoiceChat_Dummy}
 };
 

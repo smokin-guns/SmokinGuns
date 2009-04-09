@@ -38,10 +38,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
   // PRODUCT_VERSION will be used for sg_version cvar
   #ifndef PRODUCT_VERSION
-    #define PRODUCT_VERSION	"1.1"
+    #define PRODUCT_VERSION	1.1
   #endif
   #ifndef SG_RELEASE
-    #define SG_RELEASE	"20090330"
+    #define SG_RELEASE	20090409
   #endif
 #else
   #define PRODUCT_NAME			"iofoo3"
@@ -64,9 +64,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 #endif
 
+#ifndef SMOKINGUNS
 #define Q3_VERSION PRODUCT_NAME " " PRODUCT_VERSION
+#else
+#define XSTRING(x)				STRING(x)
+#define STRING(x)					#x
+#define Q3_VERSION PRODUCT_NAME " " XSTRING(PRODUCT_VERSION)
 
-#ifdef SMOKINGUNS
 //unlagged - lag simulation #2
 #define MAX_LATENT_CMDS 64
 //unlagged - lag simulation #2

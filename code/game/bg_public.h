@@ -1565,7 +1565,6 @@ void BG_DirsToEntityState(entityState_t *es, vec3_t bottledirs[ALC_COUNT]);
 void BG_EntityStateToDirs(entityState_t *es, vec3_t bottledirs[ALC_COUNT]);
 
 qboolean CheckPistols(playerState_t *ps, int *weapon);
-void SG_SplitModelName(const char *string, char *modelname, char *skinname);
 void Com_PrintfVector(vec3_t vec);
 void Com_PrintfVectorInt(int vec[3]);
 int BG_MapPrefix(char *map, int gametype);

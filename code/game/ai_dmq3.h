@@ -95,9 +95,11 @@ int BotWantsToChase(bot_state_t *bs);
 //returns true if the bot wants to help
 int BotWantsToHelp(bot_state_t *bs);
 //returns true if the bot can and wants to rocketjump
+#ifndef SMOKINGUNS
 int BotCanAndWantsToRocketJump(bot_state_t *bs);
 // returns true if the bot has a persistant powerup and a weapon
 int BotHasPersistantPowerupAndWeapon(bot_state_t *bs);
+#endif
 //returns true if the bot wants to and goes camping
 int BotWantsToCamp(bot_state_t *bs);
 //the bot will perform attack movements
@@ -207,9 +209,9 @@ extern vmCvar_t bot_nochat;
 extern vmCvar_t bot_testrchat;
 extern vmCvar_t bot_challenge;
 
+#ifndef SMOKINGUNS
 extern bot_goal_t ctf_redflag;
 extern bot_goal_t ctf_blueflag;
-#ifndef SMOKINGUNS
 extern bot_goal_t ctf_neutralflag;
 extern bot_goal_t redobelisk;
 extern bot_goal_t blueobelisk;
