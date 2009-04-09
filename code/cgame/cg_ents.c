@@ -300,7 +300,7 @@ static void CG_Item( centity_t *cent ) {
 
 	memset (&ent, 0, sizeof(ent));
 
-#ifdef SMOKINGUNS
+#ifndef SMOKINGUNS
 	// autorotate at one of two speeds
 	if ( item->giType == IT_HEALTH ) {
 		VectorCopy( cg.autoAnglesFast, cent->lerpAngles );

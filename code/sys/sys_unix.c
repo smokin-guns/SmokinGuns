@@ -637,7 +637,7 @@ void Sys_Daemonize( void )
 
 /*
 ==============
-Sys_Getpid
+Sys_LockMyself
 
 Includes chroot / setuid
 Original code by sig11 AT bootblock DOT de

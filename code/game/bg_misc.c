@@ -3355,38 +3355,6 @@ qboolean CheckPistols(playerState_t *ps, int *weapon){
 	return qfalse;
 }
 
-void SG_SplitModelName(const char *string, char *modelname, char *skinname){
-	char	model[64], skin[64];
-	int		i, j;
-
-	strcpy(model, string);
-	for(i=0; model[i] != '/'; i++) {
-		if(i > 63){
-			//Com_Printf("Error: No Model String!");
-			break;
-		}
-	}
-	model[i]='\0';
-	Q_strupr(model);
-	i++;
-
-	for(j=0; 1; i++, j++) {
-		skin[j] = model[i];
-
-		if(skin[j] == '\0')
-			break;
-
-		if(i > 63){
-			//Com_Printf("Error: No Model String!");
-			break;
-		}
-	}
-	Q_strupr(skin);
-
-	strcpy(modelname, model);
-	strcpy(skinname, skin);
-}
-
 // I often want to check the vectors ingame, so i need this, works faster
 void Com_PrintfVector(vec3_t vec){
 	Com_Printf("%f, %f, %f\n", vec[0], vec[1], vec[2]);

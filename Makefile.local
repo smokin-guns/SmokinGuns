@@ -1,6 +1,6 @@
 ########################################################################
 # Based on ioQuake3 revision
-IOQ3_REVISION = 1515
+IOQ3_REVISION = 1517
 ########################################################################
 ifeq ($(BUILD_CLIENT),)
   # Build client by default
@@ -16,7 +16,7 @@ ifeq ($(BUILD_SERVER),)
 endif
 ifeq ($(BUILD_GAME_SO),)
   # Don't build binary game by default
-  BUILD_GAME_SO    = 1
+  BUILD_GAME_SO    = 0
 endif
 ifeq ($(BUILD_GAME_QVM),)
   # Don't build QVM game by default
@@ -32,7 +32,7 @@ GAMEDIR           = smokinguns
 ########################################################################
 VERSION           = 1.1
 USE_CODEC_VORBIS  = 0
-SDK_RELEASE       = SG_RELEASE=\\\"$(shell date +%Y%m%d)\\\"
+SDK_RELEASE       = SG_RELEASE=$(shell date +%Y%m%d)
 ########################################################################
 # Here some convenient defaults
 ifndef COPYDIR
@@ -42,23 +42,9 @@ ifndef BUILD_DIR
   BUILD_DIR         = ./build
 endif
 
-STANDALONE_CFLAGS = -DFS_FOPENI
+#STANDALONE_CFLAGS = -DFS_FOPENI
 #STANDALONE_CFLAGS = -DFS_MISSING -DFS_FOPENI
 
-#SDK_TARGETS = \
-#      $(B)/$(GAMEDIR)/cgame$(ARCH).$(SHLIBEXT) \
-#      $(B)/$(GAMEDIR)/qagame$(ARCH).$(SHLIBEXT) \
-#      $(B)/$(GAMEDIR)/ui$(ARCH).$(SHLIBEXT) \
-#      $(B)/$(GAMEDIR)/vm/cgame.qvm \
-#      $(B)/$(GAMEDIR)/vm/qagame.qvm \
-#      $(B)/$(GAMEDIR)/vm/ui.qvm
-
-# By default, all game mod components are build but for now only UI is ported back
-SDK_TARGETS = \
-      $(B)/$(GAMEDIR)/vm/cgame.qvm \
-      $(B)/$(GAMEDIR)/vm/ui.qvm \
-      $(B)/$(GAMEDIR)/cgame$(ARCH).$(SHLIBEXT) \
-      $(B)/$(GAMEDIR)/ui$(ARCH).$(SHLIBEXT)
 SDKUIDIR = ui
 
 #############################################################################
@@ -135,7 +121,11 @@ Q3GOBJ_SDK = \
   $(B)/$(GAMENAME)/game/g_weapon.o \
   \
   $(B)/$(GAMENAME)/qcommon/q_math.o \
-  $(B)/$(GAMENAME)/qcommon/q_shared.o
+  $(B)/$(GAMENAME)/qcommon/q_shared.o \
+  \
+  $(B)/$(GAMENAME)/game/g_sg_utils.o \
+  $(B)/$(GAMENAME)/game/g_hit.o \
+  $(B)/$(GAMENAME)/game/g_unlagged.o
 
 #############################################################################
 ## SMOKINGUNS UI

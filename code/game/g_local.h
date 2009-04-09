@@ -801,11 +801,11 @@ void CalcMuzzlePoint ( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, 
 #ifndef SMOKINGUNS
 void SnapVectorTowards( vec3_t v, vec3_t to );
 qboolean CheckGauntletAttack( gentity_t *ent );
+void Weapon_HookFree (gentity_t *ent);
+void Weapon_HookThink (gentity_t *ent);
 #else
 qboolean CheckKnifeAttack( gentity_t *ent );
 #endif
-void Weapon_HookFree (gentity_t *ent);
-void Weapon_HookThink (gentity_t *ent);
 
 #ifdef SMOKINGUNS
 //unlagged - g_unlagged.c

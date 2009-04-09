@@ -969,33 +969,35 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 	// load the animations
 #ifndef SMOKINGUNS
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/animation.cfg", modelName );
-#else
-	Com_sprintf( filename, sizeof( filename ), "models/wq3_players/%s/animation.cfg", modelName );
-#endif
 	if ( !CG_ParseAnimationFile( filename, ci ) ) {
-#ifndef SMOKINGUNS
 		Com_sprintf( filename, sizeof( filename ), "models/players/characters/%s/animation.cfg", modelName );
 		if ( !CG_ParseAnimationFile( filename, ci ) ) {
-#else
-		if(cg_cheats)
-#endif
 			Com_Printf( "Failed to load animation file %s\n", filename );
 			return qfalse;
 		}
-#ifndef SMOKINGUNS
 	}
+#else
+	Com_sprintf( filename, sizeof( filename ), "models/wq3_players/%s/animation.cfg", modelName );
+	if ( !CG_ParseAnimationFile( filename, ci ) ) {
+		if(cg_cheats)
+			Com_Printf( "Failed to load animation file %s\n", filename );
+		return qfalse;
+	}
+#endif
 
+#ifndef SMOKINGUNS
 	if ( CG_FindClientHeadFile( filename, sizeof(filename), ci, teamName, headName, headSkinName, "icon", "skin" ) ) {
 		ci->modelIcon = trap_R_RegisterShaderNoMip( filename );
 	}
 	else if ( CG_FindClientHeadFile( filename, sizeof(filename), ci, teamName, headName, headSkinName, "icon", "tga" ) ) {
-#endif
 		ci->modelIcon = trap_R_RegisterShaderNoMip( filename );
-#ifndef SMOKINGUNS
 	}
 
 	if ( !ci->modelIcon ) {
 #else
+	Com_sprintf( filename, sizeof( filename ), "models/wq3_players/%s/icon_%s.tga", modelName, skinName );
+	ci->modelIcon = trap_R_RegisterShaderNoMip( filename );
+
 	if ( !ci->modelIcon && cg_cheats) {
 		Com_Printf( "Failed to load icon file: %s\n", filename );
 #endif

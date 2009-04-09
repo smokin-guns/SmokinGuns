@@ -3143,11 +3143,9 @@ void CL_Init( void ) {
 	Cvar_Get ("sex", "male", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("cl_anonymous", "0", CVAR_USERINFO | CVAR_ARCHIVE );
 #ifdef SMOKINGUNS
-#ifndef SG_SVN
-	Cvar_Get ("cl_version", PRODUCT_VERSION " " SG_RELEASE, CVAR_ROM | CVAR_USERINFO );
-#else
-	Cvar_Get ("cl_version", PRODUCT_VERSION " " SG_RELEASE " r" SG_SVN, CVAR_ROM | CVAR_USERINFO );
-#endif
+#define XSTRING(x)				STRING(x)
+#define STRING(x)					#x
+	Cvar_Get ("cl_version", XSTRING(PRODUCT_VERSION) " " XSTRING(SG_RELEASE), CVAR_ROM | CVAR_USERINFO );
 #endif
 
 	Cvar_Get ("password", "", CVAR_USERINFO);
