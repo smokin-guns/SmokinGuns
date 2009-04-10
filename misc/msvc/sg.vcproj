@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="quake3"
+	Name="smokinguns"
 	ProjectGUID="{81CB51C4-B434-4E12-B69B-BAEE102F2852}"
 	>
 	<Platforms>
@@ -15,8 +15,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\build\quake3_release"
-			IntermediateDirectory="..\..\build\quake3_release"
+			OutputDirectory="..\..\build\sg_release"
+			IntermediateDirectory="..\..\build\sg_release"
 			ConfigurationType="1"
 			UseOfMFC="1"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -39,7 +39,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName="$(IntDir)\quake3.tlb"
+				TypeLibraryName="$(IntDir)\smokinguns.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -52,7 +52,7 @@
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
-				PrecompiledHeaderFile="$(IntDir)\quake3.pch"
+				PrecompiledHeaderFile="$(IntDir)\smokinguns.pch"
 				AssemblerListingLocation="$(IntDir)\"
 				ObjectFile="$(IntDir)\"
 				ProgramDataBaseFileName="$(IntDir)\"
@@ -73,13 +73,13 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="user32.lib advapi32.lib winmm.lib wsock32.lib ws2_32.lib SDLmain.lib SDL.lib OpenGL32.lib msvcrt.lib"
-				OutputFile="$(OutDir)\ioquake3.exe"
+				OutputFile="$(OutDir)\smokinguns.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(IntDir)\quake3.pdb"
+				ProgramDatabaseFile="$(IntDir)\smokinguns.pdb"
 				GenerateMapFile="true"
-				MapFileName="$(IntDir)\quake3.map"
+				MapFileName="$(IntDir)\smokinguns.map"
 				SubSystem="2"
 				StackReserveSize="8388608"
 				TargetMachine="1"
