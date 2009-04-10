@@ -47,7 +47,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				PreprocessorDefinitions="WIN32;NDEBUG;STANDALONE;SMOKINGUNS;_WINDOWS;_CRT_SECURE_NO_DEPRECATE"
+				PreprocessorDefinitions="WIN32;NDEBUG;CGAME;STANDALONE;SMOKINGUNS;_WINDOWS;_CRT_SECURE_NO_DEPRECATE"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -301,18 +301,12 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\code\cgame\cg_newDraw.c"
+				RelativePath="..\..\code\cgame\cg_newdraw.c"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;"
-					/>
-				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\..\ioquake3-trunk\code\cgame\cg_particles.c"
+				>
 			</File>
 			<File
 				RelativePath="..\..\code\cgame\cg_players.c"
@@ -380,6 +374,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\code\cgame\cg_sg_utils.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\code\cgame\cg_snapshot.c"
 				>
 				<FileConfiguration
@@ -406,6 +404,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\code\cgame\cg_unlagged.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\code\cgame\cg_view.c"
 				>
 				<FileConfiguration
@@ -430,14 +432,6 @@
 						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;"
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\code\game\g_sg_utils.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\code\game\g_unlagged.c"
-				>
 			</File>
 			<File
 				RelativePath="..\..\code\qcommon\q_math.c"

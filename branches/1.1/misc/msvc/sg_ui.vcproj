@@ -157,6 +157,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\code\ui\ui_gameinfo.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\code\ui\ui_main.c"
 				>
 				<FileConfiguration
