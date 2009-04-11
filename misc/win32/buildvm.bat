@@ -1,23 +1,33 @@
 @rem make sure we have a safe environment
 @set LIBRARY=
 @set INCLUDE=
-@set PATH=%PATH%;..\..\misc\win32\bin
+@setlocal
 
-mkdir ..\..\build
-mkdir ..\..\build\asm
-mkdir ..\..\build\vm
-cd ..\..\build\asm
+@rem This should put us in the top level directory of the project
+pushd ..\..\
 
-@set PATH_GAME=..\..\code\game
-@set PATH_CGAME=..\..\code\cgame
-@set PATH_UI=..\..\code\ui
+@set PATH=%CD%\misc\win32\bin;%PATH%
+mkdir build\asm\game
+mkdir build\asm\cgame
+mkdir build\asm\ui
+mkdir build\vm
+cd build
 
-@set CC_GAME=q3lcc -DSMOKINGUNS -DQAGAME %1
-@set CC_CGAME=q3lcc -DSMOKINGUNS -DCGAME %1
-@set CC_UI=q3lcc -DSMOKINGUNS -DUI %1
+@rem These paths are relative to the asm output directories
+@set PATH_GAME=..\..\..\code\game
+@set PATH_CGAME=..\..\..\code\cgame
+@set PATH_UI=..\..\..\code\ui
+@set PATH_COMMON=..\..\..\code\qcommon
+
+@set CARGS=-DSMOKINGUNS -DQ3_VM -U_WIN32 -S -Wf-target=bytecode -Wf-g -I%PATH_COMMON%
+
+@set CC_GAME=lcc -DQAGAME %CARGS% %1
+@set CC_CGAME=lcc -DCGAME %CARGS% %1
+@set CC_UI=lcc -DUI %CARGS% %1
 @set Q3ASM=q3asm
 
 @echo Building game ...
+@pushd asm\game
 
 @if not exist g_main.asm %CC_GAME% %PATH_GAME%/g_main.c
 @if errorlevel 1 goto quit
@@ -34,10 +44,10 @@ cd ..\..\build\asm
 @if not exist bg_slidemove.asm %CC_GAME% %PATH_GAME%/bg_slidemove.c
 @if errorlevel 1 goto quit
 
-@if not exist q_math.asm %CC_GAME% %PATH_GAME%/q_math.c
+@if not exist q_math.asm %CC_GAME% %PATH_COMMON%/q_math.c
 @if errorlevel 1 goto quit
 
-@if not exist q_shared.asm %CC_GAME% %PATH_GAME%/q_shared.c
+@if not exist q_shared.asm %CC_GAME% %PATH_COMMON%/q_shared.c
 @if errorlevel 1 goto quit
 
 @if not exist ai_dmnet.asm %CC_GAME% %PATH_GAME%/ai_dmnet.c
@@ -127,7 +137,10 @@ cd ..\..\build\asm
 @if not exist g_hit.asm %CC_GAME% %PATH_GAME%/g_hit.c
 @if errorlevel 1 goto quit
 
+@popd
+
 @echo Building cgame ...
+@pushd asm\cgame
 
 @if not exist bg_misc.asm %CC_CGAME% %PATH_GAME%/bg_misc.c
 @if errorlevel 1 goto quit
@@ -141,10 +154,10 @@ cd ..\..\build\asm
 @if not exist bg_lib.asm %CC_CGAME% %PATH_GAME%/bg_lib.c
 @if errorlevel 1 goto quit
 
-@if not exist q_math.asm %CC_CGAME% %PATH_GAME%/q_math.c
+@if not exist q_math.asm %CC_CGAME% %PATH_COMMON%/q_math.c
 @if errorlevel 1 goto quit
 
-@if not exist q_shared.asm %CC_CGAME% %PATH_GAME%/q_shared.c
+@if not exist q_shared.asm %CC_CGAME% %PATH_COMMON%/q_shared.c
 @if errorlevel 1 goto quit
 
 @if not exist cg_consolecmds.asm %CC_CGAME% %PATH_CGAME%/cg_consolecmds.c
@@ -213,7 +226,10 @@ cd ..\..\build\asm
 @if not exist cg_unlagged.asm %CC_CGAME% %PATH_CGAME%/cg_unlagged.c
 @if errorlevel 1 goto quit
 
+@popd
+
 @echo Building ui ...
+@pushd asm\ui
 
 @if not exist ui_main.asm %CC_UI% %PATH_UI%/ui_main.c
 @if errorlevel 1 goto quit
@@ -224,10 +240,10 @@ cd ..\..\build\asm
 @if not exist bg_lib.asm %CC_UI% %PATH_GAME%/bg_lib.c
 @if errorlevel 1 goto quit
 
-@if not exist q_math.asm %CC_UI% %PATH_GAME%/q_math.c
+@if not exist q_math.asm %CC_UI% %PATH_COMMON%/q_math.c
 @if errorlevel 1 goto quit
 
-@if not exist q_shared.asm %CC_UI% %PATH_GAME%/q_shared.c
+@if not exist q_shared.asm %CC_UI% %PATH_COMMON%/q_shared.c
 @if errorlevel 1 goto quit
 
 @if not exist ui_atoms.asm %CC_UI% %PATH_UI%/ui_atoms.c
@@ -242,6 +258,9 @@ cd ..\..\build\asm
 @if not exist ui_gameinfo.asm %CC_UI% %PATH_UI%/ui_gameinfo.c
 @if errorlevel 1 goto quit
 
+@popd
+
+@pushd asm\game
 @set Q3ASM_ARGS=-o qagame
 @set Q3ASM_ARGS=%Q3ASM_ARGS% g_main
 @set Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME%\g_syscalls
@@ -280,9 +299,11 @@ cd ..\..\build\asm
 @set Q3ASM_ARGS=%Q3ASM_ARGS% g_unlagged
 @set Q3ASM_ARGS=%Q3ASM_ARGS% g_sg_utils
 @set Q3ASM_ARGS=%Q3ASM_ARGS% g_hit
-@if not exist ..\vm\qagame.qvm %Q3ASM% %Q3ASM_ARGS%
-@if exist qagame.qvm move qagame.qvm ..\vm
+@if not exist ..\..\vm\qagame.qvm %Q3ASM% %Q3ASM_ARGS%
+@if exist qagame.qvm move qagame.qvm ..\..\vm
+@popd
 
+@pushd asm\cgame
 @set Q3ASM_ARGS=-o cgame
 @set Q3ASM_ARGS=%Q3ASM_ARGS% cg_main
 @set Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME%\cg_syscalls
@@ -313,9 +334,11 @@ cd ..\..\build\asm
 @set Q3ASM_ARGS=%Q3ASM_ARGS% cg_newdraw
 @set Q3ASM_ARGS=%Q3ASM_ARGS% cg_sg_utils
 @set Q3ASM_ARGS=%Q3ASM_ARGS% cg_unlagged
-@if not exist ..\vm\cgame.qvm %Q3ASM% %Q3ASM_ARGS%
-@if exist cgame.qvm move cgame.qvm ..\vm
+@if not exist ..\..\vm\cgame.qvm %Q3ASM% %Q3ASM_ARGS%
+@if exist cgame.qvm move cgame.qvm ..\..\vm
+@popd
 
+@pushd asm\ui
 @set Q3ASM_ARGS=-o ui
 @set Q3ASM_ARGS=%Q3ASM_ARGS% ui_main
 @set Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_UI%\ui_syscalls
@@ -327,8 +350,10 @@ cd ..\..\build\asm
 @set Q3ASM_ARGS=%Q3ASM_ARGS% bg_lib
 @set Q3ASM_ARGS=%Q3ASM_ARGS% q_math
 @set Q3ASM_ARGS=%Q3ASM_ARGS% q_shared
-@if not exist ..\vm\ui.qvm %Q3ASM% %Q3ASM_ARGS%
-@if exist ui.qvm move ui.qvm ..\vm
+@if not exist ..\..\vm\ui.qvm %Q3ASM% %Q3ASM_ARGS%
+@if exist ui.qvm move ui.qvm ..\..\vm
+@popd
 
 :quit
+popd
 pause
