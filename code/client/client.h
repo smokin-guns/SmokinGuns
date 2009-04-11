@@ -30,6 +30,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "snd_public.h"
 #include "../cgame/cg_public.h"
 #include "../game/bg_public.h"
+#ifdef SMOKINGUNS
+// Tequila comment: include our private functions to fight cheaters
+#include "../cgame/cg_sg_anticheat.h"
+#endif
 
 #ifdef USE_CURL
 #include "cl_curl.h"

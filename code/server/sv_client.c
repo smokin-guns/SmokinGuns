@@ -82,7 +82,7 @@ void SV_GetChallenge( netadr_t from ) {
 		i = oldest;
 	}
 
-#ifdef STANDALONE
+#if defined STANDALONE && ! defined SMOKINGUNS
 	challenge->pingTime = svs.time;
 	NET_OutOfBandPrint( NS_SERVER, from, "challengeResponse %i", challenge->challenge );
 #else
@@ -152,7 +152,7 @@ void SV_GetChallenge( netadr_t from ) {
 #endif
 }
 
-#ifndef STANDALONE
+#if ! defined STANDALONE || defined SMOKINGUNS
 /*
 ====================
 SV_AuthorizeIpPacket

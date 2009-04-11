@@ -331,7 +331,7 @@ void SV_GetChallenge( netadr_t from );
 
 void SV_DirectConnect( netadr_t from );
 
-#ifndef STANDALONE
+#if ! defined STANDALONE || defined SMOKINGUNS
 void SV_AuthorizeIpPacket( netadr_t from );
 #endif
 
