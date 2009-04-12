@@ -217,7 +217,9 @@ Sys_Dirname
 */
 const char *Sys_Dirname( char *path )
 {
-	return dirname( path );
+	static char dir[MAX_OSPATH];
+	Com_sprintf( dir, sizeof(dir), "%s", path );
+	return dirname( dir );
 }
 
 /*
