@@ -2803,31 +2803,43 @@ FS_Startup
 static void FS_Startup( const char *gameName )
 {
     const char *homePath;
+#ifdef SDK_BASEGAME
+    cvar_t *fs_sdk_basegame;
+#endif
 
 	Com_Printf( "----- FS_Startup -----\n" );
 
 	fs_debug = Cvar_Get( "fs_debug", "0", 0 );
 	fs_basepath = Cvar_Get ("fs_basepath", Sys_DefaultInstallPath(), CVAR_INIT );
-#ifdef SMOKINGUNS
+#ifndef SMOKINGUNS
+	fs_basegame = Cvar_Get ("fs_basegame", "", CVAR_INIT );
+#else
 	fs_basegame = Cvar_Get ("fs_basegame", BASEGAME, CVAR_INIT );
 #ifdef FS_MISSING
 	fs_missingfiles = Cvar_Get ("fs_missingfiles", "0", CVAR_INIT );
 #endif
-#else
-	fs_basegame = Cvar_Get ("fs_basegame", "", CVAR_INIT );
 #endif
 	homePath = Sys_DefaultHomePath();
 	if (!homePath || !homePath[0]) {
 		homePath = fs_basepath->string;
 	}
 	fs_homepath = Cvar_Get ("fs_homepath", homePath, CVAR_INIT );
-#ifdef SMOKINGUNS
-	fs_gamedirvar = Cvar_Get ("fs_game", fs_basegame->string, CVAR_INIT|CVAR_SYSTEMINFO );
-#else
+#ifndef SMOKINGUNS
 	fs_gamedirvar = Cvar_Get ("fs_game", "", CVAR_INIT|CVAR_SYSTEMINFO );
+#else
+	fs_gamedirvar = Cvar_Get ("fs_game", fs_basegame->string, CVAR_INIT|CVAR_SYSTEMINFO );
 #endif
 
 	// add search path elements in reverse priority order
+#ifdef SDK_BASEGAME
+	// Tequila comment: Added a trick to read the legacy game folder too
+	// So the baseq3/pak0.pk3 can still be read if still in use
+	fs_sdk_basegame = Cvar_Get ("fs_sdk_basegame", SDK_BASEGAME, CVAR_INIT );
+	if (fs_sdk_basegame->string[0]) {
+		FS_AddGameDirectory( fs_basepath->string, fs_sdk_basegame->string );
+	}
+#endif
+
 	if (fs_basepath->string[0]) {
 		FS_AddGameDirectory( fs_basepath->string, gameName );
 	}

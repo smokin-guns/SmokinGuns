@@ -2829,7 +2829,7 @@ static void PM_WeaponAction( int *weapon, int *weaponTime, int *weaponstate, qbo
 		if(pm->ps->oldbuttons & BUTTON_ATTACK)
 			return;
 
-		if(	/*!pm->ps->stats[STAT_OLDWEAPON] &&*/ PM_PlanarCheck()) {
+		if( PM_PlanarCheck() ) {
 			vec3_t	angles, origin;
 
 			pm->ps->stats[STAT_FLAGS] &= ~SF_GAT_CARRY;
