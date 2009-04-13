@@ -32,6 +32,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef SMOKINGUNS
   #define PRODUCT_NAME				"SG"
   #define BASEGAME					"smokinguns"
+  // Tequila comment: SDK_BASEGAME is used for compatibility reason
+  // If we don't use it, 1.0 client won't accept to connect to servers
+  // with 1.1 game mod. It permit also to read the baseq3/pak0.pk3
+  // as expected in 1.0 client until we don't need it anymore
+  #define SDK_BASEGAME				"baseq3"
   #define CLIENT_WINDOW_TITLE     	"SmokinGuns"
   #define CLIENT_WINDOW_MIN_TITLE 	"SG"
   #define GAMENAME_FOR_MASTER		"smokinguns"
@@ -41,7 +46,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
     #define PRODUCT_VERSION	1.1
   #endif
   #ifndef SG_RELEASE
-    #define SG_RELEASE	20090409
+    #define SG_RELEASE	20090413
   #endif
 #else
   #define PRODUCT_NAME			"iofoo3"
