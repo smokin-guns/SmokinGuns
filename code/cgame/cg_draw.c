@@ -214,6 +214,9 @@ void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
   }
 }
 
+
+#endif
+
 #ifdef SMOKINGUNS
 void CG_Text_PaintCenter(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style){
 	int len = CG_Text_Width(text, scale, 0);
@@ -221,9 +224,6 @@ void CG_Text_PaintCenter(float x, float y, float scale, vec4_t color, const char
 	CG_Text_Paint(x - len/2, y, scale, color, text, adjust, limit, style);
 }
 #endif
-
-#endif
-
 
 /*
 ==============
