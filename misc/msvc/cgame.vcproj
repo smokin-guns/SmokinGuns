@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="cgame"
 	ProjectGUID="{C878E295-CB82-4B40-8ECF-5CE5525466FA}"
 	TargetFrameworkVersion="131072"
@@ -302,10 +302,6 @@
 			</File>
 			<File
 				RelativePath="..\..\code\cgame\cg_newdraw.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\ioquake3-trunk\code\cgame\cg_particles.c"
 				>
 			</File>
 			<File
