@@ -1,359 +1,246 @@
-@rem make sure we have a safe environment
-@set LIBRARY=
-@set INCLUDE=
-@setlocal
-
-@rem This should put us in the top level directory of the project
-pushd ..\..\
-
-@set PATH=%CD%\misc\win32\bin;%PATH%
-mkdir build\asm\game
-mkdir build\asm\cgame
-mkdir build\asm\ui
-mkdir build\vm
-cd build
-
-@rem These paths are relative to the asm output directories
-@set PATH_GAME=..\..\..\code\game
-@set PATH_CGAME=..\..\..\code\cgame
-@set PATH_UI=..\..\..\code\ui
-@set PATH_COMMON=..\..\..\code\qcommon
-
-@set CARGS=-DSMOKINGUNS -DQ3_VM -U_WIN32 -S -Wf-target=bytecode -Wf-g -I%PATH_COMMON%
-
-@set CC_GAME=lcc -DQAGAME %CARGS% %1
-@set CC_CGAME=lcc -DCGAME %CARGS% %1
-@set CC_UI=lcc -DUI %CARGS% %1
-@set Q3ASM=q3asm
-
-@echo Building game ...
-@pushd asm\game
-
-@if not exist g_main.asm %CC_GAME% %PATH_GAME%/g_main.c
-@if errorlevel 1 goto quit
-
-@if not exist bg_misc.asm %CC_GAME% %PATH_GAME%/bg_misc.c
-@if errorlevel 1 goto quit
-
-@if not exist bg_lib.asm %CC_GAME% %PATH_GAME%/bg_lib.c
-@if errorlevel 1 goto quit
-
-@if not exist bg_pmove.asm %CC_GAME% %PATH_GAME%/bg_pmove.c
-@if errorlevel 1 goto quit
-
-@if not exist bg_slidemove.asm %CC_GAME% %PATH_GAME%/bg_slidemove.c
-@if errorlevel 1 goto quit
-
-@if not exist q_math.asm %CC_GAME% %PATH_COMMON%/q_math.c
-@if errorlevel 1 goto quit
-
-@if not exist q_shared.asm %CC_GAME% %PATH_COMMON%/q_shared.c
-@if errorlevel 1 goto quit
-
-@if not exist ai_dmnet.asm %CC_GAME% %PATH_GAME%/ai_dmnet.c
-@if errorlevel 1 goto quit
-
-@if not exist ai_dmq3.asm %CC_GAME% %PATH_GAME%/ai_dmq3.c
-@if errorlevel 1 goto quit
-
-@if not exist ai_main.asm %CC_GAME% %PATH_GAME%/ai_main.c
-@if errorlevel 1 goto quit
-
-@if not exist ai_chat.asm %CC_GAME% %PATH_GAME%/ai_chat.c
-@if errorlevel 1 goto quit
-
-@if not exist ai_cmd.asm %CC_GAME% %PATH_GAME%/ai_cmd.c
-@if errorlevel 1 goto quit
-
-@if not exist ai_team.asm %CC_GAME% %PATH_GAME%/ai_team.c
-@if errorlevel 1 goto quit
-
-@if not exist g_active.asm %CC_GAME% %PATH_GAME%/g_active.c
-@if errorlevel 1 goto quit
-
-@if not exist g_arenas.asm %CC_GAME% %PATH_GAME%/g_arenas.c
-@if errorlevel 1 goto quit
-
-@if not exist g_bot.asm %CC_GAME% %PATH_GAME%/g_bot.c
-@if errorlevel 1 goto quit
-
-@if not exist g_client.asm %CC_GAME% %PATH_GAME%/g_client.c
-@if errorlevel 1 goto quit
-
-@if not exist g_cmds.asm %CC_GAME% %PATH_GAME%/g_cmds.c
-@if errorlevel 1 goto quit
-
-@if not exist g_combat.asm %CC_GAME% %PATH_GAME%/g_combat.c
-@if errorlevel 1 goto quit
-
-@if not exist g_items.asm %CC_GAME% %PATH_GAME%/g_items.c
-@if errorlevel 1 goto quit
-
-@if not exist g_mem.asm %CC_GAME% %PATH_GAME%/g_mem.c
-@if errorlevel 1 goto quit
-
-@if not exist g_misc.asm %CC_GAME% %PATH_GAME%/g_misc.c
-@if errorlevel 1 goto quit
-
-@if not exist g_missile.asm %CC_GAME% %PATH_GAME%/g_missile.c
-@if errorlevel 1 goto quit
-
-@if not exist g_mover.asm %CC_GAME% %PATH_GAME%/g_mover.c
-@if errorlevel 1 goto quit
-
-@if not exist g_session.asm %CC_GAME% %PATH_GAME%/g_session.c
-@if errorlevel 1 goto quit
-
-@if not exist g_spawn.asm %CC_GAME% %PATH_GAME%/g_spawn.c
-@if errorlevel 1 goto quit
-
-@if not exist g_svcmds.asm %CC_GAME% %PATH_GAME%/g_svcmds.c
-@if errorlevel 1 goto quit
-
-@if not exist g_target.asm %CC_GAME% %PATH_GAME%/g_target.c
-@if errorlevel 1 goto quit
-
-@if not exist g_team.asm %CC_GAME% %PATH_GAME%/g_team.c
-@if errorlevel 1 goto quit
-
-@if not exist g_trigger.asm %CC_GAME% %PATH_GAME%/g_trigger.c
-@if errorlevel 1 goto quit
-
-@if not exist g_utils.asm %CC_GAME% %PATH_GAME%/g_utils.c
-@if errorlevel 1 goto quit
-
-@if not exist g_weapon.asm %CC_GAME% %PATH_GAME%/g_weapon.c
-@if errorlevel 1 goto quit
-
-@if not exist ai_vcmd.asm %CC_GAME% %PATH_GAME%/ai_vcmd.c
-@if errorlevel 1 goto quit
-
-@if not exist g_unlagged.asm %CC_GAME% %PATH_GAME%/g_unlagged.c
-@if errorlevel 1 goto quit
-
-@if not exist g_sg_utils.asm %CC_GAME% %PATH_GAME%/g_sg_utils.c
-@if errorlevel 1 goto quit
-
-@if not exist g_hit.asm %CC_GAME% %PATH_GAME%/g_hit.c
-@if errorlevel 1 goto quit
-
-@popd
-
-@echo Building cgame ...
-@pushd asm\cgame
-
-@if not exist bg_misc.asm %CC_CGAME% %PATH_GAME%/bg_misc.c
-@if errorlevel 1 goto quit
-
-@if not exist bg_pmove.asm %CC_CGAME% %PATH_GAME%/bg_pmove.c
-@if errorlevel 1 goto quit
-
-@if not exist bg_slidemove.asm %CC_CGAME% %PATH_GAME%/bg_slidemove.c
-@if errorlevel 1 goto quit
-
-@if not exist bg_lib.asm %CC_CGAME% %PATH_GAME%/bg_lib.c
-@if errorlevel 1 goto quit
-
-@if not exist q_math.asm %CC_CGAME% %PATH_COMMON%/q_math.c
-@if errorlevel 1 goto quit
-
-@if not exist q_shared.asm %CC_CGAME% %PATH_COMMON%/q_shared.c
-@if errorlevel 1 goto quit
-
-@if not exist cg_consolecmds.asm %CC_CGAME% %PATH_CGAME%/cg_consolecmds.c
-@if errorlevel 1 goto quit
-
-@if not exist cg_draw.asm %CC_CGAME% %PATH_CGAME%/cg_draw.c
-@if errorlevel 1 goto quit
-
-@if not exist cg_drawtools.asm %CC_CGAME% %PATH_CGAME%/cg_drawtools.c
-@if errorlevel 1 goto quit
-
-@if not exist cg_effects.asm %CC_CGAME% %PATH_CGAME%/cg_effects.c
-@if errorlevel 1 goto quit
-
-@if not exist cg_ents.asm %CC_CGAME% %PATH_CGAME%/cg_ents.c
-@if errorlevel 1 goto quit
-
-@if not exist cg_event.asm %CC_CGAME% %PATH_CGAME%/cg_event.c
-@if errorlevel 1 goto quit
-
-@if not exist cg_info.asm %CC_CGAME% %PATH_CGAME%/cg_info.c
-@if errorlevel 1 goto quit
-
-@if not exist cg_localents.asm %CC_CGAME% %PATH_CGAME%/cg_localents.c
-@if errorlevel 1 goto quit
-
-@if not exist cg_main.asm %CC_CGAME% %PATH_CGAME%/cg_main.c
-@if errorlevel 1 goto quit
-
-@if not exist cg_marks.asm %CC_CGAME% %PATH_CGAME%/cg_marks.c
-@if errorlevel 1 goto quit
-
-@if not exist cg_players.asm %CC_CGAME% %PATH_CGAME%/cg_players.c
-@if errorlevel 1 goto quit
-
-@if not exist cg_playerstate.asm %CC_CGAME% %PATH_CGAME%/cg_playerstate.c
-@if errorlevel 1 goto quit
-
-@if not exist cg_predict.asm %CC_CGAME% %PATH_CGAME%/cg_predict.c
-@if errorlevel 1 goto quit
-
-@if not exist cg_scoreboard.asm %CC_CGAME% %PATH_CGAME%/cg_scoreboard.c
-@if errorlevel 1 goto quit
-
-@if not exist cg_servercmds.asm %CC_CGAME% %PATH_CGAME%/cg_servercmds.c
-@if errorlevel 1 goto quit
-
-@if not exist cg_snapshot.asm %CC_CGAME% %PATH_CGAME%/cg_snapshot.c
-@if errorlevel 1 goto quit
-
-@if not exist cg_view.asm %CC_CGAME% %PATH_CGAME%/cg_view.c
-@if errorlevel 1 goto quit
-
-@if not exist cg_weapons.asm %CC_CGAME% %PATH_CGAME%/cg_weapons.c
-@if errorlevel 1 goto quit
-
-@if not exist ui_shared.asm %CC_CGAME% %PATH_UI%/ui_shared.c
-@if errorlevel 1 goto quit
-
-@if not exist cg_newDraw.asm %CC_CGAME% %PATH_CGAME%/cg_newdraw.c
-@if errorlevel 1 goto quit
-
-@if not exist cg_sg_utils.asm %CC_CGAME% %PATH_CGAME%/cg_sg_utils.c
-@if errorlevel 1 goto quit
-
-@if not exist cg_unlagged.asm %CC_CGAME% %PATH_CGAME%/cg_unlagged.c
-@if errorlevel 1 goto quit
-
-@popd
-
-@echo Building ui ...
-@pushd asm\ui
-
-@if not exist ui_main.asm %CC_UI% %PATH_UI%/ui_main.c
-@if errorlevel 1 goto quit
-
-@if not exist bg_misc.asm %CC_UI% %PATH_GAME%/bg_misc.c
-@if errorlevel 1 goto quit
-
-@if not exist bg_lib.asm %CC_UI% %PATH_GAME%/bg_lib.c
-@if errorlevel 1 goto quit
-
-@if not exist q_math.asm %CC_UI% %PATH_COMMON%/q_math.c
-@if errorlevel 1 goto quit
-
-@if not exist q_shared.asm %CC_UI% %PATH_COMMON%/q_shared.c
-@if errorlevel 1 goto quit
-
-@if not exist ui_atoms.asm %CC_UI% %PATH_UI%/ui_atoms.c
-@if errorlevel 1 goto quit
-
-@if not exist ui_players.asm %CC_UI% %PATH_UI%/ui_players.c
-@if errorlevel 1 goto quit
-
-@if not exist ui_shared.asm %CC_UI% %PATH_UI%/ui_shared.c
-@if errorlevel 1 goto quit
-
-@if not exist ui_gameinfo.asm %CC_UI% %PATH_UI%/ui_gameinfo.c
-@if errorlevel 1 goto quit
-
-@popd
-
-@pushd asm\game
-@set Q3ASM_ARGS=-o qagame
-@set Q3ASM_ARGS=%Q3ASM_ARGS% g_main
-@set Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME%\g_syscalls
-@set Q3ASM_ARGS=%Q3ASM_ARGS% bg_misc
-@set Q3ASM_ARGS=%Q3ASM_ARGS% bg_lib
-@set Q3ASM_ARGS=%Q3ASM_ARGS% bg_pmove
-@set Q3ASM_ARGS=%Q3ASM_ARGS% bg_slidemove
-@set Q3ASM_ARGS=%Q3ASM_ARGS% q_math
-@set Q3ASM_ARGS=%Q3ASM_ARGS% q_shared
-@set Q3ASM_ARGS=%Q3ASM_ARGS% ai_dmnet
-@set Q3ASM_ARGS=%Q3ASM_ARGS% ai_dmq3
-@set Q3ASM_ARGS=%Q3ASM_ARGS% ai_team
-@set Q3ASM_ARGS=%Q3ASM_ARGS% ai_main
-@set Q3ASM_ARGS=%Q3ASM_ARGS% ai_chat
-@set Q3ASM_ARGS=%Q3ASM_ARGS% ai_cmd
-@set Q3ASM_ARGS=%Q3ASM_ARGS% g_active
-@set Q3ASM_ARGS=%Q3ASM_ARGS% g_arenas
-@set Q3ASM_ARGS=%Q3ASM_ARGS% g_bot
-@set Q3ASM_ARGS=%Q3ASM_ARGS% g_client
-@set Q3ASM_ARGS=%Q3ASM_ARGS% g_cmds
-@set Q3ASM_ARGS=%Q3ASM_ARGS% g_combat
-@set Q3ASM_ARGS=%Q3ASM_ARGS% g_items
-@set Q3ASM_ARGS=%Q3ASM_ARGS% g_mem
-@set Q3ASM_ARGS=%Q3ASM_ARGS% g_misc
-@set Q3ASM_ARGS=%Q3ASM_ARGS% g_missile
-@set Q3ASM_ARGS=%Q3ASM_ARGS% g_mover
-@set Q3ASM_ARGS=%Q3ASM_ARGS% g_session
-@set Q3ASM_ARGS=%Q3ASM_ARGS% g_spawn
-@set Q3ASM_ARGS=%Q3ASM_ARGS% g_svcmds
-@set Q3ASM_ARGS=%Q3ASM_ARGS% g_target
-@set Q3ASM_ARGS=%Q3ASM_ARGS% g_team
-@set Q3ASM_ARGS=%Q3ASM_ARGS% g_trigger
-@set Q3ASM_ARGS=%Q3ASM_ARGS% g_utils
-@set Q3ASM_ARGS=%Q3ASM_ARGS% g_weapon
-@set Q3ASM_ARGS=%Q3ASM_ARGS% ai_vcmd
-@set Q3ASM_ARGS=%Q3ASM_ARGS% g_unlagged
-@set Q3ASM_ARGS=%Q3ASM_ARGS% g_sg_utils
-@set Q3ASM_ARGS=%Q3ASM_ARGS% g_hit
-@if not exist ..\..\vm\qagame.qvm %Q3ASM% %Q3ASM_ARGS%
-@if exist qagame.qvm move qagame.qvm ..\..\vm
-@popd
-
-@pushd asm\cgame
-@set Q3ASM_ARGS=-o cgame
-@set Q3ASM_ARGS=%Q3ASM_ARGS% cg_main
-@set Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME%\cg_syscalls
-@set Q3ASM_ARGS=%Q3ASM_ARGS% cg_consolecmds
-@set Q3ASM_ARGS=%Q3ASM_ARGS% cg_draw
-@set Q3ASM_ARGS=%Q3ASM_ARGS% cg_drawtools
-@set Q3ASM_ARGS=%Q3ASM_ARGS% cg_effects
-@set Q3ASM_ARGS=%Q3ASM_ARGS% cg_ents
-@set Q3ASM_ARGS=%Q3ASM_ARGS% cg_event
-@set Q3ASM_ARGS=%Q3ASM_ARGS% cg_info
-@set Q3ASM_ARGS=%Q3ASM_ARGS% cg_localents
-@set Q3ASM_ARGS=%Q3ASM_ARGS% cg_marks
-@set Q3ASM_ARGS=%Q3ASM_ARGS% cg_players
-@set Q3ASM_ARGS=%Q3ASM_ARGS% cg_playerstate
-@set Q3ASM_ARGS=%Q3ASM_ARGS% cg_predict
-@set Q3ASM_ARGS=%Q3ASM_ARGS% cg_scoreboard
-@set Q3ASM_ARGS=%Q3ASM_ARGS% cg_servercmds
-@set Q3ASM_ARGS=%Q3ASM_ARGS% cg_snapshot
-@set Q3ASM_ARGS=%Q3ASM_ARGS% cg_view
-@set Q3ASM_ARGS=%Q3ASM_ARGS% cg_weapons
-@set Q3ASM_ARGS=%Q3ASM_ARGS% bg_slidemove
-@set Q3ASM_ARGS=%Q3ASM_ARGS% bg_pmove
-@set Q3ASM_ARGS=%Q3ASM_ARGS% bg_lib
-@set Q3ASM_ARGS=%Q3ASM_ARGS% bg_misc
-@set Q3ASM_ARGS=%Q3ASM_ARGS% q_math
-@set Q3ASM_ARGS=%Q3ASM_ARGS% q_shared
-@set Q3ASM_ARGS=%Q3ASM_ARGS% ui_shared
-@set Q3ASM_ARGS=%Q3ASM_ARGS% cg_newdraw
-@set Q3ASM_ARGS=%Q3ASM_ARGS% cg_sg_utils
-@set Q3ASM_ARGS=%Q3ASM_ARGS% cg_unlagged
-@if not exist ..\..\vm\cgame.qvm %Q3ASM% %Q3ASM_ARGS%
-@if exist cgame.qvm move cgame.qvm ..\..\vm
-@popd
-
-@pushd asm\ui
-@set Q3ASM_ARGS=-o ui
-@set Q3ASM_ARGS=%Q3ASM_ARGS% ui_main
-@set Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_UI%\ui_syscalls
-@set Q3ASM_ARGS=%Q3ASM_ARGS% ui_atoms
-@set Q3ASM_ARGS=%Q3ASM_ARGS% ui_players
-@set Q3ASM_ARGS=%Q3ASM_ARGS% ui_shared
-@set Q3ASM_ARGS=%Q3ASM_ARGS% ui_gameinfo
-@set Q3ASM_ARGS=%Q3ASM_ARGS% bg_misc
-@set Q3ASM_ARGS=%Q3ASM_ARGS% bg_lib
-@set Q3ASM_ARGS=%Q3ASM_ARGS% q_math
-@set Q3ASM_ARGS=%Q3ASM_ARGS% q_shared
-@if not exist ..\..\vm\ui.qvm %Q3ASM% %Q3ASM_ARGS%
-@if exist ui.qvm move ui.qvm ..\..\vm
-@popd
+ECHO OFF
+CLS
+
+REM Hardcoded variables
+SET PRODUCT_VERSION=1.1
+
+ECHO Today is %date%
+
+REM Getting the date
+FOR /F "delims=. tokens=1,2,3" %%i in ('date /t')  do (
+    SET DayWS=%%i
+    SET MonthWS=%%j
+    SET YearWS=%%k
+)
+
+REM Removing the spaces
+FOR /F "tokens=1,2,3" %%i in ("%YearWS% %MonthWS% %DayWS%") do (
+    SET DATESTAMP=%%i%%j%%k
+)
+
+REM Make sure we have a safe environment
+SET LIBRARY=
+SET INCLUDE=
+SET LCC_DVARS=-DSMOKINGUNS -DPRODUCT_VERSION=%PRODUCT_VERSION% -DSG_RELEASE=%DATESTAMP%
+SET CURDIR=%~dp0
+SET PREVPATH=%PATH%
+SET PATH=%PATH%;%CURDIR%\bin\
+
+SET PATH_GAME=code\game
+SET PATH_CGAME=code\cgame
+SET PATH_UI=code\ui
+SET PATH_QCOMMON=code\qcommon
+
+SET PATH_GAME_BUILT=build\asm\game
+SET PATH_CGAME_BUILT=build\asm\cgame
+SET PATH_UI_BUILT=build\asm\ui
+SET PATH_QCOMMON_BUILT=build\asm\qcommon
+
+SET CC_QCOMMON="q3lcc %LCC_DVARS%"
+SET CC_GAME="q3lcc -DQAGAME %LCC_DVARS%"
+SET CC_CGAME="q3lcc -DCGAME %LCC_DVARS%"
+SET CC_UI="q3lcc -DUI %LCC_DVARS%"
+SET Q3ASM=q3asm
+
+REM Change dir to root of the project
+cd ..\..\
+
+if not exist build mkdir build
+if not exist build\vm mkdir build\vm
+if not exist build\asm mkdir build\asm
+if not exist %PATH_GAME_BUILT% mkdir %PATH_GAME_BUILT%
+if not exist %PATH_CGAME_BUILT% mkdir %PATH_CGAME_BUILT%
+if not exist %PATH_UI_BUILT% mkdir %PATH_UI_BUILT%
+if not exist %PATH_QCOMMON_BUILT% mkdir %PATH_QCOMMON_BUILT%
+
+ECHO Building qcommon ...
+    CALL :compile_it %CC_QCOMMON% %PATH_QCOMMON_BUILT%\q_math.asm %PATH_QCOMMON%/q_math.c
+    CALL :compile_it %CC_QCOMMON% %PATH_QCOMMON_BUILT%\q_shared.asm %PATH_QCOMMON%/q_shared.c
+ECHO Building game ...
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_main.asm %PATH_GAME%/g_main.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\bg_misc.asm %PATH_GAME%/bg_misc.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\bg_lib.asm %PATH_GAME%/bg_lib.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\bg_pmove.asm %PATH_GAME%/bg_pmove.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\bg_slidemove.asm %PATH_GAME%/bg_slidemove.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\ai_dmnet.asm %PATH_GAME%/ai_dmnet.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\ai_dmq3.asm %PATH_GAME%/ai_dmq3.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\ai_main.asm %PATH_GAME%/ai_main.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\ai_chat.asm %PATH_GAME%/ai_chat.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\ai_cmd.asm %PATH_GAME%/ai_cmd.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\ai_team.asm %PATH_GAME%/ai_team.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_active.asm %PATH_GAME%/g_active.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_arenas.asm %PATH_GAME%/g_arenas.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_bot.asm %PATH_GAME%/g_bot.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_client.asm %PATH_GAME%/g_client.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_cmds.asm %PATH_GAME%/g_cmds.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_combat.asm %PATH_GAME%/g_combat.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_items.asm %PATH_GAME%/g_items.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_mem.asm %PATH_GAME%/g_mem.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_misc.asm %PATH_GAME%/g_misc.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_missile.asm %PATH_GAME%/g_missile.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_mover.asm %PATH_GAME%/g_mover.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_session.asm %PATH_GAME%/g_session.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_spawn.asm %PATH_GAME%/g_spawn.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_svcmds.asm %PATH_GAME%/g_svcmds.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_target.asm %PATH_GAME%/g_target.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_team.asm %PATH_GAME%/g_team.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_trigger.asm %PATH_GAME%/g_trigger.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_utils.asm %PATH_GAME%/g_utils.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_weapon.asm %PATH_GAME%/g_weapon.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\ai_vcmd.asm %PATH_GAME%/ai_vcmd.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_unlagged.asm %PATH_GAME%/g_unlagged.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_sg_utils.asm %PATH_GAME%/g_sg_utils.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_hit.asm %PATH_GAME%/g_hit.c
+ECHO Linking game ...
+    SET Q3ASM_ARGS=
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_main
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME%\g_syscalls
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\bg_misc
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\bg_lib
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\bg_pmove
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\bg_slidemove
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_QCOMMON_BUILT%\q_math
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_QCOMMON_BUILT%\q_shared
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\ai_dmnet
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\ai_dmq3
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\ai_team
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\ai_main
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\ai_chat
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\ai_cmd
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_active
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_arenas
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_bot
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_client
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_cmds
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_combat
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_items
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_mem
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_misc
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_missile
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_mover
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_session
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_spawn
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_svcmds
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_target
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_team
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_trigger
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_utils
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_weapon
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\ai_vcmd
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_unlagged
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_sg_utils
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_hit
+    CALL :compile_it %Q3ASM% build\vm\qagame.qvm "%Q3ASM_ARGS%"
+ECHO Building cgame ...
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_consolecmds.asm %PATH_CGAME%/cg_consolecmds.c
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_draw.asm %PATH_CGAME%/cg_draw.c
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_drawtools.asm %PATH_CGAME%/cg_drawtools.c
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_effects.asm %PATH_CGAME%/cg_effects.c
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_ents.asm %PATH_CGAME%/cg_ents.c
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_event.asm %PATH_CGAME%/cg_event.c
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_info.asm %PATH_CGAME%/cg_info.c
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_localents.asm %PATH_CGAME%/cg_localents.c
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_main.asm %PATH_CGAME%/cg_main.c
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_marks.asm %PATH_CGAME%/cg_marks.c
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_players.asm %PATH_CGAME%/cg_players.c
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_playerstate.asm %PATH_CGAME%/cg_playerstate.c
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_predict.asm %PATH_CGAME%/cg_predict.c
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_scoreboard.asm %PATH_CGAME%/cg_scoreboard.c
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_servercmds.asm %PATH_CGAME%/cg_servercmds.c
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_snapshot.asm %PATH_CGAME%/cg_snapshot.c
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_view.asm %PATH_CGAME%/cg_view.c
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_weapons.asm %PATH_CGAME%/cg_weapons.c
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_newdraw.asm %PATH_CGAME%/cg_newdraw.c
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_sg_utils.asm %PATH_CGAME%/cg_sg_utils.c
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_unlagged.asm %PATH_CGAME%/cg_unlagged.c
+
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\bg_misc.asm %PATH_GAME%/bg_misc.c
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\bg_pmove.asm %PATH_GAME%/bg_pmove.c
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\bg_slidemove.asm %PATH_GAME%/bg_slidemove.c
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\bg_lib.asm %PATH_GAME%/bg_lib.c
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\ui_shared.asm %PATH_UI%/ui_shared.c
+ECHO linking cgame ...
+    SET Q3ASM_ARGS=
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_main
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME%\cg_syscalls
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_consolecmds
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_draw
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_drawtools
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_effects
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_ents
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_event
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_info
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_localents
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_marks
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_players
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_playerstate
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_predict
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_scoreboard
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_servercmds
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_snapshot
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_view
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_weapons
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\bg_slidemove
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\bg_pmove
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\bg_lib
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\bg_misc
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_QCOMMON_BUILT%\q_math
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_QCOMMON_BUILT%\q_shared
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\ui_shared
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_newdraw
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_sg_utils
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_unlagged
+    CALL :compile_it %Q3ASM% build\vm\cgame.qvm "%Q3ASM_ARGS%"
+ECHO Building ui ...
+    CALL :compile_it %CC_UI% %PATH_UI_BUILT%\ui_atoms.asm %PATH_UI%/ui_atoms.c
+    CALL :compile_it %CC_UI% %PATH_UI_BUILT%\ui_players.asm %PATH_UI%/ui_players.c
+    CALL :compile_it %CC_UI% %PATH_UI_BUILT%\ui_shared.asm %PATH_UI%/ui_shared.c
+    CALL :compile_it %CC_UI% %PATH_UI_BUILT%\ui_gameinfo.asm %PATH_UI%/ui_gameinfo.c
+    CALL :compile_it %CC_UI% %PATH_UI_BUILT%\ui_main.asm %PATH_UI%/ui_main.c
+    CALL :compile_it %CC_UI% %PATH_UI_BUILT%\bg_misc.asm %PATH_GAME%/bg_misc.c
+    CALL :compile_it %CC_UI% %PATH_UI_BUILT%\bg_lib.asm %PATH_GAME%/bg_lib.c
+ECHO linking ui ...
+    SET Q3ASM_ARGS=
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_UI_BUILT%\ui_main
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_UI%\ui_syscalls
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_UI_BUILT%\ui_atoms
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_UI_BUILT%\ui_players
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_UI_BUILT%\ui_shared
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_UI_BUILT%\ui_gameinfo
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_UI_BUILT%\bg_misc
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_UI_BUILT%\bg_lib
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_QCOMMON_BUILT%\q_math
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_QCOMMON_BUILT%\q_shared
+    CALL :compile_it %Q3ASM% build\vm\ui.qvm "%Q3ASM_ARGS%"
+GOTO quit
+
+REM FUNCTONS SECTION
+:compile_it
+SET CC=%~1
+SET OUTPUT=%~2
+SET INPUT=%~3
+
+IF EXIST %OUTPUT% EXIT /b
+
+REM Say what we do
+ECHO %CC% -o %OUTPUT% %INPUT%
+
+REM Do it
+%CC% -o %OUTPUT% %INPUT%
+IF NOT ERRORLEVEL 1 EXIT /b
+
+REM ELSE (If exitcode >= 1)
+ECHO Failed
+GOTO quit
+EXIT /b
 
 :quit
-popd
-pause
+
+REM Go to start dir, set path variable back, pause, exit
+cd %CURDIR%
+SET PATH=%PREVPATH%
+ECHO Done
+PAUSE
+
+REM Exit required because of goto quit used in function
+EXIT

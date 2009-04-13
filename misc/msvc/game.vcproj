@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="game"
 	ProjectGUID="{F9EE10DA-2404-4154-B904-F93C936C040A}"
 	TargetFrameworkVersion="131072"
@@ -673,11 +673,6 @@
 				RelativePath="..\..\code\game\syn.h"
 				>
 			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe"
-			>
 		</Filter>
 	</Files>
 	<Globals>
