@@ -95,7 +95,7 @@ my Artwork :)
 #define	DISTANCE		10
 void CG_DrawLoadingStage(void){
 	float	loaded;
-	vec4_t	color = {0.6f, 0.4f, 0.0f, 0.6f};//{0.67f, 0.06f, 0.06f, 0.6f};
+	vec4_t	color = {0.6f, 0.4f, 0.0f, 0.6f};
 	float	progress;
 
 	loaded = loadingstage + loadingPlayerIconCount*1.5 + loadingItemIconCount*1.5;
@@ -289,7 +289,6 @@ void CG_DrawInformation( void ) {
 	CG_DrawLoadingIcons();
 #else
 	if ( levelshot ) {
-		//levelshot = trap_R_RegisterShaderNoMip( "ui/bg/main.tga" );
 		photo = trap_R_RegisterShaderNoMip( "ui/bg/photo.tga");
 
 		CG_DrawPic( 80, 75, 480, 360, photo );
@@ -304,8 +303,8 @@ void CG_DrawInformation( void ) {
 
 	// the first 150 rows are reserved for the client connection
 	// screen to write into
-	if ( cg.infoScreenText[0] ) {
 #ifndef SMOKINGUNS
+	if ( cg.infoScreenText[0] ) {
 		UI_DrawProportionalString( 320, 128-32, va("Loading... %s", cg.infoScreenText),
 			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 	} else {
@@ -317,6 +316,7 @@ void CG_DrawInformation( void ) {
 
 	y = 180-32;
 #else
+	if ( cg.infoScreenText[0] ) {
 		CG_Text_PaintCenter( 320, 464, 0.25f, colorWhite,
 			va("Loading... %s", cg.infoScreenText), 0, 0, 0);
 	} else {

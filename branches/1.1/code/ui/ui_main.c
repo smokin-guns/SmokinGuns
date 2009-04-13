@@ -6267,7 +6267,6 @@ void Text_PaintCenter(float x, float y, float scale, vec4_t color, const char *t
 	Text_Paint(x - len / 2, y, scale, color, text, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 }
 
-#ifndef SMOKINGUNS
 void Text_PaintCenter_AutoWrapped(float x, float y, float xmax, float ystep, float scale, vec4_t color, const char *str, float adjust) {
 	int width;
 	char *s1,*s2,*s3;
@@ -6323,7 +6322,6 @@ void Text_PaintCenter_AutoWrapped(float x, float y, float xmax, float ystep, flo
 		}
 	}
 }
-#endif
 
 static void UI_DisplayDownloadInfo( const char *downloadName, float centerPoint, float yStart, float scale ) {
 	static char dlText[]	= "Downloading:";
@@ -6472,57 +6470,16 @@ void UI_DrawConnectScreen( qboolean overlay ) {
 		Text_PaintCenter(centerPoint, yStart + 48, scale, colorWhite,text , ITEM_TEXTSTYLE_SHADOWEDMORE);
 	}
 
-#ifdef SMOKINGUNS
-	scale /= 1.5f ;
-#endif
-
 	// display global MOTD at bottom
 	Text_PaintCenter(centerPoint, 600, scale, colorWhite, Info_ValueForKey( cstate.updateInfoString, "motd" ), 0);
 	// print any server info (server full, bad version, etc)
 	if ( cstate.connState < CA_CONNECTED ) {
-#ifndef SMOKINGUNS
+#ifdef SMOKINGUNS
 		Text_PaintCenter_AutoWrapped(centerPoint, yStart + 176, 630, 20, scale, colorWhite, cstate.messageString, 0);
-	}
 #else
-		int len;
-
-		len = strlen(cstate.messageString);
-
-#define MAX_LINE_LENGTH 50
-		if(len > MAX_LINE_LENGTH){
-			int i = 0;
-			int lastPos = 0, line = 0;
-			char string[128];
-
-			while(i + lastPos < len){
-
-				if(cstate.messageString[i+lastPos] == 32 // this is ascii code for ' '
-					&&
-					i >= MAX_LINE_LENGTH){
-
-					string[i] = '\0';
-
-					lastPos += i+1;
-					i = 0;
-
-					Text_PaintCenter(centerPoint, yStart + 176 + line*15, scale, colorWhite, string, 0);
-					line++;
-				} else {
-					string[i] = cstate.messageString[i+lastPos];
-					i++;
-				}
-			}
-
-			// see if we have to draw a last line
-			if(i != 0){
-				string[i] = '\0';
-				Text_PaintCenter(centerPoint, yStart + 176 + line*15, scale, colorWhite, string, 0);
-			}
-		} else
-			Text_PaintCenter(centerPoint, yStart + 176, scale, colorWhite, cstate.messageString, 0);
-	}
-	scale *= 1.5f ;
+		Text_PaintCenter_AutoWrapped(centerPoint, yStart + 176, 600, 15, scale/1.5f, colorWhite, cstate.messageString, 0);
 #endif
+	}
 
 	if ( lastConnState > cstate.connState ) {
 		lastLoadingText[0] = '\0';

@@ -1039,7 +1039,10 @@ typedef struct {
 
 	qhandle_t	charsetShader;
 	qhandle_t	charsetProp;
+#ifndef SMOKINGUNS
+// Tequila comment: Removed that as it is not used, charset not existing
 	qhandle_t	charsetPropGlow;
+#endif
 	qhandle_t	charsetPropB;
 	qhandle_t	whiteShader;
 
