@@ -243,7 +243,7 @@ extern int demo_protocols[];
 #ifndef SMOKINGUNS
 #define	UPDATE_SERVER_NAME	"update.quake3arena.com"
 #else
-#define	UPDATE_SERVER_NAME	"update.smokin-guns.net"
+#define	UPDATE_SERVER_NAME	"update.smokin-guns.org"
 #endif
 // override on command line, config files etc.
 #ifndef MASTER_SERVER_NAME
@@ -260,7 +260,7 @@ extern int demo_protocols[];
 #else
   #ifdef SMOKINGUNS
     #ifndef AUTHORIZE_SERVER_NAME
-      #define	AUTHORIZE_SERVER_NAME	"authorize.smokin-guns.net"
+      #define	AUTHORIZE_SERVER_NAME	"authorize.smokin-guns.org"
     #endif
     #ifndef PORT_AUTHORIZE
       #define	PORT_AUTHORIZE		27952
