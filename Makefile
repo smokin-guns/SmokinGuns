@@ -45,13 +45,6 @@ endif
 ifndef BUILD_MISSIONPACK
   BUILD_MISSIONPACK=
 endif
-ifndef GAMENAME
-  GAMENAME         = ioquake3
-endif
-ifndef GAMEDIR
-  GAMEDIR          = baseq3
-endif
-
 
 ifneq ($(PLATFORM),darwin)
   BUILD_CLIENT_SMP = 0
@@ -171,10 +164,10 @@ CGDIR=$(MOUNT_DIR)/cgame
 BLIBDIR=$(MOUNT_DIR)/botlib
 NDIR=$(MOUNT_DIR)/null
 UIDIR=$(MOUNT_DIR)/ui
-ifndef SDKUIDIR
+ifndef USE_MP_UIDIR
 Q3UIDIR=$(MOUNT_DIR)/q3_ui
 else
-Q3UIDIR=$(MOUNT_DIR)/$(SDKUIDIR)
+Q3UIDIR=$(UIDIR)
 endif
 JPDIR=$(MOUNT_DIR)/jpeg-6b
 SPEEXDIR=$(MOUNT_DIR)/libspeex
@@ -800,24 +793,27 @@ endif #SunOS
 TARGETS =
 
 ifneq ($(BUILD_SERVER),0)
-  TARGETS += $(B)/$(GAMENAME)_dedicated.$(ARCH)$(BINEXT)
+ifndef SDK_GAMENAME_DED
+  TARGETS += $(B)/ioq3ded.$(ARCH)$(BINEXT)
+else
+  TARGETS += $(B)/$(SDK_GAMENAME_DED).$(ARCH)$(BINEXT)
+endif
 endif
 
+ifndef SDK_GAMENAME
+# Normal ioQuake3 way of build
 ifneq ($(BUILD_CLIENT),0)
-  TARGETS += $(B)/$(GAMENAME).$(ARCH)$(BINEXT)
+  TARGETS += $(B)/ioquake3.$(ARCH)$(BINEXT)
   ifneq ($(BUILD_CLIENT_SMP),0)
-    TARGETS += $(B)/$(GAMENAME)-smp.$(ARCH)$(BINEXT)
+    TARGETS += $(B)/ioquake3-smp.$(ARCH)$(BINEXT)
   endif
 endif
 
-ifdef SDK_TARGETS
-	TARGETS += $(SDK_TARGETS)
-else
 ifneq ($(BUILD_GAME_SO),0)
   TARGETS += \
-    $(B)/$(GAMEDIR)/cgame$(ARCH).$(SHLIBEXT) \
-    $(B)/$(GAMEDIR)/qagame$(ARCH).$(SHLIBEXT) \
-    $(B)/$(GAMEDIR)/ui$(ARCH).$(SHLIBEXT)
+    $(B)/baseq3/cgame$(ARCH).$(SHLIBEXT) \
+    $(B)/baseq3/qagame$(ARCH).$(SHLIBEXT) \
+    $(B)/baseq3/ui$(ARCH).$(SHLIBEXT)
   ifneq ($(BUILD_MISSIONPACK),0)
     TARGETS += \
     $(B)/missionpack/cgame$(ARCH).$(SHLIBEXT) \
@@ -829,14 +825,42 @@ endif
 ifneq ($(BUILD_GAME_QVM),0)
   ifneq ($(CROSS_COMPILING),1)
     TARGETS += \
-      $(B)/$(GAMEDIR)/vm/cgame.qvm \
-      $(B)/$(GAMEDIR)/vm/qagame.qvm \
-      $(B)/$(GAMEDIR)/vm/ui.qvm
+      $(B)/baseq3/vm/cgame.qvm \
+      $(B)/baseq3/vm/qagame.qvm \
+      $(B)/baseq3/vm/ui.qvm
     ifneq ($(BUILD_MISSIONPACK),0)
       TARGETS += \
       $(B)/missionpack/vm/qagame.qvm \
       $(B)/missionpack/vm/cgame.qvm \
       $(B)/missionpack/vm/ui.qvm
+    endif
+  endif
+endif
+else
+# SDK way of build
+ifneq ($(BUILD_CLIENT),0)
+  TARGETS += $(B)/$(SDK_GAMENAME).$(ARCH)$(BINEXT)
+  ifneq ($(BUILD_CLIENT_SMP),0)
+    TARGETS += $(B)/$(SDK_GAMENAME)-smp.$(ARCH)$(BINEXT)
+  endif
+endif
+
+ifdef SDK_TARGETS
+	TARGETS += $(SDK_TARGETS)
+else
+  ifneq ($(BUILD_GAME_SO),0)
+    TARGETS += \
+      $(B)/$(SDK_GAMENAME)/cgame$(ARCH).$(SHLIBEXT) \
+      $(B)/$(SDK_GAMENAME)/qagame$(ARCH).$(SHLIBEXT) \
+      $(B)/$(SDK_GAMENAME)/ui$(ARCH).$(SHLIBEXT)
+  endif
+
+  ifneq ($(BUILD_GAME_QVM),0)
+    ifneq ($(CROSS_COMPILING),1)
+      TARGETS += \
+        $(B)/$(SDK_GAMENAME)/vm/cgame.qvm \
+        $(B)/$(SDK_GAMENAME)/vm/qagame.qvm \
+        $(B)/$(SDK_GAMENAME)/vm/ui.qvm
     endif
   endif
 endif
@@ -864,14 +888,11 @@ ifeq ($(USE_LOCAL_HEADERS),1)
 endif
 
 ifeq ($(BUILD_STANDALONE),1)
+  ifndef STANDALONE_CFLAGS
   BASE_CFLAGS += -DSTANDALONE
-  ifdef STANDALONE_CFLAGS
-    BASE_CFLAGS += $(STANDALONE_CFLAGS)
+  else
+  STANDALONE_CFLAGS += -DSTANDALONE
   endif
-endif
-
-ifdef SDK_GAMENAME
-  BASE_CFLAGS += -D$(SDK_GAMENAME)
 endif
 
 ifeq ($(GENERATE_DEPENDENCIES),1)
@@ -880,9 +901,11 @@ else
   DEPEND_CFLAGS =
 endif
 
-BASE_CFLAGS += -DPRODUCT_VERSION=$(VERSION)
-ifdef SDK_RELEASE
-BASE_CFLAGS += -D$(SDK_RELEASE)
+ifndef STANDALONE_CFLAGS
+BASE_CFLAGS += -DPRODUCT_VERSION=\\\"$(VERSION)\\\"
+else
+STANDALONE_CFLAGS += -DPRODUCT_VERSION=$(VERSION)
+BASE_CFLAGS += $(STANDALONE_CFLAGS)
 endif
 
 ifeq ($(V),1)
@@ -995,12 +1018,15 @@ release:
 # an informational message, then start building
 targets: makedirs
 	@echo ""
-	@echo "Building $(GAMENAME) in $(B):"
-ifdef SDK_GAMENAME
-	@echo "  SDK_GAMENAME: $(SDK_GAMENAME)"
-endif
-ifdef IOQ3_REVISION
+ifndef SDK_GAME
+	@echo "Building ioquake3 in $(B):"
+else
+	@echo "Building $(SDK_GAME) in $(B):"
+  ifdef IOQ3_REVISION
+# IOQ3_REVISION can be defined in Makefile.local for SDK_GAMENAME mainteners
+# to keep trace of the ioquake3 supported revision
 	@echo "  IOQ3_REVISION: $(IOQ3_REVISION)"
+  endif
 endif
 	@echo "  PLATFORM: $(PLATFORM)"
 	@echo "  ARCH: $(ARCH)"
@@ -1014,6 +1040,13 @@ endif
 	do \
 		echo "    $$i"; \
 	done
+ifdef STANDALONE_CFLAGS
+	@echo "  STANDALONE_CFLAGS:"
+	-@for i in $(STANDALONE_CFLAGS); \
+	do \
+		echo "    $$i"; \
+	done
+endif
 	@echo ""
 	@echo "  LDFLAGS:"
 	-@for i in $(LDFLAGS); \
@@ -1043,19 +1076,26 @@ makedirs:
 	@if [ ! -d $(B)/client ];then $(MKDIR) $(B)/client;fi
 	@if [ ! -d $(B)/clientsmp ];then $(MKDIR) $(B)/clientsmp;fi
 	@if [ ! -d $(B)/ded ];then $(MKDIR) $(B)/ded;fi
-	@if [ ! -d $(B)/$(GAMEDIR) ];then $(MKDIR) $(B)/$(GAMEDIR);fi
-	@if [ ! -d $(B)/$(GAMEDIR)/cgame ];then $(MKDIR) $(B)/$(GAMEDIR)/cgame;fi
-	@if [ ! -d $(B)/$(GAMEDIR)/game ];then $(MKDIR) $(B)/$(GAMEDIR)/game;fi
-	@if [ ! -d $(B)/$(GAMEDIR)/ui ];then $(MKDIR) $(B)/$(GAMEDIR)/ui;fi
-	@if [ ! -d $(B)/$(GAMEDIR)/qcommon ];then $(MKDIR) $(B)/$(GAMEDIR)/qcommon;fi
-	@if [ ! -d $(B)/$(GAMEDIR)/vm ];then $(MKDIR) $(B)/$(GAMEDIR)/vm;fi
-ifneq ($(BUILD_MISSIONPACK),0)
+ifndef SDK_GAMENAME
+	@if [ ! -d $(B)/baseq3 ];then $(MKDIR) $(B)/baseq3;fi
+	@if [ ! -d $(B)/baseq3/cgame ];then $(MKDIR) $(B)/baseq3/cgame;fi
+	@if [ ! -d $(B)/baseq3/game ];then $(MKDIR) $(B)/baseq3/game;fi
+	@if [ ! -d $(B)/baseq3/ui ];then $(MKDIR) $(B)/baseq3/ui;fi
+	@if [ ! -d $(B)/baseq3/qcommon ];then $(MKDIR) $(B)/baseq3/qcommon;fi
+	@if [ ! -d $(B)/baseq3/vm ];then $(MKDIR) $(B)/baseq3/vm;fi
 	@if [ ! -d $(B)/missionpack ];then $(MKDIR) $(B)/missionpack;fi
 	@if [ ! -d $(B)/missionpack/cgame ];then $(MKDIR) $(B)/missionpack/cgame;fi
 	@if [ ! -d $(B)/missionpack/game ];then $(MKDIR) $(B)/missionpack/game;fi
 	@if [ ! -d $(B)/missionpack/ui ];then $(MKDIR) $(B)/missionpack/ui;fi
 	@if [ ! -d $(B)/missionpack/qcommon ];then $(MKDIR) $(B)/missionpack/qcommon;fi
 	@if [ ! -d $(B)/missionpack/vm ];then $(MKDIR) $(B)/missionpack/vm;fi
+else
+	@if [ ! -d $(B)/$(SDK_GAMENAME) ];then $(MKDIR) $(B)/$(SDK_GAMENAME);fi
+	@if [ ! -d $(B)/$(SDK_GAMENAME)/cgame ];then $(MKDIR) $(B)/$(SDK_GAMENAME)/cgame;fi
+	@if [ ! -d $(B)/$(SDK_GAMENAME)/game ];then $(MKDIR) $(B)/$(SDK_GAMENAME)/game;fi
+	@if [ ! -d $(B)/$(SDK_GAMENAME)/ui ];then $(MKDIR) $(B)/$(SDK_GAMENAME)/ui;fi
+	@if [ ! -d $(B)/$(SDK_GAMENAME)/qcommon ];then $(MKDIR) $(B)/$(SDK_GAMENAME)/qcommon;fi
+	@if [ ! -d $(B)/$(SDK_GAMENAME)/vm ];then $(MKDIR) $(B)/$(SDK_GAMENAME)/vm;fi
 endif
 	@if [ ! -d $(B)/tools ];then $(MKDIR) $(B)/tools;fi
 	@if [ ! -d $(B)/tools/asm ];then $(MKDIR) $(B)/tools/asm;fi
@@ -1076,7 +1116,7 @@ TOOLS_CFLAGS = $(TOOLS_OPTIMIZE) \
 TOOLS_LIBS =
 TOOLS_LDFLAGS =
 
-# Tequila comment: Moved defined from line 435 for QVM build on MacOS X
+# Tequila comment: Moved defined from line 428 for QVM build on MacOS X
 ifeq ($(PLATFORM),darwin)
 	TOOLS_CFLAGS += -DMACOS_X
 endif
@@ -1188,51 +1228,45 @@ $(Q3LCC): $(Q3LCCOBJ) $(Q3RCC) $(Q3CPP)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(TOOLS_CFLAGS) $(TOOLS_LDFLAGS) -o $@ $(Q3LCCOBJ) $(TOOLS_LIBS)
 
-ifndef SDK_GAMENAME
+ifndef STANDALONE_CFLAGS
 define DO_Q3LCC
 $(echo_cmd) "Q3LCC $<"
 $(Q)$(Q3LCC) -o $@ $<
 endef
-else
-define DO_Q3LCC
-$(echo_cmd) "Q3LCC $<"
-$(Q)$(Q3LCC) -D$(SDK_GAMENAME) -o $@ $<
-endef
-endif
 
-ifndef SDK_GAMENAME
 define DO_CGAME_Q3LCC
 $(echo_cmd) "CGAME_Q3LCC $<"
 $(Q)$(Q3LCC) -DCGAME -o $@ $<
 endef
-else
-define DO_CGAME_Q3LCC
-$(echo_cmd) "CGAME_Q3LCC $<"
-$(Q)$(Q3LCC) -D$(SDK_GAMENAME) -DCGAME -o $@ $<
-endef
-endif
 
-ifndef SDK_GAMENAME
 define DO_GAME_Q3LCC
 $(echo_cmd) "GAME_Q3LCC $<"
 $(Q)$(Q3LCC) -DQAGAME -o $@ $<
 endef
-else
-define DO_GAME_Q3LCC
-$(echo_cmd) "GAME_Q3LCC $<"
-$(Q)$(Q3LCC) -D$(SDK_GAMENAME) -DPRODUCT_VERSION=$(VERSION) -D$(SDK_RELEASE) -DQAGAME -o $@ $<
-endef
-endif
 
-ifndef SDK_GAMENAME
 define DO_UI_Q3LCC
 $(echo_cmd) "UI_Q3LCC $<"
 $(Q)$(Q3LCC) -DUI -o $@ $<
 endef
 else
+define DO_Q3LCC
+$(echo_cmd) "Q3LCC $<"
+$(Q)$(Q3LCC) $(STANDALONE_CFLAGS) -o $@ $<
+endef
+
+define DO_CGAME_Q3LCC
+$(echo_cmd) "CGAME_Q3LCC $<"
+$(Q)$(Q3LCC) $(STANDALONE_CFLAGS) -DCGAME -o $@ $<
+endef
+
+define DO_GAME_Q3LCC
+$(echo_cmd) "GAME_Q3LCC $<"
+$(Q)$(Q3LCC) $(STANDALONE_CFLAGS) -DQAGAME -o $@ $<
+endef
+
 define DO_UI_Q3LCC
 $(echo_cmd) "UI_Q3LCC $<"
-$(Q)$(Q3LCC) -D$(SDK_GAMENAME) -DUI -o $@ $<
+$(Q)$(Q3LCC) $(STANDALONE_CFLAGS) -DUI -o $@ $<
 endef
 endif
 
@@ -1542,17 +1576,31 @@ Q3POBJ += \
 Q3POBJ_SMP += \
   $(B)/clientsmp/sdl_glimp.o
 
-$(B)/$(GAMENAME).$(ARCH)$(BINEXT): $(Q3OBJ) $(Q3POBJ) $(LIBSDLMAIN)
+ifndef SDK_GAMENAME
+$(B)/ioquake3.$(ARCH)$(BINEXT): $(Q3OBJ) $(Q3POBJ) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
 		-o $@ $(Q3OBJ) $(Q3POBJ) \
 		$(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS)
 
-$(B)/$(GAMENAME)-smp.$(ARCH)$(BINEXT): $(Q3OBJ) $(Q3POBJ_SMP) $(LIBSDLMAIN)
+$(B)/ioquake3-smp.$(ARCH)$(BINEXT): $(Q3OBJ) $(Q3POBJ_SMP) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) $(THREAD_LDFLAGS) \
 		-o $@ $(Q3OBJ) $(Q3POBJ_SMP) \
 		$(THREAD_LIBS) $(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS)
+else
+$(B)/$(SDK_GAMENAME).$(ARCH)$(BINEXT): $(Q3OBJ) $(Q3POBJ) $(LIBSDLMAIN)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CC) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
+		-o $@ $(Q3OBJ) $(Q3POBJ) \
+		$(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS)
+
+$(B)/$(SDK_GAMENAME)-smp.$(ARCH)$(BINEXT): $(Q3OBJ) $(Q3POBJ_SMP) $(LIBSDLMAIN)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CC) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) $(THREAD_LDFLAGS) \
+		-o $@ $(Q3OBJ) $(Q3POBJ_SMP) \
+		$(THREAD_LIBS) $(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS)
+endif
 
 ifneq ($(strip $(LIBSDLMAIN)),)
 ifneq ($(strip $(LIBSDLMAINSRC)),)
@@ -1682,9 +1730,15 @@ else
     $(B)/ded/con_tty.o
 endif
 
-$(B)/$(GAMENAME)_dedicated.$(ARCH)$(BINEXT): $(Q3DOBJ)
+ifndef SDK_GAMENAME
+$(B)/ioq3ded.$(ARCH)$(BINEXT): $(Q3DOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(Q3DOBJ) $(LIBS)
+else
+$(B)/$(SDK_GAMENAME)_dedicated.$(ARCH)$(BINEXT): $(Q3DOBJ)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(Q3DOBJ) $(LIBS)
+endif
 
 
 
@@ -1719,22 +1773,31 @@ Q3CGOBJ_ = \
   $(B)/baseq3/qcommon/q_math.o \
   $(B)/baseq3/qcommon/q_shared.o
 
-ifdef Q3CGOBJ_SDK
-Q3CGOBJ_ = $(Q3CGOBJ_SDK)
-Q3CGOBJ = $(Q3CGOBJ_) $(B)/$(GAMENAME)/cgame/cg_syscalls.o
-else
+ifndef SDK_Q3CGOBJ
 Q3CGOBJ = $(Q3CGOBJ_) $(B)/baseq3/cgame/cg_syscalls.o
+else
+Q3CGOBJ_ = $(SDK_Q3CGOBJ)
+Q3CGOBJ = $(Q3CGOBJ_) $(B)/$(SDK_GAMENAME)/cgame/cg_syscalls.o
 endif
 Q3CGVMOBJ = $(Q3CGOBJ_:%.o=%.asm)
 
-
-$(B)/$(GAMENAME)/cgame$(ARCH).$(SHLIBEXT): $(Q3CGOBJ)
+ifndef SDK_GAMENAME
+$(B)/baseq3/cgame$(ARCH).$(SHLIBEXT): $(Q3CGOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3CGOBJ)
 
-$(B)/$(GAMENAME)/vm/cgame.qvm: $(Q3CGVMOBJ) $(CGDIR)/cg_syscalls.asm $(Q3ASM)
+$(B)/baseq3/vm/cgame.qvm: $(Q3CGVMOBJ) $(CGDIR)/cg_syscalls.asm $(Q3ASM)
 	$(echo_cmd) "Q3ASM $@"
 	$(Q)$(Q3ASM) -o $@ $(Q3CGVMOBJ) $(CGDIR)/cg_syscalls.asm
+else
+$(B)/$(SDK_GAMENAME)/cgame$(ARCH).$(SHLIBEXT): $(Q3CGOBJ)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3CGOBJ)
+
+$(B)/$(SDK_GAMENAME)/vm/cgame.qvm: $(Q3CGVMOBJ) $(CGDIR)/cg_syscalls.asm $(Q3ASM)
+	$(echo_cmd) "Q3ASM $@"
+	$(Q)$(Q3ASM) -o $@ $(Q3CGVMOBJ) $(CGDIR)/cg_syscalls.asm
+endif
 
 #############################################################################
 ## MISSIONPACK CGAME
@@ -1822,21 +1885,31 @@ Q3GOBJ_ = \
   $(B)/baseq3/qcommon/q_math.o \
   $(B)/baseq3/qcommon/q_shared.o
 
-ifdef Q3GOBJ_SDK
-Q3GOBJ_ = $(Q3GOBJ_SDK)
-Q3GOBJ = $(Q3GOBJ_) $(B)/$(GAMENAME)/game/g_syscalls.o
-else
+ifndef SDK_Q3GOBJ
 Q3GOBJ = $(Q3GOBJ_) $(B)/baseq3/game/g_syscalls.o
+else
+Q3GOBJ_ = $(SDK_Q3GOBJ)
+Q3GOBJ = $(Q3GOBJ_) $(B)/$(SDK_GAMENAME)/game/g_syscalls.o
 endif
 Q3GVMOBJ = $(Q3GOBJ_:%.o=%.asm)
 
-$(B)/$(GAMENAME)/qagame$(ARCH).$(SHLIBEXT): $(Q3GOBJ)
+ifndef SDK_GAMENAME
+$(B)/baseq3/qagame$(ARCH).$(SHLIBEXT): $(Q3GOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3GOBJ)
 
-$(B)/$(GAMENAME)/vm/qagame.qvm: $(Q3GVMOBJ) $(GDIR)/g_syscalls.asm $(Q3ASM)
+$(B)/baseq3/vm/qagame.qvm: $(Q3GVMOBJ) $(GDIR)/g_syscalls.asm $(Q3ASM)
 	$(echo_cmd) "Q3ASM $@"
 	$(Q)$(Q3ASM) -o $@ $(Q3GVMOBJ) $(GDIR)/g_syscalls.asm
+else
+$(B)/$(SDK_GAMENAME)/qagame$(ARCH).$(SHLIBEXT): $(Q3GOBJ)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3GOBJ)
+
+$(B)/$(SDK_GAMENAME)/vm/qagame.qvm: $(Q3GVMOBJ) $(GDIR)/g_syscalls.asm $(Q3ASM)
+	$(echo_cmd) "Q3ASM $@"
+	$(Q)$(Q3ASM) -o $@ $(Q3GVMOBJ) $(GDIR)/g_syscalls.asm
+endif
 
 #############################################################################
 ## MISSIONPACK GAME
@@ -1941,21 +2014,31 @@ Q3UIOBJ_ = \
   $(B)/baseq3/qcommon/q_math.o \
   $(B)/baseq3/qcommon/q_shared.o
 
-ifdef Q3UIOBJ_SDK
-Q3UIOBJ_ = $(Q3UIOBJ_SDK)
-Q3UIOBJ = $(Q3UIOBJ_) $(B)/$(GAMENAME)/ui/ui_syscalls.o
-else
+ifndef SDK_Q3UIOBJ
 Q3UIOBJ = $(Q3UIOBJ_) $(B)/missionpack/ui/ui_syscalls.o
+else
+Q3UIOBJ_ = $(SDK_Q3UIOBJ)
+Q3UIOBJ = $(Q3UIOBJ_) $(B)/$(SDK_GAMENAME)/ui/ui_syscalls.o
 endif
 Q3UIVMOBJ = $(Q3UIOBJ_:%.o=%.asm)
 
-$(B)/$(GAMENAME)/ui$(ARCH).$(SHLIBEXT): $(Q3UIOBJ)
+ifndef SDK_GAMENAME
+$(B)/baseq3/ui$(ARCH).$(SHLIBEXT): $(Q3UIOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3UIOBJ)
 
-$(B)/$(GAMENAME)/vm/ui.qvm: $(Q3UIVMOBJ) $(UIDIR)/ui_syscalls.asm $(Q3ASM)
+$(B)/baseq3/vm/ui.qvm: $(Q3UIVMOBJ) $(UIDIR)/ui_syscalls.asm $(Q3ASM)
 	$(echo_cmd) "Q3ASM $@"
 	$(Q)$(Q3ASM) -o $@ $(Q3UIVMOBJ) $(UIDIR)/ui_syscalls.asm
+else
+$(B)/$(SDK_GAMENAME)/ui$(ARCH).$(SHLIBEXT): $(Q3UIOBJ)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3UIOBJ)
+
+$(B)/$(SDK_GAMENAME)/vm/ui.qvm: $(Q3UIVMOBJ) $(UIDIR)/ui_syscalls.asm $(Q3ASM)
+	$(echo_cmd) "Q3ASM $@"
+	$(Q)$(Q3ASM) -o $@ $(Q3UIVMOBJ) $(UIDIR)/ui_syscalls.asm
+endif
 
 #############################################################################
 ## MISSIONPACK UI
@@ -2054,6 +2137,9 @@ ifeq ($(USE_SVN),1)
   $(B)/client/cl_console.o : .svn/entries
   $(B)/client/common.o : .svn/entries
   $(B)/ded/common.o : .svn/entries
+ifdef SDK_OBJ_USING_SVN
+  $(SDK_OBJ_USING_SVN): .svn/entries
+endif
 endif
 
 
@@ -2061,17 +2147,31 @@ endif
 ## GAME MODULE RULES
 #############################################################################
 
-$(B)/$(GAMEDIR)/cgame/bg_%.o: $(GDIR)/bg_%.c
+ifndef SDK_GAMENAME
+$(B)/baseq3/cgame/bg_%.o: $(GDIR)/bg_%.c
 	$(DO_CGAME_CC)
 
-$(B)/$(GAMEDIR)/cgame/%.o: $(CGDIR)/%.c
+$(B)/baseq3/cgame/%.o: $(CGDIR)/%.c
 	$(DO_CGAME_CC)
 
-$(B)/$(GAMEDIR)/cgame/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
+$(B)/baseq3/cgame/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
 	$(DO_CGAME_Q3LCC)
 
-$(B)/$(GAMEDIR)/cgame/%.asm: $(CGDIR)/%.c $(Q3LCC)
+$(B)/baseq3/cgame/%.asm: $(CGDIR)/%.c $(Q3LCC)
 	$(DO_CGAME_Q3LCC)
+else
+$(B)/$(SDK_GAMENAME)/cgame/bg_%.o: $(GDIR)/bg_%.c
+	$(DO_CGAME_CC)
+
+$(B)/$(SDK_GAMENAME)/cgame/%.o: $(CGDIR)/%.c
+	$(DO_CGAME_CC)
+
+$(B)/$(SDK_GAMENAME)/cgame/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
+	$(DO_CGAME_Q3LCC)
+
+$(B)/$(SDK_GAMENAME)/cgame/%.asm: $(CGDIR)/%.c $(Q3LCC)
+	$(DO_CGAME_Q3LCC)
+endif
 
 $(B)/missionpack/cgame/bg_%.o: $(GDIR)/bg_%.c
 	$(DO_CGAME_CC_MISSIONPACK)
@@ -2086,11 +2186,19 @@ $(B)/missionpack/cgame/%.asm: $(CGDIR)/%.c $(Q3LCC)
 	$(DO_CGAME_Q3LCC_MISSIONPACK)
 
 
-$(B)/$(GAMEDIR)/game/%.o: $(GDIR)/%.c
+ifndef SDK_GAMENAME
+$(B)/baseq3/game/%.o: $(GDIR)/%.c
 	$(DO_GAME_CC)
 
-$(B)/$(GAMEDIR)/game/%.asm: $(GDIR)/%.c $(Q3LCC)
+$(B)/baseq3/game/%.asm: $(GDIR)/%.c $(Q3LCC)
 	$(DO_GAME_Q3LCC)
+else
+$(B)/$(SDK_GAMENAME)/game/%.o: $(GDIR)/%.c
+	$(DO_GAME_CC)
+
+$(B)/$(SDK_GAMENAME)/game/%.asm: $(GDIR)/%.c $(Q3LCC)
+	$(DO_GAME_Q3LCC)
+endif
 
 $(B)/missionpack/game/%.o: $(GDIR)/%.c
 	$(DO_GAME_CC_MISSIONPACK)
@@ -2099,17 +2207,31 @@ $(B)/missionpack/game/%.asm: $(GDIR)/%.c $(Q3LCC)
 	$(DO_GAME_Q3LCC_MISSIONPACK)
 
 
-$(B)/$(GAMEDIR)/ui/bg_%.o: $(GDIR)/bg_%.c
+ifndef SDK_GAMENAME
+$(B)/baseq3/ui/bg_%.o: $(GDIR)/bg_%.c
 	$(DO_UI_CC)
 
-$(B)/$(GAMEDIR)/ui/%.o: $(Q3UIDIR)/%.c
+$(B)/baseq3/ui/%.o: $(Q3UIDIR)/%.c
 	$(DO_UI_CC)
 
-$(B)/$(GAMEDIR)/ui/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
+$(B)/baseq3/ui/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
 	$(DO_UI_Q3LCC)
 
-$(B)/$(GAMEDIR)/ui/%.asm: $(Q3UIDIR)/%.c $(Q3LCC)
+$(B)/baseq3/ui/%.asm: $(Q3UIDIR)/%.c $(Q3LCC)
 	$(DO_UI_Q3LCC)
+else
+$(B)/$(SDK_GAMENAME)/ui/bg_%.o: $(GDIR)/bg_%.c
+	$(DO_UI_CC)
+
+$(B)/$(SDK_GAMENAME)/ui/%.o: $(Q3UIDIR)/%.c
+	$(DO_UI_CC)
+
+$(B)/$(SDK_GAMENAME)/ui/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
+	$(DO_UI_Q3LCC)
+
+$(B)/$(SDK_GAMENAME)/ui/%.asm: $(Q3UIDIR)/%.c $(Q3LCC)
+	$(DO_UI_Q3LCC)
+endif
 
 $(B)/missionpack/ui/bg_%.o: $(GDIR)/bg_%.c
 	$(DO_UI_CC_MISSIONPACK)
@@ -2124,11 +2246,19 @@ $(B)/missionpack/ui/%.asm: $(UIDIR)/%.c $(Q3LCC)
 	$(DO_UI_Q3LCC_MISSIONPACK)
 
 
-$(B)/$(GAMEDIR)/qcommon/%.o: $(CMDIR)/%.c
+ifndef SDK_GAMENAME
+$(B)/baseq3/qcommon/%.o: $(CMDIR)/%.c
 	$(DO_SHLIB_CC)
 
-$(B)/$(GAMEDIR)/qcommon/%.asm: $(CMDIR)/%.c $(Q3LCC)
+$(B)/baseq3/qcommon/%.asm: $(CMDIR)/%.c $(Q3LCC)
 	$(DO_Q3LCC)
+else
+$(B)/$(SDK_GAMENAME)/qcommon/%.o: $(CMDIR)/%.c
+	$(DO_SHLIB_CC)
+
+$(B)/$(SDK_GAMENAME)/qcommon/%.asm: $(CMDIR)/%.c $(Q3LCC)
+	$(DO_Q3LCC)
+endif
 
 $(B)/missionpack/qcommon/%.o: $(CMDIR)/%.c
 	$(DO_SHLIB_CC_MISSIONPACK)
@@ -2148,34 +2278,60 @@ TOOLSOBJ = $(LBURGOBJ) $(Q3CPPOBJ) $(Q3RCCOBJ) $(Q3LCCOBJ) $(Q3ASMOBJ)
 
 
 copyfiles: release
-	@if [ ! -d $(COPYDIR)/$(GAMEDIR) ]; then echo "You need to set COPYDIR to where your Smokin' Guns data is!"; fi
-	-$(MKDIR) -p -m 0755 $(COPYDIR)/$(GAMEDIR)
-ifneq ($(BUILD_MISSIONPACK),0)
+ifndef SDK_GAMENAME
+	@if [ ! -d $(COPYDIR)/baseq3 ]; then echo "You need to set COPYDIR to where your Quake3 data is!"; fi
+	-$(MKDIR) -p -m 0755 $(COPYDIR)/baseq3
 	-$(MKDIR) -p -m 0755 $(COPYDIR)/missionpack
+else
+	@if [ ! -d $(COPYDIR)/$(SDK_GAMENAME) ]; then echo "You need to set COPYDIR to where your $(SDK_GAME) data is!"; fi
+	-$(MKDIR) -p -m 0755 $(COPYDIR)/$(SDK_GAMENAME)
 endif
 
 ifneq ($(BUILD_CLIENT),0)
-	$(INSTALL) -s -m 0755 $(BR)/$(GAMENAME).$(ARCH)$(BINEXT) $(COPYDIR)/$(GAMENAME).$(ARCH)$(BINEXT)
+ifndef SDK_GAMENAME
+	$(INSTALL) -s -m 0755 $(BR)/ioquake3.$(ARCH)$(BINEXT) $(COPYDIR)/ioquake3.$(ARCH)$(BINEXT)
+else
+	$(INSTALL) -s -m 0755 $(BR)/$(SDK_GAMENAME).$(ARCH)$(BINEXT) $(COPYDIR)/$(SDK_GAMENAME).$(ARCH)$(BINEXT)
+endif
 endif
 
 # Don't copy the SMP until it's working together with SDL.
 #ifneq ($(BUILD_CLIENT_SMP),0)
-#	$(INSTALL) -s -m 0755 $(BR)/$(GAMENAME)-smp.$(ARCH)$(BINEXT) $(COPYDIR)/$(GAMENAME)-smp.$(ARCH)$(BINEXT)
+#ifndef SDK_GAMENAME
+#	$(INSTALL) -s -m 0755 $(BR)/ioquake3-smp.$(ARCH)$(BINEXT) $(COPYDIR)/ioquake3-smp.$(ARCH)$(BINEXT)
+#else
+#	$(INSTALL) -s -m 0755 $(BR)/$(SDK_GAMENAME)-smp.$(ARCH)$(BINEXT) $(COPYDIR)/$(SDK_GAMENAME)-smp.$(ARCH)$(BINEXT)
+#endif
 #endif
 
 ifneq ($(BUILD_SERVER),0)
-	@if [ -f $(BR)/$(GAMENAME)_dedicated.$(ARCH)$(BINEXT) ]; then \
-		$(INSTALL) -s -m 0755 $(BR)/$(GAMENAME)_dedicated.$(ARCH)$(BINEXT) $(COPYDIR)/$(GAMENAME)_dedicated.$(ARCH)$(BINEXT); \
+ifndef SDK_GAMENAME_DED
+	@if [ -f $(BR)/ioq3ded.$(ARCH)$(BINEXT) ]; then \
+		$(INSTALL) -s -m 0755 $(BR)/ioq3ded.$(ARCH)$(BINEXT) $(COPYDIR)/ioq3ded.$(ARCH)$(BINEXT); \
 	fi
+else
+	@if [ -f $(BR)/$(SDK_GAMENAME_DED).$(ARCH)$(BINEXT) ]; then \
+		$(INSTALL) -s -m 0755 $(BR)/$(SDK_GAMENAME_DED).$(ARCH)$(BINEXT) $(COPYDIR)/$(SDK_GAMENAME_DED).$(ARCH)$(BINEXT); \
+	fi
+endif
 endif
 
 ifneq ($(BUILD_GAME_SO),0)
-	$(INSTALL) -s -m 0755 $(BR)/$(GAMEDIR)/cgame$(ARCH).$(SHLIBEXT) \
-					$(COPYDIR)/$(GAMEDIR)/.
-	$(INSTALL) -s -m 0755 $(BR)/$(GAMEDIR)/qagame$(ARCH).$(SHLIBEXT) \
-					$(COPYDIR)/$(GAMEDIR)/.
-	$(INSTALL) -s -m 0755 $(BR)/$(GAMEDIR)/ui$(ARCH).$(SHLIBEXT) \
-					$(COPYDIR)/$(GAMEDIR)/.
+ifndef SDK_GAMENAME
+	$(INSTALL) -s -m 0755 $(BR)/baseq3/cgame$(ARCH).$(SHLIBEXT) \
+					$(COPYDIR)/baseq3/.
+	$(INSTALL) -s -m 0755 $(BR)/baseq3/qagame$(ARCH).$(SHLIBEXT) \
+					$(COPYDIR)/baseq3/.
+	$(INSTALL) -s -m 0755 $(BR)/baseq3/ui$(ARCH).$(SHLIBEXT) \
+					$(COPYDIR)/baseq3/.
+else
+	$(INSTALL) -s -m 0755 $(BR)/$(SDK_GAMENAME)/cgame$(ARCH).$(SHLIBEXT) \
+					$(COPYDIR)/$(SDK_GAMENAME)/.
+	$(INSTALL) -s -m 0755 $(BR)/$(SDK_GAMENAME)/qagame$(ARCH).$(SHLIBEXT) \
+					$(COPYDIR)/$(SDK_GAMENAME)/.
+	$(INSTALL) -s -m 0755 $(BR)/$(SDK_GAMENAME)/ui$(ARCH).$(SHLIBEXT) \
+					$(COPYDIR)/$(SDK_GAMENAME)/.
+endif
   ifneq ($(BUILD_MISSIONPACK),0)
 	-$(MKDIR) -p -m 0755 $(COPYDIR)/missionpack
 	$(INSTALL) -s -m 0755 $(BR)/missionpack/cgame$(ARCH).$(SHLIBEXT) \
@@ -2232,10 +2388,17 @@ else
 endif
 
 dist:
-	rm -rf $(GAMENAME)-$(VERSION)
-	svn export . $(GAMENAME)-$(VERSION)
-	tar --owner=root --group=root --force-local -cjf $(GAMENAME)-$(VERSION).tar.bz2 $(GAMENAME)-$(VERSION)
-	rm -rf $(GAMENAME)-$(VERSION)
+ifndef SDK_GAMENAME
+	rm -rf ioquake3-$(VERSION)
+	svn export . ioquake3-$(VERSION)
+	tar --owner=root --group=root --force-local -cjf ioquake3-$(VERSION).tar.bz2 ioquake3-$(VERSION)
+	rm -rf ioquake3-$(VERSION)
+else
+	rm -rf $(SDK_GAMENAME)-$(VERSION)
+	svn export . $(SDK_GAMENAME)-$(VERSION)
+	tar --owner=root --group=root --force-local -cjf $(SDK_GAMENAME)-$(VERSION).tar.bz2 $(SDK_GAMENAME)-$(VERSION)
+	rm -rf $(SDK_GAMENAME)-$(VERSION)
+endif
 
 #############################################################################
 # DEPENDENCIES
