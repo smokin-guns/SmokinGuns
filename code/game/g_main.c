@@ -678,6 +678,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	char				map2[64];
 	char				serverinfo[MAX_INFO_STRING];
 	int					prefix_gametype;
+#ifdef Q3_VERSION
+	G_Printf( "QAgame version: %s, %d, %s\n", Q3_VERSION, SG_RELEASE, __TIME__ );
+#endif
 #endif
 
 	G_Printf ("------- Game Initialization -------\n");

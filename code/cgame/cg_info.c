@@ -303,29 +303,27 @@ void CG_DrawInformation( void ) {
 
 	// the first 150 rows are reserved for the client connection
 	// screen to write into
-#ifndef SMOKINGUNS
 	if ( cg.infoScreenText[0] ) {
+#ifndef SMOKINGUNS
 		UI_DrawProportionalString( 320, 128-32, va("Loading... %s", cg.infoScreenText),
-			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+#else
+		UI_DrawProportionalString( 320, 454, va("Loading... %s", cg.infoScreenText),
+#endif
+			UI_CENTER|UI_SMALLFONT, colorWhite );
 	} else {
+#ifndef SMOKINGUNS
 		UI_DrawProportionalString( 320, 128-32, "Awaiting snapshot...",
-			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+#else
+		UI_DrawProportionalString( 320, 452, "Awaiting snapshot...",
+#endif
+			UI_CENTER|UI_SMALLFONT, colorWhite );
 	}
 
 	// draw info string information
 
+#ifndef SMOKINGUNS
 	y = 180-32;
 #else
-	if ( cg.infoScreenText[0] ) {
-		CG_Text_PaintCenter( 320, 464, 0.25f, colorWhite,
-			va("Loading... %s", cg.infoScreenText), 0, 0, 0);
-	} else {
-		CG_Text_PaintCenter( 320, 464, 0.25f, colorWhite,
-			"Awaiting snapshot...", 0, 0, 0);
-	}
-
-	// draw info string information
-
 	y = 30;
 #endif
 
@@ -335,28 +333,13 @@ void CG_DrawInformation( void ) {
 		// server hostname
 		Q_strncpyz(buf, Info_ValueForKey( info, "sv_hostname" ), 1024);
 		Q_CleanStr(buf);
-#ifndef SMOKINGUNS
 		UI_DrawProportionalString( 320, y, buf,
 			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 		y += PROP_HEIGHT;
-#else
-		CG_Text_PaintCenter(320, y, 0.3f, colorWhite,
-			buf, 0, 0, 3);
-		y += 15;
-
-		// server-specific message of the day
-		s = CG_ConfigString( CS_MOTD );
-		if ( s[0] ) {
-			CG_Text_PaintCenter(320, y, 0.25f, colorWhite,
-				s, 0, 0, 3);
-			y += 12;
-		}
-#endif
 
 		// pure server
 		s = Info_ValueForKey( sysInfo, "sv_pure" );
 		if ( s[0] == '1' ) {
-#ifndef SMOKINGUNS
 			UI_DrawProportionalString( 320, y, "Pure Server",
 				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 			y += PROP_HEIGHT;
@@ -368,11 +351,6 @@ void CG_DrawInformation( void ) {
 			UI_DrawProportionalString( 320, y, s,
 				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 			y += PROP_HEIGHT;
-#else
-			CG_Text_PaintCenter(320, y, 0.25f, colorWhite,
-				"Pure Server", 0, 0, 3);
-			y += 12;
-#endif
 		}
 
 		// some extra space after hostname and motd
@@ -389,29 +367,20 @@ void CG_DrawInformation( void ) {
 	// map-specific message (long map name)
 	s = CG_ConfigString( CS_MESSAGE );
 	if ( s[0] ) {
-#ifndef SMOKINGUNS
 		UI_DrawProportionalString( 320, y, s,
 			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 		y += PROP_HEIGHT;
-#else
-		CG_Text_PaintCenter(320, y, 0.3f, color,
-				s, 0, 0, 3);
-		y += 15;
-#endif
 	}
 
 	// cheats warning
 	s = Info_ValueForKey( sysInfo, "sv_cheats" );
 	if ( s[0] == '1' ) {
-#ifndef SMOKINGUNS
 		UI_DrawProportionalString( 320, y, "CHEATS ARE ENABLED",
 			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 		y += PROP_HEIGHT;
+#ifndef SMOKINGUNS
 	}
 #else
-		CG_Text_PaintCenter(320, y, 0.3f, color,
-				"Cheats are Enabled", 0, 0, 3);
-		y += 15;
 		cg_cheats = qtrue;
 	} else
 		cg_cheats = qfalse;
@@ -468,27 +437,15 @@ void CG_DrawInformation( void ) {
 		s = "Unknown Gametype";
 		break;
 	}
-#ifndef SMOKINGUNS
 	UI_DrawProportionalString( 320, y, s,
 		UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 	y += PROP_HEIGHT;
-#else
-	CG_Text_PaintCenter(320, y, 0.3f, color,
-		s, 0, 0, 3);
-	y += 15;
-#endif
 
 	value = atoi( Info_ValueForKey( info, "timelimit" ) );
 	if ( value ) {
-#ifndef SMOKINGUNS
 		UI_DrawProportionalString( 320, y, va( "timelimit %i", value ),
 			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 		y += PROP_HEIGHT;
-#else
-		CG_Text_PaintCenter(320, y, 0.3f, color,
-				va( "Timelimit %i", value ), 0, 0, 3);
-		y += 15;
-#endif
 	}
 
 #ifndef SMOKINGUNS
@@ -498,15 +455,9 @@ void CG_DrawInformation( void ) {
 #endif
 		value = atoi( Info_ValueForKey( info, "fraglimit" ) );
 		if ( value ) {
-#ifndef SMOKINGUNS
 			UI_DrawProportionalString( 320, y, va( "fraglimit %i", value ),
 				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 			y += PROP_HEIGHT;
-#else
-			CG_Text_PaintCenter(320, y, 0.3f, color,
-				va( "Fraglimit %i", value ), 0, 0, 3);
-			y += 15;
-#endif
 		}
 	}
 
@@ -523,18 +474,18 @@ void CG_DrawInformation( void ) {
 	if (cgs.gametype == GT_DUEL) {
 		value = atoi( Info_ValueForKey( info, "duellimit" ) );
 		if ( value ) {
-			CG_Text_PaintCenter(320, y, 0.3f, color,
-				va( "Duellimit %i", value ), 0, 0, 3);
-			y += 15;
+			UI_DrawProportionalString( 320, y, va( "Duellimit %i", value ),
+				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+			y += PROP_HEIGHT;
 		}
 	}
 
 	if (cgs.gametype >= GT_RTP) {
 		value = atoi( Info_ValueForKey( info, "scorelimit" ) );
 		if ( value ) {
-			CG_Text_PaintCenter(320, y, 0.3f, color,
-				va( "Scorelimit %i", value ), 0, 0, 3);
-			y += 15;
+			UI_DrawProportionalString( 320, y, va( "Scorelimit %i", value ),
+				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+			y += PROP_HEIGHT;
 		}
 	}
 #endif
