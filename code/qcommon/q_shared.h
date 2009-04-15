@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef STANDALONE
 #ifdef SMOKINGUNS
-  #define PRODUCT_NAME				"SG"
+  #define PRODUCT_NAME				"Smokin' Guns"
   #define BASEGAME					"smokinguns"
   // Tequila comment: SDK_BASEGAME is used for compatibility reason
   // If we don't use it, 1.0 client won't accept to connect to servers
@@ -46,7 +46,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
     #define PRODUCT_VERSION	1.1
   #endif
   #ifndef SG_RELEASE
-    #define SG_RELEASE	20090414
+    #define SG_RELEASE	20090416
   #endif
 #else
   #define PRODUCT_NAME			"iofoo3"
@@ -514,7 +514,7 @@ void SnapVectorTowards( vec3_t v, vec3_t to );
 void AddAnglesToBounds(const vec3_t angles, vec3_t dir, vec3_t rim_mins, vec3_t rim_maxs, vec3_t dir_mins, vec3_t dir_maxs);
 #endif
 
-// just in case you do't want to use the macros
+// just in case you don't want to use the macros
 vec_t _DotProduct( const vec3_t v1, const vec3_t v2 );
 void _VectorSubtract( const vec3_t veca, const vec3_t vecb, vec3_t out );
 void _VectorAdd( const vec3_t veca, const vec3_t vecb, vec3_t out );
