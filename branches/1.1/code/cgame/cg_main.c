@@ -2902,6 +2902,10 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	const char	*s;
 #ifdef SMOKINGUNS
 	char		name[64], name2[64];
+
+#ifdef Q3_VERSION
+	CG_Printf( "Cgame version: %s, %d, %s\n", Q3_VERSION, SG_RELEASE, __TIME__ );
+#endif
 #endif
 
 	// clear everything

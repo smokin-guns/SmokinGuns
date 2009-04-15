@@ -870,7 +870,12 @@ UI_ProportionalSizeScale
 */
 float UI_ProportionalSizeScale( int style ) {
 	if(  style & UI_SMALLFONT ) {
+#ifndef SMOKINGUNS
 		return 0.75;
+#else
+// Tequila comment: Adjusted the scale for small ui font
+		return 0.45;
+#endif
 	}
 
 	return 1.00;

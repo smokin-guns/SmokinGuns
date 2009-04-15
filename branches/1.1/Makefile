@@ -1041,6 +1041,7 @@ endif
 		echo "    $$i"; \
 	done
 ifdef STANDALONE_CFLAGS
+	@echo ""
 	@echo "  STANDALONE_CFLAGS:"
 	-@for i in $(STANDALONE_CFLAGS); \
 	do \

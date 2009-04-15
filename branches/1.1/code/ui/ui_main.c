@@ -5918,6 +5918,9 @@ void _UI_Init( qboolean inGameLoad ) {
 	const char *menuSet;
 	int start;
 
+#if defined SMOKINGUNS && defined Q3_VERSION
+	Com_Printf( "UI version: %s, %d, %s\n", Q3_VERSION, SG_RELEASE, __TIME__ );
+#endif
 	//uiInfo.inGameLoad = inGameLoad;
 
 	UI_RegisterCvars();
