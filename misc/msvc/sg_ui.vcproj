@@ -48,7 +48,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				PreprocessorDefinitions="WIN32;NDEBUG;UI;SMOKINGUNS;SG_RELEASE=20090420;_WINDOWS;_USRDLL;Q3_UI_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
+				PreprocessorDefinitions="WIN32;NDEBUG;UI;SMOKINGUNS;SG_RELEASE=20090420;STANDALONE;_WINDOWS;_USRDLL;Q3_UI_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
