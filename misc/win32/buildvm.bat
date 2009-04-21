@@ -6,17 +6,20 @@ SET PRODUCT_VERSION=1.1
 
 ECHO Today is %date%
 
-REM Getting the date
-FOR /F "delims=. tokens=1,2,3" %%i in ('date /t')  do (
-    SET DayWS=%%i
-    SET MonthWS=%%j
-    SET YearWS=%%k
-)
+SET DATESTAMP=%date:~6,4%%date:~3,2%%date:~0,2%
 
-REM Removing the spaces
-FOR /F "tokens=1,2,3" %%i in ("%YearWS% %MonthWS% %DayWS%") do (
-    SET DATESTAMP=%%i%%j%%k
+ECHO %DATESTAMP%
+
+REM If Win2K we got default DDD DD.MM.YYYY date format
+REM Lets split it into two parts
+FOR /F "tokens=1,2" %%i in ("%date%") do (
+    SET FIRSTPART=%%i
+    SET SECONDPART=%%j
 )
+REM If second part is not empty - we got win2K
+REM And sometimes DDD can be two chars instead of three
+REM That is why we work with second part
+IF "%SECONDPART%" NEQ "" SET DATESTAMP=%SECONDPART:~6,4%%SECONDPART:~3,2%%SECONDPART:~0,2%
 
 REM Make sure we have a safe environment
 SET LIBRARY=
@@ -45,13 +48,13 @@ SET Q3ASM=q3asm
 REM Change dir to root of the project
 cd ..\..\
 
-if not exist build mkdir build
-if not exist build\vm mkdir build\vm
-if not exist build\asm mkdir build\asm
-if not exist %PATH_GAME_BUILT% mkdir %PATH_GAME_BUILT%
-if not exist %PATH_CGAME_BUILT% mkdir %PATH_CGAME_BUILT%
-if not exist %PATH_UI_BUILT% mkdir %PATH_UI_BUILT%
-if not exist %PATH_QCOMMON_BUILT% mkdir %PATH_QCOMMON_BUILT%
+IF NOT EXIST build mkdir build
+IF NOT EXIST build\vm mkdir build\vm
+IF NOT EXIST build\asm mkdir build\asm
+IF NOT EXIST %PATH_GAME_BUILT% mkdir %PATH_GAME_BUILT%
+IF NOT EXIST %PATH_CGAME_BUILT% mkdir %PATH_CGAME_BUILT%
+IF NOT EXIST %PATH_UI_BUILT% mkdir %PATH_UI_BUILT%
+IF NOT EXIST %PATH_QCOMMON_BUILT% mkdir %PATH_QCOMMON_BUILT%
 
 ECHO Building qcommon ...
     CALL :compile_it %CC_QCOMMON% %PATH_QCOMMON_BUILT%\q_math.asm %PATH_QCOMMON%/q_math.c
