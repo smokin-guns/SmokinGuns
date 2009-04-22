@@ -8,8 +8,6 @@ ECHO Today is %date%
 
 SET DATESTAMP=%date:~6,4%%date:~3,2%%date:~0,2%
 
-ECHO %DATESTAMP%
-
 REM If Win2K we got default DDD DD.MM.YYYY date format
 REM Lets split it into two parts
 FOR /F "tokens=1,2" %%i in ("%date%") do (
