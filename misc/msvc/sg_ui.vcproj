@@ -106,6 +106,192 @@
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
+		<Configuration
+			Name="Release SSE|Win32"
+			OutputDirectory="..\..\build\sg_ui_release_sse"
+			IntermediateDirectory="..\..\build\sg_ui_release_sse"
+			ConfigurationType="2"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName=".\Release/sg_ui.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="1"
+				PreprocessorDefinitions="WIN32;NDEBUG;UI;SMOKINGUNS;SG_RELEASE=20090420;STANDALONE;_WINDOWS;_USRDLL;Q3_UI_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
+				StringPooling="true"
+				RuntimeLibrary="0"
+				EnableFunctionLevelLinking="true"
+				EnableEnhancedInstructionSet="1"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile="$(IntDir)\sg_ui.pch"
+				AssemblerOutput="0"
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
+				WarningLevel="0"
+				SuppressStartupBanner="true"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				OutputFile="$(OutDir)\uix86.dll"
+				LinkIncremental="1"
+				SuppressStartupBanner="true"
+				ModuleDefinitionFile=".\sg_ui.def"
+				ProgramDatabaseFile="$(IntDir)\uix86.pdb"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				ImportLibrary="$(IntDir)\uix86.lib"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release SSE2|Win32"
+			OutputDirectory="..\..\build\sg_ui_release_sse2"
+			IntermediateDirectory="..\..\build\sg_ui_release_sse2"
+			ConfigurationType="2"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName=".\Release/sg_ui.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="1"
+				PreprocessorDefinitions="WIN32;NDEBUG;UI;SMOKINGUNS;SG_RELEASE=20090420;STANDALONE;_WINDOWS;_USRDLL;Q3_UI_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
+				StringPooling="true"
+				RuntimeLibrary="0"
+				EnableFunctionLevelLinking="true"
+				EnableEnhancedInstructionSet="2"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile="$(IntDir)\sg_ui.pch"
+				AssemblerOutput="0"
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
+				WarningLevel="0"
+				SuppressStartupBanner="true"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				OutputFile="$(OutDir)\uix86.dll"
+				LinkIncremental="1"
+				SuppressStartupBanner="true"
+				ModuleDefinitionFile=".\sg_ui.def"
+				ProgramDatabaseFile="$(IntDir)\uix86.pdb"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				ImportLibrary="$(IntDir)\uix86.lib"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -123,6 +309,24 @@
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release SSE|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release SSE2|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -155,6 +359,24 @@
 						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release SSE|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release SSE2|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\code\ui\ui_gameinfo.c"
@@ -165,6 +387,24 @@
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release SSE|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release SSE2|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -185,6 +425,24 @@
 						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release SSE|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release SSE2|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\code\ui\ui_shared.c"
@@ -195,6 +453,24 @@
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release SSE|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release SSE2|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -221,6 +497,20 @@
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release SSE|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release SSE2|Win32"
 					>
 					<Tool
 						Name="VCCustomBuildTool"

@@ -12,17 +12,39 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "smokinguns", "smokinguns.vc
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Release SSE|Win32 = Release SSE|Win32
+		Release SSE2|Win32 = Release SSE2|Win32
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C878E295-CB82-4B40-8ECF-5CE5525466FA}.Release SSE|Win32.ActiveCfg = Release SSE|Win32
+		{C878E295-CB82-4B40-8ECF-5CE5525466FA}.Release SSE|Win32.Build.0 = Release SSE|Win32
+		{C878E295-CB82-4B40-8ECF-5CE5525466FA}.Release SSE2|Win32.ActiveCfg = Release SSE2|Win32
+		{C878E295-CB82-4B40-8ECF-5CE5525466FA}.Release SSE2|Win32.Build.0 = Release SSE2|Win32
 		{C878E295-CB82-4B40-8ECF-5CE5525466FA}.Release|Win32.ActiveCfg = Release|Win32
 		{C878E295-CB82-4B40-8ECF-5CE5525466FA}.Release|Win32.Build.0 = Release|Win32
+		{F9EE10DA-2404-4154-B904-F93C936C040A}.Release SSE|Win32.ActiveCfg = Release SSE|Win32
+		{F9EE10DA-2404-4154-B904-F93C936C040A}.Release SSE|Win32.Build.0 = Release SSE|Win32
+		{F9EE10DA-2404-4154-B904-F93C936C040A}.Release SSE2|Win32.ActiveCfg = Release SSE2|Win32
+		{F9EE10DA-2404-4154-B904-F93C936C040A}.Release SSE2|Win32.Build.0 = Release SSE2|Win32
 		{F9EE10DA-2404-4154-B904-F93C936C040A}.Release|Win32.ActiveCfg = Release|Win32
 		{F9EE10DA-2404-4154-B904-F93C936C040A}.Release|Win32.Build.0 = Release|Win32
+		{D454C4C7-7765-4149-ABAD-05FDEB9D94F8}.Release SSE|Win32.ActiveCfg = Release SSE|Win32
+		{D454C4C7-7765-4149-ABAD-05FDEB9D94F8}.Release SSE|Win32.Build.0 = Release SSE|Win32
+		{D454C4C7-7765-4149-ABAD-05FDEB9D94F8}.Release SSE2|Win32.ActiveCfg = Release SSE2|Win32
+		{D454C4C7-7765-4149-ABAD-05FDEB9D94F8}.Release SSE2|Win32.Build.0 = Release SSE2|Win32
 		{D454C4C7-7765-4149-ABAD-05FDEB9D94F8}.Release|Win32.ActiveCfg = Release|Win32
 		{D454C4C7-7765-4149-ABAD-05FDEB9D94F8}.Release|Win32.Build.0 = Release|Win32
+		{A410161F-AE9F-485D-A01F-5294891430A6}.Release SSE|Win32.ActiveCfg = Release SSE|Win32
+		{A410161F-AE9F-485D-A01F-5294891430A6}.Release SSE|Win32.Build.0 = Release SSE|Win32
+		{A410161F-AE9F-485D-A01F-5294891430A6}.Release SSE2|Win32.ActiveCfg = Release SSE2|Win32
+		{A410161F-AE9F-485D-A01F-5294891430A6}.Release SSE2|Win32.Build.0 = Release SSE2|Win32
 		{A410161F-AE9F-485D-A01F-5294891430A6}.Release|Win32.ActiveCfg = Release|Win32
 		{A410161F-AE9F-485D-A01F-5294891430A6}.Release|Win32.Build.0 = Release|Win32
+		{81CB51C4-B434-4E12-B69B-BAEE102F2852}.Release SSE|Win32.ActiveCfg = Release SSE|Win32
+		{81CB51C4-B434-4E12-B69B-BAEE102F2852}.Release SSE|Win32.Build.0 = Release SSE|Win32
+		{81CB51C4-B434-4E12-B69B-BAEE102F2852}.Release SSE2|Win32.ActiveCfg = Release SSE2|Win32
+		{81CB51C4-B434-4E12-B69B-BAEE102F2852}.Release SSE2|Win32.Build.0 = Release SSE2|Win32
 		{81CB51C4-B434-4E12-B69B-BAEE102F2852}.Release|Win32.ActiveCfg = Release|Win32
 		{81CB51C4-B434-4E12-B69B-BAEE102F2852}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
