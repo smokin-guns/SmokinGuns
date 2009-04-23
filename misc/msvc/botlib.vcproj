@@ -44,12 +44,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				InlineFunctionExpansion="0"
-				EnableIntrinsicFunctions="false"
-				FavorSizeOrSpeed="0"
-				OmitFramePointers="false"
-				WholeProgramOptimization="false"
+				Optimization="3"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="true"
+				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories="&quot;C:\Program Files (x86)\Microsoft DirectX SDK (November 2008)\Include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;BOTLIB"
 				StringPooling="true"
@@ -78,7 +78,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\Release\lib\botlib.lib"
+				OutputFile="$(OutDir)\botlib.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -126,11 +126,11 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				InlineFunctionExpansion="0"
-				EnableIntrinsicFunctions="false"
-				FavorSizeOrSpeed="0"
-				OmitFramePointers="false"
+				Optimization="3"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="true"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="&quot;C:\Program Files (x86)\Microsoft DirectX SDK (November 2008)\Include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;BOTLIB"
@@ -160,7 +160,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\Release\lib\botlib.lib"
+				OutputFile="$(OutDir)\botlib.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -208,11 +208,11 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				InlineFunctionExpansion="0"
-				EnableIntrinsicFunctions="false"
-				FavorSizeOrSpeed="0"
-				OmitFramePointers="false"
+				Optimization="3"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="true"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="&quot;C:\Program Files (x86)\Microsoft DirectX SDK (November 2008)\Include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;BOTLIB"
@@ -242,7 +242,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\Release\lib\botlib.lib"
+				OutputFile="$(OutDir)\botlib.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
