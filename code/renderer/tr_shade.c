@@ -414,9 +414,9 @@ static void ProjectDlightTexture_altivec( void ) {
 	vector signed int colorInt;
 	vector unsigned char floatColorVecPerm, modulatePerm, colorChar;
 	vector unsigned char vSel = VECCONST_UINT8(0x00, 0x00, 0x00, 0xff,
-							   0x00, 0x00, 0x00, 0xff,
-							   0x00, 0x00, 0x00, 0xff,
-							   0x00, 0x00, 0x00, 0xff);
+                                               0x00, 0x00, 0x00, 0xff,
+                                               0x00, 0x00, 0x00, 0xff,
+                                               0x00, 0x00, 0x00, 0xff);
 	float	*texCoords;
 	byte	*colors;
 	byte	clipBits[SHADER_MAX_VERTEXES];

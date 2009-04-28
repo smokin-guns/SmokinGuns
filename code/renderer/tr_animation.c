@@ -90,9 +90,9 @@ void RB_SurfaceAnim( md4Surface_t *surface ) {
 	frameSize = (size_t)( &((md4Frame_t *)0)->bones[ header->numBones ] );
 
 	frame = (md4Frame_t *)((byte *)header + header->ofsFrames +
-		backEnd.currentEntity->e.frame * frameSize );
+			backEnd.currentEntity->e.frame * frameSize );
 	oldFrame = (md4Frame_t *)((byte *)header + header->ofsFrames +
-		backEnd.currentEntity->e.oldframe * frameSize );
+			backEnd.currentEntity->e.oldframe * frameSize );
 
 	RB_CheckOverflow( surface->numVerts, surface->numTriangles * 3 );
 
@@ -115,7 +115,7 @@ void RB_SurfaceAnim( md4Surface_t *surface ) {
 		bonePtr = bones;
 		for ( i = 0 ; i < header->numBones*12 ; i++ ) {
 			((float *)bonePtr)[i] = frontlerp * ((float *)frame->bones)[i]
-				+ backlerp * ((float *)oldFrame->bones)[i];
+					+ backlerp * ((float *)oldFrame->bones)[i];
 		}
 	}
 

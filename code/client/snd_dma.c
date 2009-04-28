@@ -1320,7 +1320,7 @@ void S_Base_StartBackgroundTrack( const char *intro, const char *loop ){
 	if( !loop ) {
 		s_backgroundLoop[0] = 0;
 	} else {
-	Q_strncpyz( s_backgroundLoop, loop, sizeof( s_backgroundLoop ) );
+		Q_strncpyz( s_backgroundLoop, loop, sizeof( s_backgroundLoop ) );
 	}
 
 	// close the background track, but DON'T reset s_rawend
@@ -1396,7 +1396,7 @@ void S_UpdateBackgroundTrack( void ) {
 
 		if(r > 0)
 		{
-		// add to raw buffer
+			// add to raw buffer
 			S_Base_RawSamples( 0, fileSamples, s_backgroundStream->info.rate,
 				s_backgroundStream->info.width, s_backgroundStream->info.channels, raw, musicVolume );
 		}
@@ -1410,7 +1410,7 @@ void S_UpdateBackgroundTrack( void ) {
 				S_Base_StartBackgroundTrack( s_backgroundLoop, s_backgroundLoop );
 				if(!s_backgroundStream)
 					return;
-				}
+			}
 			else
 			{
 				S_Base_StopBackgroundTrack();
