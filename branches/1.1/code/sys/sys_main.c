@@ -157,7 +157,9 @@ void Sys_Exit( int ex )
 		if (Sys_Unlink(pidfile) != 0)
 			printf("Cannot unlink %s : %s\n", pidfile, strerror(errno));
 	}
-#else
+#endif
+
+#ifndef DEDICATED
 	SDL_Quit( );
 #endif
 
@@ -478,8 +480,10 @@ void Sys_ParseArgs( int argc, char **argv )
 #else
 			fprintf( stdout, Q3_VERSION " client (%s, %s)\n", date, time );
 #endif
-#define XSTRING(x)				STRING(x)
-#define STRING(x)					#x
+#ifndef XSTRING
+#define STRING(s) #s
+#define XSTRING(s) STRING(s)
+#endif
 			fprintf( stdout, "Release: " XSTRING(SG_RELEASE) "\n" );
 			fprintf( stdout, "Flavour: " OS_STRING " " ARCH_STRING "\n" );
 #else
@@ -560,7 +564,7 @@ int main( int argc, char **argv )
 	// Run time
 	const SDL_version *ver = SDL_Linked_Version( );
 
-#ifndef SMOKINGUNS
+#ifndef XSTRING
 #define STRING(s) #s
 #define XSTRING(s) STRING(s)
 #endif
@@ -612,10 +616,7 @@ int main( int argc, char **argv )
 			else if (!strcmp(cv_name, "sv_daemon") && atoi(cv_value) && !errno)
 				qdaemon = qtrue;
 		}
-#endif
 	}
-
-#if defined SMOKINGUNS && defined DEDICATED
 	Sys_LockMyself(qjail, quser);
 
 	// go back to real user for config loads
@@ -627,6 +628,8 @@ int main( int argc, char **argv )
 		// That is particularly useful if we want to put the server
 		// on background
 		Sys_Daemonize();
+	}
+#else
 	}
 #endif
 
