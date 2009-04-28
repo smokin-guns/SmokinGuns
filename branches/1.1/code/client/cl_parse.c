@@ -526,7 +526,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 		CL_StopRecord_f();
 
 	// reinitialize the filesystem if the game directory has changed
-  FS_ConditionalRestart( clc.checksumFeed );
+	FS_ConditionalRestart( clc.checksumFeed );
 
 	// This used to call CL_StartHunkUsers, but now we enter the download state before loading the
 	// cgame

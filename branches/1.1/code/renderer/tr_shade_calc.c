@@ -1108,9 +1108,9 @@ static void RB_CalcDiffuseColor_altivec( unsigned char *colors )
 	vec3_t			lightDir;
 	int				numVertexes;
 	vector unsigned char vSel = VECCONST_UINT8(0x00, 0x00, 0x00, 0xff,
-							   0x00, 0x00, 0x00, 0xff,
-							   0x00, 0x00, 0x00, 0xff,
-							   0x00, 0x00, 0x00, 0xff);
+                                               0x00, 0x00, 0x00, 0xff,
+                                               0x00, 0x00, 0x00, 0xff,
+                                               0x00, 0x00, 0x00, 0xff);
 	vector float ambientLightVec;
 	vector float directedLightVec;
 	vector float lightDirVec;

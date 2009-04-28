@@ -187,7 +187,7 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 	}
 
 #ifndef DEDICATED
-		CL_ConsolePrint( msg );
+	CL_ConsolePrint( msg );
 #endif
 
 	// echo to dedicated console and early console
@@ -3190,12 +3190,12 @@ static qboolean Field_Complete( void )
 		Q_strcat( completionField->buffer, sizeof( completionField->buffer ), " " );
 		completionField->cursor++;
 		return qtrue;
-}
+	}
 
 	Com_Printf( "]%s\n", completionField->buffer );
 
 	return qfalse;
-	}
+}
 
 #ifndef DEDICATED
 /*

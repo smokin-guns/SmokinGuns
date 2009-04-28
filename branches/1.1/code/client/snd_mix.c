@@ -653,14 +653,14 @@ void S_PaintChannels( int endtime ) {
 		Com_Memset(paintbuffer, 0, sizeof (paintbuffer));
 		for (stream = 0; stream < MAX_RAW_STREAMS; stream++) {
 			if ( s_rawend[stream] >= s_paintedtime ) {
-			// copy from the streaming sound source
+				// copy from the streaming sound source
 				const portable_samplepair_t *rawsamples = s_rawsamples[stream];
 				const int stop = (end < s_rawend[stream]) ? end : s_rawend[stream];
-			for ( i = s_paintedtime ; i < stop ; i++ ) {
+				for ( i = s_paintedtime ; i < stop ; i++ ) {
 					const int s = i&(MAX_RAW_SAMPLES-1);
 					paintbuffer[i-s_paintedtime].left += rawsamples[s].left;
 					paintbuffer[i-s_paintedtime].right += rawsamples[s].right;
-			}
+				}
 			}
 		}
 
