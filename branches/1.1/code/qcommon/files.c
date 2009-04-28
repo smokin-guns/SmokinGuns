@@ -175,16 +175,7 @@ or configs will never get loaded from disk!
 
 // every time a new demo pk3 file is built, this checksum must be updated.
 // the easiest way to get it is to just run the game and see what it spits out
-#ifdef SMOKINGUNS
-#define	DEMO_PAK_CHECKSUM	437558517u
-
-// the SA_PAK0_CHECKSUM is the checksum of a pak0.pk3 containing all the replacment
-// files that WQ3 b2.1 still took from ID's Q3A. In WQ3b2.2 all of them have been included
-// in various wq3_XXX.pk3's
-// This special pak0.pk3 (whose checksum is SA_PAK0_CHECKSUM) is only needed
-// for backwards compatibility.
-#define SA_PAK0_CHECKSUM	554035716u
-#else
+#ifndef SMOKINGUNS
 #define	DEMO_PAK0_CHECKSUM	2985612116u
 static const unsigned pak_checksums[] = {
 	1566731103u,

@@ -554,7 +554,6 @@ void Sys_PlatformInit( void )
 	signal( SIGBUS, Sys_SigHandler );
 }
 
-//#if defined SMOKINGUNS && defined DEDICATED
 #if defined SMOKINGUNS
 /*
 ==============
