@@ -28,8 +28,40 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
+#ifndef SMOKINGUNS
+// That sources are broken for legacy ioQ3 build
+#error "Howdy, don't do that cowboy !! "
+
 #ifdef STANDALONE
-#ifdef SMOKINGUNS
+  #define PRODUCT_NAME			"iofoo3"
+  #define BASEGAME			"foobar"
+  #define CLIENT_WINDOW_TITLE     	"changeme"
+  #define CLIENT_WINDOW_MIN_TITLE 	"changeme2"
+  #define GAMENAME_FOR_MASTER		"iofoo3"	// must NOT contain whitespaces
+#else
+  #define PRODUCT_NAME			"ioq3"
+  #define BASEGAME			"baseq3"
+  #define CLIENT_WINDOW_TITLE     	"ioquake3"
+  #define CLIENT_WINDOW_MIN_TITLE 	"ioq3"
+  #define GAMENAME_FOR_MASTER		"Quake3Arena"
+#endif
+
+#ifdef _MSC_VER
+  #define PRODUCT_VERSION "1.36"
+#endif
+
+#define Q3_VERSION PRODUCT_NAME " " PRODUCT_VERSION
+
+#else
+  // Tequila: Smokin' Guns defines update
+  // MISSIONPACK must be kept out, we are STANDALONE now
+  #ifdef MISSIONPACK
+  #undef MISSIONPACK
+  #endif
+  #ifndef STANDALONE
+  #define STANDALONE
+  #endif
+
   #define PRODUCT_NAME				"Smokin' Guns"
   #define BASEGAME					"smokinguns"
   // Tequila comment: SDK_BASEGAME is used for compatibility reason
@@ -48,40 +80,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #ifndef SG_RELEASE
     #define SG_RELEASE	20090416
   #endif
-#else
-  #define PRODUCT_NAME			"iofoo3"
-  #define BASEGAME			"foobar"
-  #define CLIENT_WINDOW_TITLE     	"changeme"
-  #define CLIENT_WINDOW_MIN_TITLE 	"changeme2"
-  #define GAMENAME_FOR_MASTER		"iofoo3"	// must NOT contain whitespaces
-#endif
-#else
-  #define PRODUCT_NAME			"ioq3"
-  #define BASEGAME			"baseq3"
-  #define CLIENT_WINDOW_TITLE     	"ioquake3"
-  #define CLIENT_WINDOW_MIN_TITLE 	"ioq3"
-  #define GAMENAME_FOR_MASTER		"Quake3Arena"
-#endif
 
-#ifndef SMOKINGUNS
-#ifdef _MSC_VER
-  #define PRODUCT_VERSION "1.36"
-#endif
-#endif
+  #ifndef XSTRING
+  #define XSTRING(x)				STRING(x)
+  #define STRING(x)					#x
+  #endif
 
-#ifndef SMOKINGUNS
-#define Q3_VERSION PRODUCT_NAME " " PRODUCT_VERSION
-#else
-#define XSTRING(x)				STRING(x)
-#define STRING(x)					#x
-#define Q3_VERSION PRODUCT_NAME " " XSTRING(PRODUCT_VERSION)
+  #define Q3_VERSION PRODUCT_NAME " " XSTRING(PRODUCT_VERSION)
 
-//unlagged - lag simulation #2
-#define MAX_LATENT_CMDS 64
-//unlagged - lag simulation #2
+  //unlagged - lag simulation #2
+  #define MAX_LATENT_CMDS 64
+  //unlagged - lag simulation #2
 
-//#define NEW_ANIMS
-#define AKIMBO
+  //#define NEW_ANIMS
+  #define AKIMBO
 #endif
 
 #define MAX_TEAMNAME 32
@@ -511,7 +523,6 @@ typedef struct {
 // moved from g_weapon.c
 void SnapVectorTowards( vec3_t v, vec3_t to );
 //unlagged - attack prediction #3
-void AddAnglesToBounds(const vec3_t angles, vec3_t dir, vec3_t rim_mins, vec3_t rim_maxs, vec3_t dir_mins, vec3_t dir_maxs);
 #endif
 
 // just in case you don't want to use the macros
@@ -607,9 +618,6 @@ void CrossProduct( const vec3_t v1, const vec3_t v2, vec3_t cross );
 
 vec_t VectorNormalize (vec3_t v);		// returns vector length
 vec_t VectorNormalize2( const vec3_t v, vec3_t out );
-#ifdef SMOKINGUNS
-void VectorNormalize3( vec3_t v, float normallength);
-#endif
 void Vector4Scale( const vec4_t in, vec_t scale, vec4_t out );
 void VectorRotate( vec3_t in, vec3_t matrix[3], vec3_t out );
 int Q_log2(int val);
@@ -649,7 +657,6 @@ float AngleNormalize180 ( float angle );
 float AngleDelta ( float angle1, float angle2 );
 #ifdef SMOKINGUNS
 void AnglesNormalize180 (vec3_t angles);
-void AnglesDelta (vec3_t in1, vec3_t in2, vec3_t delta);
 #endif
 
 qboolean PlaneFromPoints( vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c );
@@ -1217,12 +1224,12 @@ typedef enum {
 	TR_LINEAR,
 	TR_LINEAR_STOP,
 	TR_SINE,					// value = base + sin( time / duration ) * delta
-#ifdef SMOKINGUNS
+#ifndef SMOKINGUNS
+	TR_GRAVITY
+#else
 	TR_GRAVITY,
 	TR_GRAVITY_LOW,
 	TR_GRAVITY_LOW2
-#else
-	TR_GRAVITY
 #endif
 } trType_t;
 
