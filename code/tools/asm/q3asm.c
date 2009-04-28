@@ -1371,7 +1371,7 @@ static void WriteVmFile( void ) {
 		header.vmMagic = VM_MAGIC_VER2;
 		headerSize = sizeof( header );
 	} else {
-	header.vmMagic = VM_MAGIC;
+		header.vmMagic = VM_MAGIC;
 
 		// Don't write the VM_MAGIC_VER2 bits when maintaining 1.32b compatibility.
 		// (I know this isn't strictly correct due to padding, but then platforms
@@ -1477,7 +1477,7 @@ static void Assemble( void ) {
 
 	// write the map file even if there were errors
 	if( options.writeMapFile ) {
-	WriteMapFile();
+		WriteMapFile();
 	}
 }
 
