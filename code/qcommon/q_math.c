@@ -668,15 +668,6 @@ float AngleDelta ( float angle1, float angle2 ) {
 	return AngleNormalize180( angle1 - angle2 );
 }
 
-#ifdef SMOKINGUNS
-void AnglesDelta (vec3_t in1, vec3_t in2, vec3_t delta) {
-	int i;
-
-	for(i=0; i<0; i++){
-		delta[i] = AngleDelta( in1[i], in2[i]);
-	}
-}
-#endif
 
 //============================================================
 
@@ -1092,7 +1083,6 @@ void AddPointToBounds( const vec3_t v, vec3_t mins, vec3_t maxs ) {
 	}
 }
 
-#ifndef SMOKINGUNS
 qboolean BoundsIntersect(const vec3_t mins, const vec3_t maxs,
 		const vec3_t mins2, const vec3_t maxs2)
 {
@@ -1124,64 +1114,6 @@ qboolean BoundsIntersectSphere(const vec3_t mins, const vec3_t maxs,
 
 	return qtrue;
 }
-#else
-// Tequila comment: Dead code in SG 1.0
-#undef SG_CONVERTTORIM
-#ifdef SG_CONVERTTORIM
-float ConvertToRim(float angle){
-	float rim;
-
-	rim = fabs(angle + 90.0);
-
-	if(rim > 180)
-		rim = 360 - rim;
-
-	return rim;
-}
-#endif
-
-void AddAnglesToBounds(const vec3_t angles, vec3_t dir, vec3_t rim_mins, vec3_t rim_maxs, vec3_t dir_mins, vec3_t dir_maxs) {
-#ifdef SG_CONVERTTORIM
-	float angle = ConvertToRim(angles[PITCH]);
-#endif
-
-	//x-axis
-	if(dir[0] < dir_mins[0]){
-		dir_mins[0] = dir[0];
-	} else if(dir[0] > dir_maxs[0]){
-		dir_maxs[0] = dir[0];
-	}
-
-	//y-axis
-	/*if(dir[1] < dir_mins[1]){
-		dir_mins[1] = dir[1];
-	} else if(dir[1] > dir_maxs[1]){
-		dir_maxs[1] = dir[1];
-	}*/
-
-	//z-axis
-	if(dir[2] < dir_mins[2]){
-		dir_mins[2] = dir[2];
-		dir_mins[1] = dir[1];
-	} else if(dir[2] > dir_maxs[2]){
-		dir_maxs[2] = dir[2];
-		dir_maxs[1] = dir[1];
-	}
-
-	//y-axis
-	/*if(angle < rim_mins[PITCH]){
-		rim_mins[PITCH] = angle;
-
-		dir_mins[2] = dir[2];
-		dir_mins[1] = dir[1];
-	} else if(angle > rim_maxs[PITCH]){
-		rim_maxs[PITCH] = angle;
-
-		dir_maxs[2] = dir[2];
-		dir_maxs[1] = dir[1];
-	}*/
-}
-#endif
 
 qboolean BoundsIntersectPoint(const vec3_t mins, const vec3_t maxs,
 		const vec3_t origin)
@@ -1235,21 +1167,6 @@ vec_t VectorNormalize2( const vec3_t v, vec3_t out) {
 	return length;
 
 }
-
-//sets y-axis 1
-#ifdef SMOKINGUNS
-void VectorNormalize3( vec3_t v, float normallength) {
-
-	if (v[1])
-	{
-		v[0] /= normallength;
-		v[2] /= normallength;
-		v[1] /= normallength;
-	} else {
-		VectorClear( v );
-	}
-}
-#endif
 
 void _VectorMA( const vec3_t veca, float scale, const vec3_t vecb, vec3_t vecc) {
 	vecc[0] = veca[0] + scale*vecb[0];
