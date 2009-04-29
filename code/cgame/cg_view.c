@@ -950,6 +950,7 @@ static int CG_CalcViewValues( void ) {
 CG_PowerupTimerSounds
 =====================
 */
+#ifndef SMOKINGUNS
 static void CG_PowerupTimerSounds( void ) {
 	int		i;
 	int		t;
@@ -968,6 +969,7 @@ static void CG_PowerupTimerSounds( void ) {
 		}
 	}
 }
+#endif
 
 /*
 =====================
@@ -1133,7 +1135,9 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	memcpy( cg.refdef.areamask, cg.snap->areamask, sizeof( cg.refdef.areamask ) );
 
 	// warning sounds when powerup is wearing off
+#ifndef SMOKINGUNS
 	CG_PowerupTimerSounds();
+#endif
 
 	// update audio positions
 	trap_S_Respatialize( cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, inwater );

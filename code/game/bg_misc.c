@@ -2146,6 +2146,7 @@ gitem_t	*BG_FindItemForPowerup( powerup_t pw ) {
 BG_FindItemForHoldable
 ==============
 */
+#ifndef SMOKINGUNS
 gitem_t	*BG_FindItemForHoldable( holdable_t pw ) {
 	int		i;
 
@@ -2159,6 +2160,7 @@ gitem_t	*BG_FindItemForHoldable( holdable_t pw ) {
 
 	return NULL;
 }
+#endif
 
 
 /*
