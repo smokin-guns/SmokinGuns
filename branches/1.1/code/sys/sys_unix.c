@@ -224,6 +224,18 @@ const char *Sys_Dirname( char *path )
 
 /*
 ==================
+Sys_Readlink
+==================
+*/
+#ifdef SMOKINGUNS
+int Sys_Readlink( const char *path, char *buf, int bufsiz )
+{
+	return readlink( path, buf, bufsiz );
+}
+#endif
+
+/*
+==================
 Sys_Mkdir
 ==================
 */
