@@ -716,11 +716,12 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->handsModel = trap_R_RegisterModel( "models/weapons2/shotgun/shotgun_hand.md3" );
 	}
 
+#ifndef SMOKINGUNS
 	weaponInfo->loopFireSound = qfalse;
 
+#else
 	// first person view weaponmodel
 	//right handed
-#ifdef SMOKINGUNS
 	if(bg_weaponlist[weaponNum].v_model){
 		strcpy( path, bg_weaponlist[weaponNum].v_model);
 		weaponInfo->r_weaponModel = trap_R_RegisterModel( path);
@@ -836,7 +837,6 @@ void CG_RegisterWeapon( int weaponNum ) {
 		break;
 #else
 	case WP_GATLING:
-		weaponInfo->firingSound = cgs.media.sfx_gatling_loop;
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.8f, 0.6f );
 		break;
@@ -2584,7 +2584,7 @@ void CG_NextWeapon_f( void ) {
 	int		original;
 #else
 	int		num;
-	int		i, j;
+	int		i, j, weapon;
 	int startnum;
 	// is it the first time weapon_f was called since the last wp-change?
 	qboolean first_time = !cg.markedweapon;
@@ -2659,8 +2659,7 @@ void CG_NextWeapon_f( void ) {
 			&& num == WPS_PISTOL && j > 0)
 			cg.markedfirstpistol = qtrue;
 
-		for(i = 1; i <= WP_NUM_WEAPONS; i++){
-			int weapon = 0;
+		for(i = 1, weapon = 0; i <= WP_NUM_WEAPONS; i++){
 
 			// check if akimbo has to be set
 			if(num == WPS_PISTOL && weapon+1 == WP_NUM_WEAPONS &&
@@ -2740,7 +2739,7 @@ void CG_PrevWeapon_f( void ) {
 	int		original;
 #else
 	int		num = 0;
-	int		i, j;
+	int		i, j, weapon;
 	int startnum;
 	// is it the first time weapon_f was called since the last wp-change?
 	qboolean first_time = !cg.markedweapon;
@@ -2820,8 +2819,7 @@ void CG_PrevWeapon_f( void ) {
 				cg.markedfirstpistol = qtrue;
 		}
 
-		for(i = 1; i <= WP_NUM_WEAPONS; i++){
-			int weapon = 0 ;
+		for(i = 1, weapon = 0; i <= WP_NUM_WEAPONS; i++){
 
 			// check if akimbo has to be set
 			if(num == WPS_GUN && weapon == 1 &&
@@ -2887,7 +2885,7 @@ CG_Weapon_f
 void CG_Weapon_f( void ) {
 	int		num;
 #ifdef SMOKINGUNS
-	int		i;
+	int		i, weapon;
 	int		startnum;
 	// is it the first time weapon_f was called since the last wp-change?
 	qboolean first_time = !cg.markedweapon;
@@ -2949,8 +2947,7 @@ void CG_Weapon_f( void ) {
 		cg.markedfirstpistol = qtrue;
 	}
 
-	for(i = 1; i <= WP_NUM_WEAPONS; i++){
-		int weapon = 0;
+	for(i = 1, weapon = 0; i <= WP_NUM_WEAPONS; i++){
 
 		// check if akimbo has to be set
 		if(num == WPS_PISTOL && weapon+1 == WP_NUM_WEAPONS &&
@@ -3523,7 +3520,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir,
 	case WP_MOLOTOV:
 		//mod = cgs.media.dishFlashModel;
 		//shader = cgs.media.dynamiteExplosionShader;
-		sfx = cgs.media.impact[3][rand()%3];
+		sfx = cgs.media.impact[IMPACT_GLASS][rand()%3];
 		//mark = cgs.media.burnMarkShader;
 		//duration = 1000;
 		//radius_mrk = radius_exp = 64;
