@@ -248,7 +248,7 @@ typedef enum {
 
 //----------------------------------------------
 // hika comments: this part Spoon added is only for the mod
-#if defined SMOKINGUNS && ( defined CGAME || defined QAGAME || defined UI )
+#if defined SMOKINGUNS_MOD
 
 //mapinfo ny Spoon
 

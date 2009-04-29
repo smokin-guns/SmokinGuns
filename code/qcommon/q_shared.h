@@ -78,7 +78,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
     #define PRODUCT_VERSION	1.1
   #endif
   #ifndef SG_RELEASE
-    #define SG_RELEASE	20090416
+    #define SG_RELEASE	20090429
   #endif
 
   #ifndef XSTRING
@@ -94,6 +94,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
   //#define NEW_ANIMS
   #define AKIMBO
+
+  #if defined Q3_VM || defined QAGAME || defined CGAME || defined UI
+  // Tequila comment: activate Smokin' Guns MOD only features
+  #define SMOKINGUNS_MOD
+  #endif
 #endif
 
 #define MAX_TEAMNAME 32
@@ -1055,14 +1060,15 @@ typedef struct {
 
 // bit field limits
 #define	MAX_STATS				16
-#if defined SMOKINGUNS && ( defined CGAME || defined QAGAME || defined UI )
-#define	MAX_PERSISTANT			10
-#define	MAX_POWERUPS			13
-#define	MAX_WEAPONS				21
-#else
+#ifndef SMOKINGUNS_MOD
 #define	MAX_PERSISTANT			16
 #define	MAX_POWERUPS			16
 #define	MAX_WEAPONS				16
+#else
+// Must be changed for Smokin' Guns MOD
+#define	MAX_PERSISTANT			10
+#define	MAX_POWERUPS			13
+#define	MAX_WEAPONS				21
 #endif
 
 #define	MAX_PS_EVENTS			2
@@ -1137,7 +1143,7 @@ typedef struct playerState_s {
 	int			powerups[MAX_POWERUPS];	// level.time that the powerup runs out
 	int			ammo[MAX_WEAPONS];
 
-#if defined SMOKINGUNS && ( defined CGAME || defined QAGAME || defined UI )	// Only used by SG mod
+#ifdef SMOKINGUNS_MOD	// Only used by SG mod
 	// stats for 2nd weapon
 	int			weapon2;
 	int			weapon2state;// important to be here because of PERS_SCORE
@@ -1148,17 +1154,17 @@ typedef struct playerState_s {
 #endif
 	int			generic1;
 	int			loopSound;
-#if ! defined SMOKINGUNS || ! ( defined CGAME || defined QAGAME || defined UI )	// Not used by SG mod
+#ifndef SMOKINGUNS_MOD	// Not used by SG mod
 	int			jumppad_ent;	// jumppad entity hit this frame
 #endif
 
 	// not communicated over the net at all
 	int			ping;			// server to game info for scoreboard
-#if defined SMOKINGUNS && ( defined CGAME || defined QAGAME || defined UI )	// Only used by SG mod
+#ifdef SMOKINGUNS_MOD	// Only used by SG mod
 	int			oldbuttons;
 #endif
 	int			pmove_framecount;	// FIXME: don't transmit over the network
-#if ! defined SMOKINGUNS || ! ( defined CGAME || defined QAGAME || defined UI )	// Not used by SG mod
+#ifndef SMOKINGUNS_MOD	// Not used by SG mod
 	int			jumppad_frame;
 #endif
 	int			entityEventSequence;
