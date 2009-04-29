@@ -430,7 +430,7 @@ typedef enum {
 } gameExport_t;
 
 // hika comments: this part Spoon added is only for the mod
-#if defined SMOKINGUNS && ( defined CGAME || defined QAGAME || defined UI )
+#ifdef SMOKINGUNS_MOD
 typedef struct shaderInfo_s {
 	int			surfaceFlags;
 } shaderInfo_t;
