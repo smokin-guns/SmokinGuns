@@ -1082,6 +1082,9 @@ char	*Sys_DefaultInstallPath(void);
 #ifdef MACOS_X
 char    *Sys_DefaultAppPath(void);
 #endif
+#ifdef SMOKINGUNS
+int Sys_Readlink( const char *path, char *buf, int bufsiz );
+#endif
 
 void  Sys_SetDefaultHomePath(const char *path);
 char	*Sys_DefaultHomePath(void);

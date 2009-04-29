@@ -76,12 +76,111 @@ char *Sys_BinaryPath(void)
 
 /*
 =================
+Sys_TestSysInstallPath
+=================
+*/
+#ifdef SMOKINGUNS
+#define BASEPAK "sg_pak0.pk3"
+qboolean Sys_TestSysInstallPath(const char *path) {
+	char *testpath;
+	FILE *f;
+	testpath = FS_BuildOSPath( path, BASEGAME, BASEPAK );
+	f = fopen( testpath, "r" );
+	if (f) {
+		fclose( f );
+		return qtrue;
+	} else {
+		return qfalse;
+	}
+}
+#endif
+
+/*
+=================
 Sys_SetDefaultInstallPath
 =================
 */
 void Sys_SetDefaultInstallPath(const char *path)
 {
+#if ! defined SMOKINGUNS || defined MACOS_X
+// MacOSX has already figured this out, so it only needs to copy the value
+// over to installPath.
 	Q_strncpyz(installPath, path, sizeof(installPath));
+#else
+	const char *p[]= {
+#ifndef XSTRING
+#define STRING(s) #s
+#define XSTRING(s) STRING(s)
+#endif
+// Packagers: change PREFIX here to your favourite location.
+// Or change DEFAULT_BASEDIR in Makefile.local
+#ifndef PREFIX
+#define PREFIX /usr/share/games
+#endif
+#ifdef DEFAULT_BASEDIR
+		XSTRING(DEFAULT_BASEDIR),
+#endif
+		XSTRING(PREFIX) "/SmokinGuns",
+		"/usr/local/SmokinGuns",
+		"/opt/SmokinGuns",
+		"/opt/games/SmokinGuns",
+		"/usr/games/SmokinGuns",
+		"/SmokinGuns",
+		"/",
+		NULL,
+	};
+
+	char real_path[MAX_OSPATH];
+	char *wp, *hp;
+	char homedir[MAX_OSPATH];
+	int i;
+
+	// You can now rely on SG_BASEPATH for the installed game
+	if ((wp = getenv("SG_BASEPATH")) != NULL) {
+		Q_strncpyz(installPath, wp, sizeof(installPath));
+		return;
+	}
+
+	for (i=0; p[i] != NULL; i++) {
+		if (Sys_TestSysInstallPath(p[i])) {
+			Q_strncpyz(installPath, p[i], sizeof(installPath));
+			return;
+		}
+	}
+
+	// Let's also try ~/SmokinGuns/ - just for kicks
+	if ((hp = getenv("HOME")) != NULL) {
+		Q_strncpyz(homedir, hp, sizeof(homedir));
+		Q_strcat(homedir, sizeof(homedir), "/SmokinGuns");
+		if (Sys_TestSysInstallPath(homedir)) {
+			Q_strncpyz(installPath, homedir, sizeof(installPath));
+			return;
+		}
+	}
+
+	// Let's also try ~/Smokin' Guns/ - just to support default folder from Smokin' Guns 1.0 zip file
+	if ((hp = getenv("HOME")) != NULL) {
+		Q_strncpyz(homedir, hp, sizeof(homedir));
+		Q_strcat(homedir, sizeof(homedir), "/Smokin' Guns");
+		if (Sys_TestSysInstallPath(homedir)) {
+			Q_strncpyz(installPath, homedir, sizeof(installPath));
+			return;
+		}
+	}
+
+	// Prototype code for resolving a symbolic link.
+	// However, this works only, if the full path is
+	// given on the command line. But since the last option
+	// takes the full path, it's better to try to resolve
+	// the real path first.
+	// reading /proc/self/exe on linux or /proc/curproc/file on FreeBSD
+	// would work but make it non-portable ... OpenBSD ??
+	if (Sys_Readlink(path, real_path, MAX_OSPATH) > 0) {
+		Q_strncpyz(installPath, Sys_Dirname(real_path), sizeof(installPath));
+		return;
+	}
+	Q_strncpyz(installPath, Sys_Dirname((char *)path), sizeof(installPath));
+#endif
 }
 
 /*

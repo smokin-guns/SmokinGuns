@@ -47,6 +47,11 @@ ifndef BUILD_DIR
   BUILD_DIR         = ./build
 endif
 
+# Packagers can uncomment and change DEFAULT_BASEDIR to define a system
+# installation path for the game. Otherwise, you can start the game with
+# a script setting SG_BASEPATH environment to the path you would prefer
+#DEFAULT_BASEDIR = /usr/share/games/smokinguns
+
 # Use -DFS_FOPENI if you are MODing under Unix (content out of PK3)
 #STANDALONE_CFLAGS += -DFS_FOPENI
 #STANDALONE_CFLAGS += -DFS_MISSING -DFS_FOPENI
