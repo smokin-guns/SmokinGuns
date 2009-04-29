@@ -230,9 +230,11 @@ int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
 
 	other->client->ps.stats[STAT_HOLDABLE_ITEM] = ent->item - bg_itemlist;
 
+#ifndef SMOKINGUNS
 	if( ent->item->giTag == HI_KAMIKAZE ) {
 		other->client->ps.eFlags |= EF_KAMIKAZE;
 	}
+#endif
 
 	return RESPAWN_HOLDABLE;
 }
@@ -591,10 +593,10 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	case IT_TEAM:
 		respawn = Pickup_Team(ent, other);
 		break;
-#endif
 	case IT_HOLDABLE:
 		respawn = Pickup_Holdable(ent, other);
 		break;
+#endif
 	default:
 #ifdef SMOKINGUNS
 		G_LogPrintf( "Item: %i %s\n", other->s.number, ent->item->classname );

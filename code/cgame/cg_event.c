@@ -584,9 +584,6 @@ static void CG_UseItem( centity_t *cent ) {
 #ifndef SMOKINGUNS
 	clientInfo_t *ci;
 	int			itemNum, clientNum;
-#else
-	int			itemNum;
-#endif
 	gitem_t		*item;
 	entityState_t *es;
 
@@ -617,17 +614,14 @@ static void CG_UseItem( centity_t *cent ) {
 		break;
 
 	case HI_MEDKIT:
-#ifndef SMOKINGUNS
 		clientNum = cent->currentState.clientNum;
 		if ( clientNum >= 0 && clientNum < MAX_CLIENTS ) {
 			ci = &cgs.clientinfo[ clientNum ];
 			ci->medkitUsageTime = cg.time;
 		}
 		trap_S_StartSound (NULL, es->number, CHAN_BODY, cgs.media.medkitSound );
-#endif
 		break;
 
-#ifndef SMOKINGUNS
 	case HI_KAMIKAZE:
 		break;
 
@@ -636,9 +630,9 @@ static void CG_UseItem( centity_t *cent ) {
 	case HI_INVULNERABILITY:
 		trap_S_StartSound (NULL, es->number, CHAN_BODY, cgs.media.useInvulnerabilitySound );
 		break;
-#endif
 	}
 
+#endif
 }
 
 /*
@@ -1446,11 +1440,13 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	case EV_GRENADE_BOUNCE:
 		DEBUGNAME("EV_GRENADE_BOUNCE");
+#ifndef SMOKINGUNS
 		if ( rand() & 1 ) {
 			trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.hgrenb1aSound );
 		} else {
 			trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.hgrenb2aSound );
 		}
+#endif
 		break;
 
 #ifndef SMOKINGUNS

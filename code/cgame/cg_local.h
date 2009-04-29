@@ -582,9 +582,11 @@ typedef struct weaponInfo_s {
 	float			trailRadius;
 	float			wiTrailTime;
 
+#ifndef SMOKINGUNS
 	sfxHandle_t		readySound;
 	sfxHandle_t		firingSound;
 	qboolean		loopFireSound;
+#endif
 } weaponInfo_t;
 
 
@@ -1234,7 +1236,10 @@ typedef struct {
 #endif
 	sfxHandle_t	tracerSound;
 	sfxHandle_t	selectSound;
-#ifdef SMOKINGUNS
+#ifndef SMOKINGUNS
+	sfxHandle_t	useNothingSound;
+	sfxHandle_t	wearOffSound;
+#else
 	sfxHandle_t snd_pistol_raise;
 	sfxHandle_t	snd_winch66_raise;
 	sfxHandle_t	snd_lightn_raise;
@@ -1242,8 +1247,6 @@ typedef struct {
 	sfxHandle_t	snd_shotgun_raise;
 	sfxHandle_t snd_winch97_raise;
 #endif
-	sfxHandle_t	useNothingSound;
-	sfxHandle_t	wearOffSound;
 	sfxHandle_t	footsteps[FOOTSTEP_TOTAL][4];
 #ifdef SMOKINGUNS
 	sfxHandle_t	snd_death[11];
@@ -1259,13 +1262,13 @@ typedef struct {
 	sfxHandle_t	sfx_ric1;
 	sfxHandle_t	sfx_ric2;
 	sfxHandle_t	sfx_ric3;
+	sfxHandle_t	sfx_railg;
 #else
 	sfxHandle_t	sfx_ric[6];
 #endif
-	sfxHandle_t	sfx_railg;
 	sfxHandle_t	sfx_rockexp;
-	sfxHandle_t	sfx_plasmaexp;
 #ifndef SMOKINGUNS
+	sfxHandle_t	sfx_plasmaexp;
 	sfxHandle_t	sfx_proxexp;
 	sfxHandle_t	sfx_nghit;
 	sfxHandle_t	sfx_nghitflesh;
@@ -1411,6 +1414,7 @@ typedef struct {
 	qhandle_t selectCursor;
 	qhandle_t sizeCursor;
 
+#ifndef SMOKINGUNS
 	sfxHandle_t	regenSound;
 	sfxHandle_t	protectSound;
 	sfxHandle_t	n_healthSound;
@@ -1420,8 +1424,7 @@ typedef struct {
 	sfxHandle_t	wstbimpmSound;
 	sfxHandle_t	wstbimpdSound;
 	sfxHandle_t	wstbactvSound;
-
-#ifdef SMOKINGUNS
+#else
 	//Spoon Sounds
 	sfxHandle_t knifehit2;
 	sfxHandle_t	knifehit;

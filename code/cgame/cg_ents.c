@@ -395,7 +395,7 @@ static void CG_Item( centity_t *cent ) {
 #endif
 	}
 
-#ifdef SMOKINGUNS
+#ifndef SMOKINGUNS
 	if ( item->giType == IT_HOLDABLE && item->giTag == HI_KAMIKAZE ) {
 		VectorScale( ent.axis[0], 2, ent.axis[0] );
 		VectorScale( ent.axis[1], 2, ent.axis[1] );
