@@ -1526,6 +1526,11 @@ void SP_func_breakable (gentity_t *ent){
 
 	ent->s.angles2[0] = ent->health;
 
+	// Tequila comment: set breakable center as origin for G_BreakableRespawn needs
+	VectorSubtract(ent->r.absmax, ent->r.absmin, ent->pos1);
+	VectorScale(ent->pos1,0.5f,ent->pos2);
+	VectorAdd(ent->pos2,ent->r.absmin,ent->s.origin);
+	
 	VectorCopy( ent->s.origin, ent->pos1 );
 	VectorCopy( ent->s.origin, ent->pos2 );
 
@@ -1545,7 +1550,7 @@ void SP_func_breakable (gentity_t *ent){
 	trap_LinkEntity(ent);
 }
 
-#define MIN_RESPAWN_DISTANCE	600
+#define REPORTED_RESPAWN_TIME 1000
 void G_BreakableRespawn( gentity_t *ent){
 	int i;
 
@@ -1564,7 +1569,7 @@ void G_BreakableRespawn( gentity_t *ent){
 			continue;
 
 		// if it's too near abort
-		if(Distance(client->ps.origin, ent->r.currentOrigin) < 300){
+		if(Distance(client->ps.origin, ent->pos2) < 300){
 			return;
 		}
 
@@ -1583,37 +1588,37 @@ void G_BreakableRespawn( gentity_t *ent){
 		if (g_forcebreakrespawn.integer)
 			continue;
 
+		// Tequila comment: Don't check if breakable is in a bot FOV
+		if (player->r.svFlags & SVF_BOT) {
+			continue;
+		}
+
 		// check if its in field of vision
 		VectorCopy(client->ps.origin, eye);
 		eye[2] += client->ps.viewheight;
 
-		VectorSubtract(ent->r.currentOrigin, eye, dir);
+		VectorSubtract(ent->pos2, eye, dir);
 		vectoangles(dir, angles);
 
 		for (j = 0; j < 2; j++) {
 			angle = AngleMod(client->ps.viewangles[j]);
 			angles[j] = AngleMod(angles[j]);
-			diff = angles[j] - angle;
+			diff = fabs(angles[j] - angle);
 
-			if (angles[j] > angle) {
-				if (diff > 180.0) diff -= 360.0;
-			}
-			else {
-				if (diff < -180.0) diff += 360.0;
-			}
+			if (diff > 180.0)
+				diff -= 360.0;
 
 			// if not in field of vision continue;
-			if (diff > 0) {
-				if (diff > fov * 1.1f) cont = qtrue;
-			}
-			else {
-				if (diff < -fov * 1.1f) cont = qtrue;
+			if ( fabs(diff) > fov/2 ) {
+				cont = qtrue;
+				break;
 			}
 		}
-#define MIN_OBSTACLE_SIZE 500
 
 		// it's in the field of vision
 		if(!cont){
+			// Tequila comment: Delay the next breakable respawn check
+			ent->wait = level.time + REPORTED_RESPAWN_TIME;
 			return;
 		}
 	}
