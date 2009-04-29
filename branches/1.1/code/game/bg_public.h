@@ -539,6 +539,8 @@ typedef enum {
 
 } powerup_t;
 
+#ifndef SMOKINGUNS
+// Tequila comment: not used in Smokin' Guns
 typedef enum {
 	HI_NONE,
 
@@ -550,6 +552,7 @@ typedef enum {
 
 	HI_NUM_HOLDABLE
 } holdable_t;
+#endif
 
 
 typedef enum {
@@ -1301,11 +1304,9 @@ gitem_t	*BG_FindItemForClassname( const char *classname );
 gitem_t	*BG_FindItemForWeapon( weapon_t weapon );
 #ifndef SMOKINGUNS
 gitem_t	*BG_FindItemForPowerup( powerup_t pw );
+gitem_t	*BG_FindItemForHoldable( holdable_t pw );
 #else
 gitem_t	*BG_FindItemForAmmo( weapon_t ammo ) ;
-#endif
-gitem_t	*BG_FindItemForHoldable( holdable_t pw );
-#ifdef SMOKINGUNS
 int	BG_FindPlayerWeapon( int firstweapon, int lastweapon, playerState_t	*ps);
 #endif
 #define	ITEM_INDEX(x) ((x)-bg_itemlist)
