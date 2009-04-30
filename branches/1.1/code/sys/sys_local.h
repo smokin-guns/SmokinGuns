@@ -55,14 +55,17 @@ void Sys_ErrorDialog( const char *error );
 void Sys_AnsiColorPrint( const char *msg );
 
 #ifdef SMOKINGUNS
+const char *Sys_GetSystemInstallPath(const char *path);
+void Sys_PlatformPostInit( char *progname );
+void Sys_PlatformExit( void );
+#ifdef DEDICATED
 #ifndef _WIN32
 uid_t Sys_Getuid( void );
 uid_t Sys_Geteuid( void );
 int Sys_Unlink( char *file );
-#ifdef DEDICATED
 pid_t Sys_Getpid( void );
+#endif
 void Sys_LockMyself(const char *qjail, const char *quser);
 void Sys_Daemonize( void );
-#endif
 #endif
 #endif
