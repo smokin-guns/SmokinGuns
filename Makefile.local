@@ -56,10 +56,15 @@ endif
 #STANDALONE_CFLAGS += -DFS_FOPENI
 #STANDALONE_CFLAGS += -DFS_MISSING -DFS_FOPENI
 
-# Tequila: Added svn support for g_main.c and its sg_version cvar update
+# Tequila: Fixed svn support for file using Q3_VERSION define
 SDK_OBJ_USING_SVN = \
+	$(B)/ded/sys_main.o \
 	$(B)/$(SDK_GAMENAME)/game/g_main.o \
-	$(B)/$(SDK_GAMENAME)/game/g_main.asm
+	$(B)/$(SDK_GAMENAME)/game/g_main.asm \
+	$(B)/$(SDK_GAMENAME)/cgame/cg_main.o \
+	$(B)/$(SDK_GAMENAME)/cgame/cg_main.asm \
+	$(B)/$(SDK_GAMENAME)/ui/ui_main.o \
+	$(B)/$(SDK_GAMENAME)/ui/ui_main.asm
 
 #############################################################################
 ## SMOKINGUNS CGAME
