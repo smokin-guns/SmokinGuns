@@ -1,5 +1,5 @@
 #!/bin/sh
-APPBUNDLE="Smokin\ Guns.app""
+APPBUNDLE="Smokin' Guns.app"
 BINARY=smokinguns.ub
 DEDBIN=smokinguns_dedicated.ub
 PKGINFO=APPLSG
@@ -12,16 +12,8 @@ BIN_OBJ="
 	build/release-darwin-i386/smokinguns.i386
 "
 BIN_DEDOBJ="
-	build/release-darwin-ub/smokinguns_dedicated.ppc
+	build/release-darwin-ppc/smokinguns_dedicated.ppc
 	build/release-darwin-i386/smokinguns_dedicated.i386
-"
-BASE_OBJ="
-	build/release-darwin-ppc/$BASEDIR/cgameppc.dylib
-	build/release-darwin-i386/$BASEDIR/cgamei386.dylib
-	build/release-darwin-ppc/$BASEDIR/uippc.dylib
-	build/release-darwin-i386/$BASEDIR/uii386.dylib
-	build/release-darwin-ppc/$BASEDIR/qagameppc.dylib
-	build/release-darwin-i386/$BASEDIR/qagamei386.dylib
 "
 
 cd `dirname $0`
@@ -34,7 +26,6 @@ SG_VERSION=`grep '^VERSION=' Makefile | sed -e 's/.*=\(.*\)/\1/'`
 
 # We only care if we're >= 10.4, not if we're specifically Tiger.
 # "8" is the Darwin major kernel version.
-#TIGERHOST=`uname -r | grep ^8.`
 TIGERHOST=`uname -r |perl -w -p -e 's/\A(\d+)\..*\Z/$1/; $_ = (($_ >= 8) ? "1" : "0");'`
 
 # we want to use the oldest available SDK for max compatiblity
@@ -156,17 +147,14 @@ fi
 (ARCH=i386 CFLAGS=$X86_CFLAGS LDFLAGS=$X86_LDFLAGS make -j$NCPU) || exit 1;
 
 echo "Creating .app bundle $DESTDIR/$APPBUNDLE"
-if [ ! -d $DESTDIR/$APPBUNDLE/Contents/MacOS/$BASEDIR ]; then
-	mkdir -p $DESTDIR/$APPBUNDLE/Contents/MacOS/$BASEDIR || exit 1;
+if [ ! -d "$DESTDIR/$APPBUNDLE/Contents/MacOS/$BASEDIR" ]; then
+	mkdir -p "$DESTDIR/$APPBUNDLE/Contents/MacOS/$BASEDIR" || exit 1;
 fi
-if [ ! -d $DESTDIR/$APPBUNDLE/Contents/MacOS/$MPACKDIR ]; then
-	mkdir -p $DESTDIR/$APPBUNDLE/Contents/MacOS/$MPACKDIR || exit 1;
+if [ ! -d "$DESTDIR/$APPBUNDLE/Contents/Resources" ]; then
+	mkdir -p "$DESTDIR/$APPBUNDLE/Contents/Resources"
 fi
-if [ ! -d $DESTDIR/$APPBUNDLE/Contents/Resources ]; then
-	mkdir -p $DESTDIR/$APPBUNDLE/Contents/Resources
-fi
-cp $ICNS $DESTDIR/$APPBUNDLE/Contents/Resources/smokinguns.icns || exit 1;
-echo $PKGINFO > $DESTDIR/$APPBUNDLE/Contents/PkgInfo
+cp $ICNS "$DESTDIR/$APPBUNDLE/Contents/Resources/smokinguns.icns" || exit 1;
+echo $PKGINFO > "$DESTDIR/$APPBUNDLE/Contents/PkgInfo"
 echo "
 	<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 	<!DOCTYPE plist
@@ -183,7 +171,7 @@ echo "
 		<key>CFBundleIconFile</key>
 		<string>smokinguns.icns</string>
 		<key>CFBundleIdentifier</key>
-		<string>net.smokinguns.www</string>
+		<string>net.smokin-guns.www</string>
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
 		<key>CFBundleName</key>
@@ -202,9 +190,9 @@ echo "
 		<string>NSApplication</string>
 	</dict>
 	</plist>
-	" > $DESTDIR/$APPBUNDLE/Contents/Info.plist
+	" > "$DESTDIR/$APPBUNDLE/Contents/Info.plist"
 
-lipo -create -o $DESTDIR/$APPBUNDLE/Contents/MacOS/$BINARY $BIN_OBJ
-lipo -create -o $DESTDIR/$APPBUNDLE/Contents/MacOS/$DEDBIN $BIN_DEDOBJ
-rm $DESTDIR/smokinguns_dedicated.ppc
-cp $BASE_OBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/$BASEDIR/
+mv build/release-darwin-ub/smokinguns_dedicated.ppc build/release-darwin-ppc/smokinguns_dedicated.ppc
+lipo -create -o "$DESTDIR/$APPBUNDLE/Contents/MacOS/$BINARY" $BIN_OBJ
+lipo -create -o "$DESTDIR/$APPBUNDLE/Contents/MacOS/$DEDBIN" $BIN_DEDOBJ
+cp code/libs/macosx/*.dylib "$DESTDIR/$APPBUNDLE/Contents/MacOS/"
