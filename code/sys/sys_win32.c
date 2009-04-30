@@ -91,6 +91,18 @@ char *Sys_DefaultHomePath( void )
 }
 
 /*
+==================
+Sys_GetSystemInstallPath
+==================
+*/
+#ifdef SMOKINGUNS
+const char *Sys_GetSystemInstallPath(const char *path)
+{
+	return path;
+}
+#endif
+
+/*
 ================
 Sys_Milliseconds
 ================
@@ -633,3 +645,49 @@ void Sys_PlatformInit( void )
 		SDL_VIDEODRIVER_externallySet = qfalse;
 #endif
 }
+
+/*
+==============
+Sys_PlatformPostInit
+==============
+*/
+#if defined SMOKINGUNS
+void Sys_PlatformPostInit( char *progname )
+{
+}
+#endif
+
+/*
+==================
+Sys_PlatformExit
+==================
+*/
+#ifdef SMOKINGUNS
+void Sys_PlatformExit( void )
+{
+}
+#endif
+
+/*
+==================
+Sys_LockMyself
+
+Not implemented for WIN32
+==================
+*/
+#if defined SMOKINGUNS && defined DEDICATED
+void Sys_LockMyself(const char *qjail, const char *quser)
+{
+}
+
+/*
+==================
+Sys_Daemonize
+
+Not implemented for WIN32
+==================
+*/
+void Sys_Daemonize( void )
+{
+}
+#endif
