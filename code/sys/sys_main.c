@@ -50,10 +50,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static char binaryPath[ MAX_OSPATH ] = { 0 };
 static char installPath[ MAX_OSPATH ] = { 0 };
 
-#if defined SMOKINGUNS && defined DEDICATED
-uid_t saved_euid;
-#endif
-
 /*
 =================
 Sys_SetBinaryPath
@@ -76,110 +72,15 @@ char *Sys_BinaryPath(void)
 
 /*
 =================
-Sys_TestSysInstallPath
-=================
-*/
-#ifdef SMOKINGUNS
-#define BASEPAK "sg_pak0.pk3"
-qboolean Sys_TestSysInstallPath(const char *path) {
-	char *testpath;
-	FILE *f;
-	testpath = FS_BuildOSPath( path, BASEGAME, BASEPAK );
-	f = fopen( testpath, "r" );
-	if (f) {
-		fclose( f );
-		return qtrue;
-	} else {
-		return qfalse;
-	}
-}
-#endif
-
-/*
-=================
 Sys_SetDefaultInstallPath
 =================
 */
 void Sys_SetDefaultInstallPath(const char *path)
 {
-#if ! defined SMOKINGUNS || defined MACOS_X
-// MacOSX has already figured this out, so it only needs to copy the value
-// over to installPath.
+#ifndef SMOKINGUNS
 	Q_strncpyz(installPath, path, sizeof(installPath));
 #else
-	const char *p[]= {
-#ifndef XSTRING
-#define STRING(s) #s
-#define XSTRING(s) STRING(s)
-#endif
-// Packagers: change PREFIX here to your favourite location.
-// Or change DEFAULT_BASEDIR in Makefile.local
-#ifndef PREFIX
-#define PREFIX /usr/share/games
-#endif
-#ifdef DEFAULT_BASEDIR
-		XSTRING(DEFAULT_BASEDIR),
-#endif
-		XSTRING(PREFIX) "/SmokinGuns",
-		"/usr/local/SmokinGuns",
-		"/opt/SmokinGuns",
-		"/opt/games/SmokinGuns",
-		"/usr/games/SmokinGuns",
-		"/SmokinGuns",
-		"/",
-		NULL,
-	};
-
-	char real_path[MAX_OSPATH];
-	char *wp, *hp;
-	char homedir[MAX_OSPATH];
-	int i;
-
-	// You can now rely on SG_BASEPATH for the installed game
-	if ((wp = getenv("SG_BASEPATH")) != NULL) {
-		Q_strncpyz(installPath, wp, sizeof(installPath));
-		return;
-	}
-
-	for (i=0; p[i] != NULL; i++) {
-		if (Sys_TestSysInstallPath(p[i])) {
-			Q_strncpyz(installPath, p[i], sizeof(installPath));
-			return;
-		}
-	}
-
-	// Let's also try ~/SmokinGuns/ - just for kicks
-	if ((hp = getenv("HOME")) != NULL) {
-		Q_strncpyz(homedir, hp, sizeof(homedir));
-		Q_strcat(homedir, sizeof(homedir), "/SmokinGuns");
-		if (Sys_TestSysInstallPath(homedir)) {
-			Q_strncpyz(installPath, homedir, sizeof(installPath));
-			return;
-		}
-	}
-
-	// Let's also try ~/Smokin' Guns/ - just to support default folder from Smokin' Guns 1.0 zip file
-	if ((hp = getenv("HOME")) != NULL) {
-		Q_strncpyz(homedir, hp, sizeof(homedir));
-		Q_strcat(homedir, sizeof(homedir), "/Smokin' Guns");
-		if (Sys_TestSysInstallPath(homedir)) {
-			Q_strncpyz(installPath, homedir, sizeof(installPath));
-			return;
-		}
-	}
-
-	// Prototype code for resolving a symbolic link.
-	// However, this works only, if the full path is
-	// given on the command line. But since the last option
-	// takes the full path, it's better to try to resolve
-	// the real path first.
-	// reading /proc/self/exe on linux or /proc/curproc/file on FreeBSD
-	// would work but make it non-portable ... OpenBSD ??
-	if (Sys_Readlink(path, real_path, MAX_OSPATH) > 0) {
-		Q_strncpyz(installPath, Sys_Dirname(real_path), sizeof(installPath));
-		return;
-	}
-	Q_strncpyz(installPath, Sys_Dirname((char *)path), sizeof(installPath));
+	Q_strncpyz(installPath, Sys_GetSystemInstallPath(path), sizeof(installPath));
 #endif
 }
 
@@ -239,23 +140,10 @@ Single exit point (regular exit or in case of error)
 */
 void Sys_Exit( int ex )
 {
-#if defined SMOKINGUNS && defined DEDICATED
-	char pidfile[MAX_OSPATH];
-#endif
-
 	CON_Shutdown( );
 
-#if defined SMOKINGUNS && defined DEDICATED
-	// single exit point (regular exit or in case of signal fault)
-	// includes unlinking of the PID file. Original code for handling
-	// the PID file by hika AT bsdmon DOT com
-	Cvar_VariableStringBuffer("sv_pidfile", pidfile, sizeof(pidfile));
-
-	if (pidfile[0]) {
-		// Try to unlink the pid file
-		if (Sys_Unlink(pidfile) != 0)
-			printf("Cannot unlink %s : %s\n", pidfile, strerror(errno));
-	}
+#ifdef SMOKINGUNS
+	Sys_PlatformExit();
 #endif
 
 #ifndef DEDICATED
@@ -643,13 +531,9 @@ int main( int argc, char **argv )
 	char  commandLine[ MAX_STRING_CHARS ] = { 0 };
 
 #if defined SMOKINGUNS && defined DEDICATED
-	cvar_t *cv_pid;
 	char *cv_name, *cv_value;
 	char *quser = NULL, *qjail = NULL;
 	qboolean qdaemon = qfalse;
-	FILE *fd;
-	char *pid;
-	printf("UID %d EUID %d\n", Sys_Getuid(), Sys_Geteuid());
 #endif
 
 #ifndef DEDICATED
@@ -743,27 +627,7 @@ int main( int argc, char **argv )
 	signal( SIGTERM, Sys_SigHandler );
 
 #ifdef SMOKINGUNS
-#ifdef DEDICATED
-	// Original code for handling the PID file by hika AT bsdmon DOT com
-
-	// Get pid file path
-	cv_pid = Cvar_Get ("sv_pidfile", va("/var/run/%s.pid", Sys_Basename(argv[0])) , CVAR_INIT);
-
-	if (cv_pid && cv_pid->string[0]) {
-		fd = fopen(cv_pid->string, "w");
-
-		if (fd != NULL) {
-			// Write pid to a file
-			pid = va("%d\n", Sys_Getpid());
-			fwrite(pid, sizeof(char), strlen(pid), fd);
-			fclose(fd);
-		}
-		else {
-			printf("Cannot open %s for writing : %s\n", cv_pid->string, strerror(errno));
-			Cvar_Set( "sv_pidfile", '\0' );
-		}
-	}
-#endif
+	Sys_PlatformPostInit(argv[0]);
 
 	// Create a ROM cvar to let the mod know the Smokin' Guns standalone engine is in use.
 	Cvar_Get("sa_engine_inuse", "1", CVAR_ROM);
