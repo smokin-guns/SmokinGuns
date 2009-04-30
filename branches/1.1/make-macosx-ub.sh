@@ -1,20 +1,19 @@
 #!/bin/sh
-APPBUNDLE=ioquake3.app
-BINARY=ioquake3.ub
-DEDBIN=ioq3ded.ub
-PKGINFO=APPLIOQ3
-ICNS=misc/quake3.icns
+APPBUNDLE="Smokin\ Guns.app""
+BINARY=smokinguns.ub
+DEDBIN=smokinguns_dedicated.ub
+PKGINFO=APPLSG
+ICNS=misc/smokinguns.icns
 DESTDIR=build/release-darwin-ub
-BASEDIR=baseq3
-MPACKDIR=missionpack
+BASEDIR=smokinguns
 
 BIN_OBJ="
-	build/release-darwin-ppc/ioquake3-smp.ppc
-	build/release-darwin-i386/ioquake3-smp.i386
+	build/release-darwin-ppc/smokinguns.ppc
+	build/release-darwin-i386/smokinguns.i386
 "
 BIN_DEDOBJ="
-	build/release-darwin-ub/ioq3ded.ppc
-	build/release-darwin-i386/ioq3ded.i386
+	build/release-darwin-ub/smokinguns_dedicated.ppc
+	build/release-darwin-i386/smokinguns_dedicated.i386
 "
 BASE_OBJ="
 	build/release-darwin-ppc/$BASEDIR/cgameppc.dylib
@@ -24,22 +23,14 @@ BASE_OBJ="
 	build/release-darwin-ppc/$BASEDIR/qagameppc.dylib
 	build/release-darwin-i386/$BASEDIR/qagamei386.dylib
 "
-MPACK_OBJ="
-	build/release-darwin-ppc/$MPACKDIR/cgameppc.dylib
-	build/release-darwin-i386/$MPACKDIR/cgamei386.dylib
-	build/release-darwin-ppc/$MPACKDIR/uippc.dylib
-	build/release-darwin-i386/$MPACKDIR/uii386.dylib
-	build/release-darwin-ppc/$MPACKDIR/qagameppc.dylib
-	build/release-darwin-i386/$MPACKDIR/qagamei386.dylib
-"
 
 cd `dirname $0`
 if [ ! -f Makefile ]; then
-	echo "This script must be run from the ioquake3 build directory"
+	echo "This script must be run from the smokinguns build directory"
 	exit 1
 fi
 
-Q3_VERSION=`grep '^VERSION=' Makefile | sed -e 's/.*=\(.*\)/\1/'`
+SG_VERSION=`grep '^VERSION=' Makefile | sed -e 's/.*=\(.*\)/\1/'`
 
 # We only care if we're >= 10.4, not if we're specifically Tiger.
 # "8" is the Darwin major kernel version.
@@ -112,21 +103,6 @@ if [ -d /Developer/SDKs/MacOSX10.3.9.sdk ] && [ $TIGERHOST ]; then
 	PPC_SERVER_LDFLAGS=$PPC_CLIENT_LDFLAGS
 fi
 
-if [ -d /Developer/SDKs/MacOSX10.2.8.sdk ] && [ -x /usr/bin/gcc-3.3 ] && [ $TIGERHOST ]; then
-	PPC_CLIENT_SDK=/Developer/SDKs/MacOSX10.2.8.sdk
-	PPC_CLIENT_CC=gcc-3.3
-	PPC_CLIENT_CFLAGS="-arch ppc \
-		-nostdinc \
-		-F/Developer/SDKs/MacOSX10.2.8.sdk/System/Library/Frameworks \
-		-I/Developer/SDKs/MacOSX10.2.8.sdk/usr/include/gcc/darwin/3.3 \
-		-isystem /Developer/SDKs/MacOSX10.2.8.sdk/usr/include \
-		-DMAC_OS_X_VERSION_MIN_REQUIRED=1020"
-	PPC_CLIENT_LDFLAGS="-arch ppc \
-		-L/Developer/SDKs/MacOSX10.2.8.sdk/usr/lib/gcc/darwin/3.3 \
-		-F/Developer/SDKs/MacOSX10.2.8.sdk/System/Library/Frameworks \
-		-Wl,-syslibroot,/Developer/SDKs/MacOSX10.2.8.sdk,-m"
-fi
-
 if [ -z $PPC_CLIENT_SDK ] || [ -z $PPC_SERVER_SDK ] || [ -z $X86_SDK ]; then
 	echo "\
 ERROR: This script is for building a Universal Binary.  You cannot build
@@ -139,13 +115,12 @@ fi
 echo "Building PPC Dedicated Server against \"$PPC_SERVER_SDK\""
 echo "Building PPC Client against \"$PPC_CLIENT_SDK\""
 echo "Building X86 Client/Dedicated Server against \"$X86_SDK\""
-if [ "$PPC_CLIENT_SDK" != "/Developer/SDKs/MacOSX10.2.8.sdk" ] || \
-	[ "$PPC_SERVER_SDK" != "/Developer/SDKs/MacOSX10.3.9.sdk" ] || \
+if [ "$PPC_SERVER_SDK" != "/Developer/SDKs/MacOSX10.3.9.sdk" ] || \
 	[ "$X86_SDK" != "/Developer/SDKs/MacOSX10.4u.sdk" ]; then
 	echo "\
 WARNING: in order to build a binary with maximum compatibility you must
-         build on Mac OS X 10.4 using Xcode 2.3 or 2.5 and have the
-         MacOSX10.2.8, MacOSX10.3.9, and MacOSX10.4u SDKs installed
+         build on Mac OS X 10.4 using Xcode 2.5 and have the
+         MacOSX10.3.9, and MacOSX10.4u SDKs installed
          from the Xcode install disk Packages folder."
 fi
 sleep 3
@@ -165,7 +140,7 @@ if [ -d build/release-darwin-ppc ]; then
 fi
 (ARCH=ppc BUILD_CLIENT_SMP=0 BUILD_CLIENT=0 BUILD_GAME_VM=0 BUILD_GAME_SO=0 \
 	CFLAGS=$PPC_SERVER_CFLAGS LDFLAGS=$PPC_SERVER_LDFLAGS make -j$NCPU) || exit 1;
-cp build/release-darwin-ppc/ioq3ded.ppc $DESTDIR
+cp build/release-darwin-ppc/smokinguns_dedicated.ppc $DESTDIR
 
 # ppc client
 if [ -d build/release-darwin-ppc ]; then
@@ -190,7 +165,7 @@ fi
 if [ ! -d $DESTDIR/$APPBUNDLE/Contents/Resources ]; then
 	mkdir -p $DESTDIR/$APPBUNDLE/Contents/Resources
 fi
-cp $ICNS $DESTDIR/$APPBUNDLE/Contents/Resources/ioquake3.icns || exit 1;
+cp $ICNS $DESTDIR/$APPBUNDLE/Contents/Resources/smokinguns.icns || exit 1;
 echo $PKGINFO > $DESTDIR/$APPBUNDLE/Contents/PkgInfo
 echo "
 	<?xml version=\"1.0\" encoding=\"UTF-8\"?>
@@ -204,23 +179,23 @@ echo "
 		<key>CFBundleExecutable</key>
 		<string>$BINARY</string>
 		<key>CFBundleGetInfoString</key>
-		<string>ioquake3 $Q3_VERSION</string>
+		<string>Smokin' Guns $SG_VERSION</string>
 		<key>CFBundleIconFile</key>
-		<string>ioquake3.icns</string>
+		<string>smokinguns.icns</string>
 		<key>CFBundleIdentifier</key>
-		<string>org.icculus.quake3</string>
+		<string>net.smokinguns.www</string>
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
 		<key>CFBundleName</key>
-		<string>ioquake3</string>
+		<string>smokinguns</string>
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
 		<key>CFBundleShortVersionString</key>
-		<string>$Q3_VERSION</string>
+		<string>$SG_VERSION</string>
 		<key>CFBundleSignature</key>
 		<string>$PKGINFO</string>
 		<key>CFBundleVersion</key>
-		<string>$Q3_VERSION</string>
+		<string>$SG_VERSION</string>
 		<key>NSExtensions</key>
 		<dict/>
 		<key>NSPrincipalClass</key>
@@ -231,8 +206,5 @@ echo "
 
 lipo -create -o $DESTDIR/$APPBUNDLE/Contents/MacOS/$BINARY $BIN_OBJ
 lipo -create -o $DESTDIR/$APPBUNDLE/Contents/MacOS/$DEDBIN $BIN_DEDOBJ
-rm $DESTDIR/ioq3ded.ppc
+rm $DESTDIR/smokinguns_dedicated.ppc
 cp $BASE_OBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/$BASEDIR/
-cp $MPACK_OBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/$MPACKDIR/
-cp code/libs/macosx/*.dylib $DESTDIR/$APPBUNDLE/Contents/MacOS/
-
