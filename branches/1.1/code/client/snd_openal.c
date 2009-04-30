@@ -896,7 +896,11 @@ static qboolean S_AL_CheckInput(int entityNum, sfxHandle_t sfx)
 
 	if (sfx < 0 || sfx >= numSfx)
 	{
+#if ! defined SMOKINGUNS || ! defined NDEBUG
+		// Tequila comment: okay we are aware of that error with Smokin' Guns 1.0
+		// This should be fixed with 1.1 release, but we keep this message in DEBUG releases
 		Com_Printf(S_COLOR_RED "ERROR: S_AL_CheckInput: handle %i out of range\n", sfx);
+#endif
 		return qtrue;
 	}
 
