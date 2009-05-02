@@ -51,7 +51,7 @@
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="&quot;C:\Program Files (x86)\Microsoft DirectX SDK (November 2008)\Include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;BOTLIB;SMOKINGUNS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;BOTLIB;SMOKINGUNS;STANDALONE"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
