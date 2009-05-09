@@ -129,10 +129,7 @@ const char *Sys_GetSystemInstallPath(const char *path)
 #ifndef MACOS_X
 // MacOSX has already figured this out, so we will just return the path
 	const char *p[]= {
-#ifndef XSTRING
-#define STRING(s) #s
-#define XSTRING(s) STRING(s)
-#endif
+
 // Packagers: change PREFIX here to your favourite location.
 // Or change DEFAULT_BASEDIR in Makefile.local
 #ifndef PREFIX

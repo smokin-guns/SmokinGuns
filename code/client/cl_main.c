@@ -1419,7 +1419,7 @@ void CL_RequestAuthorization( void ) {
 	info[0] = 0;
 	Q_strncpyz( info, Cvar_InfoString( CVAR_USERINFO ), sizeof( info ) );
 	fs = Cvar_Get ("sa_engine_inuse", "0", CVAR_ROM );
-	
+
 	// Tequila: Some few hidden magic should be done here...
 	SG_CvarMagic(cl_motd);
 
@@ -3169,8 +3169,6 @@ void CL_Init( void ) {
 	Cvar_Get ("sex", "male", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("cl_anonymous", "0", CVAR_USERINFO | CVAR_ARCHIVE );
 #ifdef SMOKINGUNS
-#define XSTRING(x)				STRING(x)
-#define STRING(x)					#x
 	Cvar_Get ("cl_version", XSTRING(PRODUCT_VERSION) " " XSTRING(SG_RELEASE), CVAR_ROM | CVAR_USERINFO );
 #endif
 
