@@ -335,8 +335,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &m_maxreward, "m_maxreward", MAX_REWARD, CVAR_CHEAT, 0, qtrue },
 	{ &m_teamwin, "m_teamwin", ROUND_WIN_MONEY, CVAR_CHEAT, 0, qtrue },
 	{ &m_teamlose, "m_teamlose", ROUND_LOSE_MONEY, CVAR_CHEAT, 0, qtrue },
-#define XSTRING(x)				STRING(x)
-#define STRING(x)					#x
+
 	{ &g_version, "sg_version", XSTRING(PRODUCT_VERSION) " " XSTRING(SG_RELEASE), CVAR_ROM | CVAR_SERVERINFO , 0, qtrue },
 	{ &g_url, "MOD_URL", "www.smokin-guns.net", CVAR_ROM | CVAR_SERVERINFO, 0, qtrue },
 

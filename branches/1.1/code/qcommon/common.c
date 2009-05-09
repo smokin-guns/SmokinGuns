@@ -61,8 +61,6 @@ int demo_protocols[] =
 #else
 #define DEF_COMZONEMEGS		16
 #endif
-#define XSTRING(x)				STRING(x)
-#define STRING(x)					#x
 #define DEF_COMHUNKMEGS_S	XSTRING(DEF_COMHUNKMEGS)
 #define DEF_COMZONEMEGS_S	XSTRING(DEF_COMZONEMEGS)
 
