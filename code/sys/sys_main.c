@@ -467,10 +467,6 @@ void Sys_ParseArgs( int argc, char **argv )
 #else
 			fprintf( stdout, Q3_VERSION " client (%s, %s)\n", date, time );
 #endif
-#ifndef XSTRING
-#define STRING(s) #s
-#define XSTRING(s) STRING(s)
-#endif
 			fprintf( stdout, "Release: " XSTRING(SG_RELEASE) "\n" );
 			fprintf( stdout, "Flavour: " OS_STRING " " ARCH_STRING "\n" );
 #else
@@ -547,10 +543,6 @@ int main( int argc, char **argv )
 	// Run time
 	const SDL_version *ver = SDL_Linked_Version( );
 
-#ifndef XSTRING
-#define STRING(s) #s
-#define XSTRING(s) STRING(s)
-#endif
 #define MINSDL_VERSION \
 	XSTRING(MINSDL_MAJOR) "." \
 	XSTRING(MINSDL_MINOR) "." \

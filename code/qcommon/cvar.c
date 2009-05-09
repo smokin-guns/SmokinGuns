@@ -306,9 +306,9 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 	cvar_t	*var;
 	long	hash;
 
-  if ( !var_name || ! var_value ) {
+	if ( !var_name || ! var_value ) {
 		Com_Error( ERR_FATAL, "Cvar_Get: NULL parameter" );
-  }
+	}
 
 	if ( !Cvar_ValidateString( var_name ) ) {
 		Com_Printf("invalid cvar name string: %s\n", var_name );
@@ -616,15 +616,15 @@ void Cvar_SetCheatState( void ) {
 	// set all default vars to the safe value
 	for ( var = cvar_vars ; var ; var = var->next ) {
 		if ( var->flags & CVAR_CHEAT ) {
-      // the CVAR_LATCHED|CVAR_CHEAT vars might escape the reset here
-      // because of a different var->latchedString
-      if (var->latchedString)
-      {
-        Z_Free(var->latchedString);
-        var->latchedString = NULL;
-      }
+			// the CVAR_LATCHED|CVAR_CHEAT vars might escape the reset here 
+			// because of a different var->latchedString
+			if (var->latchedString)
+			{
+				Z_Free(var->latchedString);
+				var->latchedString = NULL;
+			}
 			if (strcmp(var->resetString,var->string)) {
-        Cvar_Set( var->name, var->resetString );
+				Cvar_Set( var->name, var->resetString );
 			}
 		}
 	}
@@ -653,7 +653,7 @@ qboolean Cvar_Command( void ) {
 	}
 
 	// set the value if forcing isn't required
-	Cvar_Set2 (v->name, Cmd_Argv(1), qfalse);
+	Cvar_Set2 (v->name, Cmd_Args(), qfalse);
 	return qtrue;
 }
 
@@ -843,6 +843,11 @@ void Cvar_List_f( void ) {
 		} else {
 			Com_Printf(" ");
 		}
+		if (var->flags & CVAR_SYSTEMINFO) {
+			Com_Printf("s");
+		} else {
+			Com_Printf(" ");
+		}
 		if (var->flags & CVAR_USERINFO) {
 			Com_Printf("U");
 		} else {
@@ -870,6 +875,11 @@ void Cvar_List_f( void ) {
 		}
 		if (var->flags & CVAR_CHEAT) {
 			Com_Printf("C");
+		} else {
+			Com_Printf(" ");
+		}
+		if (var->flags & CVAR_USER_CREATED) {
+			Com_Printf("?");
 		} else {
 			Com_Printf(" ");
 		}

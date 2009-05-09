@@ -152,6 +152,46 @@ void SV_GetChallenge( netadr_t from ) {
 #endif
 }
 
+#ifdef SMOKINGUNS
+static qboolean SV_TrustedClient( char* ip, char *info ) {
+
+	// look up the authorize server's IP
+	if ( !svs.authorizeAddress.ip[0] && svs.authorizeAddress.type != NA_BAD ) {
+		Com_Printf( "Resolving %s\n", AUTHORIZE_SERVER_NAME );
+		if ( !NET_StringToAdr( AUTHORIZE_SERVER_NAME, &svs.authorizeAddress, NA_IP ) ) {
+			Com_Printf( "Couldn't resolve address\n" );
+			return qtrue;
+		}
+		svs.authorizeAddress.port = BigShort( PORT_AUTHORIZE );
+		Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
+			svs.authorizeAddress.ip[0], svs.authorizeAddress.ip[1],
+			svs.authorizeAddress.ip[2], svs.authorizeAddress.ip[3],
+			BigShort( svs.authorizeAddress.port ) );
+	}
+
+	// Send the trusted ip to the authorize server
+	if ( svs.authorizeAddress.type != NA_BAD ) {
+		char *guid = Info_ValueForKey( info, "cl_guid" );
+		char *name = Info_ValueForKey( info, "name" );
+
+		if (guid != NULL) {
+			Com_DPrintf("getTrustedClient: %s;%s;%s\n", ip, guid, name);
+
+			NET_OutOfBandPrint( NS_SERVER, svs.authorizeAddress,
+				"getTrustedClient %s;%s;%s",  ip, guid, name );
+			return qtrue;
+		} else {
+			Com_DPrintf("getTrustedClient: %s;%s;%s\n", ip, sv_strictAuth->string, name);
+			NET_OutOfBandPrint( NS_SERVER, svs.authorizeAddress,
+				"getTrustedClient %s;%s;%s",  ip, sv_strictAuth->string, name );
+			if (!sv_strictAuth->integer)
+				return qtrue ;
+		}
+	}
+	return qfalse;
+}
+#endif
+
 #if ! defined STANDALONE || defined SMOKINGUNS
 /*
 ====================
@@ -235,13 +275,13 @@ Check whether a certain address is banned
 ==================
 */
 
-qboolean SV_IsBanned(netadr_t *from, qboolean isexception)
+static qboolean SV_IsBanned(netadr_t *from, qboolean isexception)
 {
 	int index, addrlen, curbyte, netmask, cmpmask;
 	serverBan_t *curban;
 	byte *addrfrom, *addrban;
 	qboolean differed;
-	
+
 	if(from->type == NA_IP)
 		addrlen = sizeof(from->ip);
 	else if(from->type == NA_IP6)
@@ -255,11 +295,11 @@ qboolean SV_IsBanned(netadr_t *from, qboolean isexception)
 		if(SV_IsBanned(from, qtrue))
 			return qfalse;
 	}
-	
+
 	for(index = 0; index < serverBansCount; index++)
 	{
 		curban = &serverBans[index];
-		
+
 		if(curban->isexception == isexception && from->type == curban->ip.type)
 		{
 			if(from->type == NA_IP)
@@ -272,10 +312,10 @@ qboolean SV_IsBanned(netadr_t *from, qboolean isexception)
 				addrfrom = from->ip6;
 				addrban = curban->ip.ip6;
 			}
-			
+
 			differed = qfalse;
 			curbyte = 0;
-			
+
 			for(netmask = curban->subnet; netmask > 7; netmask -= 8)
 			{
 				if(addrfrom[curbyte] != addrban[curbyte])
@@ -286,10 +326,10 @@ qboolean SV_IsBanned(netadr_t *from, qboolean isexception)
 				
 				curbyte++;
 			}
-			
+
 			if(differed)
 				continue;
-				
+
 			if(netmask)
 			{
 				cmpmask = (1 << netmask) - 1;
@@ -300,7 +340,7 @@ qboolean SV_IsBanned(netadr_t *from, qboolean isexception)
 			}
 			else
 				return qtrue;
-			
+
 		}
 	}
 	
@@ -332,7 +372,7 @@ void SV_DirectConnect( netadr_t from ) {
 	char		*ip;
 
 	Com_DPrintf ("SVC_DirectConnect ()\n");
-	
+
 	// Check whether this client is banned.
 	if(SV_IsBanned(&from, qfalse))
 	{
@@ -368,7 +408,7 @@ void SV_DirectConnect( netadr_t from ) {
 			break;
 		}
 	}
-	
+
 	// don't let "ip" overflow userinfo string
 	if ( NET_IsLocalAddress (from) )
 		ip = "localhost";
@@ -533,6 +573,14 @@ gotnewcl:
 		return;
 	}
 
+#ifdef SMOKINGUNS
+	// Tequila comment: Trusted client should present a valid GUID
+	if (!SV_TrustedClient( ip, userinfo )) {
+		Com_Printf("We rejected an untrusted client\n");
+		return;
+	}
+#endif
+
 	SV_UserinfoChanged( newcl );
 
 	// send the connect packet to the client
@@ -647,7 +695,7 @@ It will be resent if the client acknowledges a later message but has
 the wrong gamestate.
 ================
 */
-void SV_SendClientGameState( client_t *client ) {
+static void SV_SendClientGameState( client_t *client ) {
 	int			start;
 	entityState_t	*base, nullstate;
 	msg_t		msg;
@@ -784,7 +832,7 @@ SV_StopDownload_f
 Abort a download if in progress
 ==================
 */
-void SV_StopDownload_f( client_t *cl ) {
+static void SV_StopDownload_f( client_t *cl ) {
 	if (*cl->downloadName)
 		Com_DPrintf( "clientDownload: %d : file \"%s\" aborted\n", (int) (cl - svs.clients), cl->downloadName );
 
@@ -798,7 +846,7 @@ SV_DoneDownload_f
 Downloads are finished
 ==================
 */
-void SV_DoneDownload_f( client_t *cl ) {
+static void SV_DoneDownload_f( client_t *cl ) {
 	Com_DPrintf( "clientDownload: %s Done\n", cl->name);
 	// resend the game state to update any clients that entered during the download
 	SV_SendClientGameState(cl);
@@ -812,7 +860,7 @@ The argument will be the last acknowledged block from the client, it should be
 the same as cl->downloadClientBlock
 ==================
 */
-void SV_NextDownload_f( client_t *cl )
+static void SV_NextDownload_f( client_t *cl )
 {
 	int block = atoi( Cmd_Argv(1) );
 
@@ -841,7 +889,7 @@ void SV_NextDownload_f( client_t *cl )
 SV_BeginDownload_f
 ==================
 */
-void SV_BeginDownload_f( client_t *cl ) {
+static void SV_BeginDownload_f( client_t *cl ) {
 
 	// Kill any existing download
 	SV_CloseDownload( cl );

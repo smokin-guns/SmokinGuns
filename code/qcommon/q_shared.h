@@ -78,7 +78,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
     #define PRODUCT_VERSION	1.1
   #endif
   #ifndef SG_RELEASE
-    #define SG_RELEASE	20090501
+    #define SG_RELEASE	20090510
   #endif
 
   #ifndef XSTRING
@@ -87,6 +87,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #endif
 
   #define Q3_VERSION PRODUCT_NAME " " XSTRING(PRODUCT_VERSION)
+  // We should undefine it as it is redefined later by ioQ3 sources
+  #undef XSTRING
+  #undef STRING
 
   //unlagged - lag simulation #2
   #define MAX_LATENT_CMDS 64
@@ -228,6 +231,10 @@ typedef int		clipHandle_t;
 #ifndef NULL
 #define NULL ((void *)0)
 #endif
+
+#define STRING(s)			#s
+// expand constants before stringifying them
+#define XSTRING(s)			STRING(s)
 
 #define	MAX_QINT			0x7fffffff
 #define	MIN_QINT			(-MAX_QINT-1)
