@@ -3161,13 +3161,11 @@ CG_ScanForCrosshairEntity
 #ifndef SMOKINGUNS
 static void CG_ScanForCrosshairEntity( void ) {
 #else
-void CG_ScanForCrosshairEntity( qboolean *changeCrosshair, qboolean *isPlayer ) {
+static void CG_ScanForCrosshairEntity( qboolean *changeCrosshair, qboolean *isPlayer ) {
 #endif
 	trace_t		trace;
 	vec3_t		start, end;
-#ifndef SMOKINGUNS
 	int			content;
-#endif
 
 	VectorCopy( cg.refdef.vieworg, start );
 	VectorMA( start, 131072, cg.refdef.viewaxis[0], end );
@@ -3190,6 +3188,12 @@ void CG_ScanForCrosshairEntity( qboolean *changeCrosshair, qboolean *isPlayer ) 
 		return;
 	}
 #else
+
+	// if the player is in fog, don't show it
+	content = trap_CM_PointContents( trace.endpos, 0 );
+	if ( content & CONTENTS_FOG ) {
+		return;
+	}
 
 	// trace through glass
 	// FIXME: doesn't work through more than one level of glass
@@ -4392,8 +4396,8 @@ CG_Draw2D
 static void CG_Draw2D(stereoFrame_t stereoFrame)
 {
 #ifdef SMOKINGUNS
-	qboolean isPlayer;
-	qboolean changeCrosshair;
+	qboolean isPlayer=qfalse;
+	qboolean changeCrosshair=qfalse;
 
 	if (cgs.orderPending && cg.time > cgs.orderTime) {
 		CG_CheckOrderPending();
@@ -4464,14 +4468,11 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 
 	CG_DrawSpectator();
 
-	if(stereoFrame == STEREO_CENTER)
-		CG_DrawCrosshair(changeCrosshair, isPlayer);
-
 	CG_ScanForCrosshairEntity( &changeCrosshair, &isPlayer );
 
-
 	if ( cg.snap->ps.persistant[PERS_TEAM] >= TEAM_SPECTATOR ) {
-		CG_DrawCrosshair(changeCrosshair, isPlayer);
+		if(stereoFrame == STEREO_CENTER)
+			CG_DrawCrosshair(changeCrosshair, isPlayer);
 		CG_DrawCrosshairNames(isPlayer);
 	} else {
 		// don't draw any status if dead or the scoreboard is being explicitly shown

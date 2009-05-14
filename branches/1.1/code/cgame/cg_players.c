@@ -2972,9 +2972,10 @@ void CG_Turret( centity_t *cent ){
 	}
 /*
 ====================================
- setting up the tripod... «höhö»
+ setting up the tripod...
 ====================================
 */
+
 	tripod.hModel = cgs.media.g_tripod;
 	VectorCopy( cent->lerpOrigin, tripod.origin );
 	VectorCopy( cent->lerpOrigin, tripod.lightingOrigin );
@@ -2983,23 +2984,26 @@ void CG_Turret( centity_t *cent ){
 	AnglesToAxis( cent->lerpAngles, tripod.axis );
 	tripod.reType = RT_MODEL;
 
+#define	TRIPOD_FRAMES		21
+
 	if(cent->currentState.time2 &&
-		(cent->currentState.time2 - 4*STAGE_TIME) > time){
+		time +  4*STAGE_TIME <= cent->currentState.time2 ){
 
-		if((cent->currentState.time2 - 4*STAGE_TIME - 1000) > time){
-			tripod.frame = 21;
-			tripod.oldframe = 20;
-			tripod.backlerp = 0.0;
+		if( time + 4*STAGE_TIME + TRIPOD_TIME < cent->currentState.time2 ){
+			// Show closed tripod is not in TRIPOD_TIME interval
+			tripod.frame = TRIPOD_FRAMES ;
+			tripod.oldframe = TRIPOD_FRAMES ;
+			tripod.backlerp = 0.0f;
 		} else {
-			const int delta = time - cent->currentState.time2 +4*STAGE_TIME + (TRIPOD_TIME-500);
-			const float pos = 21 - delta/((TRIPOD_TIME-500)/21);
-
-			tripod.frame = (int)pos;
-			if(pos < tripod.frame)
-				tripod.frame--;
-
-			tripod.oldframe = tripod.frame + 1;
-			tripod.backlerp = pos - tripod.frame;
+			// Tequila comment: Calculate delta from TRIPOD_TIME start
+			const int delta = time - cent->currentState.time2 + 4*STAGE_TIME + TRIPOD_TIME;
+			// Convert it to step frame, but first frame is the last in the model
+			const float pos = (float)delta * TRIPOD_FRAMES / TRIPOD_TIME ;
+			tripod.frame = TRIPOD_FRAMES - (int)(pos-0.5f);
+			if (tripod.frame<0) tripod.frame=0;
+			tripod.backlerp = (tripod.oldframe > tripod.frame + 1 ) ? 1.0f : 0.0f ;
+			tripod.oldframe = tripod.frame + (tripod.frame < TRIPOD_FRAMES )? 1:0 ;
+			//Com_Printf("tripod: time %d ; built time: %d ; frame %d ; delta %d ; pos %.2f\n", time, cent->currentState.time2, tripod.frame, delta, pos);
 		}
 	}
 
@@ -3016,8 +3020,8 @@ void CG_Turret( centity_t *cent ){
  add the middle part
 ====================================
 */
-	if(cent->currentState.time2 &&
-		(cent->currentState.time2 - 4*STAGE_TIME) > time)
+	if( cent->currentState.time2 && !cg_thirdPerson.integer &&
+		(cent->currentState.time2 - 4*STAGE_TIME - TRIPOD_TIME/2) > time)
 		return;
 
 	middle.hModel = cgs.media.g_middle;
@@ -3052,9 +3056,6 @@ void CG_Turret( centity_t *cent ){
  add the main part
 ====================================
 */
-	if(cent->currentState.time2 &&
-		(cent->currentState.time2 - 3*STAGE_TIME) > time)
-		return;
 
 	gatling.hModel = cgs.media.g_gatling;
 
@@ -3088,9 +3089,6 @@ void CG_Turret( centity_t *cent ){
  add the barrel
 ====================================
 */
-	if(cent->currentState.time2 &&
-		(cent->currentState.time2 - 3*STAGE_TIME) > time)
-		return;
 
 	barrel.hModel = cgs.media.g_barrel;
 
@@ -3120,9 +3118,6 @@ void CG_Turret( centity_t *cent ){
  add the crank
 ====================================
 */
-	if(cent->currentState.time2 &&
-		(cent->currentState.time2 - 2*STAGE_TIME) > time)
-		return;
 
 	crank.hModel = cgs.media.g_crank;
 
@@ -3151,37 +3146,53 @@ void CG_Turret( centity_t *cent ){
  add the mag
 ====================================
 */
-	//if(cent->currentState.time2 &&
-	//	(cent->currentState.time2 - STAGE_TIME) > time)
-	//	return;
+
+	if( cent->currentState.time2 &&
+		(cent->currentState.time2 - 3*STAGE_TIME) > time)
+		return;
+
+#define	MAG_FRAMES		41
 
 	if(cent->currentState.eventParm == cg.snap->ps.clientNum
 		&& cg.snap->ps.weapon == WP_GATLING &&
 		cg.snap->ps.stats[STAT_GATLING_MODE] &&
 		!cg_thirdPerson.integer){
-		clientInfo_t	*ci = &cgs.clientinfo[ cg.snap->ps.clientNum];
+		clientInfo_t	*ci = &cgs.clientinfo[cg.snap->ps.clientNum];
 
 		mag.hModel = cgs.media.g_mag_v;
 
-		//Animation (mainly reloading)
-		CG_RunLerpFrame( ci, &cent->pe.weapon, cg.weaponAnim, 1.0, WP_GATLING);
-
-		mag.frame = cent->pe.weapon.frame;
-		mag.oldframe = cent->pe.weapon.oldFrame;
-		mag.backlerp = cent->pe.weapon.backlerp;
-
-		//when building up/down
-		if(cent->currentState.time2){
+		// when building up/down
+		if(cent->currentState.time2 &&
+			time < cent->currentState.time2 - 2*STAGE_TIME) {
+			mag.frame = MAG_FRAMES-1;
+			mag.oldframe = MAG_FRAMES;
+			mag.backlerp = 0.0f;
+		} else if(cent->currentState.time2 &&
+				time >= cent->currentState.time2 - 2*STAGE_TIME &&
+				time < cent->currentState.time2) {
 			const int delta = time - cent->currentState.time2 + 2*STAGE_TIME;
-			const float pos = 40 - delta/((2*STAGE_TIME)/40);
+			const float pos = (float)delta * MAG_FRAMES / (2*STAGE_TIME);
 
-			mag.frame = (int)pos;
-			if(pos < mag.frame)
-				mag.frame--;
+			mag.frame = MAG_FRAMES - (int)(pos+0.5f);
+			if(mag.frame<0) mag.frame=0;
 
 			mag.oldframe = mag.frame + 1;
-			mag.backlerp = pos - mag.frame;
+			mag.backlerp = 0.0f;
+			//Com_Printf("g_mag_v: time %d ; built time: %d ; frame %d ; delta %d ; pos %.2f\n", time, cent->currentState.time2, mag.frame, delta, pos);
 		}
+		else if ((player->currentState.torsoAnim &~ ANIM_TOGGLEBIT) == TORSO_GATLING_RELOAD) {
+			//Reloading animation
+			CG_RunLerpFrame( ci, &cent->pe.weapon, WP_ANIM_RELOAD, 1.0, WP_GATLING);
+
+			mag.frame = cent->pe.weapon.frame;
+			mag.oldframe = cent->pe.weapon.oldFrame;
+			mag.backlerp = cent->pe.weapon.backlerp;
+		}
+		else {
+			// Just the mag as idle animation
+			mag.hModel = cgs.media.g_mag;
+			CG_RunLerpFrame( ci, &cent->pe.weapon, WP_ANIM_IDLE, 1.0, WP_GATLING);
+		}			
 
 	} else {
 		if((player->currentState.torsoAnim &~ ANIM_TOGGLEBIT) == TORSO_GATLING_RELOAD)
@@ -3241,6 +3252,7 @@ void CG_Turret( centity_t *cent ){
 		}
 
 		hand.oldframe = hand.frame - 1;
+		if (hand.oldframe<0) hand.oldframe += 60 ;
 		hand.backlerp = (float)hand.frame - angle;
 
 		angles[PITCH] = -1*cent->pe.barrelAngle;
