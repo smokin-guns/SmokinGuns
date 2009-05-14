@@ -2560,7 +2560,8 @@ static qboolean PM_PlanarCheck ( void ){
 	VectorScale(origin,30,origin);
 	VectorAdd(pm->ps->origin, origin, origin);
 
-	pm->trace(&trace, origin, gatling_mins, gatling_maxs, origin, pm->ps->clientNum,
+	// Tequila comment: Use bigger gatling min/max to avoid bad situation when leaving the gatling
+	pm->trace(&trace, origin, gatling_mins2, gatling_maxs2, origin, pm->ps->clientNum,
 		MASK_SHOT);
 
 	if(trace.allsolid || trace.startsolid){

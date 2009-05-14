@@ -611,7 +611,10 @@ typedef struct {
 	qhandle_t		menuBackNoLogoShader;
 	qhandle_t		charset;
 	qhandle_t		charsetProp;
+#ifndef SMOKINGUNS
+// Tequila comment: Font glowing not used
 	qhandle_t		charsetPropGlow;
+#endif
 	qhandle_t		charsetPropB;
 	qhandle_t		cursor;
 	qhandle_t		rb_on;
@@ -874,7 +877,9 @@ typedef struct {
 	qhandle_t	q3HeadIcons[MAX_PLAYERMODELS];
 	int				q3SelectedHead;
 
+#ifndef SMOKINGUNS
 	int effectsColor;
+#endif
 
 	qboolean inGameLoad;
 

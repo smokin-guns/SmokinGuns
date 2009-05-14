@@ -3630,7 +3630,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir,
 				float temp = light[i]/255;
 				temp = sqrt(temp);
 
-				color[i] *= temp;//*0.87f + 0.13f;
+				color[i] *= temp;
 			}
 
 			red = color[0];
@@ -3774,7 +3774,7 @@ cg_shotgunfire:
 
 	if(playerhit != -1){
 
-		shaderNum = CG_Trace_New( &tr, tr_start, NULL, NULL, end, ENTITYNUM_NONE/*skipNum*/, MASK_SHOT );
+		shaderNum = CG_Trace_New( &tr, tr_start, NULL, NULL, end, ENTITYNUM_NONE, MASK_SHOT );
 
 		//player is already dead
 		if(tr.entityNum >= MAX_CLIENTS){
@@ -3788,7 +3788,7 @@ cg_shotgunfire:
 		VectorSubtract(end, tr_start, dir);
 		VectorNormalize(dir);
 
-		shaderNum = CG_Trace_New( &tr, tr_start, NULL, NULL, end, ENTITYNUM_NONE/*skipNum*/, MASK_SHOT );
+		shaderNum = CG_Trace_New( &tr, tr_start, NULL, NULL, end, ENTITYNUM_NONE, MASK_SHOT );
 
 		while(tr.entityNum < MAX_CLIENTS){
 			VectorMA( tr.endpos, 8192 * 16, dir, end);
@@ -3880,7 +3880,7 @@ cg_shotgunfire:
 				return;
 
 			// first make a hole on the other side of the wall
-			shaderNum = CG_Trace_New( &tr, endpos, NULL, NULL, tr_start, ENTITYNUM_NONE/*skipNum*/, (MASK_SOLID|CONTENTS_BODY) );
+			shaderNum = CG_Trace_New( &tr, endpos, NULL, NULL, tr_start, ENTITYNUM_NONE, (MASK_SOLID|CONTENTS_BODY) );
 
 			if(cg_entities[tr.entityNum].currentState.eType == ET_BREAKABLE)
 				tr.surfaceFlags |= SURF_BREAKABLE;
