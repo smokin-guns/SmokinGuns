@@ -156,9 +156,6 @@ vmCvar_t	cg_zoomFov;
 vmCvar_t	cg_thirdPerson;
 vmCvar_t	cg_thirdPersonRange;
 vmCvar_t	cg_thirdPersonAngle;
-#ifdef SMOKINGUNS
-vmCvar_t	cg_stereoSeparation;
-#endif
 vmCvar_t	cg_lagometer;
 vmCvar_t	cg_drawAttacker;
 vmCvar_t	cg_synchronousClients;
@@ -213,10 +210,8 @@ vmCvar_t 	cg_blueTeamName;
 vmCvar_t	cg_currentSelectedPlayer;
 vmCvar_t	cg_currentSelectedPlayerName;
 vmCvar_t	cg_singlePlayer;
-#ifndef SMOKINGUNS
 vmCvar_t	cg_enableDust;
 vmCvar_t	cg_enableBreath;
-#endif
 vmCvar_t	cg_singlePlayerActive;
 vmCvar_t	cg_recordSPDemo;
 vmCvar_t	cg_recordSPDemoName;
@@ -238,10 +233,6 @@ vmCvar_t	cg_latentSnaps;
 vmCvar_t	cg_latentCmds;
 vmCvar_t	cg_plOut;
 //unlagged - client options
-
-//moved out of TA
-vmCvar_t	cg_enableDust;
-vmCvar_t	cg_enableBreath;
 
 /*
 ==========================
@@ -337,9 +328,6 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_fov, "cg_fov", "90", CVAR_CHEAT },
 #endif
 	{ &cg_viewsize, "cg_viewsize", "100", CVAR_ARCHIVE },
-#ifdef SMOKINGUNS
-	{ &cg_stereoSeparation, "cg_stereoSeparation", "0.4", CVAR_ARCHIVE  },
-#endif
 	{ &cg_shadows, "cg_shadows", "1", CVAR_ARCHIVE  },
 	{ &cg_gibs, "cg_gibs", "1", CVAR_ARCHIVE  },
 	{ &cg_draw2D, "cg_draw2D", "1", CVAR_ARCHIVE  },
@@ -430,10 +418,8 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_currentSelectedPlayer, "cg_currentSelectedPlayer", "0", CVAR_ARCHIVE},
 	{ &cg_currentSelectedPlayerName, "cg_currentSelectedPlayerName", "", CVAR_ARCHIVE},
 	{ &cg_singlePlayer, "ui_singlePlayerActive", "0", CVAR_USERINFO},
-#ifndef SMOKINGUNS
 	{ &cg_enableDust, "g_enableDust", "0", CVAR_SERVERINFO},
 	{ &cg_enableBreath, "g_enableBreath", "0", CVAR_SERVERINFO},
-#endif
 	{ &cg_singlePlayerActive, "ui_singlePlayerActive", "0", CVAR_USERINFO},
 	{ &cg_recordSPDemo, "ui_recordSPDemo", "0", CVAR_ARCHIVE},
 	{ &cg_recordSPDemoName, "ui_recordSPDemoName", "", CVAR_ARCHIVE},
@@ -444,9 +430,6 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_redTeamName, "g_redteamname", DEFAULT_REDTEAM_NAME, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO },
 	{ &cg_blueTeamName, "g_blueteamname", DEFAULT_BLUETEAM_NAME, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO },
 	//added to SG <-
-	{ &cg_enableDust, "g_enableDust", "0", CVAR_SERVERINFO},
-	{ &cg_enableBreath, "g_enableBreath", "0", CVAR_SERVERINFO},
-
 	{ &cg_farclip, "cg_farclip", "1", CVAR_ARCHIVE},
 	{ &cg_farclipValue, "cg_farclipValue", "1", CVAR_ARCHIVE},
 	{ &cg_farclipZoomValue, "cg_farclipZoomValue", "3", CVAR_ARCHIVE},
@@ -2872,6 +2855,7 @@ void CG_AssetCache( void ) {
 	//Assets.background = trap_R_RegisterShaderNoMip( ASSET_BACKGROUND );
 	//Com_Printf("Menu Size: %i bytes\n", sizeof(Menus));
 	cgDC.Assets.gradientBar = trap_R_RegisterShaderNoMip( ASSET_GRADIENTBAR );
+#ifndef SMOKINGUNS
 	cgDC.Assets.fxBasePic = trap_R_RegisterShaderNoMip( ART_FX_BASE );
 	cgDC.Assets.fxPic[0] = trap_R_RegisterShaderNoMip( ART_FX_RED );
 	cgDC.Assets.fxPic[1] = trap_R_RegisterShaderNoMip( ART_FX_YELLOW );
@@ -2880,6 +2864,7 @@ void CG_AssetCache( void ) {
 	cgDC.Assets.fxPic[4] = trap_R_RegisterShaderNoMip( ART_FX_BLUE );
 	cgDC.Assets.fxPic[5] = trap_R_RegisterShaderNoMip( ART_FX_CYAN );
 	cgDC.Assets.fxPic[6] = trap_R_RegisterShaderNoMip( ART_FX_WHITE );
+#endif
 	cgDC.Assets.scrollBar = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR );
 	cgDC.Assets.scrollBarArrowDown = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWDOWN );
 	cgDC.Assets.scrollBarArrowUp = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWUP );

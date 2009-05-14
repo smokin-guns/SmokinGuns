@@ -36,8 +36,10 @@ vec3_t	playerMaxs_hit = {25, 25, MAXS_Z_HIT};
 
 vec3_t gatling_mins = {-3, -3, 0.0};
 vec3_t gatling_maxs = {3, 3, 35};
-vec3_t gatling_mins2 = {-1, -1, 0.0};
-vec3_t gatling_maxs2 = {1, 1, 35};
+// Tequila comment: mins2/max2 are now used to check player is not trying to
+// build the gatling too near a solid or another entity (like gatlings ;))
+vec3_t gatling_mins2 = {-20, -20, 0.0};
+vec3_t gatling_maxs2 = {20, 20, 35};
 
 //weapon informations
 wpinfo_t bg_weaponlist[] =
@@ -201,7 +203,7 @@ wpinfo_t bg_weaponlist[] =
 			// WP_ANIM_ALT_FIRE
 			{
 				42, //firstframe
-				(75-51), //numFrames
+				24, //numFrames
 				0, //loopFrames
 				40, //frameLerp
 				0, //initialLerp
@@ -221,7 +223,7 @@ wpinfo_t bg_weaponlist[] =
 			// WP_ANIM_SPECIAL //change : throw->normal
 			{
 				66, //firstframe
-				(88-74), //numFrames
+				13, //numFrames
 				0, //loopFrames
 				60, //frameLerp
 				60, //initialLerp
@@ -231,7 +233,7 @@ wpinfo_t bg_weaponlist[] =
 			// WP_ANIM_SPECIAL2 //change : normal->throw
 			{
 				66, //firstframe
-				(88-74), //numFrames
+				13, //numFrames
 				0, //loopFrames
 				60, //frameLerp
 				60, //initialLerp
@@ -1253,9 +1255,9 @@ wpinfo_t bg_weaponlist[] =
 			},
 			// WP_ANIM_IDLE
 			{
-				43, //firstframe // idle animation
-				26, //numFrames
-				26, //loopFrames
+				0, //firstframe // idle animation
+				1, //numFrames
+				0, //loopFrames
 				10, //frameLerp
 				0, //initialLerp
 				0, //reversed
@@ -1283,8 +1285,8 @@ wpinfo_t bg_weaponlist[] =
 			},
 			// WP_ANIM_RELOAD
 			{
-				1, //firstframe
-				42, //numFrames
+				0, //firstframe
+				43, //numFrames
 				0, //loopFrames
 				32, //frameLerp
 				32, //initialLerp
