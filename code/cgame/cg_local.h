@@ -105,8 +105,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define DEFAULT_BLUETEAM_NAME		"Pagans"
 #else
 #define	DEFAULT_MODEL			"wq_male1"
-//#define	DEFAULT_TEAM_MODEL		"wq_male1"
-//#define	DEFAULT_TEAM_HEAD		"wq_male1"
+#define	DEFAULT_TEAM_MODEL		"wq_male1"
+#define	DEFAULT_TEAM_HEAD		"wq_male1"
 
 // Added by hika
 // For frustum culling, used in CG_CullBoundingBox()
