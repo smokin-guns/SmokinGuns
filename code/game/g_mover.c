@@ -365,6 +365,13 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 	// move the pusher to it's final position
 	VectorAdd( pusher->r.currentOrigin, move, pusher->r.currentOrigin );
 	VectorAdd( pusher->r.currentAngles, amove, pusher->r.currentAngles );
+
+	// Tequila comment: Fix "CM_AdjustAreaPortalState: negative reference count" case in SteamBoat
+	// Binary mod don't round float in the same way than QVM mod
+#ifdef SMOKINGUNS
+	SnapVector( pusher->r.currentAngles );
+#endif
+
 	trap_LinkEntity( pusher );
 
 	// see if any solid entities are inside the final position
