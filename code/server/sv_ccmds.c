@@ -715,6 +715,7 @@ Ban a user from being able to play on this server based on his ip address.
 static void SV_AddBanToList(qboolean isexception)
 {
 	char *banstring;
+	char addy2[NET_ADDRSTRMAXLEN];
 	netadr_t ip;
 	int index, argc, mask;
 	serverBan_t *curban;
@@ -800,9 +801,11 @@ static void SV_AddBanToList(qboolean isexception)
 		{
 			if((curban->isexception || !isexception) && NET_CompareBaseAdrMask(curban->ip, ip, curban->subnet))
 			{
+				Q_strncpyz(addy2, NET_AdrToString(ip), sizeof(addy2));
+				
 				Com_Printf("Error: %s %s/%d supersedes %s %s/%d\n", curban->isexception ? "Exception" : "Ban",
 					   NET_AdrToString(curban->ip), curban->subnet,
-					   isexception ? "exception" : "ban", NET_AdrToString(ip), mask);
+					   isexception ? "exception" : "ban", addy2, mask);
 				return;
 			}
 		}
@@ -810,9 +813,11 @@ static void SV_AddBanToList(qboolean isexception)
 		{
 			if(!curban->isexception && isexception && NET_CompareBaseAdrMask(curban->ip, ip, mask))
 			{
+				Q_strncpyz(addy2, NET_AdrToString(curban->ip), sizeof(addy2));
+			
 				Com_Printf("Error: %s %s/%d supersedes already existing %s %s/%d\n", isexception ? "Exception" : "Ban",
 					   NET_AdrToString(ip), mask,
-					   curban->isexception ? "exception" : "ban", NET_AdrToString(curban->ip), curban->subnet);
+					   curban->isexception ? "exception" : "ban", addy2, curban->subnet);
 				return;
 			}
 		}
