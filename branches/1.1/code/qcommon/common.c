@@ -2401,7 +2401,7 @@ void Com_ReadCDKey( const char *filename ) {
 	char			buffer[33];
 	char			fbuffer[MAX_OSPATH];
 
-	sprintf(fbuffer, "%s/q3key", filename);
+	Com_sprintf(fbuffer, sizeof(fbuffer), "%s/q3key", filename);
 
 	FS_SV_FOpenFileRead( fbuffer, &f );
 	if ( !f ) {
@@ -2431,7 +2431,7 @@ void Com_AppendCDKey( const char *filename ) {
 	char			buffer[33];
 	char			fbuffer[MAX_OSPATH];
 
-	sprintf(fbuffer, "%s/q3key", filename);
+	Com_sprintf(fbuffer, sizeof(fbuffer), "%s/q3key", filename);
 
 	FS_SV_FOpenFileRead( fbuffer, &f );
 	if (!f) {
@@ -2466,7 +2466,7 @@ static void Com_WriteCDKey( const char *filename, const char *ikey ) {
 #endif
 
 
-	sprintf(fbuffer, "%s/q3key", filename);
+	Com_sprintf(fbuffer, sizeof(fbuffer), "%s/q3key", filename);
 
 
 	Q_strncpyz( key, ikey, 17 );
@@ -2518,6 +2518,21 @@ static void Com_DetectAltivec(void)
 	}
 }
 
+/*
+=================
+Com_InitRand
+Seed the random number generator, if possible with an OS supplied random seed.
+=================
+*/
+static void Com_InitRand(void)
+{
+	unsigned int seed;
+
+	if(Sys_RandomBytes((byte *) &seed, sizeof(seed)))
+		srand(seed);
+	else
+		srand(time(NULL));
+}
 
 /*
 =================
@@ -2537,6 +2552,9 @@ void Com_Init( char *commandLine ) {
 	// Clear queues
 	Com_Memset( &eventQueue[ 0 ], 0, MAX_QUEUED_EVENTS * sizeof( sysEvent_t ) );
 	Com_Memset( &sys_packetReceived[ 0 ], 0, MAX_MSGLEN * sizeof( byte ) );
+
+	// initialize the weak pseudo-random number generator for use later.
+	Com_InitRand();
 
 	// do this before anything else decides to push events
 	Com_InitPushEvent();
@@ -3347,7 +3365,6 @@ void Com_RandomBytes( byte *string, int len )
 		return;
 
 	Com_Printf( "Com_RandomBytes: using weak randomization\n" );
-	srand( time( 0 ) );
 	for( i = 0; i < len; i++ )
 		string[i] = (unsigned char)( rand() % 255 );
 }
