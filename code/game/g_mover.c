@@ -2032,6 +2032,18 @@ void Reached_Train( gentity_t *ent ) {
 	length = VectorLength( move );
 
 	ent->s.pos.trDuration = length * 1000 / speed;
+	if(ent->s.pos.trDuration<1) {
+		// Tequila comment: As trDuration is used later in a division, we need to avoid that case now
+		// I think the major side effect is the lag problem in dm_train as very high speed are
+		// used to cycle the landscape rocks with a func_train mover. With null trDuration,
+		// the calculated rocks bounding box becomes infinite and the engine think for a short time
+		// any entity is riding that mover but not the world entity... In rare case, I found it
+		// can also stuck every map entities after funct_door are used.
+		// The desired effect with very very big speed is to have instant move, so any not null duration
+		// lower than a frame duration should be sufficient.
+		// Afaik, the negative case don't have to be supported.
+		ent->s.pos.trDuration=1;
+	}
 
 	// looping sound
 	ent->s.loopSound = next->soundLoop;
