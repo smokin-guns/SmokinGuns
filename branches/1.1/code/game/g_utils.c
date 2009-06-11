@@ -383,12 +383,6 @@ void G_InitGentity( gentity_t *e ) {
 	e->classname = "noclass";
 	e->s.number = e - g_entities;
 	e->r.ownerNum = ENTITYNUM_NONE;
-	// Tequila comment: Force BROADCAST server flag for client entity as it seems missed
-	// by at least entity 0 and other clients could not show that entity (invisibility bug)
-#ifdef SMOKINGUNS
-	if ( e->s.number < MAX_CLIENTS )
-		e->r.svFlags |= SVF_BROADCAST ;
-#endif
 }
 
 /*

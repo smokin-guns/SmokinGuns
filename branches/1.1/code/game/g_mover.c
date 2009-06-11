@@ -253,17 +253,14 @@ qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, v
 G_CheckProxMinePosition
 ==================
 */
+#ifndef SMOKINGUNS
 qboolean G_CheckProxMinePosition( gentity_t *check ) {
 	vec3_t		start, end;
 	trace_t	tr;
 
 	VectorMA(check->s.pos.trBase, 0.125, check->movedir, start);
 	VectorMA(check->s.pos.trBase, 2, check->movedir, end);
-#ifndef SMOKINGUNS
 	trap_Trace( &tr, start, NULL, NULL, end, check->s.number, MASK_SOLID );
-#else
-	trap_Trace_New( &tr, start, NULL, NULL, end, check->s.number, MASK_SOLID );
-#endif
 
 	if (tr.startsolid || tr.fraction < 1)
 		return qfalse;
@@ -303,6 +300,7 @@ qboolean G_TryPushingProxMine( gentity_t *check, gentity_t *pusher, vec3_t move,
 	}
 	return ret;
 }
+#endif
 
 void G_ExplodeMissile( gentity_t *ent );
 
@@ -787,7 +785,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	ent->activator = activator;
 
 	if ( ent->moverState == MOVER_POS1 ) {
-		// start moving 50 msec later, becase if this was player
+		// start moving 50 msec later, because if this was player
 		// triggered, level.time hasn't been advanced yet
 
 		//calculate the side to which the door should open
@@ -1029,9 +1027,6 @@ void InitMover( gentity_t *ent ) {
 	}
 #else
 	if(Q_stricmp(ent->classname, "func_door_rotating")){
-		ent->s.pos.trType = TR_STATIONARY;
-		VectorCopy( ent->pos1, ent->s.pos.trBase );
-
 		VectorSubtract( ent->pos2, ent->pos1, move );
 		distance = VectorLength( move );
 		if ( ! ent->speed ) {
@@ -1595,7 +1590,9 @@ void G_BreakableRespawn( gentity_t *ent){
 		if (g_forcebreakrespawn.integer)
 			continue;
 
-		// Tequila comment: Don't check if breakable is in a bot FOV
+		// Tequila comment: Minor server optimization, don't check if breakable is in a bot FOV
+		// They really don't care to "see" a breakable respawn, so we won't delay the respawn
+		// because of bot proximity.
 		if (player->r.svFlags & SVF_BOT) {
 			continue;
 		}
@@ -1651,7 +1648,6 @@ void G_MoverContents(qboolean change){
 				ent->r.contents &= ~CONTENTS_SOLID;
 		}
 	}
-	trap_LinkEntity(ent);
 }
 
 void Think_SmokeInit( gentity_t *ent ){
