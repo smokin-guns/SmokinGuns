@@ -2032,6 +2032,7 @@ void Reached_Train( gentity_t *ent ) {
 	length = VectorLength( move );
 
 	ent->s.pos.trDuration = length * 1000 / speed;
+#ifdef SMOKINGUNS
 	if(ent->s.pos.trDuration<1) {
 		// Tequila comment: As trDuration is used later in a division, we need to avoid that case now
 		// I think the major side effect is the lag problem in dm_train as very high speed are
@@ -2044,6 +2045,7 @@ void Reached_Train( gentity_t *ent ) {
 		// Afaik, the negative case don't have to be supported.
 		ent->s.pos.trDuration=1;
 	}
+#endif
 
 	// looping sound
 	ent->s.loopSound = next->soundLoop;
