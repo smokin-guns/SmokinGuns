@@ -30,7 +30,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 
 
+#ifndef SMOKINGUNS
 #define POOLSIZE	(256 * 1024)
+#else
+#define POOLSIZE	(256 * 1024 * 4)
+#endif
 
 static char		memoryPool[POOLSIZE];
 static int		allocPoint;
