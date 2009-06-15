@@ -603,8 +603,7 @@ qboolean G_CanEntityBeActivated(gentity_t *player, gentity_t *target, qboolean e
 	trace_t tr;
 	vec3_t muzzle, forward, end;
 
-	if(Distance(player->client->ps.origin, target->r.currentOrigin) > ACTIVATE_RANGE &&
-		!exact)
+	if(!exact && Distance(player->client->ps.origin, target->r.currentOrigin) > ACTIVATE_RANGE)
 		return qfalse;
 
 	VectorCopy( player->client->ps.origin, muzzle );
@@ -624,8 +623,7 @@ qboolean G_CanEntityBeActivated(gentity_t *player, gentity_t *target, qboolean e
 		return qfalse;
 	}
 
-	if(Distance(player->client->ps.origin, tr.endpos) > ACTIVATE_RANGE &&
-		exact)
+	if(exact && Distance(player->client->ps.origin, tr.endpos) > ACTIVATE_RANGE)
 		return qfalse;
 
 	return qtrue;
