@@ -169,8 +169,13 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot ) {
 #else
 			case GT_RTP:
 			case GT_BR:
-
-				sess->sessionTeam = TEAM_SPECTATOR;
+				if ( g_teamAutoJoin.integer ) {
+					sess->sessionTeam = PickTeam( -1 );
+					BroadcastTeamChange( client, -1 );
+				} else {
+					// always spawn as spectator in team games
+					sess->sessionTeam = TEAM_SPECTATOR;
+				}
 				break;
 			case GT_DUEL:
 

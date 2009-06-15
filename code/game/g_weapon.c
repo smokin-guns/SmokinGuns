@@ -552,6 +552,11 @@ pistolfire:
 
 				damage = Modify_BulletDamage(damage, weapon, ent->r.currentOrigin, tr.endpos);
 
+				if ( damage < 1.0f ) {
+					// Tequila comment: Stop anyway when no damage can be applied
+					goto untimeshift;
+				}
+
 				if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 					//NT - make sure we un-time-shift the clients
 					goto untimeshift;
@@ -852,6 +857,11 @@ shotgunfire:
 				shaderNum = trap_Trace_New2(&tr, tr.endpos, NULL, NULL, tr_end, tr.entityNum, MASK_SHOT);
 
 				damage = Modify_BulletDamage(damage, ent->client->ps.weapon, ent->r.currentOrigin, tr.endpos);
+
+				if ( damage < 1.0f ) {
+					// Tequila comment: Stop when no damage can be applied
+					return qfalse;
+				}
 
 				if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 					return qfalse;
