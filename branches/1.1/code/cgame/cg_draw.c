@@ -4576,6 +4576,7 @@ static void CheckWeaponChange(void){
 	// weapon change
 	if (cg.markedweapon) {
 		// fix for the fire-button-dead bug
+		// Tequila comment: see http://www.quake3world.com/forum/viewtopic.php?f=16&t=17815
 		if (delay & 1) {
 			cmdNum = trap_GetCurrentCmdNumber();
 			trap_GetUserCmd(cmdNum, &cmd);
