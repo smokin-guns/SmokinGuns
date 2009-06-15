@@ -1368,6 +1368,7 @@ void BotMatch_StopTeamLeaderShip(bot_state_t *bs, bot_match_t *match) {
 BotMatch_WhoIsTeamLeader
 ==================
 */
+#ifndef SMOKINGUNS
 void BotMatch_WhoIsTeamLeader(bot_state_t *bs, bot_match_t *match) {
 	char netname[MAX_MESSAGE_SIZE];
 
@@ -1379,6 +1380,7 @@ void BotMatch_WhoIsTeamLeader(bot_state_t *bs, bot_match_t *match) {
 		trap_EA_SayTeam(bs->client, "I'm the team leader\n");
 	}
 }
+#endif
 
 /*
 ==================
@@ -1955,7 +1957,9 @@ int BotMatchMessage(bot_state_t *bs, char *message) {
 		}
 		case MSG_WHOISTEAMLAEDER:
 		{
+#ifndef SMOKINGUNS
 			BotMatch_WhoIsTeamLeader(bs, &match);
+#endif
 			break;
 		}
 		case MSG_WHATAREYOUDOING:		//ask a bot what he/she is doing

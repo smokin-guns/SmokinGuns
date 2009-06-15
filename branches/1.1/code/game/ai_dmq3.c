@@ -6165,10 +6165,12 @@ void BotDeathmatchAI(bot_state_t *bs, float thinktime) {
 	//check the console messages
 	BotCheckConsoleMessages(bs);
 	//if not in the intermission and not in observer mode
+#ifndef SMOKINGUNS
 	if (!BotIntermission(bs) && !BotIsObserver(bs)) {
 		//do team AI
 		BotTeamAI(bs);
 	}
+#endif
 	//if the bot has no ai node
 	if (!bs->ainode) {
 		AIEnter_Seek_LTG(bs, "BotDeathmatchAI: no ai node");
