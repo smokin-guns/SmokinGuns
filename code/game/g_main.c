@@ -1983,7 +1983,6 @@ ClearItems by Spoon
 void SP_func_breakable (gentity_t *ent);
 void SP_func_door (gentity_t *ent);
 void SP_func_door_rotating (gentity_t *ent);
-void SetMoverState( gentity_t *ent, moverState_t moverState, int time );
 
 #define DOOR_RETURN 8
 #define TRIGGER_DOOR 16
@@ -2165,6 +2164,8 @@ void Setup_NewRound(void){
 
 	level.nextroundstart = -1;
 
+	G_LogPrintf( "ROUND: %i end.\n", (g_round));
+
 	SetSpawnPos( &sg_bluespawn, &sg_redspawn);
 
 	for (i = 0; i < level.maxclients; i++)
@@ -2206,8 +2207,6 @@ void Setup_NewRound(void){
 
 	// Set New Round:
 	ClearItems();
-
-	G_LogPrintf( "ROUND: %i end.\n", (g_round));
 
 	g_round++;
 
@@ -2647,11 +2646,7 @@ void ClearClients(qboolean all){
 			du_spawnlist[i] = -1;
 		}
 
-#ifdef WIN32
 		if(g_entities[i].client && level.clients[i].pers.connected == CON_CONNECTED){
-#else
-		if(level.clients[i].pers.connected == CON_CONNECTED){
-#endif
 			g_entities[i].client->ps.stats[STAT_FLAGS] &= ~SF_DU_WON;
 			g_entities[i].client->wontime = 0;
 			if (all) {
