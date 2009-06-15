@@ -38,7 +38,11 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 	int			stringlength;
 	int			i, j;
 	gclient_t	*cl;
+#ifndef SMOKINGUNS
 	int			numSorted, scoreFlags, accuracy, perfect;
+#else
+	int			numSorted, scoreFlags;
+#endif
 
 	// send the latest information on all clients
 	string[0] = 0;
@@ -64,6 +68,7 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 #endif
 		}
 
+#ifndef SMOKINGUNS
 		if( cl->accuracy_shots ) {
 			accuracy = cl->accuracy_hits * 100 / cl->accuracy_shots;
 		}
@@ -72,7 +77,6 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 		}
 		perfect = ( cl->ps.persistant[PERS_RANK] == 0 && cl->ps.persistant[PERS_KILLED] == 0 ) ? 1 : 0;
 
-#ifndef SMOKINGUNS
 		Com_sprintf (entry, sizeof(entry),
 			" %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
 			cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
@@ -867,6 +871,9 @@ void StopFollowing( gentity_t *ent ) {
 	ent->client->sess.spectatorState = SPECTATOR_FREE;
 	ent->client->ps.pm_flags &= ~PMF_FOLLOW;
 #ifndef SMOKINGUNS
+	// Tequila comment: Fix by torhu a long time ago
+	// Check http://www.quake3world.com/forum/viewtopic.php?f=16&t=9220
+	// and http://bugzilla.icculus.org/show_bug.cgi?id=3418
 	ent->r.svFlags &= ~SVF_BOT;
 #endif
 	ent->client->ps.clientNum = ent - g_entities;
@@ -2201,61 +2208,6 @@ Cmd_GatlingBuildUp_f
 */
 void Cmd_GatlingBuildUp_f( gentity_t *ent ) {
 	G_GatlingBuildUp( ent );
-}
-
-/*
-=================
-Cmd_ChooseWeapon_f
-=================
-*/
-void Cmd_ChooseWeapon_f(gentity_t *ent) {
-	/*char	s[MAX_TOKEN_CHARS];
-
-	if (trap_Argc() != 2) {
-		trap_SendServerCommand( ent-g_entities, "print \"I need more parameters\n\"" );
-		return;
-	}
-
-	trap_Argv( 1, s, sizeof( s ) );
-
-	if( !Q_stricmp(s, "rifle")){
-		ent->client->chosenweapon = WP_WINCHESTER66;
-	} else if( !Q_stricmp(s, "shotgun")){
-		ent->client->chosenweapon = WP_REMINGTON_GAUGE;
-	} else if( !Q_stricmp(s, "knife")){
-		ent->client->chosenweapon = WP_KNIFE;
-	} else if( !Q_stricmp(s, "2ndPistol")){
-		//ent->client->chosenweapon = WP_PISTOLS;
-	} else if( !Q_stricmp(s, "sawedoff")){
-		ent->client->chosenweapon = WP_SAWEDOFF;
-	}*/
-
-}
-
-/*
-=================
-Cmd_ChooseItem_f
-=================
-*/
-void Cmd_ChooseItem_f(gentity_t *ent) {
-	/*char	s[MAX_TOKEN_CHARS];
-
-	if (trap_Argc() != 2) {
-		trap_SendServerCommand( ent-g_entities, "print \"I need more parameters\n\"" );
-		return;
-	}
-
-	trap_Argv( 1, s, sizeof( s ) );
-
-	if( !Q_stricmp(s, "dynamite")){
-		ent->client->chosenitem = WP_DYNAMITE;
-	} else if( !Q_stricmp(s, "scope")){
-		ent->client->chosenitem = WP_WINCHESTER66;
-	} else if( !Q_stricmp(s, "boiler")){
-		ent->client->chosenitem = WP_REMINGTON_GAUGE;
-	} else if( !Q_stricmp(s, "belt")){
-		ent->client->chosenitem = WP_SAWEDOFF;
-	}*/
 }
 
 void Cmd_DuGet_f ( gentity_t *ent){

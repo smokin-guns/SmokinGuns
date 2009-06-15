@@ -2628,6 +2628,7 @@ void CG_NextWeapon_f( void ) {
 		return;
 
 	if(first_time) { // signal BUTTON_CHOOSE_MODE to the server
+		// Tequila comment: By torhu, see http://www.quake3world.com/forum/viewtopic.php?f=16&t=17815
 		trap_SendConsoleCommand("+button14; wait; -button14");
 	}
 
@@ -2783,6 +2784,7 @@ void CG_PrevWeapon_f( void ) {
 		return;
 
 	if(first_time) { // signal BUTTON_CHOOSE_MODE to the server
+		// Tequila comment: By torhu, see http://www.quake3world.com/forum/viewtopic.php?f=16&t=17815
 		trap_SendConsoleCommand("+button14; wait; -button14");
 	}
 
@@ -2930,6 +2932,7 @@ void CG_Weapon_f( void ) {
 	}
 
 	if(first_time) { // signal BUTTON_CHOOSE_MODE to the server
+		// Tequila comment: By torhu, see http://www.quake3world.com/forum/viewtopic.php?f=16&t=17815
 		trap_SendConsoleCommand("+button14; wait; -button14");
 	}
 
