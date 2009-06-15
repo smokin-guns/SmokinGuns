@@ -1860,6 +1860,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				attacker->s.eFlags &= ~EF_HIT_MESSAGE;
 				attacker->s.angles2[0] =  attacker->s.angles2[1] = attacker->s.angles2[2] = -1;
 			}
+			// Tequila comment: ->die can be NULL
+			if (targ->die)
 #endif
 			targ->die (targ, inflictor, attacker, take, mod);
 			return;

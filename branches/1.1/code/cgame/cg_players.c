@@ -2685,14 +2685,12 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane, vec3_t pos
 
 #ifndef SMOKINGUNS
 	trap_CM_BoxTrace( &trace, cent->lerpOrigin, end, mins, maxs, 0, MASK_PLAYERSOLID );
+#else
+	trap_CM_BoxTrace_New( &trace, pos, end, mins, maxs, 0, MASK_PLAYERSOLID );
+#endif
 
 	// no shadow if too high
 	if ( trace.fraction == 1.0 || trace.startsolid || trace.allsolid ) {
-#else
-	trap_CM_BoxTrace_New( &trace, pos, end, mins, maxs, 0, MASK_PLAYERSOLID );
-	// no shadow if too high
-	if ( trace.fraction == 1.0 ) {
-#endif
 		return qfalse;
 	}
 
