@@ -424,6 +424,7 @@ void BotVoiceChat_ReturnFlag(bot_state_t *bs, int client, int mode) {
 BotVoiceChat_StartLeader
 ==================
 */
+#ifndef SMOKINGUNS
 void BotVoiceChat_StartLeader(bot_state_t *bs, int client, int mode) {
 	ClientName(client, bs->teamleader, sizeof(bs->teamleader));
 }
@@ -460,6 +461,7 @@ void BotVoiceChat_WhoIsLeader(bot_state_t *bs, int client, int mode) {
 		BotVoiceChatOnly(bs, -1, VOICECHAT_STARTLEADER);
 	}
 }
+#endif
 
 /*
 ==================
@@ -524,11 +526,9 @@ voiceCommand_t voiceCommands[] = {
 #ifndef SMOKINGUNS
 	{VOICECHAT_FOLLOWFLAGCARRIER, BotVoiceChat_FollowFlagCarrier },
 	{VOICECHAT_RETURNFLAG, BotVoiceChat_ReturnFlag },
-#endif
 	{VOICECHAT_STARTLEADER, BotVoiceChat_StartLeader },
 	{VOICECHAT_STOPLEADER, BotVoiceChat_StopLeader },
 	{VOICECHAT_WHOISLEADER, BotVoiceChat_WhoIsLeader },
-#ifndef SMOKINGUNS
 	{VOICECHAT_WANTONDEFENSE, BotVoiceChat_WantOnDefense },
 	{VOICECHAT_WANTONOFFENSE, BotVoiceChat_WantOnOffense },
 #endif
