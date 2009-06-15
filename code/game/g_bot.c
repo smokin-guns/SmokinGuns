@@ -780,11 +780,7 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 		}
 	}
 	Info_SetValueForKey( userinfo, "characterfile", Info_ValueForKey( botinfo, "aifile" ) );
-#ifndef SMOKINGUNS
 	Info_SetValueForKey( userinfo, "skill", va( "%5.2f", skill ) );
-#else
-	Info_SetValueForKey( userinfo, "skill", va( "%f", skill ) );
-#endif
 	Info_SetValueForKey( userinfo, "team", team );
 
 	bot = &g_entities[ clientNum ];

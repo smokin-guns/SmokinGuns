@@ -1948,6 +1948,7 @@ int FindHumanTeamLeader(bot_state_t *bs) {
 BotTeamAI
 ==================
 */
+#ifndef SMOKINGUNS
 void BotTeamAI(bot_state_t *bs) {
 	int numteammates;
 	char netname[MAX_NETNAME];
@@ -2012,7 +2013,6 @@ void BotTeamAI(bot_state_t *bs) {
 			}
 			break;
 		}
-#ifndef SMOKINGUNS
 		case GT_CTF:
 		{
 			//if the number of team mates changed or the flag status changed
@@ -2097,7 +2097,7 @@ void BotTeamAI(bot_state_t *bs) {
 			break;
 		}
 #endif
-#endif
 	}
 }
+#endif
 
