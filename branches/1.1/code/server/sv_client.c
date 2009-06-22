@@ -160,8 +160,8 @@ void SV_GetChallenge(netadr_t from)
 #ifdef SMOKINGUNS
 static qboolean SV_TrustedClient( char* ip, char *info ) {
 
-	// look up the authorize server's IP
-	if ( !svs.authorizeAddress.ip[0] && svs.authorizeAddress.type != NA_BAD ) {
+	// look up the authorize server's IP if it has not been resolved before
+	if ( !svs.authorizeAddress.ip[0] && svs.authorizeAddress.type == NA_BAD ) {
 		Com_Printf( "Resolving %s\n", AUTHORIZE_SERVER_NAME );
 		if ( !NET_StringToAdr( AUTHORIZE_SERVER_NAME, &svs.authorizeAddress, NA_IP ) ) {
 			Com_Printf( "Couldn't resolve address\n" );
@@ -189,10 +189,13 @@ static qboolean SV_TrustedClient( char* ip, char *info ) {
 			Com_DPrintf("getTrustedClient: %s;%s;%s\n", ip, sv_strictAuth->string, name);
 			NET_OutOfBandPrint( NS_SERVER, svs.authorizeAddress,
 				"getTrustedClient %s;%s;%s",  ip, sv_strictAuth->string, name );
-			if (!sv_strictAuth->integer)
-				return qtrue ;
 		}
 	}
+
+	// Don't reject client if sv_strictAuth is set to 0
+	if (!sv_strictAuth->integer)
+		return qtrue ;
+
 	return qfalse;
 }
 #endif
@@ -536,8 +539,8 @@ gotnewcl:
 	}
 
 #ifdef SMOKINGUNS
-	// Tequila comment: Trusted client should present a valid GUID
-	if (!Sys_IsLANAddress(from) && !SV_TrustedClient( ip, userinfo )) {
+	// Tequila comment: Trusted client should present a valid GUID, but only IPV4 clients are supported for now
+	if (from.type == NA_IP && !Sys_IsLANAddress(from) && !SV_TrustedClient( ip, userinfo )) {
 		NET_OutOfBandPrint( NS_SERVER, from, "print\nThis server only accepts trusted clients.\n" );
 		Com_Printf("We rejected an untrusted client\n");
 		return;
