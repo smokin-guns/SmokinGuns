@@ -92,13 +92,6 @@ typedef int SOCKET;
 static qboolean usingSocks = qfalse;
 static int networkingEnabled = 0;
 
-#define NET_ENABLEV4		0x01
-#define NET_ENABLEV6		0x02
-// if this flag is set, always attempt ipv6 connections instead of ipv4 if a v6 address is found.
-#define NET_PRIOV6		0x04
-// disables ipv6 multicast support if set.
-#define NET_DISABLEMCAST	0x08
-
 static cvar_t	*net_enabled;
 
 static cvar_t	*net_socksEnabled;
@@ -284,8 +277,6 @@ static qboolean Sys_StringToSockaddr(const char *s, struct sockaddr *sadr, int s
 	hintsp = &hints;
 	hintsp->ai_family = family;
 	hintsp->ai_socktype = SOCK_DGRAM;
-	// FIXME: we should set "->ai_flags" to AI_PASSIVE if we intend
-	//        to use this structure for a bind() - instead of a sendto()
 	
 	retval = getaddrinfo(s, NULL, hintsp, &res);
 
@@ -294,18 +285,20 @@ static qboolean Sys_StringToSockaddr(const char *s, struct sockaddr *sadr, int s
 		if(family == AF_UNSPEC)
 		{
 			// Decide here and now which protocol family to use
-			if((net_enabled->integer & NET_ENABLEV6) && (net_enabled->integer & NET_PRIOV6))
-				search = SearchAddrInfo(res, AF_INET6);
-			else
-				search = SearchAddrInfo(res, AF_INET);
-			
-			if(!search)
+			if(net_enabled->integer & NET_PRIOV6)
 			{
-				if((net_enabled->integer & NET_ENABLEV6) &&
-				   (net_enabled->integer & NET_PRIOV6) &&
-				   (net_enabled->integer & NET_ENABLEV4))
+				if(net_enabled->integer & NET_ENABLEV6)
+					search = SearchAddrInfo(res, AF_INET6);
+				
+				if(!search && (net_enabled->integer & NET_ENABLEV4))
 					search = SearchAddrInfo(res, AF_INET);
-				else if(net_enabled->integer & NET_ENABLEV6)
+			}
+			else
+			{
+				if(net_enabled->integer & NET_ENABLEV4)
+					search = SearchAddrInfo(res, AF_INET);
+				
+				if(!search && (net_enabled->integer & NET_ENABLEV6))
 					search = SearchAddrInfo(res, AF_INET6);
 			}
 		}
