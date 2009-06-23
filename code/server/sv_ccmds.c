@@ -398,7 +398,7 @@ static void SV_Kick_f( void ) {
 	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
 }
 
-#ifndef STANDALONE
+#if ! defined STANDALONE || defined SMOKINGUNS
 // these functions require the auth server which of course is not available anymore for stand-alone games.
 
 /*
@@ -450,9 +450,17 @@ static void SV_Ban_f( void ) {
 
 	// otherwise send their ip to the authorize server
 	if ( svs.authorizeAddress.type != NA_BAD ) {
+#ifndef SMOKINGUNS
 		NET_OutOfBandPrint( NS_SERVER, svs.authorizeAddress,
 			"banUser %i.%i.%i.%i", cl->netchan.remoteAddress.ip[0], cl->netchan.remoteAddress.ip[1], 
 								   cl->netchan.remoteAddress.ip[2], cl->netchan.remoteAddress.ip[3] );
+#else
+		// Tequila comment: Provide also the guid to ban in case of ip change
+		char *guid = Info_ValueForKey ( cl->userinfo, "cl_guid" );
+		NET_OutOfBandPrint( NS_SERVER, svs.authorizeAddress,
+			"banUser %i.%i.%i.%i %s", cl->netchan.remoteAddress.ip[0], cl->netchan.remoteAddress.ip[1], 
+								   cl->netchan.remoteAddress.ip[2], cl->netchan.remoteAddress.ip[3], guid );
+#endif
 		Com_Printf("%s was banned from coming back\n", cl->name);
 	}
 }
@@ -504,9 +512,17 @@ static void SV_BanNum_f( void ) {
 
 	// otherwise send their ip to the authorize server
 	if ( svs.authorizeAddress.type != NA_BAD ) {
+#ifndef SMOKINGUNS
 		NET_OutOfBandPrint( NS_SERVER, svs.authorizeAddress,
 			"banUser %i.%i.%i.%i", cl->netchan.remoteAddress.ip[0], cl->netchan.remoteAddress.ip[1], 
 								   cl->netchan.remoteAddress.ip[2], cl->netchan.remoteAddress.ip[3] );
+#else
+		// Tequila comment: Provide also the guid to ban in case of ip change
+		char *guid = Info_ValueForKey ( cl->userinfo, "cl_guid" );
+		NET_OutOfBandPrint( NS_SERVER, svs.authorizeAddress,
+			"banUser %i.%i.%i.%i %s", cl->netchan.remoteAddress.ip[0], cl->netchan.remoteAddress.ip[1], 
+								   cl->netchan.remoteAddress.ip[2], cl->netchan.remoteAddress.ip[3], guid );
+#endif
 		Com_Printf("%s was banned from coming back\n", cl->name);
 	}
 }
@@ -1251,6 +1267,7 @@ void SV_AddOperatorCommands( void ) {
 	Cmd_AddCommand ("kick", SV_Kick_f);
 #ifndef STANDALONE
 	if(!Cvar_VariableIntegerValue("com_standalone"))
+#elif defined SMOKINGUNS
 	{
 		Cmd_AddCommand ("banUser", SV_Ban_f);
 		Cmd_AddCommand ("banClient", SV_BanNum_f);
