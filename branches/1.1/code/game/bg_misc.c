@@ -3454,6 +3454,6 @@ hit_info_t	hit_info[NUM_HIT_LOCATIONS] = {
 	{"hit_l_upper_leg_l",	"leg",		"leg",		HIT_UPPER_LEG_L,	PART_LOWER	},
 	{"hit_l_lower_leg_l",	"leg",		"leg",		HIT_LOWER_LEG_L,	PART_LOWER	},
 	{"hit_l_foot_l",		"foot",		"foot",		HIT_FOOT_L,			PART_LOWER	},
-	{"hit_l_pelvis",		"groin",	"ass",		HIT_PELVIS,			PART_LOWER	}
+	{"hit_l_pelvis",		"groin",	"butt",		HIT_PELVIS,			PART_LOWER	}
 };
 #endif
