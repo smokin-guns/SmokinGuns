@@ -530,6 +530,7 @@ typedef struct {
 #ifdef SMOKINGUNS
 	int			nextroundstart;
 	qboolean	validround;
+	int			roundNoMoveTime;
 #endif
 
 	fileHandle_t	logFile;
@@ -1005,6 +1006,7 @@ extern	vmCvar_t	g_restarted;
 #ifdef SMOKINGUNS
 extern	vmCvar_t	g_moneyRespawn;
 extern	vmCvar_t	g_newShotgunPattern;
+extern	vmCvar_t	g_roundNoMoveTime;
 extern	vmCvar_t	g_duellimit;
 #endif
 extern	vmCvar_t	g_dmflags;

@@ -1544,6 +1544,7 @@ typedef struct {
 #ifdef SMOKINGUNS
 	int				newShotgunPattern;
 //	char				availablePlaylist[MAX_INFO_STRING];
+	int				roundNoMoveTime;
 
 	qboolean		specsareflies;
 	qboolean		deathcam;
@@ -1774,6 +1775,7 @@ extern	vmCvar_t		cg_farclipZoomValue;
 extern	vmCvar_t		cg_mapLOD;
 
 extern	vmCvar_t		cg_newShotgunPattern;
+extern	vmCvar_t		cg_roundNoMoveTime;
 
 // Smokin'Guns Cvars
 //extern	vmCvar_t		cg_sg_lefthanded;

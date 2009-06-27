@@ -1090,6 +1090,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 CheckArmor
 ================
 */
+#ifndef SMOKINGUNS
 int CheckArmor (gentity_t *ent, int damage, int dflags)
 {
 	gclient_t	*client;
@@ -1158,7 +1159,6 @@ int RaySphereIntersections( vec3_t origin, float radius, vec3_t point, vec3_t di
 	return 0;
 }
 
-#ifndef SMOKINGUNS
 /*
 ================
 G_InvulnerabilityEffect
