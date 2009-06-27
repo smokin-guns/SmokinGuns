@@ -1755,8 +1755,8 @@ void ClientSpawn(gentity_t *ent) {
 	int		index;
 	vec3_t	spawn_origin, spawn_angles;
 	gclient_t	*client;
-#ifndef SMOKINGUNS
 	int		i;
+#ifndef SMOKINGUNS
 	clientPersistant_t	saved;
 	clientSession_t		savedSess;
 	int		persistant[MAX_PERSISTANT];
@@ -1774,7 +1774,6 @@ void ClientSpawn(gentity_t *ent) {
 	int		min_money = 0;
 	qboolean	player_died;
 	qboolean	specwatch = ent->client->specwatch;
-	int		i;
 #endif
 
 	index = ent - g_entities;

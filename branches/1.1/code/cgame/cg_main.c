@@ -297,6 +297,7 @@ vmCvar_t		cg_mapLOD;
 // experimental
 vmCvar_t		cg_newShotgunPattern;
 //vmCvar_t		cg_availablePlaylist;
+vmCvar_t		cg_roundNoMoveTime;
 
 /*int				frame_lower;
 int				oldframe_lower;
@@ -438,6 +439,7 @@ static cvarTable_t		cvarTable[] = {
 	
 	{ &cg_newShotgunPattern, "cg_newShotgunPattern", "0", CVAR_ROM},
 //	{ &cg_availablePlaylist, "cg_availablePlaylist", "0", CVAR_ROM},
+	{ &cg_roundNoMoveTime, "cg_roundNoMoveTime", "3", CVAR_ROM},
 #endif
 	{ &cg_cameraOrbit, "cg_cameraOrbit", "0", CVAR_CHEAT},
 	{ &cg_cameraOrbitDelay, "cg_cameraOrbitDelay", "50", CVAR_ARCHIVE},

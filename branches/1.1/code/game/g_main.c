@@ -184,6 +184,7 @@ vmCvar_t	br_teamrole;
 
 // experimental cvars
 vmCvar_t	g_newShotgunPattern;
+vmCvar_t	g_roundNoMoveTime;
 
 
 qboolean b_sWaitingForPlayers = qfalse;
@@ -224,6 +225,7 @@ static cvarTable_t		gameCvarTable[] = {
   	{ &g_moneyRespawn, "g_moneyRespawn", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
   	
   	{ &g_newShotgunPattern, "g_newShotgunPattern", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+ 	{ &g_roundNoMoveTime, "g_roundNoMoveTime", "3", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 #endif
 
 	{ &g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse  },
@@ -2163,6 +2165,7 @@ void Setup_NewRound(void){
 		g_roundendtime = 0;
 
 	level.nextroundstart = -1;
+	level.roundNoMoveTime = (int)(g_roundNoMoveTime.value * 1000);
 
 	G_LogPrintf( "ROUND: %i end.\n", (g_round));
 

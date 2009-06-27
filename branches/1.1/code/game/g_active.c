@@ -356,6 +356,7 @@ void G_TouchTriggers( gentity_t *ent ) {
 			if(ent->client->ps.stats[STAT_GATLING_MODE])
 				continue;
 
+			//Gatling is being built or dismantled
 			if(hit->s.time2){
 				continue;
 			}
@@ -495,7 +496,6 @@ void G_TouchStartpoint( gentity_t *ent ) {
 	ent->client->ps.stats[STAT_FLAGS] &= ~SF_CANBUY;
 
 	for ( i=0 ; i<MAX_GENTITIES ; i++ ) {
-		//char	*s;
 		hit = &g_entities[i];
 
 		if (!hit->inuse)
@@ -1135,9 +1135,9 @@ static int StuckInOtherClient(gentity_t *ent) {
 	}
 	return qfalse;
 }
-#endif
 
 void BotTestSolid(vec3_t origin);
+#endif
 
 /*
 ==============
@@ -1381,9 +1381,11 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 
 	// clear the rewards if time
+#ifndef SMOKINGUNS
 	if ( level.time > client->rewardTime ) {
 		client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
 	}
+#endif
 
 	if ( client->noclip ) {
 		client->ps.pm_type = PM_NOCLIP;
@@ -1560,8 +1562,8 @@ void ClientThink_real( gentity_t *ent ) {
 		
 		VectorClear(ent->s.pos.trDelta);
 	}
-	else if ( ( g_gametype.integer >= GT_RTP ) && ( level.time < g_roundstarttime + ROUND_NOMOVE_TIME ) 
-		&& ( ent->client->sess.sessionTeam < TEAM_SPECTATOR ) )  {
+	else if ( ( g_gametype.integer >= GT_RTP ) && ( level.time < g_roundstarttime + level.roundNoMoveTime )
+		&& ( ent->client->sess.sessionTeam < TEAM_SPECTATOR ) ) {
 		// added by Joe Kari: delete all movement and cmd stats until the end of the countdown in RTP and BR gametype
 		pm.ps->speed = 0;
 		pm.cmd.forwardmove = 0;
@@ -1609,6 +1611,10 @@ void ClientThink_real( gentity_t *ent ) {
 		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qtrue );
 	}
 	SendPendingPredictableEvents( &ent->client->ps );
+
+	if ( !( ent->client->ps.eFlags & EF_FIRING ) ) {
+		client->fireHeld = qfalse;		// for grapple
+	}
 #else
 //unlagged - smooth clients #2
 	// clients no longer do extrapolation if cg_smoothClients is 1, because
@@ -1616,13 +1622,7 @@ void ClientThink_real( gentity_t *ent ) {
 	// since that's the case, it makes no sense to store the extra info
 	// in the client's snapshot entity, so let's save a little bandwidth
 	BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qtrue );
-#endif
 
-	if ( !( ent->client->ps.eFlags & EF_FIRING ) ) {
-		client->fireHeld = qfalse;		// for grapple
-	}
-
-#ifdef SMOKINGUNS
 	G_PlayerAngles(ent, legs, torso);
 
 	if(client->ps.stats[STAT_KNOCKTIME] && client->legs.animation){
