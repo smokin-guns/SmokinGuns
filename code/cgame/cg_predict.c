@@ -1274,7 +1274,7 @@ void CG_PredictPlayerState( void ) {
 			cg.markedweapon = 0;
 			cg_pmove.ps->stats[STAT_OLDWEAPON] = 0;
 		}
-		else if ( ( cgs.gametype >= GT_RTP ) && ( cg.time < cg.roundstarttime + ROUND_NOMOVE_TIME ) 
+		else if ( ( cgs.gametype >= GT_RTP ) && ( cg.time < cg.roundstarttime + cgs.roundNoMoveTime ) 
 			&& (cg.predictedPlayerState.persistant[PERS_TEAM] < TEAM_SPECTATOR ) )  {
 			// added by Joe Kari: delete all movement and cmd stats until the end of the countdown in RTP and BR gametype
 			cg_pmove.ps->speed = 0;

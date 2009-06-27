@@ -3958,7 +3958,7 @@ static void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int otherEntNum, e
 	PerpendicularVector( right, forward );
 	CrossProduct( forward, right, up );
 	
-	if ( cg_newShotgunPattern.integer ) {
+	if ( cgs.newShotgunPattern ) {
 			
 		// Joe Kari: new experimental shotgun pattern //
 
