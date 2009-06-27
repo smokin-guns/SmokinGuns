@@ -1037,7 +1037,16 @@ gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_t team ) {
 	gentity_t	*spot;
 	int			count;
 	int			selection;
+#ifndef SMOKINGUNS
 	gentity_t	*spots[MAX_TEAM_SPAWN_POINTS];
+#else
+	gentity_t	*goodspots[MAX_TEAM_SPAWN_POINTS];
+	gentity_t	**spots = goodspots;
+	// Tequila: In the case, we would telefrag, we would really select
+	// a random spawnpoint for delayed respawn, so we need to know the badspots list
+	gentity_t	*badspots[MAX_TEAM_SPAWN_POINTS];
+	int badcount = 0;
+#endif
 	char		*classname;
 
 #ifndef SMOKINGUNS
@@ -1155,6 +1164,11 @@ gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_t team ) {
 
 	while ((spot = G_Find (spot, FOFS(classname), classname)) != NULL) {
 		if ( SpotWouldTelefrag( spot ) ) {
+#ifdef SMOKINGUNS
+			badspots[ badcount ] = spot;
+			if (++badcount == MAX_TEAM_SPAWN_POINTS)
+				break;
+#endif
 			continue;
 		}
 		spots[ count ] = spot;
@@ -1163,7 +1177,14 @@ gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_t team ) {
 	}
 
 	if ( !count ) {	// no spots that won't telefrag
+#ifndef SMOKINGUNS
 		return G_Find( NULL, FOFS(classname), classname);
+#else
+		// Tequila: G_Find will always return the last spawnpoint, it's better
+		// now to return a random bad spawnpoint
+		spots = badspots ;
+		count = badcount ;
+#endif
 	}
 
 	selection = rand() % count;
