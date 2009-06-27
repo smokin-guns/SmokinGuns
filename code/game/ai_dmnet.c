@@ -2463,6 +2463,8 @@ int AINode_Seek_NBG(bot_state_t *bs) {
 	if (!trap_BotGetTopGoal(bs->gs, &goal)) bs->nbg_time = 0;
 #else
 	if (!trap_BotGetTopGoal(bs->gs, &goal) && !(bs->flags & BFL_SEEK) &&
+	// Tequila comment: Fix bug when throwing dynamite against bots
+		goal.entitynum>=0 && goal.entitynum<MAX_GENTITIES && g_entities[goal.entitynum].classname &&
 		!strcmp("item_money", g_entities[goal.entitynum].classname))
 		bs->nbg_time = 0;
 #endif
