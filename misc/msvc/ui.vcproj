@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="sg_ui"
+	Name="ui"
 	ProjectGUID="{D454C4C7-7765-4149-ABAD-05FDEB9D94F8}"
 	TargetFrameworkVersion="131072"
 	>
@@ -16,8 +16,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\build\sg_ui_release"
-			IntermediateDirectory="..\..\build\sg_ui_release"
+			OutputDirectory="..\..\build\ui_release"
+			IntermediateDirectory="..\..\build\ui_release"
 			ConfigurationType="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -41,7 +41,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Release/sg_ui.tlb"
+				TypeLibraryName=".\Release/ui.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -52,12 +52,12 @@
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
 				WholeProgramOptimization="true"
-				PreprocessorDefinitions="WIN32;NDEBUG;UI;SMOKINGUNS;STANDALONE;_WINDOWS;_USRDLL;Q3_UI_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
+				PreprocessorDefinitions="WIN32;NDEBUG;UI;SMOKINGUNS;STANDALONE;_WINDOWS;_USRDLL;UI_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				StringPooling="true"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
-				PrecompiledHeaderFile="$(IntDir)\sg_ui.pch"
+				PrecompiledHeaderFile="$(IntDir)\ui.pch"
 				AssemblerOutput="0"
 				AssemblerListingLocation="$(IntDir)\"
 				ObjectFile="$(IntDir)\"
@@ -81,7 +81,7 @@
 				OutputFile="$(OutDir)\uix86.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				ModuleDefinitionFile=".\sg_ui.def"
+				ModuleDefinitionFile=".\ui.def"
 				ProgramDatabaseFile="$(IntDir)\uix86.pdb"
 				LinkTimeCodeGeneration="1"
 				RandomizedBaseAddress="1"
@@ -113,8 +113,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release SSE|Win32"
-			OutputDirectory="..\..\build\sg_ui_release_sse"
-			IntermediateDirectory="..\..\build\sg_ui_release_sse"
+			OutputDirectory="..\..\build\ui_release_sse"
+			IntermediateDirectory="..\..\build\ui_release_sse"
 			ConfigurationType="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -138,7 +138,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Release/sg_ui.tlb"
+				TypeLibraryName=".\Release/ui.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -149,13 +149,13 @@
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
 				WholeProgramOptimization="true"
-				PreprocessorDefinitions="WIN32;NDEBUG;UI;SMOKINGUNS;SG_RELEASE=20090420;STANDALONE;_WINDOWS;_USRDLL;Q3_UI_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
+				PreprocessorDefinitions="WIN32;NDEBUG;UI;SMOKINGUNS;SG_RELEASE=20090420;STANDALONE;_WINDOWS;_USRDLL;UI_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				EnableEnhancedInstructionSet="1"
 				UsePrecompiledHeader="0"
-				PrecompiledHeaderFile="$(IntDir)\sg_ui.pch"
+				PrecompiledHeaderFile="$(IntDir)\ui.pch"
 				AssemblerOutput="0"
 				AssemblerListingLocation="$(IntDir)\"
 				ObjectFile="$(IntDir)\"
@@ -179,7 +179,7 @@
 				OutputFile="$(OutDir)\uix86.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				ModuleDefinitionFile=".\sg_ui.def"
+				ModuleDefinitionFile=".\ui.def"
 				ProgramDatabaseFile="$(IntDir)\uix86.pdb"
 				LinkTimeCodeGeneration="1"
 				RandomizedBaseAddress="1"
@@ -211,8 +211,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release SSE2|Win32"
-			OutputDirectory="..\..\build\sg_ui_release_sse2"
-			IntermediateDirectory="..\..\build\sg_ui_release_sse2"
+			OutputDirectory="..\..\build\ui_release_sse2"
+			IntermediateDirectory="..\..\build\ui_release_sse2"
 			ConfigurationType="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -236,20 +236,20 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Release/sg_ui.tlb"
+				TypeLibraryName=".\Release/ui.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				PreprocessorDefinitions="WIN32;NDEBUG;UI;SMOKINGUNS;SG_RELEASE=20090420;STANDALONE;_WINDOWS;_USRDLL;Q3_UI_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
+				PreprocessorDefinitions="WIN32;NDEBUG;UI;SMOKINGUNS;SG_RELEASE=20090420;STANDALONE;_WINDOWS;_USRDLL;UI_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				EnableEnhancedInstructionSet="2"
 				UsePrecompiledHeader="0"
-				PrecompiledHeaderFile="$(IntDir)\sg_ui.pch"
+				PrecompiledHeaderFile="$(IntDir)\ui.pch"
 				AssemblerOutput="0"
 				AssemblerListingLocation="$(IntDir)\"
 				ObjectFile="$(IntDir)\"
@@ -273,7 +273,7 @@
 				OutputFile="$(OutDir)\uix86.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				ModuleDefinitionFile=".\sg_ui.def"
+				ModuleDefinitionFile=".\ui.def"
 				ProgramDatabaseFile="$(IntDir)\uix86.pdb"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -323,7 +323,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;UI_EXPORTS;"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -332,7 +332,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;UI_EXPORTS;"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -341,7 +341,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;UI_EXPORTS;"
 					/>
 				</FileConfiguration>
 			</File>
@@ -354,7 +354,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\sg_ui.def"
+				RelativePath=".\ui.def"
 				>
 			</File>
 			<File
@@ -366,7 +366,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;UI_EXPORTS;"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -375,7 +375,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;UI_EXPORTS;"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -384,7 +384,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;UI_EXPORTS;"
 					/>
 				</FileConfiguration>
 			</File>
@@ -401,7 +401,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;UI_EXPORTS;"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -410,7 +410,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;UI_EXPORTS;"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -419,7 +419,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;UI_EXPORTS;"
 					/>
 				</FileConfiguration>
 			</File>
@@ -432,7 +432,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;UI_EXPORTS;"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -441,7 +441,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;UI_EXPORTS;"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -450,7 +450,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;UI_EXPORTS;"
 					/>
 				</FileConfiguration>
 			</File>
@@ -467,7 +467,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;UI_EXPORTS;"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -476,7 +476,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;UI_EXPORTS;"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -485,7 +485,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;Q3_UI_EXPORTS;"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;UI_EXPORTS;"
 					/>
 				</FileConfiguration>
 			</File>
