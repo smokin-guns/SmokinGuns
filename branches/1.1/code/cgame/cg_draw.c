@@ -4478,8 +4478,6 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 		// don't draw any status if dead or the scoreboard is being explicitly shown
 		if ( cg.snap->ps.stats[STAT_HEALTH] > 0 &&
 			!cg.introstart) {
-			// FIXME: Not enabled in SG 1.0 !!!
-			CG_DrawStatusBar();
 
 			if(stereoFrame == STEREO_CENTER)
 				CG_DrawCrosshair(changeCrosshair, isPlayer);
