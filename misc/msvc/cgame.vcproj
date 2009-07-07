@@ -53,7 +53,7 @@
 				WholeProgramOptimization="true"
 				PreprocessorDefinitions="WIN32;NDEBUG;CGAME;SMOKINGUNS;STANDALONE;_WINDOWS;_CRT_SECURE_NO_DEPRECATE"
 				StringPooling="true"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile="$(IntDir)\cgame.pch"
