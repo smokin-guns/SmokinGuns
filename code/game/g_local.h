@@ -343,6 +343,9 @@ typedef struct {
 	int			savedMoney;			// copy of ps.stats[STAT_MONEY]
 	int			savedWins;			// copy of ps.stats[STAT_WINS]
 	int			savedScore;			// copy of ps.persistant[PERS_SCORE]
+// Tequila: TeamKill management inspired by Conq patch
+	int			lastTeamKillTime;
+	int			TeamKillsCount;
 #endif
 
 } clientPersistant_t;
@@ -1018,6 +1021,11 @@ extern	vmCvar_t	g_capturelimit;
 extern	vmCvar_t	g_scorelimit;
 #endif
 extern	vmCvar_t	g_friendlyFire;
+#ifdef SMOKINGUNS
+extern	vmCvar_t	g_maxteamkills;
+extern	vmCvar_t	g_teamkillsforgettime;
+extern	vmCvar_t	g_teamkillschecktime;
+#endif
 extern	vmCvar_t	g_password;
 extern	vmCvar_t	g_needpass;
 extern	vmCvar_t	g_gravity;

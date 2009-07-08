@@ -104,6 +104,11 @@ vmCvar_t	g_capturelimit;
 vmCvar_t	g_scorelimit;
 #endif
 vmCvar_t	g_friendlyFire;
+#ifdef SMOKINGUNS
+vmCvar_t	g_maxteamkills;
+vmCvar_t	g_teamkillsforgettime;
+vmCvar_t	g_teamkillschecktime;
+#endif
 vmCvar_t	g_password;
 vmCvar_t	g_needpass;
 vmCvar_t	g_maxclients;
@@ -234,6 +239,9 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_friendlyFire, "g_friendlyFire", "0", CVAR_ARCHIVE, 0, qtrue  },
 #else
 	{ &g_friendlyFire, "g_friendlyFire", "1", CVAR_ARCHIVE, 0, qtrue  },
+	{ &g_maxteamkills, "g_maxteamkills", "0", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+	{ &g_teamkillsforgettime, "g_teamkillsforgettime", "0", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+	{ &g_teamkillschecktime, "g_teamkillschecktime", "0", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 #endif
 
 	{ &g_teamAutoJoin, "g_teamAutoJoin", "0", CVAR_ARCHIVE  },

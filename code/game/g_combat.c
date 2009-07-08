@@ -1430,6 +1430,71 @@ float G_LocationDamage(vec3_t point, gentity_t* targ, gentity_t* attacker, float
 
 	return take;
 }
+
+/*
+============
+CheckTeamKills
+By Tequila, TeamKill management inspired by Conq patch
+Return false when TK supported limit is not hit
+============
+*/
+static qboolean CheckTeamKills( gentity_t *attacker, gentity_t *targ, int mod ) {
+	if ( !g_maxteamkills.integer )
+		return qfalse;
+
+	// g_teamkillschecktime can be set to only activate the check at the round beginning
+	if ( g_teamkillschecktime.integer && g_roundstarttime && level.time > g_roundstarttime + g_teamkillschecktime.integer * 1000 )
+		return qfalse;
+
+	// Some weapons should not have to be checked for TK
+	switch(mod){
+	case MOD_GATLING:
+	case MOD_DYNAMITE:
+	case MOD_MOLOTOV:
+	case MOD_TELEFRAG:
+		return qfalse;
+	default:
+		break;
+	}
+
+	if ( !attacker || !targ )
+		return qfalse;
+
+	if ( !attacker->client )
+		return qfalse;
+
+	if ( attacker == targ || !OnSameTeam (targ,attacker) )
+		return qfalse;
+
+	// Check if we should reset TK count before
+	if ( attacker->client->pers.lastTeamKillTime && level.time > attacker->client->pers.lastTeamKillTime + g_teamkillsforgettime.integer * 1000 ) {
+#ifndef NDEBUG
+		G_Printf(S_COLOR_MAGENTA "CheckTeamKills: Forget TeamKillsCount (%i) from %s\n", attacker->client->pers.TeamKillsCount, attacker->client->pers.netname);
+#endif
+		attacker->client->pers.TeamKillsCount=0;
+	}
+
+	attacker->client->pers.TeamKillsCount ++;
+#ifndef NDEBUG
+	if (attacker->client->pers.lastTeamKillTime)
+		G_Printf(S_COLOR_MAGENTA "CheckTeamKills: Last TeamKills for %s was %.2f seconds ago\n", attacker->client->pers.netname,(float)(level.time-attacker->client->pers.lastTeamKillTime)/1000.0f);
+#endif
+	attacker->client->pers.lastTeamKillTime = level.time;
+
+	// Kick the attacker if TK limit is hit and return true
+	if ( attacker->client->pers.TeamKillsCount >= g_maxteamkills.integer )
+	{
+		trap_DropClient( attacker-g_entities, "Reached the limit of supported teammate kills." );
+		return qtrue;
+	} else if ( attacker->client->pers.TeamKillsCount == g_maxteamkills.integer -1 )
+		trap_SendServerCommand( attacker-g_entities,
+			va("print \"%s" S_COLOR_YELLOW "... Be careful teammate !!! Next teammate kill could kick you from that server.\n\"",
+			attacker->client->pers.netname));
+#ifndef NDEBUG
+	G_Printf(S_COLOR_MAGENTA "CheckTeamKills: TeamKillsCount is %i for %s\n", attacker->client->pers.TeamKillsCount, attacker->client->pers.netname);
+#endif
+	return qfalse;
+}
 #endif
 
 /*
@@ -1469,6 +1534,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	int			asave;
 #else
 	float		take;
+	int			hsave=0;
 #endif
 
 	int			knockback;
@@ -1612,6 +1678,10 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			if ( !g_friendlyFire.integer ) {
 				return;
 			}
+#ifdef SMOKINGUNS
+			// Can be used later in case of TK limit reached to protect the last victim
+			hsave = targ->health;
+#endif
 		}
 #ifndef SMOKINGUNS
 		if (mod == MOD_PROXIMITY_MINE) {
@@ -1835,8 +1905,17 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 			targ->enemy = attacker;
 
-			// do the hit-message before the death-message
 #ifdef SMOKINGUNS
+			// Target is not killed if TK limit is hit
+			if ( g_friendlyFire.integer && CheckTeamKills(attacker,targ,mod) ) {
+				targ->client->ps.stats[STAT_HEALTH] = targ->health = hsave;
+				if ( g_debugDamage.integer )
+					G_LogPrintf( "%i: client:%i health:%i saved from TK by:%i\n", level.time,
+							targ->s.number,	targ->health, attacker->s.number );
+				return;
+			}
+
+			// do the hit-message before the death-message
 			if(attacker->s.angles2[0] != -1 &&
 				(attacker->s.eFlags & EF_HIT_MESSAGE)){
 				gentity_t *tent;
