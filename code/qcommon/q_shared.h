@@ -786,14 +786,6 @@ void	Q_strcat( char *dest, int size, const char *src );
 int Q_PrintStrlen( const char *string );
 // removes color sequences from string
 char *Q_CleanStr( char *string );
-
-#ifdef SMOKINGUNS
-// Joe Kari: string splitter, fill output_string with all char found between the 'start' postion in input_string
-// to the next char 'splitter', 'n' is the max size of output_string INCLUDING the final NULL char, that is automatically added,
-// return 0 if no string were found or an error occur, or return the next value to be used as the next 'start' argument
-int strnsplit( char *input_string , char *output_string , char splitter , int start , size_t n ) ;
-#endif
-
 // Count the number of char tocount encountered in string
 int Q_CountChar(const char *string, char tocount);
 

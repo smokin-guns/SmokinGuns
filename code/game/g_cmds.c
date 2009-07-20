@@ -1793,29 +1793,31 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 #ifdef SMOKINGUNS
 	} else if ( !Q_stricmp( arg1, "mapcycle" ) ) {	// Joe Kari: allow player to vote for a mapcycle
 
-		char splited[ 32 + 1 ];
-		int start = 0 ;
-		char tmp_str[ MAX_STRING_CHARS ];
-		qboolean match = qfalse ;
+		char mapcycles[ MAX_STRING_CHARS ];
+		char buf[ 100 ];
+		char *token, *p;
+		qboolean match = qfalse;
 
-		trap_Cvar_VariableStringBuffer( "g_availableMapcycle" , tmp_str , sizeof( tmp_str ) ) ;
+		trap_Cvar_VariableStringBuffer( "g_mapcycles" , mapcycles, sizeof( mapcycles ) ) ;
 
-		while ( ( start = strnsplit( tmp_str , splited , ' ' , start , 32 ) ) && !match ) {
-			if ( !Q_stricmp( arg2 , splited ) )  match = qtrue ;
+		p = mapcycles;
+		while ( !match && *( token = COM_Parse( &p ) ) ) {
+			if ( !Q_stricmp( arg2 , token ) )
+				match = qtrue;
 		}
 
 		if ( !match ) {
-			start = 0 ;
-			trap_SendServerCommand( ent-g_entities, "print \"Invalid mapcycle string. Allowed mapcycle are:\n\"" );
-			while ( (start = strnsplit( tmp_str , splited , ' ' , start , 32 ))  )  {
-				Com_sprintf( splited ,  sizeof(splited) , "print \"^5%s^7\n\"" , splited ) ;
-				trap_SendServerCommand( ent-g_entities, splited ) ;
+			trap_SendServerCommand( ent-g_entities, "print \"Unknown mapcycle. Available mapcycles are:\n\"" );
+			p = mapcycles;
+			while ( *( token = COM_Parse( &p ) )  )  {
+				Com_sprintf( buf ,  sizeof( buf ) , "print \"^5%s^7\n\"" , token ) ;
+				trap_SendServerCommand( ent-g_entities, buf ) ;
 			}
 			return;
 		}
 
-		Com_sprintf( level.voteString, sizeof( level.voteString ), "%s \"vstr %s\"", arg1, arg2 );
-		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
+		Com_sprintf( level.voteString, sizeof( level.voteString ), "vstr %s", token );
+		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "mapcycle %s", token);
 
 #endif
 	} else if ( !Q_stricmp( arg1, "nextmap" ) ) {
