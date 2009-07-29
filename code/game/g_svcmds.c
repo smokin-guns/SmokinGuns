@@ -527,6 +527,20 @@ qboolean	ConsoleCommand( void ) {
 			trap_SendServerCommand( -1, va("print \"server: %s\"", ConcatArgs(1) ) );
 			return qtrue;
 		}
+#ifdef SMOKINGUNS
+		else if (Q_stricmp (cmd, "bigtext") == 0 || Q_stricmp (cmd, "cp") == 0) {
+			const char *arg = ConcatArgs(1);
+			if ( Q_strncmp ("-1", arg, strlen(arg)) == 0 )
+				trap_SendServerCommand( -1, va("cp \"%s\"", ConcatArgs(2) ) );
+			else if ( arg[0]<'0' || arg[0]>'9' )
+				trap_SendServerCommand( -1, va("cp \"%s\"", arg ) );
+			else if (ClientForString(arg)) {
+				int clientNum = atoi(arg);
+				trap_SendServerCommand( clientNum, va("cp \"%s\"", ConcatArgs(2) ) );
+			}
+			return qtrue;
+		}
+#endif
 		// everything else will also be printed as a say command
 		trap_SendServerCommand( -1, va("print \"server: %s\"", ConcatArgs(0) ) );
 		return qtrue;
