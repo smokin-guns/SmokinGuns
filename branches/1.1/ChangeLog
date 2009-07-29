@@ -29,6 +29,8 @@ Changes since SG 1.0-20081231
  - g_teamkillschecktime, in seconds, defines the time during which TK will be checked at only round beginning
 - new renderer cvar to activate OpenGL texture MultiSampling: r_ext_multisample. You really need a good video card to use it.
  - Thanks to ioQuake3 team for r_ext_multisample cvar
+- new server console commands "bigtext" and "cp" to authorize server admins to display big message. A client number can be used
+  as first argument to only display the messsage to a given client.
 *** CHANGES ***
 - Reloading bug fixed by Joe Kari
 - Fix game crash during game load when using cgame binary library
