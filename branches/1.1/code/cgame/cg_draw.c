@@ -2879,10 +2879,9 @@ static void CG_ScanForCrosshairEntity( qboolean *changeCrosshair, qboolean *isPl
 		return;
 	}
 
-	// trace through glass
-	// FIXME: doesn't work through more than one level of glass
-	if ( trace.surfaceFlags & SURF_GLASS ) {
-			CG_Trace( &trace, start, vec3_origin, vec3_origin,
+	// can spot teammates through windows
+	while ( trace.surfaceFlags & SURF_GLASS ) {
+			CG_Trace( &trace, trace.endpos, vec3_origin, vec3_origin,
 			          end, trace.entityNum, CONTENTS_SOLID|CONTENTS_BODY );
 	}
 #endif
