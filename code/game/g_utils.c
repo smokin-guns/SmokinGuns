@@ -509,9 +509,7 @@ gentity_t *G_TempEntity( vec3_t origin, int event ) {
 	e->freeAfterEvent = qtrue;
 
 	VectorCopy( origin, snapped );
-#ifndef SMOKINGUNS
 	SnapVector( snapped );		// save network bandwidth
-#endif
 	G_SetOrigin( e, snapped );
 
 	// find cluster for PVS
