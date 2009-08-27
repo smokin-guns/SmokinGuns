@@ -1921,7 +1921,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				gentity_t *tent;
 
 				// send the hit message
-				tent = G_TempEntity( attacker->r.currentOrigin, EV_HIT_MESSAGE );
+				tent = G_TempEntity( vec3_origin, EV_HIT_MESSAGE );
 
 				if(attacker->client->lasthurt_direction == LOCATION_BACK)
 					tent->s.weapon = 0;
