@@ -274,7 +274,11 @@ static void CG_Item( centity_t *cent ) {
 		memset( &ent, 0, sizeof( ent ) );
 		ent.reType = RT_SPRITE;
 		VectorCopy( cent->lerpOrigin, ent.origin );
+#ifndef SMOKINGUNS
 		ent.radius = 14;
+#else
+		ent.radius = 7;
+#endif
 		ent.customShader = cg_items[es->modelindex].icon;
 #ifdef SMOKINGUNS
 		if(!Q_stricmp(item->classname, "pickup_money")){
