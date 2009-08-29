@@ -134,10 +134,6 @@ static void CG_ScoresUp_f( void ) {
 void CG_ClearFocusses(void);
 //set up the menu
 void CG_BuyMenu (void) {
-	if(cg.menu == MENU_BUY) {
-		CG_CloseBuyMenu();
-		return;
-	}
 
 	if(cgs.gametype == GT_DUEL && cg.introend < cg.time)
 		return;

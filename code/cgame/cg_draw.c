@@ -2893,7 +2893,7 @@ static void CG_ScanForCrosshairEntity( qboolean *changeCrosshair, qboolean *isPl
 #ifdef SMOKINGUNS
 	*changeCrosshair = qfalse;
 	*isPlayer = qfalse;
-	if ( trace.entityNum <= MAX_CLIENTS && cg_entities[trace.entityNum].currentState.eType == ET_PLAYER) {
+	if ( trace.entityNum < MAX_CLIENTS && cg_entities[trace.entityNum].currentState.eType == ET_PLAYER) {
 		*isPlayer = qtrue;
 
 		if(cgs.gametype >= GT_TEAM && cg.snap->ps.persistant[PERS_TEAM] < TEAM_SPECTATOR &&
@@ -3795,8 +3795,13 @@ void CG_CloseBuyMenu(void){
 
 static qboolean menu_exit( void ){
 
-	if((trap_Key_IsDown(K_ESCAPE)||trap_Key_IsDown(K_MOUSE2)||
-		(trap_Key_IsDown(0+48) && !cg.menuitem))
+	// Esc closes menu
+	if (!(trap_Key_GetCatcher() & KEYCATCH_CGAME)) {
+		CG_CloseBuyMenu();
+		return qtrue;
+	}
+
+	if((trap_Key_IsDown(K_MOUSE2) || (trap_Key_IsDown(48) && !cg.menuitem))
 		&& !cg.oldbutton){
 		CG_CloseBuyMenu();
 		return qtrue;
