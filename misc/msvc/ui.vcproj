@@ -16,8 +16,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\build\ui_release"
-			IntermediateDirectory="..\..\build\ui_release"
+			OutputDirectory="..\..\build\ui_debug"
+			IntermediateDirectory="..\..\build\ui_debug"
 			ConfigurationType="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
