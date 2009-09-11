@@ -82,7 +82,7 @@
 				OutputFile="$(OutDir)\smokinguns.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\code\libs\win32;&quot;C:\Program Files (x86)\OpenAL 1.1 SDK\libs\Win32&quot;"
+				AdditionalLibraryDirectories="..\..\code\libs\win32;&quot;C:\Program Files\OpenAL 1.1 SDK\libs\Win32&quot;"
 				IgnoreDefaultLibraryNames=""
 				DelayLoadDLLs="$(NOINHERIT)"
 				GenerateDebugInformation="true"
