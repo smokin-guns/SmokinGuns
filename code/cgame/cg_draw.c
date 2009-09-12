@@ -2856,10 +2856,12 @@ static void CG_ScanForCrosshairEntity( qboolean *changeCrosshair, qboolean *isPl
 
 	CG_Trace( &trace, start, vec3_origin, vec3_origin, end,
 	          cg.snap->ps.clientNum, CONTENTS_SOLID|CONTENTS_BODY );
+	// Tequila comment: In SG, we want to check through windows entities and activable entities, so we don't return early
 #ifndef SMOKINGUNS
 	if ( trace.entityNum >= MAX_CLIENTS ) {
 		return;
 	}
+#endif
 
 	// if the player is in fog, don't show it
 	content = trap_CM_PointContents( trace.endpos, 0 );
@@ -2867,22 +2869,16 @@ static void CG_ScanForCrosshairEntity( qboolean *changeCrosshair, qboolean *isPl
 		return;
 	}
 
+#ifndef SMOKINGUNS
 	// if the player is invisible, don't show it
 	if ( cg_entities[ trace.entityNum ].currentState.powerups & ( 1 << PW_INVIS ) ) {
 		return;
 	}
 #else
-
-	// if the player is in fog, don't show it
-	content = trap_CM_PointContents( trace.endpos, 0 );
-	if ( content & CONTENTS_FOG ) {
-		return;
-	}
-
 	// can spot teammates through windows
 	while ( trace.surfaceFlags & SURF_GLASS ) {
 		VectorCopy(trace.endpos, start);
-		CG_Trace( &trace, start, vec3_origin, vec3_origin, end
+		CG_Trace( &trace, start, vec3_origin, vec3_origin, end,
 		          trace.entityNum, CONTENTS_SOLID|CONTENTS_BODY );
 
 		// try to avoid creating an endless loop,
