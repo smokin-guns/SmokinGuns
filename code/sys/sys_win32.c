@@ -595,6 +595,25 @@ static qboolean SDL_VIDEODRIVER_externallySet = qfalse;
 
 /*
 ==============
+Sys_GLimpSafeInit
+
+Windows specific "safe" GL implementation initialisation
+==============
+*/
+void Sys_GLimpSafeInit( void )
+{
+#ifndef DEDICATED
+	if( !SDL_VIDEODRIVER_externallySet )
+	{
+		// Here, we want to let SDL decide what do to unless
+		// explicitly requested otherwise
+		_putenv( "SDL_VIDEODRIVER=" );
+	}
+#endif
+}
+
+/*
+==============
 Sys_GLimpInit
 
 Windows specific GL implementation initialisation
