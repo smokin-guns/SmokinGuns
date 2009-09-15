@@ -616,6 +616,7 @@ void	FS_FreeFileList( char **list );
 
 qboolean FS_FileExists( const char *file );
 
+qboolean FS_CreatePath (char *OSPath);
 char   *FS_BuildOSPath( const char *base, const char *game, const char *qpath );
 
 int		FS_LoadStack( void );
@@ -1091,6 +1092,9 @@ char	*Sys_DefaultInstallPath(void);
 #ifdef MACOS_X
 char    *Sys_DefaultAppPath(void);
 #endif
+
+void	Sys_SetDefaultLibPath(const char *path);
+char	*Sys_DefaultLibPath(void);
 
 void  Sys_SetDefaultHomePath(const char *path);
 char	*Sys_DefaultHomePath(void);
