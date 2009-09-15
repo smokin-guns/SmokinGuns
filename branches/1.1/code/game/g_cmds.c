@@ -672,37 +672,37 @@ void SetTeam( gentity_t *ent, char *s ) {
 			int		counts[TEAM_NUM_TEAMS];
 
 #ifndef SMOKINGUNS
-			counts[TEAM_BLUE] = TeamCount( ent->client->ps.clientNum, TEAM_BLUE );
-			counts[TEAM_RED] = TeamCount( ent->client->ps.clientNum, TEAM_RED );
+			counts[TEAM_BLUE] = TeamCount( clientNum, TEAM_BLUE );
+			counts[TEAM_RED] = TeamCount( clientNum, TEAM_RED );
 #else
 			if(g_gametype.integer >= GT_RTP){
-				counts[TEAM_BLUE] = TeamCount( ent->client->ps.clientNum, TEAM_BLUE )+
-					TeamCount( ent->client->ps.clientNum, TEAM_BLUE_SPECTATOR );
-				counts[TEAM_RED] = TeamCount( ent->client->ps.clientNum, TEAM_RED )+
-					TeamCount( ent->client->ps.clientNum, TEAM_RED_SPECTATOR );
+				counts[TEAM_BLUE] = TeamCount( clientNum, TEAM_BLUE )+
+					TeamCount( clientNum, TEAM_BLUE_SPECTATOR );
+				counts[TEAM_RED] = TeamCount( clientNum, TEAM_RED )+
+					TeamCount( clientNum, TEAM_RED_SPECTATOR );
 			} else {
-				counts[TEAM_BLUE] = TeamCount( ent->client->ps.clientNum, TEAM_BLUE );
-				counts[TEAM_RED] = TeamCount( ent->client->ps.clientNum, TEAM_RED );
+				counts[TEAM_BLUE] = TeamCount( clientNum, TEAM_BLUE );
+				counts[TEAM_RED] = TeamCount( clientNum, TEAM_RED );
 			}
 #endif
 
 			// We allow a spread of two
 			if ( team == TEAM_RED && counts[TEAM_RED] - counts[TEAM_BLUE] > 1 ) {
 #ifndef SMOKINGUNS
-				trap_SendServerCommand( ent->client->ps.clientNum,
+				trap_SendServerCommand( clientNum,
 					"cp \"Red team has too many players.\n\"" );
 #else
-				trap_SendServerCommand( ent->client->ps.clientNum,
+				trap_SendServerCommand( clientNum,
 					va("cp \"%s has too many players.\n\"", g_redteam.string) );
 #endif
 				return; // ignore the request
 			}
 			if ( team == TEAM_BLUE && counts[TEAM_BLUE] - counts[TEAM_RED] > 1 ) {
 #ifndef SMOKINGUNS
-				trap_SendServerCommand( ent->client->ps.clientNum,
+				trap_SendServerCommand( clientNum,
 					"cp \"Blue team has too many players.\n\"" );
 #else
-				trap_SendServerCommand( ent->client->ps.clientNum,
+				trap_SendServerCommand( clientNum,
 					va("cp \"%s has too many players.\n\"", g_blueteam.string) );
 #endif
 				return; // ignore the request
