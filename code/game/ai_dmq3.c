@@ -4348,6 +4348,8 @@ BotMapScripts
 ==================
 */
 void BotMapScripts(bot_state_t *bs) {
+	// Tequila comment: This function seems to fix some q3tourney cases we don't care
+#ifndef SMOKINGUNS
 	char info[1024];
 	char mapname[128];
 	int i, shootbutton;
@@ -4410,11 +4412,7 @@ void BotMapScripts(bot_state_t *bs) {
 			bs->ideal_viewangles[YAW] += 8 * crandom() * (1 - aim_accuracy);
 			bs->ideal_viewangles[YAW] = AngleMod(bs->ideal_viewangles[YAW]);
 			//
-#ifndef SMOKINGUNS
 			if (InFieldOfVision(bs->viewangles, 20, bs->ideal_viewangles)) {
-#else
-			if (InFieldOfVision(bs->viewangles, 20, bs->ideal_viewangles, -1)) {
-#endif
 				trap_EA_Attack(bs->client);
 			}
 		}
@@ -4423,6 +4421,7 @@ void BotMapScripts(bot_state_t *bs) {
 		//NOTE: NEVER use the func_bobbing in mpq3tourney6
 		bs->tfl &= ~TFL_FUNCBOB;
 	}
+#endif
 }
 
 /*
