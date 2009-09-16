@@ -244,7 +244,6 @@ static  cvar_t          *fs_apppath;
 #endif
 
 static	cvar_t		*fs_basepath;
-static	cvar_t		*fs_libpath;
 static	cvar_t		*fs_basegame;
 static	cvar_t		*fs_gamedirvar;
 static	searchpath_t	*fs_searchpaths;
@@ -2811,8 +2810,6 @@ static void FS_Startup( const char *gameName )
 	fs_missingfiles = Cvar_Get ("fs_missingfiles", "0", CVAR_INIT );
 #endif
 #endif
-	fs_libpath = Cvar_Get ("fs_libpath", Sys_DefaultLibPath(), CVAR_INIT );
-
 	homePath = Sys_DefaultHomePath();
 	if (!homePath || !homePath[0]) {
 		homePath = fs_basepath->string;
