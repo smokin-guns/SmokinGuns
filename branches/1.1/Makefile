@@ -2331,6 +2331,12 @@ TOOLSOBJ = $(LBURGOBJ) $(Q3CPPOBJ) $(Q3RCCOBJ) $(Q3LCCOBJ) $(Q3ASMOBJ)
 
 
 copyfiles: release
+	@$(MAKE) copyfiles2 B=$(BR)
+
+copyfiles-debug: debug
+	@$(MAKE) copyfiles2 B=$(BD) NO_STRIP=1
+
+copyfiles2:
 ifndef SDK_GAMENAME
 	@if [ ! -d $(COPYDIR)/baseq3 ]; then echo "You need to set COPYDIR to where your Quake3 data is!"; fi
 	-$(MKDIR) -p -m 0755 $(COPYDIR)/baseq3
@@ -2342,56 +2348,56 @@ endif
 
 ifneq ($(BUILD_CLIENT),0)
 ifndef SDK_GAMENAME
-	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/ioquake3$(FULLBINEXT) $(COPYBINDIR)/ioquake3$(FULLBINEXT)
+	$(INSTALL) $(STRIP_FLAG) -m 0755 $(B)/ioquake3$(FULLBINEXT) $(COPYBINDIR)/ioquake3$(FULLBINEXT)
 else
-	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/$(SDK_GAMENAME)$(FULLBINEXT) $(COPYBINDIR)/$(SDK_GAMENAME)$(FULLBINEXT)
+	$(INSTALL) $(STRIP_FLAG) -m 0755 $(B)/$(SDK_GAMENAME)$(FULLBINEXT) $(COPYBINDIR)/$(SDK_GAMENAME)$(FULLBINEXT)
 endif
 endif
 
 # Don't copy the SMP until it's working together with SDL.
 #ifneq ($(BUILD_CLIENT_SMP),0)
 #ifndef SDK_GAMENAME
-#	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/ioquake3-smp$(FULLBINEXT) $(COPYBINDIR)/ioquake3-smp$(FULLBINEXT)
+#	$(INSTALL) $(STRIP_FLAG) -m 0755 $(B)/ioquake3-smp$(FULLBINEXT) $(COPYBINDIR)/ioquake3-smp$(FULLBINEXT)
 #else
-#	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/$(SDK_GAMENAME)-smp$(FULLBINEXT) $(COPYBINDIR)/$(SDK_GAMENAME)-smp$(FULLBINEXT)
+#	$(INSTALL) $(STRIP_FLAG) -m 0755 $(B)/$(SDK_GAMENAME)-smp$(FULLBINEXT) $(COPYBINDIR)/$(SDK_GAMENAME)-smp$(FULLBINEXT)
 #endif
 #endif
 
 ifneq ($(BUILD_SERVER),0)
 ifndef SDK_GAMENAME_DED
-	@if [ -f $(BR)/ioq3ded$(FULLBINEXT) ]; then \
-		$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/ioq3ded$(FULLBINEXT) $(COPYBINDIR)/ioq3ded$(FULLBINEXT); \
+	@if [ -f $(B)/ioq3ded$(FULLBINEXT) ]; then \
+		$(INSTALL) $(STRIP_FLAG) -m 0755 $(B)/ioq3ded$(FULLBINEXT) $(COPYBINDIR)/ioq3ded$(FULLBINEXT); \
 	fi
 else
-	@if [ -f $(BR)/$(SDK_GAMENAME_DED)$(FULLBINEXT) ]; then \
-		$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/$(SDK_GAMENAME_DED)$(FULLBINEXT) $(COPYBINDIR)/$(SDK_GAMENAME_DED)$(FULLBINEXT); \
+	@if [ -f $(B)/$(SDK_GAMENAME_DED)$(FULLBINEXT) ]; then \
+		$(INSTALL) $(STRIP_FLAG) -m 0755 $(B)/$(SDK_GAMENAME_DED)$(FULLBINEXT) $(COPYBINDIR)/$(SDK_GAMENAME_DED)$(FULLBINEXT); \
 	fi
 endif
 endif
 
 ifneq ($(BUILD_GAME_SO),0)
 ifndef SDK_GAMENAME
-	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/baseq3/cgame$(SHLIBNAME) \
+	$(INSTALL) $(STRIP_FLAG) -m 0755 $(B)/baseq3/cgame$(SHLIBNAME) \
 					$(COPYDIR)/baseq3/.
-	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/baseq3/qagame$(SHLIBNAME) \
+	$(INSTALL) $(STRIP_FLAG) -m 0755 $(B)/baseq3/qagame$(SHLIBNAME) \
 					$(COPYDIR)/baseq3/.
-	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/baseq3/ui$(SHLIBNAME) \
+	$(INSTALL) $(STRIP_FLAG) -m 0755 $(B)/baseq3/ui$(SHLIBNAME) \
 					$(COPYDIR)/baseq3/.
 else
-	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/$(SDK_GAMENAME)/cgame$(SHLIBNAME) \
+	$(INSTALL) $(STRIP_FLAG) -m 0755 $(B)/$(SDK_GAMENAME)/cgame$(SHLIBNAME) \
 					$(COPYDIR)/$(SDK_GAMENAME)/.
-	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/$(SDK_GAMENAME)/qagame$(SHLIBNAME) \
+	$(INSTALL) $(STRIP_FLAG) -m 0755 $(B)/$(SDK_GAMENAME)/qagame$(SHLIBNAME) \
 					$(COPYDIR)/$(SDK_GAMENAME)/.
-	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/$(SDK_GAMENAME)/ui$(SHLIBNAME) \
+	$(INSTALL) $(STRIP_FLAG) -m 0755 $(B)/$(SDK_GAMENAME)/ui$(SHLIBNAME) \
 					$(COPYDIR)/$(SDK_GAMENAME)/.
 endif
   ifneq ($(BUILD_MISSIONPACK),0)
 	-$(MKDIR) -p -m 0755 $(COPYDIR)/missionpack
-	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/missionpack/cgame$(SHLIBNAME) \
+	$(INSTALL) $(STRIP_FLAG) -m 0755 $(B)/missionpack/cgame$(SHLIBNAME) \
 					$(COPYDIR)/missionpack/.
-	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/missionpack/qagame$(SHLIBNAME) \
+	$(INSTALL) $(STRIP_FLAG) -m 0755 $(B)/missionpack/qagame$(SHLIBNAME) \
 					$(COPYDIR)/missionpack/.
-	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/missionpack/ui$(SHLIBNAME) \
+	$(INSTALL) $(STRIP_FLAG) -m 0755 $(B)/missionpack/ui$(SHLIBNAME) \
 					$(COPYDIR)/missionpack/.
   endif
 endif
