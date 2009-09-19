@@ -4348,8 +4348,9 @@ BotMapScripts
 ==================
 */
 void BotMapScripts(bot_state_t *bs) {
-	// Tequila comment: This function seems to fix some q3tourney cases we don't care
-#ifndef SMOKINGUNS
+	// Tequila comment: This function seems to fix some q3tourney cases
+	// and we don't care about in any STANDALONE game
+#ifndef STANDALONE
 	char info[1024];
 	char mapname[128];
 	int i, shootbutton;
