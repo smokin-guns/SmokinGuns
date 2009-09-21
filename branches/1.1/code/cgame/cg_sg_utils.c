@@ -1994,37 +1994,9 @@ or qfalse if the entity should be add to the scene
 =================
 */
 
-// function pointer array
-
-qboolean ( * CG_Farclip_Tester[] )( vec3_t , vec3_t , float , float ) = {
-        NULL ,
-        CG_Farclip_Sphere ,
-        CG_Farclip_Ellipse_X ,
-        CG_Farclip_Ellipse_Y ,
-        CG_Farclip_Ellipse_Z ,
-        CG_Farclip_Cylinder_X ,
-        CG_Farclip_Cylinder_Y ,
-        CG_Farclip_Cylinder_Z ,
-        CG_Farclip_Cube ,
-        CG_Farclip_Box_X ,
-        CG_Farclip_Box_Y ,
-        CG_Farclip_Box_Z ,
-        CG_Farclip_Cone_X ,
-        CG_Farclip_Cone_Y ,
-        CG_Farclip_Cone_Z ,
-        CG_Farclip_Pyramid_X ,
-        CG_Farclip_Pyramid_Y ,
-        CG_Farclip_Pyramid_Z ,
-        CG_Farclip_Circle_Infinite_X ,
-        CG_Farclip_Circle_Infinite_Y ,
-        CG_Farclip_Circle_Infinite_Z ,
-        CG_Farclip_Square_Infinite_X ,
-        CG_Farclip_Square_Infinite_Y ,
-        CG_Farclip_Square_Infinite_Z
-} ;
-
-int CG_Farclip_Tester_Table_Size = sizeof( CG_Farclip_Tester ) / sizeof( void* );
-
+qboolean CG_Farclip_None( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist ) {
+	return qfalse ;
+}
 
 qboolean CG_Farclip_Sphere( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
 {
@@ -2235,7 +2207,33 @@ qboolean CG_Farclip_Pyramid_Y( vec3_t entite_vec3 , vec3_t camera_vec3 , float f
 	return qfalse ;
 }
 
+// function pointer array
 
+qboolean ( * CG_Farclip_Tester[] )( vec3_t , vec3_t , float , float ) = {
+        CG_Farclip_None ,
+        CG_Farclip_Sphere ,
+        CG_Farclip_Ellipse_X ,
+        CG_Farclip_Ellipse_Y ,
+        CG_Farclip_Ellipse_Z ,
+        CG_Farclip_Cylinder_X ,
+        CG_Farclip_Cylinder_Y ,
+        CG_Farclip_Cylinder_Z ,
+        CG_Farclip_Cube ,
+        CG_Farclip_Box_X ,
+        CG_Farclip_Box_Y ,
+        CG_Farclip_Box_Z ,
+        CG_Farclip_Cone_X ,
+        CG_Farclip_Cone_Y ,
+        CG_Farclip_Cone_Z ,
+        CG_Farclip_Pyramid_X ,
+        CG_Farclip_Pyramid_Y ,
+        CG_Farclip_Pyramid_Z ,
+        CG_Farclip_Circle_Infinite_X ,
+        CG_Farclip_Circle_Infinite_Y ,
+        CG_Farclip_Circle_Infinite_Z ,
+        CG_Farclip_Square_Infinite_X ,
+        CG_Farclip_Square_Infinite_Y ,
+        CG_Farclip_Square_Infinite_Z
+} ;
 
-
-
+int CG_Farclip_Tester_Table_Size = sizeof( CG_Farclip_Tester ) / sizeof( void* );
