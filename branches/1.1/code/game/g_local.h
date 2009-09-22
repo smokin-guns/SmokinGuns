@@ -514,11 +514,7 @@ struct gclient_s {
 // this structure is cleared as each map is entered
 //
 #define	MAX_SPAWN_VARS			64
-#ifndef SMOKINGUNS
 #define	MAX_SPAWN_VARS_CHARS	4096
-#else
-#define	MAX_SPAWN_VARS_CHARS	2048
-#endif
 
 typedef struct {
 	struct gclient_s	*clients;		// [maxclients]
