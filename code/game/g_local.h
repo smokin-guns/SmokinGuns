@@ -223,7 +223,7 @@ struct gentity_s {
 	//new properties
 	int			mappart;
 	int			mapparttime;
-	char		mappartname[64];
+	char		*mappartname;
 
 	//roundtime sent to client?
 	qboolean	roundtime_received;
@@ -1124,7 +1124,8 @@ typedef struct clientmappart_s {
 } clientmappart_t;
 
 // duel
-extern	char		intermission_names[MAX_MAPPARTS][20];
+#define MAX_MAPPARTS_NAME_LENGTH 20
+extern	char		intermission_names[MAX_MAPPARTS][MAX_MAPPARTS_NAME_LENGTH];
 extern	int			du_nextroundstart;
 extern	int			du_introend;
 extern	int			du_setuptime;

@@ -413,9 +413,6 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
 	byte	*b;
 	float	v;
 	vec3_t	vec;
-#ifdef SMOKINGUNS
-	char	string[64];
-#endif
 
 	for ( f=fields ; f->name ; f++ ) {
 		if ( !Q_stricmp(f->name, key) ) {
@@ -425,14 +422,6 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
 			switch( f->type ) {
 			case F_LSTRING:
 				*(char **)(b+f->ofs) = G_NewString (value);
-#ifdef SMOKINGUNS
-				strcpy(string, G_NewString(value));
-
-				if(!Q_stricmp(key, "name")){
-					strcpy(intermission_names[ent->mappart-1], string);
-				}
-#endif
-
 				break;
 			case F_VECTOR:
 				sscanf (value, "%f %f %f", &vec[0], &vec[1], &vec[2]);

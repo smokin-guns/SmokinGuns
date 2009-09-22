@@ -796,6 +796,13 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		for(i = 0; i < MAX_GENTITIES; i++){
 			if(g_entities[i].mappart && !Q_stricmp(g_entities[i].classname, "info_player_intermission")){
 				g_maxmapparts++;
+				// Tequila comment: Read the intermission name from here now
+				if (g_entities[i].mappartname[0] && g_entities[i].mappart > 0 && g_entities[i].mappart<=MAX_MAPPARTS) {
+					Q_strncpyz(intermission_names[g_entities[i].mappart-1], g_entities[i].mappartname, MAX_MAPPARTS_NAME_LENGTH);
+					G_Printf("Loaded mappart %i: '%s'\n", g_entities[i].mappart, g_entities[i].mappartname);
+				} else {
+					G_Printf("Loaded mappart %i without mappart name\n", g_entities[i].mappart);
+				}
 			}
 		}
 		if(!g_maxmapparts){
@@ -2637,7 +2644,7 @@ int			du_spawnlist[MAX_CLIENTS];
 qboolean	du_validround;
 int			du_nextroundstart;
 int			du_introend;
-char		intermission_names[MAX_MAPPARTS][20];
+char		intermission_names[MAX_MAPPARTS][MAX_MAPPARTS_NAME_LENGTH];
 int			du_winnercount;
 vec3_t		du_introangles[MAX_CLIENTS];
 qboolean	du_vs_message;
