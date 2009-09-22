@@ -713,7 +713,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 #ifdef SMOKINGUNS
 	trap_GetServerinfo( serverinfo, sizeof(serverinfo) );
-	strncpy(map, Info_ValueForKey( serverinfo, "mapname" ), sizeof(map));
+	Q_strncpyz(map, Info_ValueForKey( serverinfo, "mapname" ), sizeof(map));
 
 	//check if there is a known prefix
 	prefix_gametype = BG_MapPrefix(map, g_gametype.integer);
