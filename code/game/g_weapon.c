@@ -594,7 +594,7 @@ pistolfire:
 			VectorNormalize(dir);
 
 			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH );
-			tent->s.eventParm = traceEnt->s.number;
+			tent->s.otherEntityNum = traceEnt->s.number;
 			tent->s.eventParm = DirToByte( dir );
 
 			G_Damage( traceEnt, ent, ent, forward, tr.endpos,
