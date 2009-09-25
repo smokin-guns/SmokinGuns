@@ -1383,7 +1383,6 @@ qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTim
 
 #ifdef SMOKINGUNS
 int BG_AnimLength( int anim, int weapon);
-void BG_SurfaceFlags2Prefix(int surfaceFlags, char	*prefix);
 #endif
 
 #define ARENAS_PER_TIER		4
@@ -1568,8 +1567,6 @@ void BG_DirsToEntityState(entityState_t *es, vec3_t bottledirs[ALC_COUNT]);
 void BG_EntityStateToDirs(entityState_t *es, vec3_t bottledirs[ALC_COUNT]);
 
 qboolean CheckPistols(playerState_t *ps, int *weapon);
-void Com_PrintfVector(vec3_t vec);
-void Com_PrintfVectorInt(int vec[3]);
 int BG_MapPrefix(char *map, int gametype);
 
 extern vec3_t	playerMins;
