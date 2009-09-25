@@ -2141,13 +2141,17 @@ void ClientSpawn(gentity_t *ent) {
 	// positively link the client, even if the command times are weird
 #ifndef SMOKINGUNS
 	if ( ent->client->sess.sessionTeam != TEAM_SPECTATOR ) {
-#else
-	if ( ent->client->sess.sessionTeam < TEAM_SPECTATOR) {
-#endif
 		BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
 		VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
 		trap_LinkEntity( ent );
 	}
+#else
+	if ( ent->client->sess.sessionTeam < TEAM_SPECTATOR) {
+		BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
+		VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
+		trap_LinkEntity( ent );
+	}
+#endif
 
 #ifdef SMOKINGUNS
 	client->player_died = qtrue;
