@@ -31,9 +31,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 vec3_t	playerMins = {-14, -14, MINS_Z};
 vec3_t	playerMaxs = {14, 14, MAXS_Z};
 
-vec3_t	playerMins_hit = {-25, -25, MINS_Z};
-vec3_t	playerMaxs_hit = {25, 25, MAXS_Z_HIT};
-
 vec3_t gatling_mins = {-3, -3, 0.0};
 vec3_t gatling_maxs = {3, 3, 35};
 // Tequila comment: mins2/max2 are now used to check player is not trying to
