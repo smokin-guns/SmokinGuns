@@ -29,18 +29,45 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifndef SMOKINGUNS
 static	float	s_quadFactor;
-#endif
 static	vec3_t	forward, right, up;
 static	vec3_t	muzzle;
-#ifdef SMOKINGUNS
-static	vec3_t	endpos; // used for shoot thru walls code
-static	qboolean shootthru;
-#endif
-
-#ifndef SMOKINGUNS
 #define NUM_NAILSHOTS 15
 #else
-#define NUM_NAILSHOTS 10
+static	vec3_t	forward, right, up;
+static	vec3_t	muzzle;
+static	vec3_t	endpos; // used for shoot thru walls code
+static	qboolean shootthru;
+
+#ifndef NDEBUG
+static void CheckEntityBug(const char* functag,gentity_t *ent) {
+	int i;
+	gentity_t *t;
+
+	// Tequila comment:
+	// A workaround was put in weapons API in previous release (< SG 1.1 rev 301)
+	// as some entities was not linked in the world for some reason
+	// We now keep this in DEBUG build only to show them when debugging
+	// and we want now to fix the related bug: why is an entity not linked if it's not normal ?
+	for(i=0; i<MAX_CLIENTS; i++){
+
+		if(level.clients[i].pers.connected != CON_CONNECTED)
+			continue;
+
+		if(level.clients[i].sess.sessionTeam >= TEAM_SPECTATOR)
+			continue;
+
+		t = &g_entities[i];
+
+		if (t->r.linked) continue;
+
+		G_Printf( S_COLOR_MAGENTA "%s, Entity BUG: " S_COLOR_YELLOW, functag);
+		if (t->client)
+			Com_Error(ERR_FATAL, "Client #%i not linked (netname='%s')\n", i, t->client->pers.netname);
+		else
+			Com_Error(ERR_FATAL, "Entity #%i not linked (classname='%s')\n", i, t->classname);
+	}
+}
+#endif
 #endif
 
 /*
@@ -155,7 +182,6 @@ qboolean CheckKnifeAttack( gentity_t *ent ) {
 	int			damage = bg_weaponlist[WP_KNIFE].damage;
 	vec3_t		mins,maxs;
 	int shaderNum;
-	int i;
 	usercmd_t *ucmd;
 
 	if(ent->client->ps.stats[STAT_FLAGS] & SF_WP_CHOOSE){
@@ -181,20 +207,10 @@ qboolean CheckKnifeAttack( gentity_t *ent ) {
 
 	VectorMA (muzzle, 10, forward, end);
 
-	// don't know, but this has to be donw
-	for(i=0; i<MAX_CLIENTS; i++){
-		gentity_t *t;
+#ifndef NDEBUG
+	CheckEntityBug("CheckKnifeAttack",ent);
+#endif
 
-		if(level.clients[i].pers.connected != CON_CONNECTED)
-			continue;
-
-		if(level.clients[i].sess.sessionTeam >= TEAM_SPECTATOR)
-			continue;
-
-		t = &g_entities[i];
-
-		trap_LinkEntity(t);
-	}
 	trap_Trace_New (&tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT);
 
 	traceEnt = &g_entities[ tr.entityNum ];
@@ -447,33 +463,18 @@ void Bullet_Fire (gentity_t *ent, float spread, float damage, const int weapon )
 	int			passent;
 	int			shaderNum, shaderNum2; //shaderNum2 used for shoot-thru
 	int			location;
-	vec3_t		minsback[MAX_CLIENTS], maxsback[MAX_CLIENTS];
-	int i, shootcount = 0;
+	int			shootcount = 0;
+
+#ifndef NDEBUG
+	CheckEntityBug("Bullet_Fire",ent);
+#endif
 
 //unlagged - backward reconciliation #2
 		// backward-reconcile the other clients
 		G_DoTimeShiftFor( ent );
 //unlagged - backward reconciliation #2
 
-	for(i=0; i<MAX_CLIENTS; i++){
-		gentity_t *t;
-
-		if(level.clients[i].pers.connected != CON_CONNECTED)
-			continue;
-
-		if(level.clients[i].sess.sessionTeam >= TEAM_SPECTATOR)
-			continue;
-
-		t = &g_entities[i];
-
-		VectorCopy(t->r.mins, minsback[i]);
-		VectorCopy(t->r.maxs, maxsback[i]);
-		VectorCopy(playerMins_hit, t->r.mins);
-		VectorCopy(playerMaxs_hit, t->r.maxs);
-		trap_LinkEntity(t);
-	}
-
-		//smoke puff
+	//smoke puff
 	if(weapon > WP_KNIFE &&
 		weapon < WP_WINCHESTER66){
 		tent2 = G_TempEntity( muzzle, EV_SMOKE );
@@ -530,6 +531,7 @@ pistolfire:
 			while(location == -1){
 				count++;
 
+				// Tequila: This case may be not reach anymore without enlarged hitbox
 				if(count >= 100){
 					G_Printf("Error: Too many traces\n");
 					G_Printf("Error: %.1f pistol pellet damage expected on entity %d (%s)\n",
@@ -670,22 +672,6 @@ wall:
 	}
 
 untimeshift:
-	for(i=0; i<MAX_CLIENTS; i++){
-		gentity_t *t;
-
-		if(level.clients[i].pers.connected != CON_CONNECTED)
-			continue;
-
-		if(level.clients[i].sess.sessionTeam >= TEAM_SPECTATOR)
-			continue;
-
-		t = &g_entities[i];
-
-		VectorCopy(minsback[i], t->r.mins);
-		VectorCopy(maxsback[i], t->r.maxs);
-		trap_LinkEntity(t);
-	}
-
 //unlagged - backward reconciliation #2
 		// put them back
 		G_UndoTimeShiftFor( ent );
@@ -1007,30 +993,15 @@ int ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, qbo
 	int			count = bg_weaponlist[ent->client->ps.weapon].count;
 	int			playerhitcount = 0;
 	gentity_t	*tent;
-	vec3_t		minsback[MAX_CLIENTS], maxsback[MAX_CLIENTS];
+
+#ifndef NDEBUG
+	CheckEntityBug("ShotgunPattern",ent);
+#endif
 
 //unlagged - backward reconciliation #2
 	// backward-reconcile the other clients
 	G_DoTimeShiftFor( ent );
 //unlagged - backward reconciliation #2
-
-	for(i=0; i<MAX_CLIENTS; i++){
-		gentity_t *t;
-
-		if(level.clients[i].pers.connected != CON_CONNECTED)
-			continue;
-
-		if(level.clients[i].sess.sessionTeam >= TEAM_SPECTATOR)
-			continue;
-
-		t = &g_entities[i];
-
-		VectorCopy(t->r.mins, minsback[i]);
-		VectorCopy(t->r.maxs, maxsback[i]);
-		VectorCopy(playerMins_hit, t->r.mins);
-		VectorCopy(playerMaxs_hit, t->r.maxs);
-		trap_LinkEntity(t);
-	}
 
 	if(altfire)
 		count *= 2;
@@ -1158,22 +1129,6 @@ int ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, qbo
 		tent->s.angles2[0] = ent->s.angles2[0];
 		tent->s.angles2[1] = ent->s.angles2[1];
 		tent->s.angles2[2] = ent->s.angles2[2];
-	}
-
-	for(i=0; i<MAX_CLIENTS; i++){
-		gentity_t *t;
-
-		if(level.clients[i].pers.connected != CON_CONNECTED)
-			continue;
-
-		if(level.clients[i].sess.sessionTeam >= TEAM_SPECTATOR)
-			continue;
-
-		t = &g_entities[i];
-
-		VectorCopy(minsback[i], t->r.mins);
-		VectorCopy(maxsback[i], t->r.maxs);
-		trap_LinkEntity(t);
 	}
 
 //unlagged - backward reconciliation #2

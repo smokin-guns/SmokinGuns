@@ -139,7 +139,8 @@ by Spoon
 
 #define	MINS_Z				-24
 #ifdef SMOKINGUNS
-#define MAXS_Z_HIT			38
+// Tequila: maxs bbox will be added on Z axis with this for the hit detection system
+#define MAXS_Z_BBOX_UPDATE	10
 #define MAXS_Z				28
 #endif
 #define	DEFAULT_VIEWHEIGHT	26
@@ -1571,9 +1572,6 @@ int BG_MapPrefix(char *map, int gametype);
 
 extern vec3_t	playerMins;
 extern vec3_t	playerMaxs;
-
-extern vec3_t	playerMins_hit;
-extern vec3_t	playerMaxs_hit;
 
 extern vec3_t gatling_mins;
 extern vec3_t gatling_maxs;
