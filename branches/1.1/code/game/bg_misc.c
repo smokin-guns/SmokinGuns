@@ -3225,17 +3225,6 @@ qboolean BG_ShootThruWall( float *damage,
 	return qfalse;
 }
 
-void BG_SurfaceFlags2Prefix(int surfaceFlags, char	*prefix){
-	int i;
-
-	for(i=0;i<NUM_PREFIXINFO;i++){
-		if(surfaceFlags & prefixInfo[i].surfaceFlags){
-			strcpy(prefix, prefixInfo[i].name);
-			break;
-		}
-	}
-}
-
 void BG_StringRead(char *destination, char *source, int size) {
 	int i;
 
@@ -3357,15 +3346,6 @@ qboolean CheckPistols(playerState_t *ps, int *weapon){
 		}
 	}
 	return qfalse;
-}
-
-// I often want to check the vectors ingame, so i need this, works faster
-void Com_PrintfVector(vec3_t vec){
-	Com_Printf("%f, %f, %f\n", vec[0], vec[1], vec[2]);
-}
-
-void Com_PrintfVectorInt(int vec[3]){
-	Com_Printf("%i, %i, %i\n", vec[0], vec[1], vec[2]);
 }
 
 void BG_SetWhiskeyDrop(trajectory_t *tr, vec3_t org, vec3_t normal, vec3_t dir){
