@@ -2868,6 +2868,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 CG_LightVerts
 =================
 */
+#ifndef SMOKINGUNS
 int CG_LightVerts( vec3_t normal, int numVerts, polyVert_t *verts )
 {
 	int				i, j;
@@ -2909,6 +2910,7 @@ int CG_LightVerts( vec3_t normal, int numVerts, polyVert_t *verts )
 	}
 	return qtrue;
 }
+#endif
 
 /*
 ===============

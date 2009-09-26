@@ -285,8 +285,6 @@ int	trap_CM_TransformedBoxTrace_New( trace_t *results, const vec3_t start, const
 int	trap_CM_BoxTrace_New( trace_t *results, const vec3_t start, const vec3_t end,
 						  const vec3_t mins, const vec3_t maxs,
 						  clipHandle_t model, int brushmask );
-//unused q3-function
-//int CG_LightVerts( const vec3_t normal, int numVerts, polyVert_t *verts );
 
 //enables/disables hit-data-calculation on client
 //#define	HIT_DATA
