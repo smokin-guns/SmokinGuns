@@ -835,6 +835,9 @@ typedef enum {
 	EV_DEBUG_LINE,
 	EV_STOPLOOPINGSOUND,	// 115
 	EV_TAUNT,
+#ifndef NDEBUG
+	EV_DEBUG_BULLET,
+#endif
 	EV_NOTHING
 #endif
 

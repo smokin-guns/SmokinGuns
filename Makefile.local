@@ -162,3 +162,13 @@ SDK_Q3UIOBJ = \
   \
   $(B)/$(SDK_GAMENAME)/qcommon/q_math.o \
   $(B)/$(SDK_GAMENAME)/qcommon/q_shared.o
+
+#############################################################################
+## SMOKINGUNS DEVELOPER PAK
+#############################################################################
+
+SDK_DEVELOPER_PAK = sg_developer
+
+SDK_DEVELOPER_PAK_MEDIAS = \
+	scripts/debug.shader \
+	textures/developer/trace.jpg
