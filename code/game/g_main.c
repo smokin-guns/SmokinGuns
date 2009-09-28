@@ -124,6 +124,9 @@ vmCvar_t	g_inactivity;
 vmCvar_t	g_debugMove;
 vmCvar_t	g_debugDamage;
 vmCvar_t	g_debugAlloc;
+#if defined(SMOKINGUNS) && !defined(NDEBUG)
+vmCvar_t	g_debugWeapon;
+#endif
 vmCvar_t	g_weaponRespawn;
 vmCvar_t	g_weaponTeamRespawn;
 vmCvar_t	g_motd;
@@ -276,6 +279,9 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_inactivity, "g_inactivity", "0", 0, 0, qtrue },
 	{ &g_debugMove, "g_debugMove", "0", 0, 0, qfalse },
 	{ &g_debugDamage, "g_debugDamage", "0", 0, 0, qfalse },
+#if defined(SMOKINGUNS) && !defined(NDEBUG)
+	{ &g_debugWeapon, "g_debugWeapon", "0", 0, 0, qfalse },
+#endif
 	{ &g_debugAlloc, "g_debugAlloc", "0", 0, 0, qfalse },
 	{ &g_motd, "g_motd", "", 0, 0, qfalse },
 	{ &g_blood, "com_blood", "1", 0, 0, qfalse },

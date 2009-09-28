@@ -4365,4 +4365,59 @@ void CG_MakeSmokePuff(entityState_t *ent){
 		}
 	}
 }
+
+#ifndef NDEBUG
+void CG_BulletTracer( vec3_t start, vec3_t end, int number, int entityNum ) {
+	vec3_t forward;
+
+	localEntity_t *le;
+	refEntity_t   *re;
+
+	VectorSubtract( end, start, forward );
+	VectorNormalize( forward );
+
+	// Draw the trace line
+	le = CG_AllocLocalEntity();
+	re = &le->refEntity;
+
+	le->leType = LE_FADE_RGB;
+	le->startTime = cg.time;
+	le->endTime = cg.time + 30000 ;
+	le->lifeRate = 1.0 / (le->endTime - le->startTime);
+
+	re->shaderTime = cg.time / 1000.0f;
+	re->reType = RT_RAIL_CORE;
+	re->customShader = trap_R_RegisterShader( "weapon_trace" );
+
+	VectorCopy(start, re->origin);
+	VectorCopy(end, re->oldorigin);
+
+	re->shaderRGBA[0] = 0;
+	re->shaderRGBA[1] = 0;
+	re->shaderRGBA[2] = 255;
+	re->shaderRGBA[3] = 128;
+
+	le->color[0] = 0.0f;
+	le->color[1] = 0.0f;
+	le->color[2] = 1.0f;
+	le->color[3] = 0.5f;
+
+	// Draw the trace number at the line begin
+	le = CG_AllocLocalEntity();
+	re = &le->refEntity;
+
+	le->leType = LE_SHOWREFENTITY;
+	le->startTime = cg.time;
+	le->endTime = cg.time + 30000 ;
+	le->lifeRate = 1.0 / (le->endTime - le->startTime);
+
+	re->reType = RT_SPRITE;
+	re->radius = 0.5f;
+	re->customShader = cgs.media.numberShaders[number%10];
+	le->pos.trType = TR_STATIONARY;
+
+	VectorCopy(start, re->origin);
+	re->origin[2] += 2 ;
+}
+#endif
 #endif

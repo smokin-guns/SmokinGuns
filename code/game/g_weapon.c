@@ -38,10 +38,67 @@ static	vec3_t	muzzle;
 static	vec3_t	endpos; // used for shoot thru walls code
 static	qboolean shootthru;
 
+/*
+=====================
+Weapon_Trace_Bullet
+by: Tequila
+Dedicated trace to simplify added trace debug in debug builds
+It is derivated from trap_Trace_New2
+======================
+*/
+#ifndef NDEBUG
+static int traceNumber = 0 ;
+static int skipNumber = 0 ;
+static void Weapon_Trace_ResetDebug(int passEntityNum) {
+	skipNumber = passEntityNum ;
+	traceNumber = 0;
+}
+#endif
+
+static int Weapon_Trace( trace_t *results, const vec3_t start, const vec3_t end, int passEntityNum ) {
+	int shaderNum;
+#ifndef NDEBUG
+	gentity_t *tent;
+	vec3_t origin;
+	VectorCopy(start,origin);
+#endif
+
+	// Here is the real trace
+	trap_Trace(results, start, NULL, NULL, end, passEntityNum, MASK_SHOT);
+
+#ifndef NDEBUG
+	// don't debug weapon trace if not debugging weapon
+	if (g_debugWeapon.integer) {
+		// Create Temporary entity to show the trace on the client side
+		tent = G_TempEntity( origin, EV_DEBUG_BULLET );
+		// Set trace origin
+		G_SetOrigin( tent, origin );
+		// Set trace end
+		VectorCopy( results->endpos, tent->s.origin2 );
+		// Set trace step number
+		tent->s.eventParm = traceNumber++;
+	}
+#endif
+
+	if((results->contents & CONTENTS_SOLID) || (results->contents & CONTENTS_PLAYERCLIP)){
+		// Spoon stuff to decompress surfaceFlags
+		shaderNum = results->surfaceFlags;
+		results->surfaceFlags = shaderInfo[shaderNum].surfaceFlags;
+	} else
+		shaderNum= -1;
+
+	return shaderNum;
+}
+
 #ifndef NDEBUG
 static void CheckEntityBug(const char* functag,gentity_t *ent) {
 	int i;
 	gentity_t *t;
+
+	// Don't check for entity bug if not debugging weapon
+	if (!g_debugWeapon.integer) {
+		return;
+	}
 
 	// Tequila comment:
 	// A workaround was put in weapons API in previous release (< SG 1.1 rev 301)
@@ -222,7 +279,7 @@ qboolean CheckKnifeAttack( gentity_t *ent ) {
 		// do another trace
 		CalcMuzzlePoint ( ent, forward, right, up, muzzle );
 		VectorMA (muzzle, 32, forward, end);
-		shaderNum = trap_Trace_New2 (&tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT);
+		shaderNum = Weapon_Trace( &tr, muzzle, end, ent->s.number );
 
 		traceEnt = &g_entities[ tr.entityNum ];
 
@@ -275,7 +332,7 @@ wall:
 
 		if(tr.contents & CONTENTS_SOLID && traceEnt->s.eType == ET_BREAKABLE &&
 			!(traceEnt->flags & FL_BREAKABLE_INIT)){
-			shaderNum = trap_Trace_New2 (&tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT);
+			shaderNum = Weapon_Trace( &tr, muzzle, end, ent->s.number );
 
 			if(tr.entityNum == traceEnt->s.number){
 				G_BreakablePrepare(traceEnt, shaderNum);
@@ -410,13 +467,7 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage ) {
 =================
 */
 float Modify_BulletDamage(float damage, int weapon, vec3_t start, vec3_t end){
-	float distance;
-	//X+Y-Axis
-	distance = sqrt((start[0]-end[0])*(start[0]-end[0]) +
-		(start[1]-end[1])*(start[1]-end[1]));
-	//Z-Axis
-	distance = sqrt(distance*distance + (start[2]-end[2])*
-		(start[2]-end[2]));
+	float distance = Distance(start,end);
 
 	if(distance > bg_weaponlist[weapon].range){
 		damage -= (1/sqrt(bg_weaponlist[weapon].range/distance))*2;
@@ -449,13 +500,9 @@ void G_BreakablePrepare(gentity_t *ent, int shaderNum){
 	ent->count = shaderNum;
 }
 
-#define MACHINEGUN_SPREAD	200
-#define	MACHINEGUN_DAMAGE	7
-#define	MACHINEGUN_TEAM_DAMAGE	7		// wimpier MG in teamplay
-
 void Bullet_Fire (gentity_t *ent, float spread, float damage, const int weapon ) {
 	trace_t		tr;
-	vec3_t		end;
+	vec3_t		end, tr_dir;
 	float		r;
 	float		u;
 	gentity_t	*tent = NULL, *tent2;
@@ -467,6 +514,9 @@ void Bullet_Fire (gentity_t *ent, float spread, float damage, const int weapon )
 
 #ifndef NDEBUG
 	CheckEntityBug("Bullet_Fire",ent);
+
+	// Reset trace counter
+	Weapon_Trace_ResetDebug(ent->s.number);
 #endif
 
 //unlagged - backward reconciliation #2
@@ -488,18 +538,21 @@ void Bullet_Fire (gentity_t *ent, float spread, float damage, const int weapon )
 	u = sin(r) * crandom() * spread * 16;
 	r = cos(r) * crandom() * spread * 16;
 
-pistolfire:
-	shootthru = qfalse;
+	// Calculate end only one time
 	VectorMA (muzzle, 8192*16, forward, end);
 	VectorMA (end, r, right, end);
 	VectorMA (end, u, up, end);
 
-	passent = ENTITYNUM_NONE;//you should be able to shoot your own missiles...
-	// unlink player for trace
+	// Keep the direction
+	VectorSubtract(end, muzzle, tr_dir);
+	VectorNormalize(tr_dir);
 
-	trap_UnlinkEntity(ent);
-	shaderNum = trap_Trace_New2(&tr, muzzle, NULL, NULL, end, passent, MASK_SHOT);
-	trap_LinkEntity(ent);
+	passent = ENTITYNUM_NONE;//you should be able to shoot your own missiles...
+
+pistolfire:
+	shootthru = qfalse;
+
+	shaderNum = Weapon_Trace(&tr, muzzle, end, passent);
 
 	//check if water was hit
 	// check done in cgame now G_WaterWasHit(muzzle, end, passent);
@@ -509,10 +562,29 @@ pistolfire:
         goto untimeshift;
 	}
 
+	// Tequila: Really don't shoot ourself
+	if ( tr.entityNum == ent->s.number ) {
+		if (++shootcount>10){
+#ifndef NDEBUG
+			G_Printf( S_COLOR_RED "Bullet_Fire: " S_COLOR_YELLOW
+				"Trace DEBUG: Shooting only through #%i (netname='%s') !!!\n",
+				ent->s.number, ent->client->pers.netname);
+#endif
+				goto untimeshift;
+		}
+		// Advance a little
+		VectorAdd (tr.endpos, tr_dir, muzzle);
+		goto pistolfire;
+	}
+
 	traceEnt = &g_entities[ tr.entityNum ];
 
 	if ( traceEnt->takedamage){
 		damage = Modify_BulletDamage(damage, weapon, ent->r.currentOrigin, tr.endpos);
+
+		if (!damage) {
+			goto untimeshift;
+		}
 
 		//check if type is breakable
 		G_BreakablePrepare(traceEnt, shaderNum);
@@ -546,11 +618,7 @@ pistolfire:
 				}
 
 				//do another trace
-				VectorMA (tr.endpos, 8192*16, forward, end);
-				VectorMA (end, r, right, end);
-				VectorMA (end, u, up, end);
-
-				shaderNum = trap_Trace_New2(&tr, tr.endpos, NULL, NULL, end, tr.entityNum, MASK_SHOT);
+				shaderNum = Weapon_Trace(&tr, tr.endpos, end, tr.entityNum);
 
 				damage = Modify_BulletDamage(damage, weapon, ent->r.currentOrigin, tr.endpos);
 
@@ -664,11 +732,15 @@ wall:
 	}
 
 	if(shootthru){
-		shootcount++;
-		if(shootcount < 10){
+		if(++shootcount < 10){
 			VectorCopy(endpos, muzzle);
+			passent = tr.entityNum;
 			goto pistolfire;
 		}
+#ifndef NDEBUG
+		G_Printf( S_COLOR_RED "Bullet_Fire: " S_COLOR_YELLOW
+			"Trace DEBUG: Max shoot count reached\n");
+#endif
 	}
 
 untimeshift:
@@ -770,13 +842,13 @@ qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
 	return qfalse;
 }
 #else
-qboolean ShotgunPellet( float r, float u, vec3_t start, vec3_t end, gentity_t *ent) {
+qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent) {
 	trace_t		tr;
 	float		damage = bg_weaponlist[ent->client->ps.weapon].damage;
 	int			passent;
 	gentity_t	*traceEnt;
 	gentity_t	*tent;
-	vec3_t		tr_start, tr_end;
+	vec3_t		tr_start, tr_end, tr_dir;
 	int			shaderNum;
 	int			shootcount = 0;
 
@@ -784,10 +856,34 @@ qboolean ShotgunPellet( float r, float u, vec3_t start, vec3_t end, gentity_t *e
 	VectorCopy( start, tr_start );
 	VectorCopy( end, tr_end );
 
+	// Keep normalized direction to advance when shooting ourself at trace beginning
+	VectorSubtract(tr_end, tr_start, tr_dir);
+	VectorNormalize(tr_dir);
+
+#ifndef NDEBUG
+	// Reset trace counter
+	Weapon_Trace_ResetDebug(ent->s.number);
+#endif
 shotgunfire:
 	shootthru = qfalse;
 
-	shaderNum = trap_Trace_New2 (&tr, tr_start, NULL, NULL, tr_end, passent, MASK_SHOT);
+	shaderNum = Weapon_Trace(&tr, tr_start, tr_end, passent);
+
+	// Tequila: Really don't shoot ourself
+	if ( tr.entityNum == ent->s.number ) {
+		if (++shootcount>10){
+#ifndef NDEBUG
+			G_Printf( S_COLOR_MAGENTA "ShotgunPellet: " S_COLOR_YELLOW
+				"Trace DEBUG: Shooting only through #%i (netname='%s')\n",
+				ent->s.number, ent->client->pers.netname);
+#endif
+			return qfalse;
+		}
+		// Advance a little
+		VectorAdd(tr.endpos, tr_dir, tr_start);
+		goto shotgunfire;
+	}
+
 	traceEnt = &g_entities[ tr.entityNum ];
 
 	// send bullet impact
@@ -803,6 +899,10 @@ shotgunfire:
 		damage = Modify_BulletDamage(damage, ent->client->ps.weapon, ent->r.currentOrigin,
 			tr.endpos);
 
+		if (!damage) {
+			return qfalse;
+		}
+
 		damage = (damage+olddamage)/2;
 
 		//if it hit a player
@@ -816,9 +916,9 @@ shotgunfire:
 
 			// check as long a model was not hit or a wall was not hit
 			while(location == -1){
-				vec3_t	dir;
 				count++;
 
+				// Tequila: This case may be not reach anymore without enlarged hitbox
 				if(count >= 100){
 					G_Printf("Error: Too many traces\n");
 					G_Printf("Error: %.1f shotgun pellet damage expected on entity %d (%s)\n",
@@ -832,15 +932,9 @@ shotgunfire:
 						return qfalse;
 				}
 
-				VectorSubtract(tr_end, tr_start, dir);
-				VectorNormalize(dir);
-
-				//do another trace
-				VectorMA (tr.endpos, 8192*16, dir, tr_end);
-
 //				G_LogPrintf("shooting through a player\n");
 
-				shaderNum = trap_Trace_New2(&tr, tr.endpos, NULL, NULL, tr_end, tr.entityNum, MASK_SHOT);
+				shaderNum = Weapon_Trace(&tr, tr.endpos, tr_end, tr.entityNum);
 
 				damage = Modify_BulletDamage(damage, ent->client->ps.weapon, ent->r.currentOrigin, tr.endpos);
 
@@ -936,14 +1030,17 @@ wall:
 
 		if(shootthru){
 //			G_LogPrintf("shooting thru wall\n");
-			VectorCopy(endpos, tr_start);
-			VectorMA( tr_start, 8192 * 16, forward, tr_end);
-			VectorMA (tr_end, r, right, tr_end);
-			VectorMA (tr_end, u, up, tr_end);
 
-			shootcount++;
-			if(shootcount < 10)
+			if(++shootcount < 10) {
+				VectorCopy(endpos, tr_start);
+				passent = tr.entityNum;
 				goto shotgunfire;
+			}
+#ifndef NDEBUG
+			// Tequila: Show this case just in case it happens too often
+			G_Printf( S_COLOR_RED "ShotgunPellet: " S_COLOR_YELLOW
+				"Trace DEBUG: Max shoot count reached\n");
+#endif
 		}
 	}
 	return qfalse;
@@ -983,11 +1080,11 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent ) {
 }
 #else
 int ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, qboolean altfire ) {
-	int		i;
+	int			i;
 	float		r, u;
-	float           spread_dist , spread_angle , angle_shift , current_angle_shift ;
-	float           max_spread_circle , current_spread_circle , extra_circle ;
-	int             current_spread_cell , pellet_per_circle , extra_center_pellet , current_pellet_per_circle ;
+	float		spread_dist , spread_angle , angle_shift , current_angle_shift ;
+	float		max_spread_circle , current_spread_circle , extra_circle ;
+	int			current_spread_cell , pellet_per_circle , extra_center_pellet , current_pellet_per_circle ;
 	vec3_t		end;
 	vec3_t		forward, right, up;
 	int			count = bg_weaponlist[ent->client->ps.weapon].count;
@@ -1016,9 +1113,6 @@ int ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, qbo
 	for( i=0; i<3; i++){
 		ent->s.angles2[i] = -1;
 	}
-
-	// unlink player first
-	trap_UnlinkEntity(ent);
 	
 	if ( g_newShotgunPattern.integer ) {
 		
@@ -1082,7 +1176,7 @@ int ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, qbo
 			VectorMA (end, u, up, end);
 
 
-			if( ShotgunPellet( r, u, origin, end, ent)){
+			if( ShotgunPellet( origin, end, ent)){
 				if((i+1) < 16)
 					playerhitcount |= (1 << (i+1));
 			}
@@ -1101,16 +1195,13 @@ int ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, qbo
 			VectorMA (end, r, right, end);
 			VectorMA (end, u, up, end);
 			
-			if( ShotgunPellet( r, u, origin, end, ent)){
+			if( ShotgunPellet( origin, end, ent)){
 				if((i+1) < 16)
 					playerhitcount |= (1 << (i+1));
 			}
 		
 		}
 	}
-	
-	
-	trap_LinkEntity(ent);
 
 	if(ent->s.angles2[0] != -1 &&
 		(ent->s.eFlags & EF_HIT_MESSAGE)){
