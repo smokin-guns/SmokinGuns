@@ -2335,6 +2335,9 @@ copyfiles: release
 
 copyfiles-debug: debug
 	@$(MAKE) copyfiles2 B=$(BD) NO_STRIP=1
+	cd misc/media ; zip -0Xv ../../$(BD)/$(SDK_GAMENAME)/$(SDK_DEVELOPER_PAK).pk3 $(SDK_DEVELOPER_PAK_MEDIAS)
+	$(INSTALL) -m 0644 $(BD)/$(SDK_GAMENAME)/$(SDK_DEVELOPER_PAK).pk3 \
+					$(COPYDIR)/$(SDK_GAMENAME)/.
 
 copyfiles2:
 ifndef SDK_GAMENAME

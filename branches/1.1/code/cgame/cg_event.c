@@ -1946,6 +1946,13 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		break;
 
 #ifdef SMOKINGUNS
+#ifndef NDEBUG
+	case EV_DEBUG_BULLET:
+		DEBUGNAME("EV_DEBUG_BULLET");
+		CG_BulletTracer( es->pos.trBase, es->origin2, es->eventParm, es->otherEntityNum );
+		break;
+#endif
+
 	case EV_NOTHING:
 		DEBUGNAME("EV_NOTHING");
 		CG_Printf("who called that event 77?\n");
