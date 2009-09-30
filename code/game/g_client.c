@@ -1229,6 +1229,46 @@ void ClientUserinfoChanged( int clientNum ) {
 	}
 
 	if ( client->pers.connected == CON_CONNECTED ) {
+#ifdef SMOKINGUNS
+		// Add some checks but only if oldname and netname are defined
+		if ( oldname[0] && client->pers.netname[0] && client->sess.spectatorState != SPECTATOR_SCOREBOARD ) {
+			// Tequila: Handle case player has set an empty name (see ClientCleanName)
+			if ( !strcmp("UnnamedPlayer",client->pers.netname) ) {
+				// Replace it to be clientNum related thanks to colors, so easier to recognize and kick if needed
+				Q_strncpyz( client->pers.netname, va("^%iUnnamed^%iPlayer^7",clientNum%10+1,clientNum/10+1), sizeof( client->pers.netname ) );
+			}
+			// Tequila: Check if a vote is in progress
+			if ( level.voteTime || level.voteExecuteTime ) {
+				// Check if client tries to change his name to avoid to be kicked
+				if ( !strcmp( va("kick \"%s\"", oldname), level.voteString ) ) {
+					// Then just replace the voteString to better use clientkick command
+					Com_sprintf( level.voteString, sizeof( level.voteString ), "clientkick %i", clientNum );
+					// So it gives him a chance to not be kicked if they don't want to
+					G_LogPrintf( S_COLOR_BLUE "ClientUserinfoChanged: Replaced voteString by \"%s\"\n",level.voteString);
+				}
+				// Check if a stupid client wants to take the name to be kicked
+				if ( !strcmp( va("kick \"%s\"", client->pers.netname), level.voteString ) ) {
+					// Will reset his name to the previous one
+					client->pers.teamState.lastreturnedflag = level.time;
+				}
+			}
+			// Tequila: Cancel renaming to don't flood clients if a client tries to change his name too often
+			// as this is more probably to cheat...
+			if (level.time-client->pers.teamState.lastreturnedflag<60000) {
+				G_LogPrintf( S_COLOR_BLUE "ClientUserinfoChanged: Discarded \"%s" S_COLOR_WHITE
+					"\" renaming to \"%s" S_COLOR_WHITE "\"\n",oldname,client->pers.netname);
+				Q_strncpyz ( client->pers.netname, oldname, sizeof( client->pers.netname ) );
+				trap_SendServerCommand( clientNum, va("print \"Renaming discarded, %s" S_COLOR_WHITE "...\"\n",
+					client->pers.netname) );
+				trap_SendServerCommand( clientNum, "cp \"Try again later !!!\"" );
+			}
+			// Use an unused teamState integer to store when last renaming occured
+			client->pers.teamState.lastreturnedflag = level.time;
+		}
+		// Tequila: Synchronize anyway the netname with the server known name, so kick stuff will really work with name...
+		Info_SetValueForKey(userinfo, "name", client->pers.netname);
+		trap_SetUserinfo( clientNum, userinfo);
+#endif
 		if ( strcmp( oldname, client->pers.netname ) ) {
 			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname,
 				client->pers.netname) );
