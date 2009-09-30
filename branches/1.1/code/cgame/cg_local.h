@@ -333,8 +333,8 @@ typedef enum {
 	LE_FALL_SCALE_FADE,
 	LE_FADE_RGB,
 	LE_SCALE_FADE,
-	LE_SCOREPLUM,
 #ifndef SMOKINGUNS
+	LE_SCOREPLUM,
 	LE_KAMIKAZE,
 	LE_INVULIMPACT,
 	LE_INVULJUICED,
@@ -1714,10 +1714,10 @@ extern	vmCvar_t		cg_drawFriend;
 extern	vmCvar_t		cg_teamChatsOnly;
 extern	vmCvar_t		cg_noVoiceChats;
 extern	vmCvar_t		cg_noVoiceText;
+#ifndef SMOKINGUNS
 extern  vmCvar_t		cg_scorePlum;
 //unlagged - smooth clients #2
 // this is done server-side now
-#ifndef SMOKINGUNS
 extern	vmCvar_t		cg_smoothClients;
 #endif
 //unlagged - smooth clients #2
@@ -2143,8 +2143,8 @@ void CG_ObeliskPain( vec3_t org );
 void CG_InvulnerabilityImpact( vec3_t org, vec3_t angles );
 void CG_InvulnerabilityJuiced( vec3_t org );
 void CG_LightningBoltBeam( vec3_t start, vec3_t end );
-#endif
 void CG_ScorePlum( int client, vec3_t org, int score );
+#endif
 
 void CG_GibPlayer( vec3_t playerOrigin );
 void CG_BigExplode( vec3_t playerOrigin );
