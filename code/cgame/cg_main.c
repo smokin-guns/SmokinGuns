@@ -179,9 +179,7 @@ vmCvar_t	cg_noVoiceChats;
 vmCvar_t	cg_noVoiceText;
 #ifndef SMOKINGUNS
 vmCvar_t	cg_hudFiles;
-#endif
 vmCvar_t 	cg_scorePlum;
-#ifndef SMOKINGUNS
 vmCvar_t 	cg_smoothClients;
 #endif
 vmCvar_t	pmove_fixed;
@@ -446,8 +444,8 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_timescaleFadeEnd, "cg_timescaleFadeEnd", "1", 0},
 	{ &cg_timescaleFadeSpeed, "cg_timescaleFadeSpeed", "0", 0},
 	{ &cg_timescale, "timescale", "1", 0},
-	{ &cg_scorePlum, "cg_scorePlums", "1", CVAR_USERINFO | CVAR_ARCHIVE},
 #ifndef SMOKINGUNS
+	{ &cg_scorePlum, "cg_scorePlums", "1", CVAR_USERINFO | CVAR_ARCHIVE},
 	{ &cg_smoothClients, "cg_smoothClients", "0", CVAR_USERINFO | CVAR_ARCHIVE},
 #endif
 	{ &cg_cameraMode, "com_cameraMode", "0", CVAR_CHEAT},

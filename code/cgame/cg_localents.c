@@ -1277,6 +1277,7 @@ void CG_AddRefEntity( localEntity_t *le ) {
 CG_AddScorePlum
 ===================
 */
+#ifndef SMOKINGUNS
 #define NUMBER_SIZE		8
 
 void CG_AddScorePlum( localEntity_t *le ) {
@@ -1357,6 +1358,7 @@ void CG_AddScorePlum( localEntity_t *le ) {
 		trap_R_AddRefEntityToScene( re );
 	}
 }
+#endif
 
 
 
@@ -1426,13 +1428,10 @@ void CG_AddLocalEntities( void ) {
 			CG_AddScaleFade( le );
 			break;
 
+#ifndef SMOKINGUNS
 		case LE_SCOREPLUM:
-#ifndef SMOKINGUNS
 			CG_AddScorePlum( le );
-#endif
 			break;
-
-#ifndef SMOKINGUNS
 		case LE_KAMIKAZE:
 			CG_AddKamikaze( le );
 			break;
