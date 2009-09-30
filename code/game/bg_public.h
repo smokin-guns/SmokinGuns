@@ -808,9 +808,9 @@ typedef enum {
 	EV_POWERUP_REGEN,
 
 	EV_GIB_PLAYER,			// gib a previously living player
+#ifndef SMOKINGUNS
 	EV_SCOREPLUM,			// score plum
 
-#ifndef SMOKINGUNS
 //#ifdef MISSIONPACK
 	EV_PROXIMITY_MINE_STICK,
 	EV_PROXIMITY_MINE_TRIGGER,

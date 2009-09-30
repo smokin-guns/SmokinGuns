@@ -381,7 +381,6 @@ void CG_InvulnerabilityJuiced( vec3_t org ) {
 	trap_S_StartSound (org, ENTITYNUM_NONE, CHAN_BODY, cgs.media.invulnerabilityJuicedSound );
 }
 
-#endif
 
 /*
 ==================
@@ -427,7 +426,7 @@ void CG_ScorePlum( int client, vec3_t org, int score ) {
 	VectorClear(angles);
 	AnglesToAxis( angles, re->axis );
 }
-
+#endif
 
 /*
 ====================

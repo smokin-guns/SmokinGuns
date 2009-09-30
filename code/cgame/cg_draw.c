@@ -1416,9 +1416,6 @@ static float CG_DrawStatusEntities( float y ) {
 				case LE_SCALE_FADE:		// rocket trails
 					s_leType = "LE_SCALE_FADE";
 					break;
-				case LE_SCOREPLUM:
-					s_leType = "LE_SCOREPLUM";
-					break;
 				}
 
 				if (s_leType != NULL) {

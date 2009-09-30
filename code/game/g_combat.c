@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ScorePlum
 ============
 */
+#ifndef SMOKINGUNS
 void ScorePlum( gentity_t *ent, vec3_t origin, int score ) {
 	gentity_t *plum;
 
@@ -43,6 +44,7 @@ void ScorePlum( gentity_t *ent, vec3_t origin, int score ) {
 	plum->s.otherEntityNum = ent->s.number;
 	plum->s.time = score;
 }
+#endif
 
 /*
 ============
@@ -59,8 +61,10 @@ void AddScore( gentity_t *ent, vec3_t origin, int score ) {
 	if ( level.warmupTime ) {
 		return;
 	}
+#ifndef SMOKINGUNS
 	// show score plum
 	ScorePlum(ent, origin, score);
+#endif
 	//
 	ent->client->ps.persistant[PERS_SCORE] += score;
 	if ( g_gametype.integer == GT_TEAM )

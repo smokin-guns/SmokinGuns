@@ -1489,16 +1489,15 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		DEBUGNAME("EV_LIGHTNINGBOLT");
 		CG_LightningBoltBeam(es->origin2, es->pos.trBase);
 		break;
-#endif
 	case EV_SCOREPLUM:
 		DEBUGNAME("EV_SCOREPLUM");
 		CG_ScorePlum( cent->currentState.otherEntityNum, cent->lerpOrigin, cent->currentState.time );
 		break;
+#else
 
 	//
 	// missile impacts
 	//
-#ifdef SMOKINGUNS
 	case EV_WHISKEY_BURNS:
 		ByteToDir(es->eventParm, dir);
 		CG_CreateFire(position, dir);
