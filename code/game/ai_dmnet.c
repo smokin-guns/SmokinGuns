@@ -2323,7 +2323,12 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 	//
 	BotClearPath(bs, &moveresult);
 	// if the bot has to shoot to activate
+#ifndef SMOKINGUNS
 	if (bs->activatestack->shoot) {
+#else
+	// Tequila: Avoid using a NULL pointer as activatestack may have been clear in modified BotClearPath() API
+	if (bs->activatestack && bs->activatestack->shoot) {
+#endif
 		// if the view angles aren't yet used for the movement
 		if (!(moveresult.flags & MOVERESULT_MOVEMENTVIEW)) {
 			VectorSubtract(bs->activatestack->target, bs->eye, dir);
@@ -2463,9 +2468,8 @@ int AINode_Seek_NBG(bot_state_t *bs) {
 	if (!trap_BotGetTopGoal(bs->gs, &goal)) bs->nbg_time = 0;
 #else
 	if (!trap_BotGetTopGoal(bs->gs, &goal) && !(bs->flags & BFL_SEEK) &&
-	// Tequila comment: Fix bug when throwing dynamite against bots
-		goal.entitynum>=0 && goal.entitynum<MAX_GENTITIES && g_entities[goal.entitynum].classname &&
-		!strcmp("item_money", g_entities[goal.entitynum].classname))
+		goal.entitynum>=0 && goal.entitynum<MAX_GENTITIES &&
+		!Q_stricmp("item_money", g_entities[goal.entitynum].classname))
 		bs->nbg_time = 0;
 #endif
 	//if the bot touches the current goal
@@ -3480,7 +3484,7 @@ int AINode_Battle_NBG(bot_state_t *bs) {
 	else if (BotReachedGoal(bs, &goal)) {
 #else
 	if (!trap_BotGetTopGoal(bs->gs, &goal) && !(bs->flags & BFL_SEEK) &&
-		strcmp("item_money", g_entities[goal.entitynum].classname)
+		Q_stricmp("item_money", g_entities[goal.entitynum].classname)
 		/*&& (g_gametype.integer != GT_BR || !bs->cur_ps.persistant[PERS_ROBBER])*/) {
 		bs->nbg_time = 0;
 	//if the bot touches the current goal
@@ -3493,8 +3497,8 @@ int AINode_Battle_NBG(bot_state_t *bs) {
 	if (bs->nbg_time < FloatTime()) {
 #else
 	if (bs->nbg_time < FloatTime() && !override &&
-		strcmp("item_money", g_entities[goal.entitynum].classname)) {
-		// if bot is goin to the tresory
+		Q_stricmp("item_money", g_entities[goal.entitynum].classname)) {
+		// if bot is going to the tresory
 		if(bs->flags & BFL_SEEK){
 			AIEnter_Seek_NBG(bs, "battle retreat: NGB");
 			return qfalse;
