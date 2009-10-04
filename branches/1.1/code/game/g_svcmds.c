@@ -344,11 +344,6 @@ void	Svcmd_EntityList_f (void) {
 		case ET_MOVER:
 			G_Printf("ET_MOVER            ");
 			break;
-#ifdef SMOKINGUNS
-		case ET_BREAKABLE:
-			G_Printf("ET_BREAKABLE		  ");
-			break;
-#endif
 		case ET_BEAM:
 			G_Printf("ET_BEAM             ");
 			break;
@@ -367,9 +362,33 @@ void	Svcmd_EntityList_f (void) {
 		case ET_INVISIBLE:
 			G_Printf("ET_INVISIBLE        ");
 			break;
+#ifndef SMOKINGUNS
 		case ET_GRAPPLE:
 			G_Printf("ET_GRAPPLE          ");
 			break;
+#else
+		case ET_FLY:
+			G_Printf("ET_FLY              ");
+			break;
+		case ET_BREAKABLE:
+			G_Printf("ET_BREAKABLE        ");
+			break;
+		case ET_INTERMISSION:
+			G_Printf("ET_INTERMISSION     ");
+			break;
+		case ET_FLARE:
+			G_Printf("ET_FLARE            ");
+			break;
+		case ET_SMOKE:
+			G_Printf("ET_SMOKE            ");
+			break;
+		case ET_TURRET:
+			G_Printf("ET_TURRET           ");
+			break;
+		case ET_ESCAPE:
+			G_Printf("ET_ESCAPE           ");
+			break;
+#endif
 		default:
 			G_Printf("%3i                 ", check->s.eType);
 			break;
@@ -409,7 +428,12 @@ gclient_t	*ClientForString( const char *s ) {
 		if ( cl->pers.connected == CON_DISCONNECTED ) {
 			continue;
 		}
+#ifndef SMOKINGUNS
 		if ( !Q_stricmp( cl->pers.netname, s ) ) {
+#else
+		// Tequila: netname should match an unique name, so name can't be stolen
+		if ( !strcmp( cl->pers.netname, s ) ) {
+#endif
 			return cl;
 		}
 	}
@@ -442,6 +466,8 @@ void	Svcmd_ForceTeam_f( void ) {
 	SetTeam( &g_entities[cl - level.clients], str );
 }
 
+char	*ConcatArgs( int start );
+
 #ifdef SMOKINGUNS
 void Svcmd_KickBots_f(void){
 	int i;
@@ -455,9 +481,63 @@ void Svcmd_KickBots_f(void){
 		}
 	}
 }
-#endif
 
-char	*ConcatArgs( int start );
+/*
+===================
+Svcmd_BigText_f
+Tequila: BigText command suggested by villa
+[bigtext|cp] [-1|clientNumber|playername] <message>
+===================
+*/
+void Svcmd_BigText_f(void) {
+	gclient_t	*cl;
+	char		str[MAX_TOKEN_CHARS];
+
+	trap_Argv( 1, str, sizeof( str ) );
+	cl = ClientForString( str );
+
+	if ( cl ) {
+		trap_SendServerCommand( cl->ps.clientNum, va("cp \"%s\"", ConcatArgs(2) ) );
+	} else	if ( Q_stricmp ("-1", str) == 0 )
+		trap_SendServerCommand( -1, va("cp \"%s\"", ConcatArgs(2) ) );
+	else
+		trap_SendServerCommand( -1, va("cp \"%s\"", ConcatArgs(1) ) );
+}
+
+/*
+===================
+Svcmd_SendAway_f
+Tequila: Replacement for kick command from server engine with sendaway one
+*
+sendaway <playername>
+===================
+*/
+void Svcmd_SendAway_f(void) {
+	// find the player
+	gclient_t *cl = ClientForString( ConcatArgs(1) );
+	if ( cl )
+		trap_SendConsoleCommand( EXEC_INSERT, va("clientkick %i\n", cl->ps.clientNum) );
+	else
+		trap_SendServerCommand( -1, va("print \"Can't kick %s\"", ConcatArgs(1)) );
+}
+
+/*
+==================
+Svcmd_CancelVote_f
+Tequila: Admin tool to cancel a vote
+==================
+*/
+void Svcmd_CancelVote_f( void ) {
+	if ( !level.voteTime && !level.voteExecuteTime ) {
+		trap_SendServerCommand( -1, "print \"server: No vote to cancel.\"" );
+	} else {
+		level.voteExecuteTime = 0;
+		level.voteTime = 0;
+		trap_SetConfigstring( CS_VOTE_TIME, "" );
+		trap_SendServerCommand( -1, "print \"server: Vote cancelled.\"" );
+	}
+}
+#endif
 
 /*
 =================
@@ -529,15 +609,17 @@ qboolean	ConsoleCommand( void ) {
 		}
 #ifdef SMOKINGUNS
 		else if (Q_stricmp (cmd, "bigtext") == 0 || Q_stricmp (cmd, "cp") == 0) {
-			const char *arg = ConcatArgs(1);
-			if ( Q_strncmp ("-1", arg, strlen(arg)) == 0 )
-				trap_SendServerCommand( -1, va("cp \"%s\"", ConcatArgs(2) ) );
-			else if ( arg[0]<'0' || arg[0]>'9' )
-				trap_SendServerCommand( -1, va("cp \"%s\"", arg ) );
-			else if (ClientForString(arg)) {
-				int clientNum = atoi(arg);
-				trap_SendServerCommand( clientNum, va("cp \"%s\"", ConcatArgs(2) ) );
-			}
+			Svcmd_BigText_f();
+			return qtrue;
+
+		} else if (Q_stricmp (cmd, "sendaway") == 0) {
+			// Tequila: Replacement for kick command from server engine with sendaway one
+			Svcmd_SendAway_f();
+			return qtrue;
+
+		} else if (Q_stricmp (cmd, "cancelvote") == 0) {
+			// Tequila: New admin command to cancel a vote
+			Svcmd_CancelVote_f();
 			return qtrue;
 		}
 #endif

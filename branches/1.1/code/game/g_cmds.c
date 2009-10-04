@@ -1698,13 +1698,21 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		trap_SendServerCommand( ent-g_entities, "print \"A vote is already in progress.\n\"" );
 		return;
 	}
+#ifndef SMOKINGUNS
 	if ( ent->client->pers.voteCount >= MAX_VOTE_COUNT ) {
 		trap_SendServerCommand( ent-g_entities, "print \"You have called the maximum number of votes.\n\"" );
 		return;
 	}
-#ifndef SMOKINGUNS
 	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
 #else
+	// Tequila: g_allowVote can now be set to the number of seconds a player must wait between 2 votes
+	if ( level.time <= ent->client->pers.lastVoteTime + g_allowVote.integer * 1000 ) {
+		trap_SendServerCommand( ent-g_entities, va("print \"Only allowed to call a vote each %i seconds.\n\"",g_allowVote.integer) );
+		trap_SendServerCommand( ent-g_entities, va("cp \"Wait %i seconds...\n\"",
+			(ent->client->pers.lastVoteTime + g_allowVote.integer * 1000 - level.time)/1000 ) );
+		return;
+	}
+	ent->client->pers.lastVoteTime = level.time;
 	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR && (g_gametype.integer != GT_DUEL || ent->client->realspec)) {
 #endif
 		trap_SendServerCommand( ent-g_entities, "print \"Not allowed to call a vote as spectator.\n\"" );
@@ -1819,6 +1827,10 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		Com_sprintf( level.voteString, sizeof( level.voteString ), "vstr %s", token );
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "mapcycle %s", token);
 
+	} else if ( !Q_stricmp( arg1, "kick" ) ) {
+		// Tequila: Replace kick command by safer sendaway one and merging other arguments
+		Com_sprintf( level.voteString, sizeof( level.voteString ), "sendaway \"%s\"", ConcatArgs(2) );
+		Com_sprintf( level.voteDisplayString, sizeof( level.voteString ), "kick \"%s\"", ConcatArgs(2) );
 #endif
 	} else if ( !Q_stricmp( arg1, "nextmap" ) ) {
 		char	s[MAX_STRING_CHARS];
@@ -1836,6 +1848,11 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	}
 
 	trap_SendServerCommand( -1, va("print \"%s called a vote.\n\"", ent->client->pers.netname ) );
+
+#ifdef SMOKINGUNS
+	// Tequila: Log the callvote string
+	G_LogPrintf( "callvote: %s: %s\n", ent->client->pers.netname, level.voteString );
+#endif
 
 	// start the voting, the caller automatically votes yes
 	level.voteTime = level.time;
@@ -1923,13 +1940,21 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 		trap_SendServerCommand( ent-g_entities, "print \"A team vote is already in progress.\n\"" );
 		return;
 	}
+#ifndef SMOKINGUNS
 	if ( ent->client->pers.teamVoteCount >= MAX_VOTE_COUNT ) {
 		trap_SendServerCommand( ent-g_entities, "print \"You have called the maximum number of team votes.\n\"" );
 		return;
 	}
-#ifndef SMOKINGUNS
 	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
 #else
+	// Tequila: g_allowVote can now be set to the number of seconds a player must wait between 2 votes
+	if ( level.time <= ent->client->pers.lastVoteTime + g_allowVote.integer * 1000 ) {
+		trap_SendServerCommand( ent-g_entities, va("print \"Only allowed to call a vote each %i seconds.\n\"",g_allowVote.integer) );
+		trap_SendServerCommand( ent-g_entities, va("cp \"Wait %i seconds...\n\"",
+			(ent->client->pers.lastVoteTime + g_allowVote.integer * 1000 - level.time)/1000 ) );
+		return;
+	}
+	ent->client->pers.lastVoteTime = level.time;
 	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR && (g_gametype.integer != GT_DUEL || ent->client->realspec)) {
 #endif
 		trap_SendServerCommand( ent-g_entities, "print \"Not allowed to call a vote as spectator.\n\"" );

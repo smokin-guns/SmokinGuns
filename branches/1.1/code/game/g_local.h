@@ -318,8 +318,11 @@ typedef struct {
 	int			maxHealth;			// for handicapping
 	int			enterTime;			// level.time the client entered the game
 	playerTeamState_t teamState;	// status in teamplay games
+#ifndef SMOKINGUNS
+	// Tequila: Bugged stuff as it is not updated when voting
 	int			voteCount;			// to prevent people from constantly calling votes
 	int			teamVoteCount;		// to prevent people from constantly calling votes
+#endif
 	qboolean	teamInfo;			// send team overlay updates?
 #ifdef SMOKINGUNS
 //unlagged - client options
@@ -346,6 +349,12 @@ typedef struct {
 // Tequila: TeamKill management inspired by Conq patch
 	int			lastTeamKillTime;
 	int			TeamKillsCount;
+// Tequila: Help to handle the case players shouldn't rename themselves too often
+	int			lastRenameTime;
+// Tequila: Help to limit the callvote rate by player
+	int			lastVoteTime;
+// Tequila: Keep a cleanname as unique name, players shouldn't be able to have same cleanname
+	char		cleanname[MAX_NETNAME];
 #endif
 
 } clientPersistant_t;
