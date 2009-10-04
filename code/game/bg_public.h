@@ -1350,12 +1350,13 @@ typedef enum {
 	ET_PUSH_TRIGGER,
 	ET_TELEPORT_TRIGGER,
 	ET_INVISIBLE,
-#ifdef SMOKINGUNS
-	ET_FLY,
-#endif
+#ifndef SMOKINGUNS
 	ET_GRAPPLE,				// grapple hooked on wall
 	ET_TEAM,
-#ifdef SMOKINGUNS
+#else
+	// Entities list to be synchronized in code/g_svcmds.c, Svcmd_EntityList_f()
+	// and cgame/cg_draw.c, CG_DrawStatusEntities()
+	ET_FLY,
 	ET_BREAKABLE,
 	ET_INTERMISSION,	// need for duel (camera move), not anymore
 	ET_FLARE,

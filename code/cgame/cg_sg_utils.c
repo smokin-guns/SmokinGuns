@@ -1673,18 +1673,6 @@ static void CG_ColorByEntityType(int eType, byte colors[4]) {
 		colors[2] = 64;
 		colors[3] = 255;
 		break;
-	case ET_GRAPPLE:
-		colors[0] = 255;
-		colors[1] = 255;
-		colors[2] = 0;
-		colors[3] = 255;
-		break;
-	case ET_TEAM:
-		colors[0] = 192;
-		colors[1] = 192;
-		colors[2] = 0;
-		colors[3] = 255;
-		break;
 	case ET_BREAKABLE:
 		colors[0] = 128;
 		colors[1] = 128;

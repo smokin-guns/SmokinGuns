@@ -1465,13 +1465,11 @@ static void CG_AddCEntity( centity_t *cent ) {
 	case ET_SPEAKER:
 		CG_Speaker( cent );
 		break;
-	case ET_GRAPPLE:
 #ifndef SMOKINGUNS
+	case ET_GRAPPLE:
 		CG_Grapple( cent );
 		break;
-#endif
 	case ET_TEAM:
-#ifndef SMOKINGUNS
 		CG_TeamBase( cent );
 		break;
 #else
