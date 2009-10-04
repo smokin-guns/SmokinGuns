@@ -1,6 +1,6 @@
 ########################################################################
 # Based on ioQuake3 revision
-IOQ3_REVISION = 1637
+IOQ3_REVISION = 1642
 ########################################################################
 ifeq ($(BUILD_CLIENT),)
   # Build client by default
