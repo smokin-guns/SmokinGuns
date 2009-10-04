@@ -1016,12 +1016,67 @@ team_t PickTeam( int ignoreClientNum ) {
 
 /*
 ===========
+ForceUniqueName
+
+Tequila: Forces client's name to be unique
+===========
+*/
+#ifdef SMOKINGUNS
+static qboolean ForceUniqueName( int clientNum ) {
+	int	i, star=0, len;
+	char tag[MAX_NAME_LENGTH];
+	char name[MAX_NAME_LENGTH];
+
+	Q_strncpyz( name, level.clients[clientNum].pers.netname, sizeof(name) );
+check_again:
+	Q_strncpyz( level.clients[clientNum].pers.cleanname, level.clients[clientNum].pers.netname, sizeof(level.clients[clientNum].pers.cleanname) );
+	Q_CleanStr( level.clients[clientNum].pers.cleanname );
+	len = strlen(name);
+
+	for ( i = 0 ; i < level.maxclients ; i++ ) {
+		if ( i == clientNum ) {
+			continue;
+		}
+		if ( level.clients[i].pers.connected == CON_DISCONNECTED ) {
+			continue;
+		}
+		// We compare on the cleanname as this is a guarantee to avoid confusion between players
+		if (Q_stricmp(level.clients[i].pers.cleanname,level.clients[clientNum].pers.cleanname)) {
+			continue;
+		}
+
+		// Prepare the tag
+		if (star<sizeof(tag)-2){ // Keep at least one letter from name
+			tag[star]='*';
+			tag[star+1]='\0';
+		} else
+			return qfalse;
+
+		// Check if we need to truncate the name
+		if (len+star+2>sizeof(name)-1) {
+			len=sizeof(name)-star-3 ;
+			if (len<0)
+				return qfalse;
+			name[len]='\0';
+		}
+
+		// Tag the name
+		Com_sprintf(level.clients[clientNum].pers.netname,sizeof(level.clients[clientNum].pers.netname),"%s %s",name,tag);
+
+		// Then we need to scan again all the names, eventually adding a new star if this tagged name is still used
+		star++;
+		goto check_again ;
+	}
+	return qtrue;
+}
+
+/*
+===========
 ForceClientSkin
 
 Forces a client's skin (for teamplay)
 ===========
 */
-#ifdef SMOKINGUNS
 static void ForceClientSkin( gclient_t *client, char *model, const char *skin ) {
 	char *p;
 
@@ -1036,88 +1091,77 @@ static void ForceClientSkin( gclient_t *client, char *model, const char *skin ) 
 
 /*
 ===========
-ClientCheckName
+ClientCleanName
 ============
 */
-static void ClientCleanName( const char *in, char *out, int outSize ) {
-	int		len, colorlessLen;
-	char	ch;
-	char	*p;
-	int		spaces;
+static void ClientCleanName(const char *in, char *out, int outSize)
+{
+	int outpos = 0, colorlessLen = 0, spaces = 0;
 
-	//save room for trailing null byte
-	outSize--;
+	// discard leading spaces
+	for(; *in == ' '; in++);
 
-	len = 0;
-	colorlessLen = 0;
-	p = out;
-	*p = 0;
-	spaces = 0;
+	for(; *in && outpos < outSize - 1; in++)
+	{
+		out[outpos] = *in;
 
-	while( 1 ) {
-		ch = *in++;
-		if( !ch ) {
-			break;
-		}
-
-		// don't allow leading spaces
-		if( colorlessLen == 0 && ch == ' ' ) {
-			continue;
-		}
-
-		// check colors
-		if( ch == Q_COLOR_ESCAPE ) {
-			// solo trailing carat is not a color prefix
-			if( !*in ) {
-				break;
-			}
-
-			// don't allow black in a name, period
-			if( ColorIndex(*in) == 0 ) {
-				in++;
+		if(*in == ' ')
+		{
+			// don't allow too many consecutive spaces
+			if(spaces > 2)
 				continue;
-			}
 
-			// make sure room in dest for both chars
-			if( len > outSize - 2 ) {
-				break;
-			}
-
-			*out++ = ch;
-			*out++ = *in++;
-			len += 2;
-			continue;
-		}
-
-		// don't allow too many consecutive spaces
-		// don't count spaces in colorlessLen
-		if( ch == ' ' ) {
 			spaces++;
-			if( spaces > 3 ) {
-				continue;
+		}
+		else if(outpos > 0 && out[outpos - 1] == Q_COLOR_ESCAPE)
+		{
+			if(Q_IsColorString(&out[outpos - 1]))
+			{
+				colorlessLen--;
+
+				if(ColorIndex(*in) == 0)
+				{
+					// Disallow color black in names to prevent players
+					// from getting advantage playing in front of black backgrounds
+					outpos--;
+					continue;
+				}
 			}
-			*out++ = ch;
-			len++;
-			continue;
+			else
+			{
+				spaces = 0;
+				colorlessLen++;
+			}
 		}
-		else {
+		else
+		{
 			spaces = 0;
+			colorlessLen++;
 		}
 
-		if( len > outSize - 1 ) {
-			break;
-		}
-
-		*out++ = ch;
-		colorlessLen++;
-		len++;
+		outpos++;
 	}
-	*out = 0;
 
+#ifdef SMOKINGUNS
+	// Tequila: Discard trailing spaces and stars (stars are reserved at this position)
+	while ( outpos && ( (out[outpos-1] == ' ') || (out[outpos-1] == '*') ) )
+		outpos--;
+#endif
+
+	out[outpos] = '\0';
+
+#ifndef SMOKINGUNS
 	// don't allow empty names
-	if( *p == 0 || colorlessLen == 0 ) {
-		Q_strncpyz( p, "UnnamedPlayer", outSize );
-	}
+	if( *out == '\0' || colorlessLen == 0)
+#else
+	// Tequila: Don't allow leading numbers as it can confuse ClientForString() in g_svcmds.c
+	while ( *out != '\0' && *out >= '0' && *out <= '9' )
+		Q_strncpyz( out, out+1, outSize );
+
+	// Tequila: Don't allow empty names and reserved word
+	if( *out == '\0' || colorlessLen == 0 || !Q_stricmp(out,"all") || !Q_stricmp(out,"allbots") )
+#endif
+		Q_strncpyz(out, "UnnamedPlayer", outSize );
 }
 
 
@@ -1221,6 +1265,19 @@ void ClientUserinfoChanged( int clientNum ) {
 #ifndef SMOKINGUNS
 	if ( client->sess.sessionTeam == TEAM_SPECTATOR ) {
 #else
+	// Tequila: Be sure the name is really unique or drop the clien
+	if (!ForceUniqueName( clientNum )) {
+		if (client->pers.connected == CON_CONNECTING)
+			client->pers.cleanname[0]='\0';
+		else
+			trap_DropClient( clientNum, "Dropped due to invalid player name" );
+		return;
+	}
+
+	// Tequila: Synchronize anyway the netname with the server known name
+	Info_SetValueForKey(userinfo, "name", client->pers.netname);
+	trap_SetUserinfo( clientNum, userinfo);
+
 	if ( client->sess.sessionTeam >= TEAM_SPECTATOR ) {
 #endif
 		if ( client->sess.spectatorState == SPECTATOR_SCOREBOARD ) {
@@ -1229,50 +1286,43 @@ void ClientUserinfoChanged( int clientNum ) {
 	}
 
 	if ( client->pers.connected == CON_CONNECTED ) {
-#ifdef SMOKINGUNS
-		// Add some checks but only if oldname and netname are defined
-		if ( oldname[0] && client->pers.netname[0] && client->sess.spectatorState != SPECTATOR_SCOREBOARD ) {
-			// Tequila: Handle case player has set an empty name (see ClientCleanName)
-			if ( !strcmp("UnnamedPlayer",client->pers.netname) ) {
-				// Replace it to be clientNum related thanks to colors, so easier to recognize and kick if needed
-				Q_strncpyz( client->pers.netname, va("^%iUnnamed^%iPlayer^7",clientNum%10+1,clientNum/10+1), sizeof( client->pers.netname ) );
-			}
-			// Tequila: Check if a vote is in progress
-			if ( level.voteTime || level.voteExecuteTime ) {
-				// Check if client tries to change his name to avoid to be kicked
-				if ( !strcmp( va("kick \"%s\"", oldname), level.voteString ) ) {
-					// Then just replace the voteString to better use clientkick command
-					Com_sprintf( level.voteString, sizeof( level.voteString ), "clientkick %i", clientNum );
-					// So it gives him a chance to not be kicked if they don't want to
-					G_LogPrintf( S_COLOR_BLUE "ClientUserinfoChanged: Replaced voteString by \"%s\"\n",level.voteString);
-				}
-				// Check if a stupid client wants to take the name to be kicked
-				if ( !strcmp( va("kick \"%s\"", client->pers.netname), level.voteString ) ) {
-					// Will reset his name to the previous one
-					client->pers.teamState.lastreturnedflag = level.time;
-				}
-			}
-			// Tequila: Cancel renaming to don't flood clients if a client tries to change his name too often
-			// as this is more probably to cheat...
-			if (level.time-client->pers.teamState.lastreturnedflag<60000) {
-				G_LogPrintf( S_COLOR_BLUE "ClientUserinfoChanged: Discarded \"%s" S_COLOR_WHITE
-					"\" renaming to \"%s" S_COLOR_WHITE "\"\n",oldname,client->pers.netname);
-				Q_strncpyz ( client->pers.netname, oldname, sizeof( client->pers.netname ) );
-				trap_SendServerCommand( clientNum, va("print \"Renaming discarded, %s" S_COLOR_WHITE "...\"\n",
-					client->pers.netname) );
-				trap_SendServerCommand( clientNum, "cp \"Try again later !!!\"" );
-			}
-			// Use an unused teamState integer to store when last renaming occured
-			client->pers.teamState.lastreturnedflag = level.time;
-		}
-		// Tequila: Synchronize anyway the netname with the server known name, so kick stuff will really work with name...
-		Info_SetValueForKey(userinfo, "name", client->pers.netname);
-		trap_SetUserinfo( clientNum, userinfo);
-#endif
+#ifndef SMOKINGUNS
 		if ( strcmp( oldname, client->pers.netname ) ) {
 			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname,
 				client->pers.netname) );
 		}
+#else
+		// Tequila: Handle case player has set an empty name (see ClientCleanName)
+		if ( !strcmp("UnnamedPlayer",client->pers.netname) && oldname[0] ) {
+			// Don't allow rename to empty one
+			Q_strncpyz( client->pers.netname, oldname, sizeof( client->pers.netname ) );
+			Q_strncpyz( client->pers.cleanname, oldname, sizeof(client->pers.cleanname) );
+			Q_CleanStr( client->pers.cleanname );
+		}
+
+// Tequila: Minimum time interval between 2 player rename in seconds
+#define MIN_RENAME_INTERVAL 60
+		if ( strcmp( oldname, client->pers.netname ) ) {
+			if (level.time-client->pers.lastRenameTime>MIN_RENAME_INTERVAL*1000) {				
+				trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname,
+					client->pers.netname) );
+				// Store when last renaming occured
+				client->pers.lastRenameTime = level.time;
+				// Store the new cleanname
+#ifndef NDEBUG
+				G_LogPrintf( "ClientUserinfoChanged: Renamed \"%s\" to \"%s\" (%s)\n",oldname,client->pers.netname,client->pers.cleanname);
+#endif
+			} else {
+				// Tequila: Keep oldname and inform renaming was discarded
+				G_LogPrintf( "ClientUserinfoChanged: Discarded \"%s" S_COLOR_WHITE
+					"\" renaming to \"%s" S_COLOR_WHITE "\"\n",oldname,client->pers.netname);
+				Q_strncpyz ( client->pers.netname, oldname, sizeof( client->pers.netname ) );
+				trap_SendServerCommand( clientNum, va("print \"Renaming discarded, %s" S_COLOR_WHITE "...\n\"",
+					client->pers.netname) );
+				trap_SendServerCommand( clientNum, "cp \"Try again later !!!\"" );
+			}
+		}
+#endif
 	}
 
 	// set max health
@@ -1554,6 +1604,11 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	// get and distribute relevent paramters
 	G_LogPrintf( "ClientConnect: %i\n", clientNum );
 	ClientUserinfoChanged( clientNum );
+#ifdef SMOKINGUNS
+	// Tequila: cleanname must has been set if given name is valid
+	if(!client->pers.cleanname[0])
+		return "Invalid player name";
+#endif
 
 	// don't do the "xxx connected" messages if they were carried over from previous level
 	if ( firstTime ) {

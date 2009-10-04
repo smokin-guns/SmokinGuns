@@ -1272,23 +1272,11 @@ static float CG_DrawStatusEntities( float y ) {
 			if (eType[i][0] > 0) {
 				char *s_eType = NULL;
 				switch ( i ) {
-				case ET_FLY:
-					s_eType = "ET_FLY";
+				case ET_GENERAL:
+					s_eType = "ET_GENERAL";
 					break;
 				case ET_PLAYER:
 					s_eType = "ET_PLAYER";
-					break;
-				case ET_INVISIBLE:
-					s_eType = "ET_INVISIBLE";
-					break;
-				case ET_PUSH_TRIGGER:
-					s_eType = "ET_PUSH_TRIGGER";
-					break;
-				case ET_TELEPORT_TRIGGER:
-					s_eType = "ET_TELEPORT_TRIGGER";
-					break;
-				case ET_GENERAL:
-					s_eType = "ET_GENERAL";
 					break;
 				case ET_ITEM:
 					s_eType = "ET_ITEM";
@@ -1299,9 +1287,6 @@ static float CG_DrawStatusEntities( float y ) {
 				case ET_MOVER:
 					s_eType = "ET_MOVER";
 					break;
-				case ET_BREAKABLE:
-					s_eType = "ET_BREAKABLE";
-					break;
 				case ET_BEAM:
 					s_eType = "ET_BEAM";
 					break;
@@ -1311,14 +1296,23 @@ static float CG_DrawStatusEntities( float y ) {
 				case ET_SPEAKER:
 					s_eType = "ET_SPEAKER";
 					break;
-				case ET_GRAPPLE:
-					s_eType = "ET_GRAPPLE";
+				case ET_PUSH_TRIGGER:
+					s_eType = "ET_PUSH_TRIGGER";
 					break;
-				case ET_TEAM:
-					s_eType = "ET_TEAM";
+				case ET_TELEPORT_TRIGGER:
+					s_eType = "ET_TELEPORT_TRIGGER";
 					break;
-				case ET_TURRET:
-					s_eType = "ET_TURRET";
+				case ET_INVISIBLE:
+					s_eType = "ET_INVISIBLE";
+					break;
+				case ET_FLY:
+					s_eType = "ET_FLY";
+					break;
+				case ET_BREAKABLE:
+					s_eType = "ET_BREAKABLE";
+					break;
+				case ET_INTERMISSION:
+					s_eType = "ET_INTERMISSION";
 					break;
 				case ET_FLARE:
 					s_eType = "ET_FLARE";
@@ -1326,11 +1320,11 @@ static float CG_DrawStatusEntities( float y ) {
 				case ET_SMOKE:
 					s_eType = "ET_SMOKE";
 					break;
+				case ET_TURRET:
+					s_eType = "ET_TURRET";
+					break;
 				case ET_ESCAPE:
 					s_eType = "ET_ESCAPE";
-					break;
-				case ET_INTERMISSION:
-					s_eType = "ET_INTERMISSION";
 					break;
 				case ET_EVENTS:
 					s_eType = "ET_EVENTS";

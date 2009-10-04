@@ -332,9 +332,6 @@ G_RemoveRandomBot
 */
 int G_RemoveRandomBot( int team ) {
 	int i;
-#ifdef SMOKINGUNS
-	char netname[36];
-#endif
 	gclient_t	*cl;
 
 	for ( i=0 ; i< g_maxclients.integer ; i++ ) {
@@ -348,13 +345,7 @@ int G_RemoveRandomBot( int team ) {
 		if ( team >= 0 && cl->sess.sessionTeam != team ) {
 			continue;
 		}
-#ifndef SMOKINGUNS
 		trap_SendConsoleCommand( EXEC_INSERT, va("clientkick %d\n", cl->ps.clientNum) );
-#else
-		strcpy(netname, cl->pers.netname);
-		Q_CleanStr(netname);
-		trap_SendConsoleCommand( EXEC_INSERT, va("kick %s\n", netname) );
-#endif
 		return qtrue;
 	}
 	return qfalse;
