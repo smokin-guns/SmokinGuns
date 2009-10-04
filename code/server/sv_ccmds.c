@@ -1043,7 +1043,11 @@ static void SV_KickNum_f( void ) {
 	}
 
 	if ( Cmd_Argc() != 2 ) {
+#ifndef SMOKINGUNS
 		Com_Printf ("Usage: kicknum <client number>\n");
+#else
+		Com_Printf ("Usage: clientkick <client number>\n");
+#endif
 		return;
 	}
 
@@ -1213,7 +1217,11 @@ static void SV_DumpUser_f( void ) {
 	}
 
 	if ( Cmd_Argc() != 2 ) {
+#ifndef SMOKINGUNS
 		Com_Printf ("Usage: info <userid>\n");
+#else
+		Com_Printf ("Usage: dumpuser <userid>\n");
+#endif
 		return;
 	}
 
