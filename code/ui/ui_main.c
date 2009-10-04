@@ -2223,12 +2223,17 @@ static void UI_BuildPlayerList( void ) {
 
 		if (info[0]) {
 			Q_strncpyz( uiInfo.playerNames[uiInfo.playerCount], Info_ValueForKey( info, "n" ), MAX_NAME_LENGTH );
+			// Tequila: Authorize to see colorized names in the list
+#ifdef SMOKINGUNS
 			Q_CleanStr( uiInfo.playerNames[uiInfo.playerCount] );
+#endif
 			uiInfo.playerCount++;
 			team2 = atoi(Info_ValueForKey(info, "t"));
 			if (team2 == team) {
 				Q_strncpyz( uiInfo.teamNames[uiInfo.myTeamCount], Info_ValueForKey( info, "n" ), MAX_NAME_LENGTH );
+#ifdef SMOKINGUNS
 				Q_CleanStr( uiInfo.teamNames[uiInfo.myTeamCount] );
+#endif
 				uiInfo.teamClientNums[uiInfo.myTeamCount] = n;
 				if (uiInfo.playerNumber == n) {
 					playerTeamNumber = uiInfo.myTeamCount;
