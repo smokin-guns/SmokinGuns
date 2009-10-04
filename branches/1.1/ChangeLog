@@ -31,6 +31,16 @@ Changes since SG 1.0-20081231
  - Thanks to ioQuake3 team for r_ext_multisample cvar
 - new server console commands "bigtext" and "cp" to authorize server admins to display big message. A client number can be used
   as first argument to only display the messsage to a given client.
+- show colorized players name in players list
+- new "sendaway" command as replacement of "kick" command, it is now used for "callvote kick"
+- renaming to empty name, to 'all' or to 'allbots' is not allowed
+- renaming is now allowed only one time by minute
+- New cvars from ioQ3 updates:
+  - s_muteWhenUnfocused to mute sound when unfocused (default=0)
+  - r_allowResize to allow window resizing in windowed rendering mode (default=0), only with SDL support
+- Thanks to ioQ3, passed rcon commands are logged
+- callvote string is logged in server log
+- new "cancelvote" server side command, can only be used by admins
 *** CHANGES ***
 - Reloading bug fixed by Joe Kari
 - Fix game crash during game load when using cgame binary library
@@ -39,9 +49,8 @@ Changes since SG 1.0-20081231
 - Fix little freeze/lag in dm_train
 - Fix invisible "entity 0" bug near movers entities we can trigger
 - Many fixes from ioQuake3 sources
-- New cvars from ioQ3 updates:
-  - s_muteWhenUnfocused to mute sound when unfocused (default=0)
-  - r_allowResize to allow window resizing in windowed rendering mode (default=0), only with SDL support
+- g_allowVote can be set to the number of seconds before a player can call again a vote
+- players name can be tagged to make sure they are unique in game
 
 Changes in SG 1.0-20081231
 ******************
