@@ -1308,6 +1308,12 @@ static float CG_DrawStatusEntities( float y ) {
 				case ET_FLY:
 					s_eType = "ET_FLY";
 					break;
+				case ET_GRAPPLE:
+					s_eType = "ET_GRAPPLE";
+					break;
+				case ET_TEAM:
+					s_eType = "ET_TEAM";
+					break;
 				case ET_BREAKABLE:
 					s_eType = "ET_BREAKABLE";
 					break;
