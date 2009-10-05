@@ -753,7 +753,7 @@ static void CG_Smoke( centity_t *cent){
 	vec4_t color;
 
 	// see if we have to generate sprites this time
-	if(cent->lastSmokeTime + (float)(1000/rate) > cg.time)
+	if(!rate || cent->lastSmokeTime + (float)(1000/rate) > cg.time)
 		return;
 
 	VectorCopy(cent->currentState.apos.trBase, winddir);
