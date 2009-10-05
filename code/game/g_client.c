@@ -1267,7 +1267,9 @@ void ClientUserinfoChanged( int clientNum ) {
 #else
 	// Tequila: Be sure the name is really unique or drop the clien
 	if (!ForceUniqueName( clientNum )) {
+		// We should only came here is extremely rare case and surely not with fair cowboys...
 		if (client->pers.connected == CON_CONNECTING)
+			// When connecting, not setting cleanname will discard the client with a suitable message about an invalid name
 			client->pers.cleanname[0]='\0';
 		else
 			trap_DropClient( clientNum, "Dropped due to invalid player name" );
@@ -1308,10 +1310,7 @@ void ClientUserinfoChanged( int clientNum ) {
 					client->pers.netname) );
 				// Store when last renaming occured
 				client->pers.lastRenameTime = level.time;
-				// Store the new cleanname
-#ifndef NDEBUG
-				G_LogPrintf( "ClientUserinfoChanged: Renamed \"%s\" to \"%s\" (%s)\n",oldname,client->pers.netname,client->pers.cleanname);
-#endif
+
 			} else {
 				// Tequila: Keep oldname and inform renaming was discarded
 				G_LogPrintf( "ClientUserinfoChanged: Discarded \"%s" S_COLOR_WHITE
@@ -1322,6 +1321,11 @@ void ClientUserinfoChanged( int clientNum ) {
 				trap_SendServerCommand( clientNum, "cp \"Try again later !!!\"" );
 			}
 		}
+
+		// Tequila: Advertize client if we have changed significantly his player name to a suitable one
+		Q_CleanStr( s ); // Here s is a requested name backup, clean it and compare it to the cleanname set
+		if ( Q_stricmp( s, client->pers.cleanname ) )
+			trap_SendServerCommand( clientNum, va("cp \"Your name is %s\"", client->pers.netname) );
 #endif
 	}
 
