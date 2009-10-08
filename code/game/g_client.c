@@ -1736,6 +1736,19 @@ void ClientBegin( int clientNum ) {
 	//start into game: receive money (by Spoon)
 #ifdef SMOKINGUNS
 	ent->client->ps.stats[STAT_MONEY] = START_MONEY;
+	
+	// Send round time for round based games
+	if ( g_gametype.integer >= GT_RTP && !( ent->r.svFlags & SVF_BOT ) ) {
+		gentity_t	*te = G_TempEntity( vec3_origin, EV_ROUND_TIME );
+
+		te->s.eventParm = 10;
+
+		//sets cg.roundendtime
+		te->s.time = g_roundstarttime;
+		te->s.time2 = g_roundendtime;
+		te->r.svFlags |= SVF_SINGLECLIENT;
+		te->r.singleClient = client->ps.clientNum ;
+	}
 #endif
 }
 
