@@ -507,6 +507,9 @@ struct gclient_s {
 	// when using a deployed gatling, and at the same time having one in the inventory,
 	// the ammo count for the latter one is saved here
 	int				carriedGatlingAmmo;
+
+	// Tequila: Flag to avoid telefrag at respawn when not enough spawnpoint are available
+	qboolean		dontTelefrag;
 #endif
 };
 

@@ -1563,8 +1563,9 @@ void ClientThink_real( gentity_t *ent ) {
 		VectorClear(ent->s.pos.trDelta);
 	}
 	else if ( ( g_gametype.integer >= GT_RTP ) && ( level.time < g_roundstarttime + level.roundNoMoveTime )
-		&& ( ent->client->sess.sessionTeam < TEAM_SPECTATOR ) ) {
+		&& ( ent->client->sess.sessionTeam < TEAM_SPECTATOR ) && !(client->dontTelefrag)) {
 		// added by Joe Kari: delete all movement and cmd stats until the end of the countdown in RTP and BR gametype
+		// Tequila: But authorize to move if we are in the Telefrag case, so player can move to a safe place
 		pm.ps->speed = 0;
 		pm.cmd.forwardmove = 0;
 		pm.cmd.rightmove = 0;
@@ -1673,6 +1674,47 @@ void ClientThink_real( gentity_t *ent ) {
 
 	// execute client events
 	ClientEvents( ent, oldEventSequence );
+
+#ifdef SMOKINGUNS
+	// Tequila comment: When client should have telefrag another player when respawning,
+	// he's in the Telefrag case. But we must limit that case in the time as it is not
+	// suitable for playing to being able to not interact with the world
+#define TELEFRAG_CASE_TIME 15000		// Max seconds a client can be kept in Telefrag case
+#define TELEFRAG_CASE_CHECK_DELAY 500	// Delay between each check if we still are in that case
+	if ( client->dontTelefrag ) {
+		// Continue without collision in the world
+		ent->r.contents = 0;
+
+		// Use same algo than in ClientTimerActions
+		client->timeResidual += msec;
+		while ( client->timeResidual >= TELEFRAG_CASE_CHECK_DELAY ) {
+			client->timeResidual -= TELEFRAG_CASE_CHECK_DELAY;
+			if ( level.time < client->respawnTime + TELEFRAG_CASE_TIME )
+				client->ps.pm_flags |= PMF_RESPAWNED ; // simulate a respawn check
+			else {
+				client->ps.pm_flags &= ~PMF_RESPAWNED ;
+#ifndef NDEBUG
+				G_Printf(S_COLOR_YELLOW "Telefrag case workaround disabled on %s...\n",client->pers.netname);
+#endif
+			}
+			trap_UnlinkEntity (ent);
+			G_KillBox( ent );
+			// Tequila comment: G_KillBox will set dontTelefrag as needed
+			if ( ent->health && !( client->dontTelefrag ) ) {
+				ent->r.contents = CONTENTS_BODY;
+#ifndef NDEBUG
+				G_Printf(S_COLOR_MAGENTA "Telefrag case avoided by %s...\n",client->pers.netname);
+#endif
+			} else if (ent->health) {
+				// Disable weapon usage during Telefrag case
+				pm.cmd.weapon = WP_NONE;
+				pm.cmd.buttons = 0;
+				pm.ps->weapon = WP_NONE;
+				pm.ps->weapon2 = WP_NONE;
+			}
+		}
+	}
+#endif
 
 	// link entity now, after any personal teleporters have been used
 	trap_LinkEntity (ent);
