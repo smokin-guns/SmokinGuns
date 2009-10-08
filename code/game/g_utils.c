@@ -546,15 +546,34 @@ void G_KillBox (gentity_t *ent) {
 	VectorAdd( ent->client->ps.origin, ent->r.maxs, maxs );
 	num = trap_EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
 
+#ifdef SMOKINGUNS
+	// Tequila: Always reset the Telefrag case
+	ent->client->dontTelefrag = qfalse ;
+#endif
+
 	for (i=0 ; i<num ; i++) {
 		hit = &g_entities[touch[i]];
 		if ( !hit->client ) {
 			continue;
 		}
 
+#ifndef SMOKINGUNS
 		// nail it
 		G_Damage ( hit, ent, ent, NULL, NULL,
 			100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG);
+#else
+		// G_Printf(S_COLOR_YELLOW "G_KillBox: Found %s in %s's killbox\n",hit->client->pers.netname,ent->client->pers.netname);
+
+		// Tequila comment: If the client is being respawned, we would prefer authorize the client
+		// to share the spawnpoint for a short time... So just notice we are in a Telefrag case
+		if (ent->client->ps.pm_flags & PMF_RESPAWNED)
+			ent->client->dontTelefrag = qtrue ;
+		else
+			// Better kill attacker
+			G_Damage ( ent, ent, ent, NULL, NULL, 100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG);
+
+		return ;
+#endif
 	}
 
 }
