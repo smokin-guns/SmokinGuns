@@ -2220,9 +2220,6 @@ void Setup_NewRound(void){
 		g_entities[i].takedamage = qtrue;
 		g_entities[i].teamchange = 0;
 
-		//client knows the roundtime status
-		g_entities[i].roundtime_received = qtrue;
-
 		if(client->sess.sessionTeam == g_robteam)
 			client->ps.persistant[PERS_ROBBER] = 1;
 		else
@@ -2259,34 +2256,6 @@ void Setup_NewRound(void){
 	if(msec)
 		te->s.time2 = g_roundendtime;
 	te->r.svFlags |= SVF_BROADCAST;
-}
-
-//check if the clients "know" the current round-time, if just entered the game
-void Check_ClientsTime(void){
-	int i;
-
-	if(!g_roundstarttime || !g_roundendtime)
-		return;
-
-	for (i = 0; i < level.maxclients; i++) {
-
-		gclient_t *client= &level.clients[i];
-
-		if(!g_entities[client - level.clients].roundtime_received){
-			gentity_t	*te;
-
-			te = G_TempEntity( vec3_origin, EV_ROUND_TIME );
-
-			te->s.eventParm = 10;
-
-			//sets cg.roundendtime
-			te->s.time = g_roundstarttime;
-			te->s.time2 = g_roundendtime;
-			te->r.svFlags |= SVF_BROADCAST;
-
-			g_entities[client - level.clients].roundtime_received = qtrue;
-		}
-	}
 }
 
 static void BankRobbed( void ){
@@ -2445,8 +2414,6 @@ void CheckRound(void){
 
 	if(level.intermissiontime)
 		return;
-
-	Check_ClientsTime();
 
 	if (g_doWarmup.integer != 0)
 		trap_SendConsoleCommand( EXEC_INSERT, "g_doWarmup 0" );
