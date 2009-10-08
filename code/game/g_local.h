@@ -225,8 +225,6 @@ struct gentity_s {
 	int			mapparttime;
 	char		*mappartname;
 
-	//roundtime sent to client?
-	qboolean	roundtime_received;
 	qboolean	used;
 
 	// marks a spawnpoint as trio
