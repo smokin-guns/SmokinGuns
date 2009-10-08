@@ -2181,6 +2181,15 @@ void ClientSpawn(gentity_t *ent) {
 			// make sure the player doesn't interfere with KillBox
 			trap_UnlinkEntity (ent);
 			G_KillBox( ent );
+			// Tequila comment: G_KillBox will set dontTelefrag as needed
+			if (client->dontTelefrag) {
+#ifndef NDEBUG
+				G_Printf(S_COLOR_MAGENTA "ClientSpawn: Telefrag case delayed at respawn for %s...\n",client->pers.netname);
+#endif
+				trap_SendServerCommand( index, va("print \"Go away %s\n\"",client->pers.netname) );
+				// So we will link the player entity later with normal content
+				ent->r.contents = 0;
+			}
 			trap_LinkEntity (ent);
 		}
 
