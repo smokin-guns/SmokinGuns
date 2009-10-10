@@ -493,7 +493,7 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_showescape, "cg_showescape", "1", CVAR_ARCHIVE },
 	{ &cg_debug, "cg_debug", "0", CVAR_ARCHIVE },
 	{ &cg_glowflares, "cg_glowflares", "1", CVAR_ARCHIVE },
-	{ &cg_boostfps, "cg_boostfps", "0", CVAR_TEMP },
+	{ &cg_boostfps, "cg_boostfps", "1", CVAR_ARCHIVE },
 	{ &cg_drawdebug, "cg_drawdebug", "0", CVAR_CHEAT },
 	{ &cg_hitmsg, "cg_hitmsg", "1", CVAR_ARCHIVE },
 	{ &cg_ownhitmsg, "cg_ownhitmsg", "1", CVAR_ARCHIVE },
