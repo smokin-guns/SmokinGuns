@@ -741,7 +741,7 @@ void Message_Key( int key ) {
 
 
 
-			CL_AddReliableCommand( buffer );
+			CL_AddReliableCommand(buffer, qfalse);
 		}
 		Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_MESSAGE );
 		Field_Clear( &chatField );
