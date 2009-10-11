@@ -1643,11 +1643,11 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	}
 //unlagged - backward reconciliation #5
 
-	// Joe Kari: exec content of the onEvent_playerConnect_do cvar
+	// Joe Kari: exec content of the onEvent_playerConnect cvar
 	if ( firstTime && !isBot )
 	{
-		trap_SendConsoleCommand( EXEC_APPEND, "vstr onEvent_playerConnect_do\n" ) ;
-		trap_SendConsoleCommand( EXEC_APPEND , va( "vstr onEvent_playerUpTo%i_do\n" , g_humancount ) ) ;
+		trap_SendConsoleCommand( EXEC_APPEND, "vstr onEvent_playerConnect\n" ) ;
+		trap_SendConsoleCommand( EXEC_APPEND , va( "vstr onEvent_playerUpTo%i\n" , g_humancount ) ) ;
 	}
 #endif
 
@@ -2401,12 +2401,12 @@ void ClientDisconnect( int clientNum ) {
 		BotAIShutdownClient( clientNum, qfalse );
 	}
 	
-	// Joe Kari: exec content of the onEvent_playerDisconnect_do cvar
+	// Joe Kari: exec content of the onEvent_playerDisconnect cvar
 #ifdef SMOKINGUNS
 	else 
 	{
-		trap_SendConsoleCommand( EXEC_APPEND , "vstr onEvent_playerDisconnect_do\n" ) ;
-		trap_SendConsoleCommand( EXEC_APPEND , va( "vstr onEvent_playerDownTo%i_do\n" , g_humancount ) ) ;
+		trap_SendConsoleCommand( EXEC_APPEND , "vstr onEvent_playerDisconnect\n" ) ;
+		trap_SendConsoleCommand( EXEC_APPEND , va( "vstr onEvent_playerDownTo%i\n" , g_humancount ) ) ;
 	}
 #endif
 }
