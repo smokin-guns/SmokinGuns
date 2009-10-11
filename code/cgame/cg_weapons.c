@@ -4019,7 +4019,8 @@ static void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int otherEntNum, e
 			VectorMA (end, r, right, end);
 			VectorMA (end, u, up, end);
 
-			if((i+1) < 16 && ((int)es->angles[1] & (1 << (i+1)))){
+			if ( ( i + extra_center_pellet + 1 ) < 16 && ( (int)es->angles[1] & ( 1 << ( i + extra_center_pellet + 1 ) ) ) )
+			{
 				vec3_t player;
 
 				VectorCopy(cg_entities[es->clientNum].lerpOrigin, player);
