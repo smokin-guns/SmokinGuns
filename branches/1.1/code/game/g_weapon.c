@@ -1177,8 +1177,10 @@ int ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, qbo
 
 
 			if( ShotgunPellet( origin, end, ent)){
-				if((i+1) < 16)
-					playerhitcount |= (1 << (i+1));
+				if ( ( i + extra_center_pellet + 1 ) < 16 )
+				{
+					playerhitcount |= ( 1 << ( i + extra_center_pellet + 1 ) ) ;
+				}
 			}
 
 		}
