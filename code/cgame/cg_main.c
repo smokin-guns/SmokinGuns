@@ -377,9 +377,15 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_noPlayerAnims, "cg_noplayeranims", "0", CVAR_CHEAT },
 	{ &cg_showmiss, "cg_showmiss", "0", 0 },
 	{ &cg_footsteps, "cg_footsteps", "1", CVAR_CHEAT },
+#ifndef SMOKINGUNS
 	{ &cg_tracerChance, "cg_tracerchance", "0.4", CVAR_CHEAT },
 	{ &cg_tracerWidth, "cg_tracerwidth", "1", CVAR_CHEAT },
 	{ &cg_tracerLength, "cg_tracerlength", "100", CVAR_CHEAT },
+#else
+	{ &cg_tracerChance, "cg_tracerchance", "0.8", CVAR_CHEAT },
+	{ &cg_tracerWidth, "cg_tracerwidth", "7", CVAR_CHEAT },
+	{ &cg_tracerLength, "cg_tracerlength", "500", CVAR_CHEAT },
+#endif
 	{ &cg_thirdPersonRange, "cg_thirdPersonRange", "40", CVAR_CHEAT },
 	{ &cg_thirdPersonAngle, "cg_thirdPersonAngle", "0", CVAR_CHEAT },
 #ifndef SMOKINGUNS
