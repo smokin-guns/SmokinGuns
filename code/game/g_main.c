@@ -803,7 +803,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 			if(g_entities[i].mappart && !Q_stricmp(g_entities[i].classname, "info_player_intermission")){
 				g_maxmapparts++;
 				// Tequila comment: Read the intermission name from here now
-				if (g_entities[i].mappartname[0] && g_entities[i].mappart > 0 && g_entities[i].mappart<=MAX_MAPPARTS) {
+				if (g_entities[i].mappartname && g_entities[i].mappartname[0]
+				&& g_entities[i].mappart > 0 && g_entities[i].mappart<=MAX_MAPPARTS) {
 					Q_strncpyz(intermission_names[g_entities[i].mappart-1], g_entities[i].mappartname, MAX_MAPPARTS_NAME_LENGTH);
 					G_Printf("Loaded mappart %i: '%s'\n", g_entities[i].mappart, g_entities[i].mappartname);
 				} else {
