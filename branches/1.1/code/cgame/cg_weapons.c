@@ -4115,9 +4115,6 @@ void CG_Tracer( vec3_t source, vec3_t dest ) {
 	float		len, begin, end;
 	vec3_t		start, finish;
 	vec3_t		midpoint;
-#ifdef SMOKINGUNS
-	int			tracerWidth = 7, tracerLength = 500;
-#endif
 
 	// tracer
 	VectorSubtract( dest, source, forward );
@@ -4128,11 +4125,7 @@ void CG_Tracer( vec3_t source, vec3_t dest ) {
 		return;
 	}
 	begin = 50 + random() * (len - 60);
-#ifndef SMOKINGUNS
 	end = begin + cg_tracerLength.value;
-#else
-	end = begin + tracerLength;
-#endif
 	if ( end > len ) {
 		end = len;
 	}
@@ -4146,11 +4139,7 @@ void CG_Tracer( vec3_t source, vec3_t dest ) {
 	VectorMA( right, -line[0], cg.refdef.viewaxis[2], right );
 	VectorNormalize( right );
 
-#ifndef SMOKINGUNS
 	VectorMA( finish, cg_tracerWidth.value, right, verts[0].xyz );
-#else
-	VectorMA( finish, tracerWidth, right, verts[0].xyz );
-#endif
 	verts[0].st[0] = 0;
 	verts[0].st[1] = 1;
 	verts[0].modulate[0] = 255;
@@ -4158,11 +4147,7 @@ void CG_Tracer( vec3_t source, vec3_t dest ) {
 	verts[0].modulate[2] = 255;
 	verts[0].modulate[3] = 255;
 
-#ifndef SMOKINGUNS
 	VectorMA( finish, -cg_tracerWidth.value, right, verts[1].xyz );
-#else
-	VectorMA( finish, -tracerWidth, right, verts[1].xyz );
-#endif
 	verts[1].st[0] = 1;
 	verts[1].st[1] = 0;
 	verts[1].modulate[0] = 255;
@@ -4170,11 +4155,7 @@ void CG_Tracer( vec3_t source, vec3_t dest ) {
 	verts[1].modulate[2] = 255;
 	verts[1].modulate[3] = 255;
 
-#ifndef SMOKINGUNS
 	VectorMA( start, -cg_tracerWidth.value, right, verts[2].xyz );
-#else
-	VectorMA( start, -tracerWidth, right, verts[2].xyz );
-#endif
 	verts[2].st[0] = 1;
 	verts[2].st[1] = 1;
 	verts[2].modulate[0] = 255;
@@ -4182,11 +4163,7 @@ void CG_Tracer( vec3_t source, vec3_t dest ) {
 	verts[2].modulate[2] = 255;
 	verts[2].modulate[3] = 255;
 
-#ifndef SMOKINGUNS
 	VectorMA( start, cg_tracerWidth.value, right, verts[3].xyz );
-#else
-	VectorMA( start, tracerWidth, right, verts[3].xyz );
-#endif
 	verts[3].st[0] = 0;
 	verts[3].st[1] = 0;
 	verts[3].modulate[0] = 255;
@@ -4202,7 +4179,7 @@ void CG_Tracer( vec3_t source, vec3_t dest ) {
 
 	// add the tracer sound
 #ifdef SMOKINGUNS
-	if ( random() < cg_tracerChance.value )
+	if ( random()*2 < cg_tracerChance.value )
 #endif
 		trap_S_StartSound( midpoint, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.tracerSound );
 
@@ -4271,11 +4248,7 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, 
 
 	// if the shooter is currently valid, calc a source point and possibly
 	// do trail effects
-#ifndef SMOKINGUNS
 	if ( sourceEntityNum >= 0 && cg_tracerChance.value > 0 ) {
-#else
-	if ( sourceEntityNum >= 0 ) {
-#endif
 		if ( CG_CalcMuzzlePoint( sourceEntityNum, start ) ) {
 #ifdef SMOKINGUNS
 			int shaderNum;
@@ -4311,13 +4284,9 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, 
 			}
 
 			// draw a tracer
-#ifndef SMOKINGUNS
 			if ( random() < cg_tracerChance.value ) {
-#endif
 				CG_Tracer( start, end );
-#ifndef SMOKINGUNS
 			}
-#endif
 		}
 	}
 
