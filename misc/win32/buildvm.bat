@@ -58,6 +58,8 @@ ECHO Building qcommon ...
     CALL :compile_it %CC_QCOMMON% %PATH_QCOMMON_BUILT%\q_math.asm %PATH_QCOMMON%/q_math.c
     CALL :compile_it %CC_QCOMMON% %PATH_QCOMMON_BUILT%\q_shared.asm %PATH_QCOMMON%/q_shared.c
 ECHO Building game ...
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_main.asm %PATH_GAME%/g_main.c
+    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\bg_misc.asm %PATH_GAME%/bg_misc.c
     CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\bg_lib.asm %PATH_GAME%/bg_lib.c
     CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\bg_pmove.asm %PATH_GAME%/bg_pmove.c
     CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\bg_slidemove.asm %PATH_GAME%/bg_slidemove.c
@@ -91,8 +93,10 @@ ECHO Building game ...
     CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_sg_utils.asm %PATH_GAME%/g_sg_utils.c
     CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_hit.asm %PATH_GAME%/g_hit.c
 ECHO Linking game ...
-    SET Q3ASM_ARGS=s
+    SET Q3ASM_ARGS=
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_main
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME%\g_syscalls
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\bg_misc
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\bg_lib
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\bg_pmove
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\bg_slidemove
@@ -151,6 +155,7 @@ ECHO Building cgame ...
     CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_sg_utils.asm %PATH_CGAME%/cg_sg_utils.c
     CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_unlagged.asm %PATH_CGAME%/cg_unlagged.c
 
+    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\bg_misc.asm %PATH_GAME%/bg_misc.c
     CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\bg_pmove.asm %PATH_GAME%/bg_pmove.c
     CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\bg_slidemove.asm %PATH_GAME%/bg_slidemove.c
     CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\bg_lib.asm %PATH_GAME%/bg_lib.c
@@ -179,6 +184,7 @@ ECHO linking cgame ...
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\bg_slidemove
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\bg_pmove
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\bg_lib
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\bg_misc
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_QCOMMON_BUILT%\q_math
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_QCOMMON_BUILT%\q_shared
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\ui_shared
@@ -192,6 +198,7 @@ ECHO Building ui ...
     CALL :compile_it %CC_UI% %PATH_UI_BUILT%\ui_shared.asm %PATH_UI%/ui_shared.c
     CALL :compile_it %CC_UI% %PATH_UI_BUILT%\ui_gameinfo.asm %PATH_UI%/ui_gameinfo.c
     CALL :compile_it %CC_UI% %PATH_UI_BUILT%\ui_main.asm %PATH_UI%/ui_main.c
+    CALL :compile_it %CC_UI% %PATH_UI_BUILT%\bg_misc.asm %PATH_GAME%/bg_misc.c
     CALL :compile_it %CC_UI% %PATH_UI_BUILT%\bg_lib.asm %PATH_GAME%/bg_lib.c
 ECHO linking ui ...
     SET Q3ASM_ARGS=
@@ -201,6 +208,7 @@ ECHO linking ui ...
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_UI_BUILT%\ui_players
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_UI_BUILT%\ui_shared
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_UI_BUILT%\ui_gameinfo
+    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_UI_BUILT%\bg_misc
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_UI_BUILT%\bg_lib
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_QCOMMON_BUILT%\q_math
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_QCOMMON_BUILT%\q_shared
