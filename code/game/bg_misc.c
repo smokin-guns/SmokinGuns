@@ -3177,13 +3177,13 @@ qboolean BG_ShootThruWall( float *damage,
 
 			// trace into the direction and look if the level has ended after that wall
 			VectorMA(start, 10000, dir, trend);
-			trace( &tr, tempend, mins, maxs, trend, -1, MASK_SOLID);
+			trace( &tr, tempend, mins, maxs, trend, -1, MASK_SHOT);
 			if(tr.fraction == 1.0 || tr.allsolid || tr.startsolid)
 				return qfalse;
 
 			// get exact endpoint (shoot into the other direction)
 			VectorMA(start, -100, dir, trend);
-			trace( &tr, tempend, mins, maxs, trend, -1, MASK_SOLID);
+			trace( &tr, tempend, mins, maxs, trend, -1, MASK_SHOT);
 			VectorCopy(tr.endpos, end);
 
 			// if the surface doesn't have a right normal vector don't shoouthru(curves)
@@ -3193,7 +3193,7 @@ qboolean BG_ShootThruWall( float *damage,
 				return qfalse;*/
 
 			// now see if we could trace a direct line between the two sides
-			//trace( &tr, tempend, NULL, NULL, start, -1, MASK_SOLID);
+			//trace( &tr, tempend, NULL, NULL, start, -1, MASK_SHOT);
 
 			//Com_Printf("%f %i %i\n", tr.fraction, tr.startsolid, tr.allsolid, tr.entityNum);
 
