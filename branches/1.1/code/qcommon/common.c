@@ -692,22 +692,6 @@ int Com_FilterPath(char *filter, char *name, int casesensitive)
 }
 
 /*
-============
-Com_HashKey
-============
-*/
-int Com_HashKey(char *string, int maxlen) {
-	int register hash, i;
-
-	hash = 0;
-	for (i = 0; i < maxlen && string[i] != '\0'; i++) {
-		hash += string[i] * (119 + i);
-	}
-	hash = (hash ^ (hash >> 10) ^ (hash >> 20));
-	return hash;
-}
-
-/*
 ================
 Com_RealTime
 ================
@@ -2381,6 +2365,43 @@ static void Com_Crash_f( void ) {
 	* ( int * ) 0 = 0x12345678;
 }
 
+/*
+==================
+Com_Setenv_f
+
+For controlling environment variables
+==================
+*/
+void Com_Setenv_f(void)
+{
+	int argc = Cmd_Argc();
+	char *arg1 = Cmd_Argv(1);
+
+	if(argc > 2)
+	{
+		char *arg2 = Cmd_ArgsFrom(2);
+		
+#ifdef _WIN32
+		// windows already removes env variable if value is an empty string
+		_putenv(va("%s=%s", arg1, arg2));
+#else
+		if(!*arg2)
+			unsetenv(arg1);
+		else
+			setenv(arg1, arg2, 1);
+#endif
+	}
+	else if(argc == 2)
+	{
+		char *env = getenv(arg1);
+		
+		if(env)
+			Com_Printf("%s=%s\n", arg1, env);
+		else
+			Com_Printf("%s undefined\n", arg1);
+        }
+}
+
 #ifndef STANDALONE
 
 // TTimo: centralizing the cl_cdkey stuff after I discovered a buffer overflow problem with the dedicated server version
@@ -2587,12 +2608,25 @@ void Com_Init( char *commandLine ) {
 
 	Com_InitJournaling();
 
+	// Add some commands here already so users can use them from config files
+	Cmd_AddCommand ("setenv", Com_Setenv_f);
+	if (com_developer && com_developer->integer)
+	{
+		Cmd_AddCommand ("error", Com_Error_f);
+		Cmd_AddCommand ("crash", Com_Crash_f);
+		Cmd_AddCommand ("freeze", Com_Freeze_f);
+	}
+	Cmd_AddCommand ("quit", Com_Quit_f);
+	Cmd_AddCommand ("changeVectors", MSG_ReportChangeVectors_f );
+	Cmd_AddCommand ("writeconfig", Com_WriteConfig_f );
+	Cmd_SetCommandCompletionFunc( "writeconfig", Cmd_CompleteCfgName );
+
+	// Make it execute the configuration files
 	Cbuf_AddText ("exec default.cfg\n");
 
 	// skip the q3config.cfg if "safe" is on the command line
-	if ( !Com_SafeMode() ) {
-		Cbuf_AddText ("exec " Q3CONFIG_CFG "\n");
-	}
+	if (!Com_SafeMode())
+		Cbuf_AddText("exec " Q3CONFIG_CFG "\n");
 
 	Cbuf_AddText ("exec autoexec.cfg\n");
 
@@ -2652,16 +2686,6 @@ void Com_Init( char *commandLine ) {
 #endif
 
 	com_introPlayed = Cvar_Get( "com_introplayed", "0", CVAR_ARCHIVE);
-
-	if ( com_developer && com_developer->integer ) {
-		Cmd_AddCommand ("error", Com_Error_f);
-		Cmd_AddCommand ("crash", Com_Crash_f );
-		Cmd_AddCommand ("freeze", Com_Freeze_f);
-	}
-	Cmd_AddCommand ("quit", Com_Quit_f);
-	Cmd_AddCommand ("changeVectors", MSG_ReportChangeVectors_f );
-	Cmd_AddCommand ("writeconfig", Com_WriteConfig_f );
-	Cmd_SetCommandCompletionFunc( "writeconfig", Cmd_CompleteCfgName );
 
 	s = va("%s %s %s", Q3_VERSION, PLATFORM_STRING, __DATE__ );
 	com_version = Cvar_Get ("version", s, CVAR_ROM | CVAR_SERVERINFO );
