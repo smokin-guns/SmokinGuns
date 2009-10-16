@@ -3,8 +3,8 @@ Changes since SG 1.0-20081231
 *** NEW ***
 - Added more custom resolution, to be set using +set r_mode mode_number
  - Mode 12: 1280x800 (wide)
- - Mode 13: 1440x900 (wide)
- - Mode 14: 1366x768 (wide)
+ - Mode 13: 1366x768 (wide)
+ - Mode 14: 1440x900 (wide)
  - Mode 15: 1680x1050 (wide)
  - Mode 16: 1920x1080 (wide)
  - Mode 17: 1920x1200 (wide)
