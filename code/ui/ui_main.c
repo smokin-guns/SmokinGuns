@@ -6054,6 +6054,14 @@ void _UI_Init( qboolean inGameLoad ) {
 	uiInfo.effectsColor = gamecodetoui[(int)trap_Cvar_VariableValue("color1")-1];
 #endif
 	uiInfo.currentCrosshair = (int)trap_Cvar_VariableValue("cg_drawCrosshair");
+#ifdef SMOKINGUNS
+	// make sure people won't start without a crosshair when they
+	// upgrade to SG 1.1 (it defaulted to 8 in SG 1.0)
+	if (uiInfo.currentCrosshair >= NUM_CROSSHAIRS) {
+		uiInfo.currentCrosshair = 1;
+		trap_Cvar_SetValue("cg_drawCrosshair", uiInfo.currentCrosshair);
+	}	
+#endif
 	trap_Cvar_Set("ui_mousePitch", (trap_Cvar_VariableValue("m_pitch") >= 0) ? "0" : "1");
 
 	uiInfo.serverStatus.currentServerCinematic = -1;
@@ -6745,7 +6753,7 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_browserShowEmpty, "ui_browserShowEmpty", "1", CVAR_ARCHIVE },
 
 	{ &ui_brassTime, "cg_brassTime", "2500", CVAR_ARCHIVE },
-	{ &ui_drawCrosshair, "cg_drawCrosshair", "4", CVAR_ARCHIVE },
+	{ &ui_drawCrosshair, "cg_drawCrosshair", "1", CVAR_ARCHIVE },
 	{ &ui_drawCrosshairNames, "cg_drawCrosshairNames", "1", CVAR_ARCHIVE },
 	{ &ui_marks, "cg_marks", "1", CVAR_ARCHIVE },
 
