@@ -194,6 +194,8 @@ vmCvar_t	br_teamrole;
 vmCvar_t	g_newShotgunPattern;
 vmCvar_t	g_roundNoMoveTime;
 
+// for storing the weapon properties config string
+vmCvar_t	g_weaponInfo;
 
 qboolean b_sWaitingForPlayers = qfalse;
 int i_sNextWaitPrint = 0;
@@ -357,7 +359,9 @@ static cvarTable_t		gameCvarTable[] = {
 
 	// If g_breakspawndelay == 0, use BREAK_RESPAWN_TIME instead in g_mover.c
 	{ &g_breakspawndelay, "g_breakspawndelay", "0", 0, 0, qtrue },
-	{ &g_forcebreakrespawn, "g_forcebreakrespawn", "0", 0, 0, qtrue }
+	{ &g_forcebreakrespawn, "g_forcebreakrespawn", "0", 0, 0, qtrue },
+
+	{ &g_weaponInfo, "g_weaponInfo", "", CVAR_ARCHIVE, 0, qfalse },
 #endif
 
 };
@@ -790,6 +794,10 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	if(!G_LoadHitFiles(&hit_data)){
 		G_Error("Couldn't load hitfiles\n");
 	}
+
+	// set weapon properties
+	BG_ParseWeaponInfo( g_weaponInfo.string );
+	trap_SetConfigstring( CS_WEAPON_INFO, g_weaponInfo.string );
 #endif
 
 	// parse the key/value pairs and spawn gentities

@@ -3433,4 +3433,68 @@ hit_info_t	hit_info[NUM_HIT_LOCATIONS] = {
 	{"hit_l_foot_l",		"foot",		"foot",		HIT_FOOT_L,			PART_LOWER	},
 	{"hit_l_pelvis",		"groin",	"butt",		HIT_PELVIS,			PART_LOWER	}
 };
+
+/*
+===============
+BG_ParseWeaponValues
+
+Updates data in bg_weaponlist based on the values in the string.
+The values updated are spread, damage, and range.
+===============
+*/
+static void BG_ParseWeaponValues( int weaponNum, const char *s ) {
+	char	*p, *token;
+
+	p = (char *)s;
+
+	token = COM_ParseExt( &p, qfalse );
+	if ( token[0] )
+		bg_weaponlist[weaponNum].spread = atof( token );
+
+	token = COM_ParseExt( &p, qfalse );
+	if ( token[0] )
+		bg_weaponlist[weaponNum].damage = atof( token );
+
+	token = COM_ParseExt( &p, qfalse );
+	if ( token[0] )
+		bg_weaponlist[weaponNum].range = atoi( token );
+}
+
+/*
+===============
+BG_ParseWeaponInfo
+
+Parses the weapon info string, and sets the spread, damage, and range
+values in bg_weaponlist accordingly.
+===============
+*/
+void BG_ParseWeaponInfo( const char *info ) {
+	const char	*p;
+	int			weapon;
+
+	if ( !info )
+		return;
+
+	p = info;
+
+	while ( *p ) {
+		weapon = atoi( p );
+
+		while ( *p != '\\' ) {
+			if ( *p == '\0' )
+				return;
+			p++;
+		}
+		p++;
+
+		BG_ParseWeaponValues( weapon, p );
+		
+		while ( *p != '\\' ) {
+			if ( *p == '\0' )
+				return;
+			p++;
+		}
+		p+;+	
+	}
+}
 #endif
