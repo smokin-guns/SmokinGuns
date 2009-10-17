@@ -735,4 +735,34 @@ qboolean G_IsAnyClientWithinRadius( const vec3_t org, float rad, int ignoreTeam 
 
 	return qfalse;
 }
+
+/*
+================
+G_UpdateWeaponConfigString
+
+Updates the CS_WEAPON_INFO config string, based on bg_weaponlist.
+Also sets the value of the g_weaponInfo cvar.
+================
+*/
+void G_UpdateWeaponConfigString( void ) {
+	char		buf[MAX_INFO_STRING];
+	char		*p;
+	int			i;
+	static const int max = sizeof( buf ) / WP_NUM_WEAPONS;
+
+	p = buf;
+	for ( i = 1; i < WP_NUM_WEAPONS; i++ ) {
+		Com_sprintf( p, max, "%d\\%.1f %.1f %d\\", i, bg_weaponlist[i].spread,
+			                     bg_weaponlist[i].damage, bg_weaponlist[i].range );
+		p += strlen( p );
+	}
+
+	if ( p > buf ) {
+		assert( p[-1] == '\\' );
+		p[-1] = '\0';  // remove the last backslash
+
+		trap_SetConfigstring( CS_WEAPON_INFO, buf );
+		trap_Cvar_Set( "g_weaponInfo", buf );
+	}
+}
 #endif
