@@ -415,9 +415,8 @@ void Send_KeyBindings(void){
 
 
 void AssetCache( void ) {
-#ifndef SMOKINGUNS
 	int n;
-#endif
+
 	//if (Assets.textFont == NULL) {
 	//}
 	//Assets.background = trap_R_RegisterShaderNoMip( ASSET_BACKGROUND );
@@ -446,15 +445,13 @@ void AssetCache( void ) {
 	uiInfo.uiDC.Assets.sliderThumb = trap_R_RegisterShaderNoMip( ASSET_SLIDER_THUMB );
 
 #ifndef SMOKINGUNS
-	for( n = 0; n < NUM_CROSSHAIRS; n++ ) {
-		uiInfo.uiDC.Assets.crosshairShader[n] = trap_R_RegisterShaderNoMip( va("gfx/2d/crosshair%c", 'a' + n ) );
-	}
-
 	uiInfo.newHighScoreSound = trap_S_RegisterSound("sound/feedback/voc_newhighscore.wav", qfalse);
 #else
+	for( n = 0; n < NUM_CROSSHAIRS; n++ ) {
+		uiInfo.uiDC.Assets.crosshairShader[n] = trap_R_RegisterShaderNoMip( va("hud/crosshair%c", 'a' + n ) );
+	}
 	uiInfo.uiDC.Assets.menu_width = trap_R_RegisterShaderNoMip( ASSET_MENU_WIDTH);
 	uiInfo.uiDC.Assets.menu_height = trap_R_RegisterShaderNoMip (ASSET_MENU_HEIGHT);
-	uiInfo.uiDC.Assets.crosshairShader = trap_R_RegisterShaderNoMip( "hud/crosshair" );
 #endif
 }
 
@@ -2187,14 +2184,12 @@ static void UI_DrawRedBlue(rectDef_t *rect, float scale, vec4_t color, int textS
 
 static void UI_DrawCrosshair(rectDef_t *rect, float scale, vec4_t color) {
  	trap_R_SetColor( color );
-#ifndef SMOKINGUNS
+
 	if (uiInfo.currentCrosshair < 0 || uiInfo.currentCrosshair >= NUM_CROSSHAIRS) {
 		uiInfo.currentCrosshair = 0;
 	}
 	UI_DrawHandlePic( rect->x, rect->y - rect->h, rect->w, rect->h, uiInfo.uiDC.Assets.crosshairShader[uiInfo.currentCrosshair]);
-#else
-	UI_DrawHandlePic( rect->x, rect->y - rect->h, rect->w, rect->h, uiInfo.uiDC.Assets.crosshairShader);
-#endif
+
  	trap_R_SetColor( NULL );
 }
 

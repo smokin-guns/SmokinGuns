@@ -2614,10 +2614,9 @@ static void CG_DrawCrosshair( qboolean changeCrosshair, qboolean isPlayer)
 	qhandle_t	hShader;
 	float		f;
 	float		x, y;
-#ifndef SMOKINGUNS
 	int			ca;
 
-#else
+#ifdef SMOKINGUNS
 	vec4_t		colorActivate = {1.0f, 0.75f, 0.0f, 1.0f};
 	qboolean	drawFriendWarning = qfalse;
 
@@ -2733,7 +2732,12 @@ static void CG_DrawCrosshair( qboolean changeCrosshair, qboolean isPlayer)
 		y + cg.refdef.y + 0.5 * (cg.refdef.height - h), 
 		w, h, 0, 0, 1, 1, hShader );
 #else
-	hShader = cgs.media.crosshairShader;
+	ca = cg_drawCrosshair.integer;
+	if (ca < 0) {
+		ca = 0;
+	}
+	hShader = cgs.media.crosshairShader[ ca % NUM_CROSSHAIRS ];
+
 	CG_DrawPic( x + 320 - w/2, y + 240 - h/2, w, h, hShader );
 
 	if (drawFriendWarning) {
@@ -2756,9 +2760,7 @@ static void CG_DrawCrosshair3D(void)
 	float		w, h;
 	qhandle_t	hShader;
 	float		f;
-#ifndef SMOKINGUNS
 	int			ca;
-#endif
 
 	trace_t trace;
 	vec3_t endpos;
@@ -2792,15 +2794,11 @@ static void CG_DrawCrosshair3D(void)
 		h *= ( 1 + f );
 	}
 
-#ifndef SMOKINGUNS
 	ca = cg_drawCrosshair.integer;
 	if (ca < 0) {
 		ca = 0;
 	}
 	hShader = cgs.media.crosshairShader[ ca % NUM_CROSSHAIRS ];
-#else
-	hShader = cgs.media.crosshairShader;
-#endif
 
 	// Use a different method rendering the crosshair so players don't see two of them when
 	// focusing their eyes at distant objects with high stereo separation
