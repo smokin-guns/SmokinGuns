@@ -297,6 +297,11 @@ void CG_SetConfigValues( void ) {
 #endif
 #endif
 	cg.warmup = atoi( CG_ConfigString( CS_WARMUP ) );
+
+#ifdef SMOKINGUNS
+	// set weapon properties
+	BG_ParseWeaponInfo( CG_ConfigString( CS_WEAPON_INFO ) );
+#endif
 }
 
 /*
@@ -405,6 +410,10 @@ static void CG_ConfigStringModified( void ) {
 #endif
 	} else if ( num == CS_INTERMISSION ) {
 		cg.intermissionStarted = atoi( str );
+#ifdef SMOKINGUNS
+	} else if ( num == CS_WEAPON_INFO ) {
+		BG_ParseWeaponInfo( str );
+#endif
 	} else if ( num >= CS_MODELS && num < CS_MODELS+MAX_MODELS ) {
 		cgs.gameModels[ num-CS_MODELS ] = trap_R_RegisterModel( str );
 	} else if ( num >= CS_SOUNDS && num < CS_SOUNDS+MAX_SOUNDS ) {

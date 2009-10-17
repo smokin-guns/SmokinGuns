@@ -712,6 +712,7 @@ void AddRemap(const char *oldShader, const char *newShader, float timeOffset);
 const char *BuildShaderStateConfig( void );
 #else
 qboolean G_IsAnyClientWithinRadius( const vec3_t org, float rad, int ignoreTeam );
+void G_UpdateWeaponConfigString( void );
 #endif
 
 //
@@ -1094,6 +1095,9 @@ extern	vmCvar_t	du_forcetrio;
 //Spoon Start
 extern	vmCvar_t	sg_rtppoints;
 extern	vmCvar_t	g_deathcam;
+
+// for storing the weapon properties config string
+extern	vmCvar_t	g_weaponInfo;
 
 // shows current version (make sure the game was updated correctly)
 extern	vmCvar_t	g_version;

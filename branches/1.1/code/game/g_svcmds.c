@@ -483,6 +483,65 @@ void Svcmd_KickBots_f(void){
 }
 
 /*
+=================
+CMD_WEAPON_INFO
+
+Display or change weapon properties.
+=================
+*/
+#define CMD_WEAPON_INFO( field )													   \
+do {																				   \
+	char		arg[MAX_TOKEN_CHARS];												   \
+	int			argc = trap_Argc();													   \
+	int			weapon;																   \
+	float		oldVal, newVal;														   \
+	const char	*name;																   \
+																					   \
+	if ( argc > 3 )																	   \
+		goto usage_##field;															   \
+																					   \
+	if ( argc == 1 ) {  /* list value for all weapons */							   \
+		for ( weapon = 1; weapon < WP_NUM_WEAPONS; weapon++) {						   \
+			name = bg_weaponlist[weapon].name;										   \
+			oldVal = bg_weaponlist[weapon].field;									   \
+			if ( weapon == 2 || weapon == 5 || weapon == 8 || weapon == 11 )		   \
+				G_Printf("\n");														   \
+			G_Printf( "%2d: %-22s " #field " = %.1f\n", weapon, name, oldVal );		   \
+		}																			   \
+	}																				   \
+	else if ( argc >= 2 ) {															   \
+		trap_Argv( 1, arg, sizeof( arg ) );											   \
+		weapon = atoi( arg );														   \
+		if ( weapon < 1 || weapon >= WP_NUM_WEAPONS )								   \
+			goto usage_##field;														   \
+																					   \
+		name = bg_weaponlist[weapon].name;											   \
+		oldVal = bg_weaponlist[weapon].field;										   \
+																					   \
+		if ( argc == 2 ) {  /* show value for this weapon */						   \
+			G_Printf( "%s " #field " is %.1f\n", name, oldVal );					   \
+		}																			   \
+		else if ( argc == 3 ) {  /* set value for this weapon */					   \
+			char buf[256];															   \
+																					   \
+			trap_Argv( 2, arg, sizeof( arg ) );										   \
+			newVal = atof( arg );													   \
+			bg_weaponlist[weapon].field = newVal;									   \
+			Com_sprintf( buf, sizeof( buf ), "%s " #field " changed from %.1f to %.1f\n",\
+															    name, oldVal, newVal );\
+			trap_SendServerCommand( -1, va( "print \"server: %s\"", buf ) );		   \
+			G_UpdateWeaponConfigString();											   \
+		}																			   \
+	}																				   \
+																					   \
+	break;																			   \
+																					   \
+usage_##field:																		   \
+	G_Printf(#field " [weapon (1-13) [newValue]]\n");								   \
+																					   \
+} while (0)
+
+/*
 ===================
 Svcmd_BigText_f
 Tequila: BigText command suggested by villa
@@ -601,6 +660,24 @@ qboolean	ConsoleCommand( void ) {
 		trap_SendConsoleCommand( EXEC_NOW, "g_banIPs\n" );
 		return qtrue;
 	}
+
+#ifdef SMOKINGUNS
+	// commands for changing weapon properties
+	if (Q_stricmp(cmd, "spread") == 0) {
+		CMD_WEAPON_INFO(spread);
+		return qtrue;
+	}
+
+	if (Q_stricmp(cmd, "damage") == 0) {
+		CMD_WEAPON_INFO(damage);
+		return qtrue;
+	}
+	
+	if (Q_stricmp(cmd, "range") == 0) {
+		CMD_WEAPON_INFO(range);
+		return qtrue;
+	}
+#endif
 
 	if (g_dedicated.integer) {
 		if (Q_stricmp (cmd, "say") == 0) {
