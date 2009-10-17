@@ -416,7 +416,6 @@ void Send_KeyBindings(void){
 
 void AssetCache( void ) {
 	int n;
-
 	//if (Assets.textFont == NULL) {
 	//}
 	//Assets.background = trap_R_RegisterShaderNoMip( ASSET_BACKGROUND );
@@ -445,6 +444,10 @@ void AssetCache( void ) {
 	uiInfo.uiDC.Assets.sliderThumb = trap_R_RegisterShaderNoMip( ASSET_SLIDER_THUMB );
 
 #ifndef SMOKINGUNS
+	for( n = 0; n < NUM_CROSSHAIRS; n++ ) {
+		uiInfo.uiDC.Assets.crosshairShader[n] = trap_R_RegisterShaderNoMip( va("gfx/2d/crosshair%c", 'a' + n ) );
+	}
+
 	uiInfo.newHighScoreSound = trap_S_RegisterSound("sound/feedback/voc_newhighscore.wav", qfalse);
 #else
 	for( n = 0; n < NUM_CROSSHAIRS; n++ ) {
@@ -3146,8 +3149,13 @@ static qboolean UI_RedBlue_HandleKey(int flags, float *special, int key) {
 }
 
 static qboolean UI_Crosshair_HandleKey(int flags, float *special, int key) {
+#ifndef SMOKINGUNS
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
 		if (key == K_MOUSE2) {
+#else
+  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER || key == K_MWHEELUP || key == K_MWHEELDOWN) {
+		if (key == K_MOUSE2 || key == K_MWHEELDOWN) {
+#endif
 			uiInfo.currentCrosshair--;
 		} else {
 			uiInfo.currentCrosshair++;
@@ -6060,7 +6068,7 @@ void _UI_Init( qboolean inGameLoad ) {
 	if (uiInfo.currentCrosshair >= NUM_CROSSHAIRS) {
 		uiInfo.currentCrosshair = 1;
 		trap_Cvar_SetValue("cg_drawCrosshair", uiInfo.currentCrosshair);
-	}	
+	}
 #endif
 	trap_Cvar_Set("ui_mousePitch", (trap_Cvar_VariableValue("m_pitch") >= 0) ? "0" : "1");
 

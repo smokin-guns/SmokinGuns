@@ -2719,7 +2719,6 @@ static void CG_DrawCrosshair( qboolean changeCrosshair, qboolean isPlayer)
 
 	x = cg_crosshairX.integer;
 	y = cg_crosshairY.integer;
-#ifndef SMOKINGUNS
 	CG_AdjustFrom640( &x, &y, &w, &h );
 
 	ca = cg_drawCrosshair.integer;
@@ -2731,15 +2730,8 @@ static void CG_DrawCrosshair( qboolean changeCrosshair, qboolean isPlayer)
 	trap_R_DrawStretchPic( x + cg.refdef.x + 0.5 * (cg.refdef.width - w), 
 		y + cg.refdef.y + 0.5 * (cg.refdef.height - h), 
 		w, h, 0, 0, 1, 1, hShader );
-#else
-	ca = cg_drawCrosshair.integer;
-	if (ca < 0) {
-		ca = 0;
-	}
-	hShader = cgs.media.crosshairShader[ ca % NUM_CROSSHAIRS ];
 
-	CG_DrawPic( x + 320 - w/2, y + 240 - h/2, w, h, hShader );
-
+#ifdef SMOKINGUNS
 	if (drawFriendWarning) {
 		trap_R_SetColor(colorRed);
 		hShader = cgs.media.crosshairFriendShader;
