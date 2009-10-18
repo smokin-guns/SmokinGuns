@@ -52,6 +52,7 @@ Changes since SG 1.0-20081231
 - Many fixes from ioQuake3 sources
 - g_allowVote can be set to the number of seconds before a player can call again a vote
 - players name can be tagged to make sure they are unique in game
+- settings are now stored in a per-user location, instead of in the game's installation directory
 
 Changes in SG 1.0-20081231
 ******************
