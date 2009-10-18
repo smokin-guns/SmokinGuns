@@ -591,18 +591,10 @@ issues.
 
 #define	MAX_FILE_HANDLES	64
 
-#ifndef SMOKINGUNS
 #ifdef DEDICATED
 #	define Q3CONFIG_CFG "q3config_server.cfg"
 #else
 #	define Q3CONFIG_CFG "q3config.cfg"
-#endif
-#else
-#ifdef DEDICATED
-#	define Q3CONFIG_CFG "sgconfig_server.cfg"
-#else
-#	define Q3CONFIG_CFG "sgconfig.cfg"
-#endif
 #endif
 
 qboolean FS_Initialized( void );

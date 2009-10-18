@@ -52,7 +52,6 @@ Changes since SG 1.0-20081231
 - Many fixes from ioQuake3 sources
 - g_allowVote can be set to the number of seconds before a player can call again a vote
 - players name can be tagged to make sure they are unique in game
-- Changed home path and config name to smokinguns/sgconfig.cfg under windows
 
 Changes in SG 1.0-20081231
 ******************
