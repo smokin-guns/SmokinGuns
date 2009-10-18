@@ -69,7 +69,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   // with 1.1 game mod. It permit also to read the baseq3/pak0.pk3
   // as expected in 1.0 client until we don't need it anymore
   #define SDK_BASEGAME				"baseq3"
-  #define CLIENT_WINDOW_TITLE     	"SmokinGuns"
+  #define CLIENT_WINDOW_TITLE		PRODUCT_NAME
   #define CLIENT_WINDOW_MIN_TITLE 	"SG"
   #define GAMENAME_FOR_MASTER		"smokinguns"
 
