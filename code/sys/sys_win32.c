@@ -78,7 +78,7 @@ char *Sys_DefaultHomePath( void )
 #ifndef SMOKINGUNS
 		Q_strcat( homePath, sizeof( homePath ), "\\Quake3" );
 #else
-		Q_strcat( homePath, sizeof( homePath ), "\\" BASEGAME );
+		Q_strcat( homePath, sizeof( homePath ), "\\" PRODUCT_NAME );
 #endif
 		FreeLibrary(shfolder);
 		if( !CreateDirectory( homePath, NULL ) )
