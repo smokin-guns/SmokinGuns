@@ -758,7 +758,9 @@ void G_UpdateWeaponConfigString( void ) {
 	}
 
 	if ( p > buf ) {
+#ifndef Q3_VM
 		assert( p[-1] == '\\' );
+#endif
 		p[-1] = '\0';  // remove the last backslash
 
 		trap_SetConfigstring( CS_WEAPON_INFO, buf );
