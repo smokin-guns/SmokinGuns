@@ -3494,7 +3494,7 @@ void BG_ParseWeaponInfo( const char *info ) {
 				return;
 			p++;
 		}
-		p+;+	
+		p++;	
 	}
 }
 #endif
