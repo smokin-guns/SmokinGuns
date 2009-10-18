@@ -41,6 +41,7 @@ Changes since SG 1.0-20081231
 - Thanks to ioQ3, passed rcon commands are logged
 - callvote string is logged in server log
 - new "cancelvote" server side command, can only be used by admins
+- support for more crosshair
 *** CHANGES ***
 - Reloading bug fixed by Joe Kari
 - Fix game crash during game load when using cgame binary library
@@ -51,6 +52,7 @@ Changes since SG 1.0-20081231
 - Many fixes from ioQuake3 sources
 - g_allowVote can be set to the number of seconds before a player can call again a vote
 - players name can be tagged to make sure they are unique in game
+- Changed home path and config name to smokinguns/sgconfig.cfg under windows
 
 Changes in SG 1.0-20081231
 ******************
