@@ -1,0 +1,161 @@
+#include "ui/menudef.h"
+
+{
+\\ SETUP MENU \\
+
+menuDef {
+   	name "ingame_player"
+   	visible 0
+   	fullscreen 0
+	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+   	rect 128 0 256 160
+   	focusColor 1 .75 0 1
+	onOpen  { uiScript update "ui_GetName" }
+	onClose { uiScript update "ui_SetName" }
+
+
+itemDef {
+	name window
+	rect 0 0 256 100
+	ownerdraw UI_INGAME_RECT
+	visible 1
+	decoration
+	cvarTest "g_gametype"
+	hideCvar { "0" ; "1" }
+	}
+
+itemDef {
+	name window
+	rect 0 0 256 160
+	ownerdraw UI_INGAME_RECT
+	visible 1
+	decoration
+	cvarTest "g_gametype"
+	showCvar { "0" ; "1" }
+	}
+
+itemDef {
+   	name namefield
+	group "playersettinggroup"
+   	type ITEM_TYPE_EDITFIELD
+	style 0
+	text "Name:"
+	cvar "ui_Name"
+	maxchars 26
+   	rect 20 40 256 20
+   	textalign ITEM_ALIGN_LEFT		
+   	textalignx 10
+   	textaligny 18
+	textscale .27        
+   	outlinecolor 1 .5 .5 .5
+   	backcolor 0 0 0 0
+   	forecolor 1 1 1 1
+   	border 0
+   	bordercolor 0 0 0 0
+   	visible 1 
+}
+
+itemDef {
+      	name handicapfield
+	group "playersettinggroup"
+      	style 0	
+	text "Handicap:"
+	ownerdraw UI_HANDICAP
+	rect 20 60 256 20
+      	textalign ITEM_ALIGN_LEFT		
+      	textalignx 10
+      	textaligny 18
+	textscale .27    
+      	outlinecolor 1 .5 .5 .5
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 1 
+    	}
+
+/*itemDef {
+      	name effectentry
+	group "playersettinggroup"
+      	text "Effect:"
+	type 1
+      	style 0	
+      	rect 20 65 256 20
+	textalign ITEM_ALIGN_LEFT	
+      	textalignx 10
+      	textaligny 18
+	textscale .25        
+      	outlinecolor 1 .5 .5 .5
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 1 
+      	decoration 
+      	mouseEnterText { setitemcolor effectentry forecolor 1 .75 0 1 ; setfocus effectfield ; show message_effect } 
+      	mouseExitText { setitemcolor playersettinggroup forecolor 1 1 1 1 ; hide message_effect }
+    	}
+
+itemDef {
+      	name effectfield
+	group "playersettinggroup"
+      	style 0	
+	ownerdraw UI_EFFECTS
+      	rect 20 65 256 20
+      	textalign ITEM_ALIGN_LEFT		
+      	textalignx 50
+      	textaligny 25
+      	outlinecolor 1 .5 .5 .5
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 1     
+    	}
+
+itemDef {
+	name headlist
+      	rect 15 100 260 50
+	type ITEM_TYPE_LISTBOX
+	style WINDOW_STYLE_FILLED
+	elementwidth 32
+	elementheight 32
+	elementtype LISTBOX_IMAGE
+	feeder FEEDER_HEADS
+	horizontalscroll
+	backcolor 0 0 0 1
+	border 1
+	bordercolor .5 .5 .5 1
+	forecolor 1 1 1 1
+	visible 1
+	cvarTest "g_gametype"
+	showCvar { "3" ; "4" ; "5" ; "6" ; "7" ; "8" }
+	mouseenter { setitemcolor headlist bordercolor 1 0 0 1 }
+	mouseexit { setitemcolor headlist bordercolor .5 .5 .5 1 }
+	}*/
+
+itemDef {
+	name headlist
+      	rect 17 85 221 50
+	type ITEM_TYPE_LISTBOX
+	style WINDOW_STYLE_FILLED
+	elementwidth 32
+	elementheight 32
+	elementtype LISTBOX_IMAGE
+	feeder FEEDER_Q3HEADS
+	horizontalscroll
+	backcolor .5 .5 .5 .5
+	border 1
+	bordercolor .5 .5 .5 1
+	forecolor 1 1 1 1
+	visible 1
+	cvarTest "g_gametype"
+	showCvar { "0" ; "1" }
+	mouseenter {  }
+	mouseexit {  }
+	}
+
+}
+
+
+}
