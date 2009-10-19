@@ -388,7 +388,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="user32.lib advapi32.lib winmm.lib wsock32.lib ws2_32.lib OpenAL32.lib SDLmain.lib SDL.lib OpenGL32.lib"
-				OutputFile="$(OutDir)\smokinguns11.exe"
+				OutputFile="$(OutDir)\smokinguns.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\code\libs\win32;&quot;C:\Program Files\OpenAL 1.1 SDK\libs\Win32&quot;"
