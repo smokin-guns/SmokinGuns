@@ -750,7 +750,12 @@ int BotGetReachabilityToGoal(vec3_t origin, int areanum,
 	aas_reachability_t reach;
 
 	//if not in a valid area
+#ifndef SMOKINGUNS
 	if (!areanum) return 0;
+#else
+	if ((!areanum)||(!goal->areanum)||(!AAS_AreaReachability(areanum))||(!AAS_AreaReachability(goal->areanum)))
+		return 0;
+#endif
 	//
 	if (AAS_AreaDoNotEnter(areanum) || AAS_AreaDoNotEnter(goal->areanum))
 	{
