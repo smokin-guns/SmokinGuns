@@ -169,10 +169,10 @@ void CG_ImpactMark( qhandle_t markShader, const vec3_t origin, const vec3_t dir,
 	// Afaik, this is a bug related to BG_ShootThruWall() API in bg_misc.c
 	// which really need to be fixed soon. Remove this when fixed.
 	if (VectorCompare(dir,vec3_origin)) {
-#ifndef NDEBUG
-		CG_Printf( S_COLOR_RED "CG_ImpactMark: " S_COLOR_YELLOW
-			"Called with empty direction, applying workaround\n" );
-#endif
+		if(cg_debug.integer) {
+			CG_Printf( S_COLOR_RED "CG_ImpactMark: " S_COLOR_YELLOW
+				"Called with empty direction, applying workaround\n" );
+		}
 		return ;
 	}
 

@@ -1044,7 +1044,7 @@ extern	vmCvar_t	g_inactivity;
 extern	vmCvar_t	g_debugMove;
 extern	vmCvar_t	g_debugAlloc;
 extern	vmCvar_t	g_debugDamage;
-#if defined(SMOKINGUNS) && !defined(NDEBUG)
+#ifdef SMOKINGUNS
 extern	vmCvar_t	g_debugWeapon;
 #endif
 extern	vmCvar_t	g_weaponRespawn;

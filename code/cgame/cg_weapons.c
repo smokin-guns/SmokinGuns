@@ -4336,7 +4336,6 @@ void CG_MakeSmokePuff(entityState_t *ent){
 	}
 }
 
-#ifndef NDEBUG
 void CG_BulletTracer( vec3_t start, vec3_t end, int number, int entityNum ) {
 	vec3_t forward;
 
@@ -4389,5 +4388,4 @@ void CG_BulletTracer( vec3_t start, vec3_t end, int number, int entityNum ) {
 	VectorCopy(start, re->origin);
 	re->origin[2] += 2 ;
 }
-#endif
 #endif

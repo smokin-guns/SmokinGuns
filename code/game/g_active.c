@@ -1693,7 +1693,7 @@ void ClientThink_real( gentity_t *ent ) {
 				client->ps.pm_flags |= PMF_RESPAWNED ; // simulate a respawn check
 			else {
 				client->ps.pm_flags &= ~PMF_RESPAWNED ;
-#ifndef NDEBUG
+#ifdef DEBUG_TELEFRAG_CASE
 				G_Printf(S_COLOR_YELLOW "Telefrag case workaround disabled on %s...\n",client->pers.netname);
 #endif
 			}
@@ -1702,7 +1702,7 @@ void ClientThink_real( gentity_t *ent ) {
 			// Tequila comment: G_KillBox will set dontTelefrag as needed
 			if ( ent->health && !( client->dontTelefrag ) ) {
 				ent->r.contents = CONTENTS_BODY;
-#ifndef NDEBUG
+#ifdef DEBUG_TELEFRAG_CASE
 				G_Printf(S_COLOR_MAGENTA "Telefrag case avoided by %s...\n",client->pers.netname);
 #endif
 			} else if (ent->health) {
