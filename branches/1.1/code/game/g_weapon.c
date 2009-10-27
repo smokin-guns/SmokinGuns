@@ -42,43 +42,35 @@ static	qboolean shootthru;
 =====================
 Weapon_Trace_Bullet
 by: Tequila
-Dedicated trace to simplify added trace debug in debug builds
+Dedicated trace to simplify added trace debug
 It is derivated from trap_Trace_New2
 ======================
 */
-#ifndef NDEBUG
 static int traceNumber = 0 ;
 static int skipNumber = 0 ;
 static void Weapon_Trace_ResetDebug(int passEntityNum) {
 	skipNumber = passEntityNum ;
 	traceNumber = 0;
 }
-#endif
 
 static int Weapon_Trace( trace_t *results, const vec3_t start, const vec3_t end, int passEntityNum ) {
 	int shaderNum;
-#ifndef NDEBUG
 	gentity_t *tent;
 	vec3_t origin;
 	VectorCopy(start,origin);
-#endif
 
 	// Here is the real trace
 	trap_Trace(results, start, NULL, NULL, end, passEntityNum, MASK_SHOT);
 
-#ifndef NDEBUG
 	// don't debug weapon trace if not debugging weapon
 	if (g_debugWeapon.integer) {
-		// Create Temporary entity to show the trace on the client side
+		// Create Temporary entity to show the trace on the client side from origin
 		tent = G_TempEntity( origin, EV_DEBUG_BULLET );
-		// Set trace origin
-		G_SetOrigin( tent, origin );
 		// Set trace end
 		VectorCopy( results->endpos, tent->s.origin2 );
 		// Set trace step number
 		tent->s.eventParm = traceNumber++;
 	}
-#endif
 
 	if((results->contents & CONTENTS_SOLID) || (results->contents & CONTENTS_PLAYERCLIP)){
 		// Spoon stuff to decompress surfaceFlags
@@ -90,7 +82,8 @@ static int Weapon_Trace( trace_t *results, const vec3_t start, const vec3_t end,
 	return shaderNum;
 }
 
-#ifndef NDEBUG
+//#define CHECK_ENTITY_BUG
+#ifdef CHECK_ENTITY_BUG
 static void CheckEntityBug(const char* functag,gentity_t *ent) {
 	int i;
 	gentity_t *t;
@@ -103,8 +96,7 @@ static void CheckEntityBug(const char* functag,gentity_t *ent) {
 	// Tequila comment:
 	// A workaround was put in weapons API in previous release (< SG 1.1 rev 301)
 	// as some entities was not linked in the world for some reason
-	// We now keep this in DEBUG build only to show them when debugging
-	// and we want now to fix the related bug: why is an entity not linked if it's not normal ?
+	// We may want to fix the related bug: why is an entity not linked if it's not normal ?
 	for(i=0; i<MAX_CLIENTS; i++){
 
 		if(level.clients[i].pers.connected != CON_CONNECTED)
@@ -264,7 +256,7 @@ qboolean CheckKnifeAttack( gentity_t *ent ) {
 
 	VectorMA (muzzle, 10, forward, end);
 
-#ifndef NDEBUG
+#ifdef CHECK_ENTITY_BUG
 	CheckEntityBug("CheckKnifeAttack",ent);
 #endif
 
@@ -512,12 +504,12 @@ void Bullet_Fire (gentity_t *ent, float spread, float damage, const int weapon )
 	int			location;
 	int			shootcount = 0;
 
-#ifndef NDEBUG
+#ifdef CHECK_ENTITY_BUG
 	CheckEntityBug("Bullet_Fire",ent);
+#endif
 
 	// Reset trace counter
 	Weapon_Trace_ResetDebug(ent->s.number);
-#endif
 
 //unlagged - backward reconciliation #2
 		// backward-reconcile the other clients
@@ -565,12 +557,12 @@ pistolfire:
 	// Tequila: Really don't shoot ourself
 	if ( tr.entityNum == ent->s.number ) {
 		if (++shootcount>10){
-#ifndef NDEBUG
-			G_Printf( S_COLOR_RED "Bullet_Fire: " S_COLOR_YELLOW
-				"Trace DEBUG: Shooting only through #%i (netname='%s') !!!\n",
-				ent->s.number, ent->client->pers.netname);
-#endif
-				goto untimeshift;
+			if (g_debugWeapon.integer>1) {
+				G_Printf( S_COLOR_RED "Bullet_Fire: " S_COLOR_YELLOW
+					"Trace DEBUG: Shooting only through #%i (netname='%s') !!!\n",
+					ent->s.number, ent->client->pers.netname);
+			}
+			goto untimeshift;
 		}
 		// Advance a little
 		VectorAdd (tr.endpos, tr_dir, muzzle);
@@ -737,10 +729,10 @@ wall:
 			passent = tr.entityNum;
 			goto pistolfire;
 		}
-#ifndef NDEBUG
-		G_Printf( S_COLOR_RED "Bullet_Fire: " S_COLOR_YELLOW
-			"Trace DEBUG: Max shoot count reached\n");
-#endif
+		if (g_debugWeapon.integer>1) {
+			G_Printf( S_COLOR_RED "Bullet_Fire: " S_COLOR_YELLOW
+				"Trace DEBUG: Max shoot count reached\n");
+		}
 	}
 
 untimeshift:
@@ -860,10 +852,9 @@ qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent) {
 	VectorSubtract(tr_end, tr_start, tr_dir);
 	VectorNormalize(tr_dir);
 
-#ifndef NDEBUG
 	// Reset trace counter
 	Weapon_Trace_ResetDebug(ent->s.number);
-#endif
+
 shotgunfire:
 	shootthru = qfalse;
 
@@ -872,11 +863,11 @@ shotgunfire:
 	// Tequila: Really don't shoot ourself
 	if ( tr.entityNum == ent->s.number ) {
 		if (++shootcount>10){
-#ifndef NDEBUG
-			G_Printf( S_COLOR_MAGENTA "ShotgunPellet: " S_COLOR_YELLOW
-				"Trace DEBUG: Shooting only through #%i (netname='%s')\n",
-				ent->s.number, ent->client->pers.netname);
-#endif
+			if (g_debugWeapon.integer>1) {
+				G_Printf( S_COLOR_MAGENTA "ShotgunPellet: " S_COLOR_YELLOW
+					"Trace DEBUG: Shooting only through #%i (netname='%s')\n",
+					ent->s.number, ent->client->pers.netname);
+			}
 			return qfalse;
 		}
 		// Advance a little
@@ -1036,11 +1027,11 @@ wall:
 				passent = tr.entityNum;
 				goto shotgunfire;
 			}
-#ifndef NDEBUG
-			// Tequila: Show this case just in case it happens too often
-			G_Printf( S_COLOR_RED "ShotgunPellet: " S_COLOR_YELLOW
-				"Trace DEBUG: Max shoot count reached\n");
-#endif
+			if (g_debugWeapon.integer>1) {
+				// Tequila: Show this case just in case it happens too often
+				G_Printf( S_COLOR_RED "ShotgunPellet: " S_COLOR_YELLOW
+					"Trace DEBUG: Max shoot count reached\n");
+			}
 		}
 	}
 	return qfalse;
@@ -1091,7 +1082,7 @@ int ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, qbo
 	int			playerhitcount = 0;
 	gentity_t	*tent;
 
-#ifndef NDEBUG
+#ifdef CHECK_ENTITY_BUG
 	CheckEntityBug("ShotgunPattern",ent);
 #endif
 

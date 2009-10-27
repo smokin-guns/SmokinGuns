@@ -2085,9 +2085,7 @@ void CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean fles
 #else
 void CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum , int weapon, int surfaceFlags, int shaderNum, int entityNum);
 void CG_MakeSmokePuff(entityState_t *ent);
-#ifndef NDEBUG
 void CG_BulletTracer( vec3_t start, vec3_t end, int number, int entityNum );
-#endif
 #endif
 
 void CG_RailTrail( clientInfo_t *ci, vec3_t start, vec3_t end );

@@ -127,15 +127,17 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	if ( player->client->sess.sessionTeam < TEAM_SPECTATOR ) {
 #endif
 		G_KillBox (player);
+#ifdef SMOKINGUNS
 		// Tequila comment: G_KillBox will set dontTelefrag as needed
 		if (player->client->dontTelefrag) {
-#ifndef NDEBUG
+#ifdef DEBUG_TELEFRAG_CASE
 			G_Printf(S_COLOR_MAGENTA "TeleportPlayer: Telefrag case delayed at respawn for %s...\n",player->client->pers.netname);
 #endif
 			trap_SendServerCommand( player->s.clientNum, va("print \"Go away %s\n\"",player->client->pers.netname) );
 			// So we will link the player entity later with normal content
 			player->r.contents = 0;
 		}
+#endif
 	}
 
 	// save results of pmove

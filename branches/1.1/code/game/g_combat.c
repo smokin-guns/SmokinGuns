@@ -1442,6 +1442,7 @@ By Tequila, TeamKill management inspired by Conq patch
 Return false when TK supported limit is not hit
 ============
 */
+//#define DEBUG_CHECKTEAMKILL
 static qboolean CheckTeamKills( gentity_t *attacker, gentity_t *targ, int mod ) {
 	if ( !g_maxteamkills.integer )
 		return qfalse;
@@ -1472,14 +1473,14 @@ static qboolean CheckTeamKills( gentity_t *attacker, gentity_t *targ, int mod ) 
 
 	// Check if we should reset TK count before
 	if ( attacker->client->pers.lastTeamKillTime && level.time > attacker->client->pers.lastTeamKillTime + g_teamkillsforgettime.integer * 1000 ) {
-#ifndef NDEBUG
+#ifdef DEBUG_CHECKTEAMKILL
 		G_Printf(S_COLOR_MAGENTA "CheckTeamKills: Forget TeamKillsCount (%i) from %s\n", attacker->client->pers.TeamKillsCount, attacker->client->pers.netname);
 #endif
 		attacker->client->pers.TeamKillsCount=0;
 	}
 
 	attacker->client->pers.TeamKillsCount ++;
-#ifndef NDEBUG
+#ifdef DEBUG_CHECKTEAMKILL
 	if (attacker->client->pers.lastTeamKillTime)
 		G_Printf(S_COLOR_MAGENTA "CheckTeamKills: Last TeamKills for %s was %.2f seconds ago\n", attacker->client->pers.netname,(float)(level.time-attacker->client->pers.lastTeamKillTime)/1000.0f);
 #endif
@@ -1494,7 +1495,7 @@ static qboolean CheckTeamKills( gentity_t *attacker, gentity_t *targ, int mod ) 
 		trap_SendServerCommand( attacker-g_entities,
 			va("print \"%s" S_COLOR_YELLOW "... Be careful teammate !!! Next teammate kill could kick you from that server.\n\"",
 			attacker->client->pers.netname));
-#ifndef NDEBUG
+#ifdef DEBUG_CHECKTEAMKILL
 	G_Printf(S_COLOR_MAGENTA "CheckTeamKills: TeamKillsCount is %i for %s\n", attacker->client->pers.TeamKillsCount, attacker->client->pers.netname);
 #endif
 	return qfalse;

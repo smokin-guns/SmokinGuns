@@ -2183,7 +2183,7 @@ void ClientSpawn(gentity_t *ent) {
 			G_KillBox( ent );
 			// Tequila comment: G_KillBox will set dontTelefrag as needed
 			if (client->dontTelefrag) {
-#ifndef NDEBUG
+#ifdef DEBUG_TELEFRAG_CASE
 				G_Printf(S_COLOR_MAGENTA "ClientSpawn: Telefrag case delayed at respawn for %s...\n",client->pers.netname);
 #endif
 				trap_SendServerCommand( index, va("print \"Go away %s\n\"",client->pers.netname) );
