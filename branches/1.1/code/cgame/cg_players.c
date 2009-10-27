@@ -2930,10 +2930,16 @@ void CG_Turret( centity_t *cent ){
 	vec3_t			viewangles;
 	vec3_t			angles;
 	int				time = cg.time;
-	centity_t		*player = &cg_entities[cent->currentState.eventParm];
-	int				eFlags = player->currentState.eFlags;
+	centity_t		*player = NULL;
+	int				eFlags = 0;
 	qboolean		thisplayer= qfalse;
 	qboolean		reload = qfalse;
+
+	// Tequila comment: eventParm is set to -1 when gatling is free
+	if (cent->currentState.eventParm >= 0 && cent->currentState.eventParm < cgs.maxclients) {
+		player = &cg_entities[cent->currentState.eventParm];
+		eFlags = player->currentState.eFlags;
+	}
 
 	memset( &tripod, 0, sizeof(tripod) );
 	memset( &middle, 0, sizeof(middle) );
@@ -2946,7 +2952,7 @@ void CG_Turret( centity_t *cent ){
 	if(cent->currentState.time2 < 0){
 		time *= -1;
 
-		if(time <= cent->currentState.time2 - BG_AnimLength( WP_ANIM_CHANGE, WP_GATLING)
+		if(player && time <= cent->currentState.time2 - BG_AnimLength( WP_ANIM_CHANGE, WP_GATLING)
 			 - TRIPOD_TIME - 3* STAGE_TIME +500){
 			player->pe.weapon.weaponAnim = WP_ANIM_CHANGE;
 			if(cg.snap->ps.clientNum == cent->currentState.eventParm)
@@ -2967,7 +2973,7 @@ void CG_Turret( centity_t *cent ){
 
 		if(!cg_nopredict.integer && !cg_synchronousClients.integer)
 			eFlags = cg.predictedPlayerState.eFlags;
-	} else {
+	} else if (player){
 		VectorCopy(player->lerpAngles, viewangles);
 	}
 /*
@@ -3037,7 +3043,7 @@ void CG_Turret( centity_t *cent ){
 
 	//set orientation of middle part
 	VectorClear(angles);
-	if(cgs.clientinfo[cent->currentState.eventParm].infoValid){
+	if( player && cgs.clientinfo[cent->currentState.eventParm].infoValid ){
 
 		angles[YAW] = viewangles[YAW] - cent->lerpAngles[YAW];
 
@@ -3071,7 +3077,7 @@ void CG_Turret( centity_t *cent ){
 	//set orientation of gatling part
 	VectorClear(angles);
 	//if player uses gatling
-	if(cgs.clientinfo[cent->currentState.eventParm].infoValid){
+	if( player && cgs.clientinfo[cent->currentState.eventParm].infoValid ){
 		angles[PITCH] = viewangles[PITCH];
 		angles[PITCH] -= 5; //get gatling little higer
 		cent->pe.gatlingAngle = angles[PITCH];
@@ -3101,7 +3107,7 @@ void CG_Turret( centity_t *cent ){
 	barrel.reType = RT_MODEL;
 
 	VectorClear(angles);
-	if(cgs.clientinfo[cent->currentState.eventParm].infoValid){
+	if( player && cgs.clientinfo[cent->currentState.eventParm].infoValid ){
 		angles[ROLL] = CG_MachinegunSpinAngle(player);
 		cent->pe.barrelAngle = angles[ROLL];
 	} else {
@@ -3130,7 +3136,7 @@ void CG_Turret( centity_t *cent ){
 	crank.reType = RT_MODEL;
 
 	VectorClear(angles);
-	if(cgs.clientinfo[cent->currentState.eventParm].infoValid){
+	if( player && cgs.clientinfo[cent->currentState.eventParm].infoValid ){
 		angles[PITCH] = CG_MachinegunSpinAngle(player);
 		cent->pe.barrelAngle = angles[PITCH];
 	} else {
@@ -3195,7 +3201,7 @@ void CG_Turret( centity_t *cent ){
 		}			
 
 	} else {
-		if((player->currentState.torsoAnim &~ ANIM_TOGGLEBIT) == TORSO_GATLING_RELOAD)
+		if( player && (player->currentState.torsoAnim &~ ANIM_TOGGLEBIT) == TORSO_GATLING_RELOAD)
 			reload = qtrue;
 		mag.hModel = cgs.media.g_mag;
 	}
@@ -3268,7 +3274,7 @@ void CG_Turret( centity_t *cent ){
  add the muzzle-flash
 ============================
 */
-	if(!cgs.clientinfo[cent->currentState.eventParm].infoValid){
+	if( !player	|| !cgs.clientinfo[cent->currentState.eventParm].infoValid ){
 		return;
 	}
 
