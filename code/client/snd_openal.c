@@ -110,7 +110,15 @@ static void S_AL_ClearError( qboolean quiet )
 	if( quiet )
 		return;
 	if(error != AL_NO_ERROR)
+#ifndef SMOKINGUNS
 		Com_Printf(S_COLOR_YELLOW "WARNING: unhandled AL error: %s\n",
+#else
+		// Tequila: Some used OpenAL extension may not be available and
+		// generate errors, even if sounds seems well. We should just keep
+		// the message when developer cvar is set. Thanks Thilo to have
+		// investigate.
+		Com_DPrintf(S_COLOR_YELLOW "WARNING: unhandled AL error: %s\n",
+#endif
 			S_AL_ErrorMsg(error));
 }
 
@@ -884,25 +892,51 @@ srcHandle_t S_AL_SrcAlloc( alSrcPriority_t priority, int entnum, int channel )
 	int weakest = -1;
 	int weakest_time = Sys_Milliseconds();
 	int weakest_pri = 999;
+	qboolean weakest_isplaying = qtrue;
+	int weakest_numloops = 0;
+	src_t *curSource;
 
 	for(i = 0; i < srcCount; i++)
 	{
+		curSource = &srcList[i];
+
 		// If it's locked, we aren't even going to look at it
-		if(srcList[i].isLocked)
+		if(curSource->isLocked)
 			continue;
 
 		// Is it empty or not?
-		if((!srcList[i].isActive) && (empty == -1))
-			empty = i;
-		else if(srcList[i].priority < priority)
+		if(!curSource->isActive)
 		{
-			// If it's older or has lower priority, flag it as weak
-			if((srcList[i].priority < weakest_pri) ||
-				(srcList[i].lastUsedTime < weakest_time))
+			empty = i;
+			break;
+		}
+
+		if(curSource->isPlaying)
+		{
+			if(weakest_isplaying && curSource->priority < priority &&
+			   (curSource->priority < weakest_pri || curSource->lastUsedTime < weakest_time))
 			{
-				weakest_pri = srcList[i].priority;
-				weakest_time = srcList[i].lastUsedTime;
+				// If it's older or has lower priority, flag it as weak
+				weakest_pri = curSource->priority;
+				weakest_time = curSource->lastUsedTime;
 				weakest = i;
+			}
+		}
+		else
+		{
+			weakest_isplaying = qfalse;
+			
+			if(knownSfx[curSource->sfx].loopCnt > weakest_numloops ||
+			   curSource->priority < weakest_pri ||
+			   curSource->lastUsedTime < weakest_time)
+			{
+				// Sources currently not playing of course have lowest priority
+				// also try to always keep at least one loop master for every loop sound
+				weakest_pri = curSource->priority;
+				weakest_time = curSource->lastUsedTime;
+				weakest_numloops = knownSfx[curSource->sfx].loopCnt;
+				weakest = i;
+				weakest_isplaying = qfalse;
 			}
 		}
 
@@ -911,7 +945,7 @@ srcHandle_t S_AL_SrcAlloc( alSrcPriority_t priority, int entnum, int channel )
 		// causes incorrect behaviour versus defacto baseq3
 #if 0
 		// Is it an exact match, and not on channel 0?
-		if((srcList[i].entity == entnum) && (srcList[i].channel == channel) && (channel != 0))
+		if((curSource->entity == entnum) && (curSource->channel == channel) && (channel != 0))
 		{
 			S_AL_SrcKill(i);
 			return i;
@@ -1018,10 +1052,14 @@ static qboolean S_AL_CheckInput(int entityNum, sfxHandle_t sfx)
 
 	if (sfx < 0 || sfx >= numSfx)
 	{
-#if ! defined SMOKINGUNS || ! defined NDEBUG
-		// Tequila comment: okay we are aware of that error with Smokin' Guns 1.0
-		// This should be fixed with 1.1 release, but we keep this message in DEBUG releases
+#ifndef SMOKINGUNS
 		Com_Printf(S_COLOR_RED "ERROR: S_AL_CheckInput: handle %i out of range\n", sfx);
+#else
+		// Tequila comment: okay we are aware of that error since Smokin' Guns 1.0
+		// It was related to not removed sound from quake3 in WQ3 cgame code, but still
+		// initialized without the expected file in PK3 files. This should be
+		// fixed with 1.1 release, but we keep this message when developer cvar is set.
+		Com_DPrintf(S_COLOR_RED "ERROR: S_AL_CheckInput: handle %i out of range\n", sfx);
 #endif
 		return qtrue;
 	}
@@ -1283,7 +1321,7 @@ void S_AL_SrcUpdate( void )
 		{
 			sentity_t *sent = &entityList[ entityNum ];
 
-			// If a looping effect hasn't been touched this frame, pause it
+			// If a looping effect hasn't been touched this frame, pause or kill it
 			if(sent->loopAddedThisFrame)
 			{
 				alSfx_t *curSfx;
