@@ -142,6 +142,7 @@ vmCvar_t	g_podiumDrop;
 vmCvar_t	g_allowVote;
 #ifdef SMOKINGUNS
 vmCvar_t	g_allowVoteKick;
+vmCvar_t	g_delayedRenaming;
 #endif
 vmCvar_t	g_teamAutoJoin;
 vmCvar_t	g_teamForceBalance;
@@ -296,6 +297,7 @@ static cvarTable_t		gameCvarTable[] = {
 #else
 	{ &g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
 	{ &g_allowVoteKick, "g_allowVoteKick", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
+	{ &g_delayedRenaming, "g_delayedRenaming", "20", CVAR_ARCHIVE, 0, qfalse },
 #endif
 	{ &g_listEntity, "g_listEntity", "0", 0, 0, qfalse },
 
@@ -2207,6 +2209,10 @@ void Setup_NewRound(void){
 
 		if (client->pers.connected != CON_CONNECTED)
 				continue;
+
+		// Tequila: Be sure to release pending renaming
+		if (client->pers.renameTime)
+			client->pers.renameTime = level.time ;
 
 		Check_Gatling(&client->ps);
 

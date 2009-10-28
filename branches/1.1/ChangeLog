@@ -34,7 +34,8 @@ Changes since SG 1.0-20081231
 - show colorized players name in players list
 - new "sendaway" command as replacement of "kick" command, it is now used for "callvote kick"
 - renaming to empty name, to 'all' or to 'allbots' is not allowed
-- renaming is now allowed only one time by minute
+- renaming can be discarded to players trying to rename themselves too often
+  if g_splitChat is activated and g_delayedRenaming is set to a delay in seconds (default=20)
 - New cvars from ioQ3 updates:
   - s_muteWhenUnfocused to mute sound when unfocused (default=0)
   - r_allowResize to allow window resizing in windowed rendering mode (default=0), only with SDL support
