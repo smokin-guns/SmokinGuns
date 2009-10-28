@@ -1,5 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual C++ Express 2008
+# Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cgame", "cgame.vcproj", "{C878E295-CB82-4B40-8ECF-5CE5525466FA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "game", "game.vcproj", "{F9EE10DA-2404-4154-B904-F93C936C040A}"
@@ -32,8 +32,8 @@ Global
 		{F9EE10DA-2404-4154-B904-F93C936C040A}.Release SSE2|Win32.Build.0 = Release SSE2|Win32
 		{F9EE10DA-2404-4154-B904-F93C936C040A}.Release|Win32.ActiveCfg = Release|Win32
 		{F9EE10DA-2404-4154-B904-F93C936C040A}.Release|Win32.Build.0 = Release|Win32
-		{D454C4C7-7765-4149-ABAD-05FDEB9D94F8}.Debug|Win32.ActiveCfg = Release|Win32
-		{D454C4C7-7765-4149-ABAD-05FDEB9D94F8}.Debug|Win32.Build.0 = Release|Win32
+		{D454C4C7-7765-4149-ABAD-05FDEB9D94F8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D454C4C7-7765-4149-ABAD-05FDEB9D94F8}.Debug|Win32.Build.0 = Debug|Win32
 		{D454C4C7-7765-4149-ABAD-05FDEB9D94F8}.Release SSE|Win32.ActiveCfg = Release SSE|Win32
 		{D454C4C7-7765-4149-ABAD-05FDEB9D94F8}.Release SSE|Win32.Build.0 = Release SSE|Win32
 		{D454C4C7-7765-4149-ABAD-05FDEB9D94F8}.Release SSE2|Win32.ActiveCfg = Release SSE2|Win32
