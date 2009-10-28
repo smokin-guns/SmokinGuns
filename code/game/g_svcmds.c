@@ -72,6 +72,11 @@ typedef struct ipFilter_s
 static ipFilter_t	ipFilters[MAX_IPFILTERS];
 static int			numIPFilters;
 
+#ifdef SMOKINGUNS
+// Just to be disabled by Svcmd_BigText_f() to avoid unwanted verbose message
+static qboolean verbose = qtrue ;
+#endif
+
 /*
 =================
 StringToFilter
@@ -438,7 +443,10 @@ gclient_t	*ClientForString( const char *s ) {
 		}
 	}
 
-	G_Printf( "User %s is not on the server\n", s );
+#ifdef SMOKINGUNS
+	if (verbose)
+#endif
+		G_Printf( "User %s is not on the server\n", s );
 
 	return NULL;
 }
@@ -553,7 +561,9 @@ void Svcmd_BigText_f(void) {
 	char		str[MAX_TOKEN_CHARS];
 
 	trap_Argv( 1, str, sizeof( str ) );
+	verbose = qfalse ;
 	cl = ClientForString( str );
+	verbose = qtrue ;
 
 	if ( cl ) {
 		trap_SendServerCommand( cl->ps.clientNum, va("cp \"%s\"", ConcatArgs(2) ) );
@@ -677,6 +687,18 @@ qboolean	ConsoleCommand( void ) {
 		CMD_WEAPON_INFO(range);
 		return qtrue;
 	}
+
+	// Tequila: Big text announcement command
+	if (Q_stricmp (cmd, "bigtext") == 0 || Q_stricmp (cmd, "cp") == 0) {
+		Svcmd_BigText_f();
+		return qtrue;
+	}
+
+	// Tequila: Replacement for kick command from server engine with sendaway one
+	if (Q_stricmp (cmd, "sendaway") == 0) {
+		Svcmd_SendAway_f();
+		return qtrue;
+	}
 #endif
 
 	if (g_dedicated.integer) {
@@ -685,16 +707,7 @@ qboolean	ConsoleCommand( void ) {
 			return qtrue;
 		}
 #ifdef SMOKINGUNS
-		else if (Q_stricmp (cmd, "bigtext") == 0 || Q_stricmp (cmd, "cp") == 0) {
-			Svcmd_BigText_f();
-			return qtrue;
-
-		} else if (Q_stricmp (cmd, "sendaway") == 0) {
-			// Tequila: Replacement for kick command from server engine with sendaway one
-			Svcmd_SendAway_f();
-			return qtrue;
-
-		} else if (Q_stricmp (cmd, "cancelvote") == 0) {
+		if (Q_stricmp (cmd, "cancelvote") == 0) {
 			// Tequila: New admin command to cancel a vote
 			Svcmd_CancelVote_f();
 			return qtrue;
