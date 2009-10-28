@@ -1329,6 +1329,21 @@ void ClientThink_real( gentity_t *ent ) {
 		client->pers.realPing = 0;
 	}
 //unlagged - true ping
+
+	// Tequila: Check if client has a pending renaming
+	if ( client->pers.renameTime && level.time>=client->pers.renameTime &&
+		client->pers.renameName[0] ) {
+		// Update userinfo string
+		char userinfo[MAX_INFO_STRING];
+		trap_GetUserinfo( client->ps.clientNum, userinfo, sizeof( userinfo ) );
+		Info_SetValueForKey(userinfo, "name", client->pers.renameName);
+		trap_SetUserinfo( client->ps.clientNum, userinfo );
+
+		// Reset renaming name and time before renaming
+		client->pers.renameTime = 0 ;
+		client->pers.renameName[0] = '\0' ;
+		ClientUserinfoChanged( client->ps.clientNum );
+	}
 #endif
 
 	msec = ucmd->serverTime - client->ps.commandTime;
