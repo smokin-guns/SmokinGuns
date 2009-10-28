@@ -347,8 +347,9 @@ typedef struct {
 // Tequila: TeamKill management inspired by Conq patch
 	int			lastTeamKillTime;
 	int			TeamKillsCount;
-// Tequila: Help to handle the case players shouldn't rename themselves too often
-	int			lastRenameTime;
+// Tequila: Help to handle delayed renaming
+	int			renameTime;
+	char		renameName[MAX_NETNAME];
 // Tequila: Help to limit the callvote rate by player
 	int			lastVoteTime;
 // Tequila: Keep a cleanname as unique name, players shouldn't be able to have same cleanname
@@ -1057,6 +1058,7 @@ extern	vmCvar_t	g_blood;
 extern	vmCvar_t	g_allowVote;
 #ifdef SMOKINGUNS
 extern	vmCvar_t	g_allowVoteKick;
+extern	vmCvar_t	g_delayedRenaming;
 #endif
 extern	vmCvar_t	g_teamAutoJoin;
 extern	vmCvar_t	g_teamForceBalance;

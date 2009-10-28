@@ -1265,9 +1265,9 @@ void ClientUserinfoChanged( int clientNum ) {
 #ifndef SMOKINGUNS
 	if ( client->sess.sessionTeam == TEAM_SPECTATOR ) {
 #else
-	// Tequila: Be sure the name is really unique or drop the clien
+	// Tequila: Be sure the name is really unique or drop the client
 	if (!ForceUniqueName( clientNum )) {
-		// We should only came here is extremely rare case and surely not with fair cowboys...
+		// We should only came here in extremely rare case and surely not with fair cowboys...
 		if (client->pers.connected == CON_CONNECTING)
 			// When connecting, not setting cleanname will discard the client with a suitable message about an invalid name
 			client->pers.cleanname[0]='\0';
@@ -1275,10 +1275,6 @@ void ClientUserinfoChanged( int clientNum ) {
 			trap_DropClient( clientNum, "Dropped due to invalid player name" );
 		return;
 	}
-
-	// Tequila: Synchronize anyway the netname with the server known name
-	Info_SetValueForKey(userinfo, "name", client->pers.netname);
-	trap_SetUserinfo( clientNum, userinfo);
 
 	if ( client->sess.sessionTeam >= TEAM_SPECTATOR ) {
 #endif
@@ -1293,6 +1289,7 @@ void ClientUserinfoChanged( int clientNum ) {
 			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname,
 				client->pers.netname) );
 		}
+	}
 #else
 		// Tequila: Handle case player has set an empty name (see ClientCleanName)
 		if ( !strcmp("UnnamedPlayer",client->pers.netname) && oldname[0] ) {
@@ -1302,23 +1299,42 @@ void ClientUserinfoChanged( int clientNum ) {
 			Q_CleanStr( client->pers.cleanname );
 		}
 
-// Tequila: Minimum time interval between 2 player rename in seconds
-#define MIN_RENAME_INTERVAL 60
 		if ( strcmp( oldname, client->pers.netname ) ) {
-			if (level.time-client->pers.lastRenameTime>MIN_RENAME_INTERVAL*1000) {				
+			/* Tequila: Conditions to delay renaming
+			 * 1. Player still has renamed himself
+			 * 2. g_delayedRenaming if set
+			 * 3. renameTime is older then the g_delayedRenaming specified time in seconds
+			 * 4. g_splitChat is set, gametype is round base and player is a spectator
+			 */
+			if ( !client->pers.renameTime || !g_delayedRenaming.integer ||
+				( level.time - client->pers.renameTime >= g_delayedRenaming.integer*1000 ) ||
+				!( g_splitChat.integer && g_gametype.integer >= GT_RTP && client->sess.sessionTeam >= TEAM_SPECTATOR ) ) {				
 				trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname,
 					client->pers.netname) );
-				// Store when last renaming occured
-				client->pers.lastRenameTime = level.time;
+				// Store when last renaming occured only if needed
+				if ( g_delayedRenaming.integer && g_splitChat.integer && g_gametype.integer >= GT_RTP &&
+					client->sess.sessionTeam >= TEAM_SPECTATOR )
+					client->pers.renameTime = level.time;
 
 			} else {
-				// Tequila: Keep oldname and inform renaming was discarded
-				G_LogPrintf( "ClientUserinfoChanged: Discarded \"%s" S_COLOR_WHITE
+				// Set next rename time
+				if (!client->pers.renameTime)
+					client->pers.renameTime = level.time;
+				client->pers.renameTime += g_delayedRenaming.integer*1000 ;
+
+				// Rename at last at the end of the current round
+				if (g_roundendtime>level.time && client->pers.renameTime>g_roundendtime)
+					client->pers.renameTime=g_roundendtime;
+
+				// Keep requested name
+				Q_strncpyz ( client->pers.renameName, client->pers.netname, sizeof( client->pers.renameName ) );
+
+				// Tequila: Keep oldname and inform renaming was delayed
+				G_LogPrintf( "ClientUserinfoChanged: Delayed \"%s" S_COLOR_WHITE
 					"\" renaming to \"%s" S_COLOR_WHITE "\"\n",oldname,client->pers.netname);
 				Q_strncpyz ( client->pers.netname, oldname, sizeof( client->pers.netname ) );
-				trap_SendServerCommand( clientNum, va("print \"Renaming discarded, %s" S_COLOR_WHITE "...\n\"",
-					client->pers.netname) );
-				trap_SendServerCommand( clientNum, "cp \"Try again later !!!\"" );
+				trap_SendServerCommand( clientNum, va("print \"Renaming delayed to %i seconds, %s" S_COLOR_WHITE "...\n\"",
+					(client->pers.renameTime-level.time)/1000, client->pers.netname) );
 			}
 		}
 
@@ -1326,8 +1342,12 @@ void ClientUserinfoChanged( int clientNum ) {
 		Q_CleanStr( s ); // Here s is a requested name backup, clean it and compare it to the cleanname set
 		if ( Q_stricmp( s, client->pers.cleanname ) )
 			trap_SendServerCommand( clientNum, va("cp \"Your name is %s\"", client->pers.netname) );
-#endif
 	}
+
+	// Tequila: Synchronize anyway the set netname with the server known name
+	Info_SetValueForKey(userinfo, "name", client->pers.netname);
+	trap_SetUserinfo( clientNum, userinfo );
+#endif
 
 	// set max health
 #ifndef SMOKINGUNS
