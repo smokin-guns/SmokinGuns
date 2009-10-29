@@ -1393,6 +1393,16 @@ gentity_t *fire_dynamite (gentity_t *self, vec3_t start, vec3_t dir, int speed) 
 	bolt->nextthink = level.time + 100; // call G_Suck in 1/10 second
 	bolt->think = G_Suck;
 
+	// Spoon, than Tequila: any dynamite may want to die before final explosion
+	bolt->health = 5;
+	bolt->takedamage = qtrue;
+	bolt->die = G_DynamiteDie;
+	bolt->r.contents = CONTENTS_CORPSE;
+	VectorSet(bolt->r.mins, -8, -8, -1);
+	VectorCopy(bolt->r.mins, bolt->r.absmin);
+	VectorSet(bolt->r.maxs, 8, 8, 8);
+	VectorCopy(bolt->r.maxs, bolt->r.absmax);
+
 	if (self->client ) {
 
 		// dynamite(variable) lifetime
@@ -1402,16 +1412,6 @@ gentity_t *fire_dynamite (gentity_t *self, vec3_t start, vec3_t dir, int speed) 
 				self->client->ps.stats[STAT_WP_MODE];
 			bolt->think = G_ExplodeMissile;
 		}
-
-		// Spoon
-		bolt->health = 5;
-		bolt->takedamage = qtrue;
-        bolt->die = G_DynamiteDie;
-		bolt->r.contents = CONTENTS_CORPSE;
-        VectorSet(bolt->r.mins, -8, -8, -1);
-        VectorCopy(bolt->r.mins, bolt->r.absmin);
-        VectorSet(bolt->r.maxs, 8, 8, 8);
-        VectorCopy(bolt->r.maxs, bolt->r.absmax);
 
 		if (self->client->ps.stats[STAT_WP_MODE] >= 0){
 			bolt->classname = "grenadeno";

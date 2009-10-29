@@ -1287,8 +1287,7 @@ void weapon_grenadelauncher_fire (gentity_t *ent) {
 //	VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );	// "real" physics
 }
 #else
-void weapon_grenadelauncher_fire (gentity_t *ent) {
-	gentity_t	*m;
+void weapon_dynamite_fire (gentity_t *ent) {
 	trace_t		tr;
 	vec3_t		mins, maxs;
 
@@ -1312,7 +1311,7 @@ void weapon_grenadelauncher_fire (gentity_t *ent) {
 
 	} while(tr.startsolid);
 
-	m = fire_dynamite (ent, muzzle, forward, 700);
+	fire_dynamite (ent, muzzle, forward, 700);
 }
 
 /*
@@ -1322,7 +1321,6 @@ Molotov Cocktail
 */
 
 void weapon_molotov_fire (gentity_t *ent) {
-	gentity_t	*m;
 	trace_t		tr;
 	vec3_t		mins, maxs;
 
@@ -1346,7 +1344,7 @@ void weapon_molotov_fire (gentity_t *ent) {
 
 	} while(tr.startsolid);
 
-	m = fire_molotov (ent, muzzle, forward, 700);
+	fire_molotov (ent, muzzle, forward, 700);
 }
 #endif
 
@@ -1959,7 +1957,7 @@ void FireWeapon( gentity_t *ent, qboolean altfire, int weapon ) {
 			Bullet_Fire( ent, spread, damage, weapon );
 		break;
 	case WP_DYNAMITE:
-		weapon_grenadelauncher_fire( ent );
+		weapon_dynamite_fire( ent );
 		ent->client->ps.stats[STAT_WP_MODE] = 0;
 		break;
 	case WP_MOLOTOV:
