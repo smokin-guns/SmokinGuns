@@ -202,8 +202,8 @@ void SP_misc_portal_surface(gentity_t *ent);
 
 #ifndef SMOKINGUNS
 void SP_shooter_rocket( gentity_t *ent );
-void SP_shooter_plasma( gentity_t *ent );
 #endif
+void SP_shooter_plasma( gentity_t *ent );
 void SP_shooter_grenade( gentity_t *ent );
 
 void SP_team_CTF_redplayer( gentity_t *ent );
@@ -294,11 +294,12 @@ spawn_t	spawns[] = {
 
 #ifndef SMOKINGUNS
 	{"shooter_rocket", SP_shooter_rocket},
+#else
+	{"shooter_dynamite", SP_shooter_grenade},
+	{"shooter_molotov", SP_shooter_plasma},
 #endif
 	{"shooter_grenade", SP_shooter_grenade},
-#ifndef SMOKINGUNS
 	{"shooter_plasma", SP_shooter_plasma},
-#endif
 
 	{"team_CTF_redplayer", SP_team_CTF_redplayer},
 	{"team_CTF_blueplayer", SP_team_CTF_blueplayer},

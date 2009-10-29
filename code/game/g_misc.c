@@ -281,11 +281,17 @@ void SP_misc_portal_camera(gentity_t *ent) {
 
 ======================================================================
 */
+#ifdef SMOKINGUNS
+void G_DynamiteDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod );
+#endif
 
 void Use_Shooter( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	vec3_t		dir;
 	float		deg;
 	vec3_t		up, right;
+#ifdef SMOKINGUNS
+	gentity_t	*missile ;
+#endif
 
 	// see if we have a target
 	if ( ent->enemy ) {
@@ -317,11 +323,22 @@ void Use_Shooter( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 		break;
 	case WP_PLASMAGUN:
 		fire_plasma( ent, ent->s.origin, dir );
+		break;
 #else
 	case WP_DYNAMITE:
-		fire_dynamite( ent, ent->s.origin, dir, 700 );
-#endif
+		missile = fire_dynamite( ent, ent->s.origin, dir, ent->speed ? (int)ent->speed : 700 );
+		// Tequila: Set the explode time from wait attribut
+		if (ent->wait)
+			missile->nextthink = level.time + (int)(ent->wait*1000);
+		// Tequila: Lit the dynamite
+		missile->s.apos.trDelta[0] = missile->nextthink;
 		break;
+	case WP_MOLOTOV:
+		missile = fire_molotov( ent, ent->s.origin, dir, ent->speed ? (int)ent->speed : 700 );
+		// Tequila: Lit the molotov
+		missile->s.apos.trDelta[0] = 1;
+		break;
+#endif
 	}
 
 	G_AddEvent( ent, EV_FIRE_WEAPON, 0 );
@@ -365,19 +382,27 @@ Fires at either the target or the current direction.
 void SP_shooter_rocket( gentity_t *ent ) {
 	InitShooter( ent, WP_ROCKET_LAUNCHER );
 }
+#endif
 
 /*QUAKED shooter_plasma (1 0 0) (-16 -16 -16) (16 16 16)
 Fires at either the target or the current direction.
 "random" is the number of degrees of deviance from the taget. (1.0 default)
+"speed" is the speed of the thrown molotov (700 default)
 */
 void SP_shooter_plasma( gentity_t *ent ) {
+#ifndef SMOKINGUNS
 	InitShooter( ent, WP_PLASMAGUN);
-}
+#else
+	InitShooter( ent, WP_MOLOTOV);
 #endif
+}
 
 /*QUAKED shooter_grenade (1 0 0) (-16 -16 -16) (16 16 16)
 Fires at either the target or the current direction.
 "random" is the number of degrees of deviance from the taget. (1.0 default)
+Tequila: Smokin'Guns attribut:
+"speed" is the speed of the thrown dynamite (700 default)
+"wait" is the number of seconds before dynamite explodes (2.5 default)
 */
 void SP_shooter_grenade( gentity_t *ent ) {
 #ifndef SMOKINGUNS
