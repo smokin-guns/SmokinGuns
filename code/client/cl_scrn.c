@@ -385,6 +385,85 @@ void SCR_DrawVoipMeter( void ) {
 	sprintf( string, "VoIP: [%s]", buffer );
 	SCR_DrawStringExt( 320 - strlen( string ) * 4, 10, 8, string, g_color_table[7], qtrue, qfalse );
 }
+
+/*
+=================
+SCR_DrawVoipSender
+Imported and adapted from Tremfusion, thanks to Amanieu work
+=================
+*/
+#ifdef SMOKINGUNS
+void SCR_DrawVoipSender( void ) {
+	char	string[256];
+	char	teamColor;
+	int		dx, y;
+
+	// Little bit of a hack here, but its the only thing i could come up with :|
+	if( cls.voipTime < cls.realtime )
+		return;
+
+	if (!cl_voipShowSender->integer)
+		return; // They don't want this on :(
+	else if (cls.state != CA_ACTIVE)
+		return;  // not connected to a server.
+	else if (!cl_connectedToVoipServer)
+		return;  // server doesn't support VoIP.
+	else if (clc.demoplaying)
+		return;  // playing back a demo.
+	else if (!cl_voip->integer)
+		return;  // client has VoIP support disabled.
+
+	switch (atoi(Info_ValueForKey(cl.gameState.stringData +
+		cl.gameState.stringOffsets[CS_PLAYERS + cls.voipSender], "t")))
+	{
+		case TEAM_FREE:
+			teamColor = '3'; break;
+		case TEAM_RED:
+		case TEAM_RED_SPECTATOR:
+			teamColor = '1'; break;
+		case TEAM_BLUE:
+		case TEAM_BLUE_SPECTATOR:
+			teamColor = '4'; break;
+		default:
+			teamColor = '7';
+	}
+
+	Com_sprintf( string, sizeof(string), "^%cVoIP: %s", teamColor,
+		Info_ValueForKey(cl.gameState.stringData + cl.gameState.stringOffsets[CS_PLAYERS + cls.voipSender], "n") );
+
+	dx = Q_PrintStrlen( string );
+
+	switch (cl_voipSenderPos->integer)
+	{
+	case 1:
+		dx *= 17 ;
+		y= 365 ;
+		break;
+	case 2:
+		dx *= -9 ;
+		y= 100 ;
+		break;
+	case 3:
+		dx *= 4 ;
+		y= 30 ;
+		break;
+	case 4:
+		dx *= 4 ;
+		y= 400 ;
+		break;
+	case 5:
+		dx *= -8 ;
+		y= 380 ;
+		break;
+	default:
+		dx *= -8 ;
+		y= 365 ;
+		break;
+	}
+
+	SCR_DrawStringExt( 320-dx, y, 8, string, g_color_table[7], qfalse, qfalse );
+}
+#endif
 #endif
 
 
@@ -535,6 +614,9 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 			SCR_DrawDemoRecording();
 #ifdef USE_VOIP
 			SCR_DrawVoipMeter();
+#ifdef SMOKINGUNS
+			SCR_DrawVoipSender();
+#endif
 #endif
 			break;
 		}

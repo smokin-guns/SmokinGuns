@@ -635,6 +635,11 @@ void CL_ParseDownload ( msg_t *msg ) {
 }
 
 #ifdef USE_VOIP
+
+#ifdef SMOKINGUNS
+void SCR_DrawVoipSender( int sender );
+#endif
+
 static
 qboolean CL_ShouldIgnoreVoipSender(int sender)
 {
@@ -712,6 +717,11 @@ void CL_ParseVoip ( msg_t *msg ) {
 	// !!! FIXME: make sure data is narrowband? Does decoder handle this?
 
 	Com_DPrintf("VoIP: packet accepted!\n");
+
+#ifdef SMOKINGUNS
+	cls.voipTime = cls.realtime + 500; // Aka half a second
+	cls.voipSender = sender;
+#endif
 
 	// This is a new "generation" ... a new recording started, reset the bits.
 	if (generation != clc.voipIncomingGeneration[sender]) {
