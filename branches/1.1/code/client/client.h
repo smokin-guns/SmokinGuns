@@ -322,6 +322,12 @@ typedef struct {
 
 	int			realtime;			// ignores pause
 	int			realFrametime;		// ignoring pause, so console always works
+#ifdef SMOKINGUNS
+#ifdef USE_VOIP
+	int			voipTime;
+	int			voipSender;
+#endif
+#endif
 
 	int			numlocalservers;
 	serverInfo_t	localServers[MAX_OTHER_SERVERS];
@@ -424,6 +430,10 @@ extern	cvar_t	*cl_voipSendTarget;
 extern	cvar_t	*cl_voipGainDuringCapture;
 extern	cvar_t	*cl_voipCaptureMult;
 extern	cvar_t	*cl_voipShowMeter;
+#ifdef SMOKINGUNS
+extern	cvar_t	*cl_voipShowSender;
+extern	cvar_t	*cl_voipSenderPos;
+#endif
 extern	cvar_t	*cl_voip;
 #endif
 

@@ -43,6 +43,11 @@ Changes since SG 1.0-20081231
 - callvote string is logged in server log
 - new "cancelvote" server side command, can only be used by admins
 - support for more crosshair
+- support for showing who is the VoIP speaker, thanks to tremfusion team:
+  - Thanks Mercury and Amanieu
+  - Added cl_voipShowSender and cl_voipSenderPos cvar:
+    - cl_voipShowSender must be set
+	- cl_voipSenderPos can be set from 0 to 5 to choose where the sender will be shown on the screen
 *** CHANGES ***
 - Reloading bug fixed by Joe Kari
 - Fix game crash during game load when using cgame binary library
