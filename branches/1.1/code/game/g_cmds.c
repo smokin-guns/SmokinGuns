@@ -2180,7 +2180,7 @@ void Cmd_DropWeapon_f( gentity_t *ent, int weapon ) {
 		case TEAM_RED_SPECTATOR :
 		case TEAM_BLUE_SPECTATOR :
 			return ;
-		default: // Tequila comment: Avoid a compialer warning
+		default: // Tequila comment: Avoid a compiler warning
 			break ;
 	}
 
@@ -2191,19 +2191,6 @@ void Cmd_DropWeapon_f( gentity_t *ent, int weapon ) {
 		(ucmd->buttons & BUTTON_ALT_ATTACK) ||
 		(client->ps.eFlags & EF_RELOAD))
 		return;
-
-	/*for ( i=WP_WINCHESTER66 ; i < WP_NUM_WEAPONS; i++){
-		if(client->ps.stats[STAT_WEAPONS] & (1 << i)){
-			if( i == WP_DYNAMITE)
-				continue; // no dropable weapon
-
-			if(i==WP_GATLING && client->ps.stats[STAT_GATLING_MODE])
-				continue;
-
-			weapon = i;
-			break;
-		}
-	}*/
 
 	if(!weapon) {
 		if(!client->ps.weapon2){
