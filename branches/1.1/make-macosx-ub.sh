@@ -8,8 +8,8 @@ DESTDIR=build/release-darwin-ub
 BASEDIR=smokinguns
 
 BIN_OBJ="
-	build/release-darwin-ppc/smokinguns-smp.ppc
-	build/release-darwin-i386/smokinguns-smp.i386
+	build/release-darwin-ppc/smokinguns.ppc
+	build/release-darwin-i386/smokinguns.i386
 "
 BIN_DEDOBJ="
 	build/release-darwin-ppc/smokinguns_dedicated.ppc
@@ -152,6 +152,6 @@ echo "
 	</plist>
 	" > "$DESTDIR/$APPBUNDLE/Contents/Info.plist"
 
-lipo -create -o $DESTDIR/$APPBUNDLE/Contents/MacOS/$BINARY $BIN_OBJ
-lipo -create -o $DESTDIR/$APPBUNDLE/Contents/MacOS/$DEDBIN $BIN_DEDOBJ
+lipo build/release-darwin-ppc/smokinguns.ppc build/release-darwin-i386/smokinguns.i386 -create -output "$DESTDIR/$APPBUNDLE/Contents/MacOS/$BINARY"
+lipo build/release-darwin-ppc/smokinguns_dedicated.ppc build/release-darwin-i386/smokinguns_dedicated.i386 -create -output "$DESTDIR/$APPBUNDLE/Contents/MacOS/$DEDBIN"
 cp code/libs/macosx/*.dylib "$DESTDIR/$APPBUNDLE/Contents/MacOS/"
