@@ -71,17 +71,9 @@ gentity_t	*G_TestEntityPosition( gentity_t *ent ) {
 		mask = MASK_SOLID;
 	}
 	if ( ent->client ) {
-#ifndef SMOKINGUNS
 		trap_Trace( &tr, ent->client->ps.origin, ent->r.mins, ent->r.maxs, ent->client->ps.origin, ent->s.number, mask );
-#else
-		trap_Trace_New( &tr, ent->client->ps.origin, ent->r.mins, ent->r.maxs, ent->client->ps.origin, ent->s.number, mask );
-#endif
 	} else {
-#ifndef SMOKINGUNS
 		trap_Trace( &tr, ent->s.pos.trBase, ent->r.mins, ent->r.maxs, ent->s.pos.trBase, ent->s.number, mask );
-#else
-		trap_Trace_New( &tr, ent->s.pos.trBase, ent->r.mins, ent->r.maxs, ent->s.pos.trBase, ent->s.number, mask );
-#endif
 	}
 
 	if (tr.startsolid)
@@ -95,7 +87,6 @@ gentity_t	*G_TestEntityPosition( gentity_t *ent ) {
 G_CreateRotationMatrix
 ================
 */
-#ifndef SMOKINGUNS
 void G_CreateRotationMatrix(vec3_t angles, vec3_t matrix[3]) {
 	AngleVectors(angles, matrix[0], matrix[1], matrix[2]);
 	VectorInverse(matrix[1]);
@@ -128,7 +119,6 @@ void G_RotatePoint(vec3_t point, vec3_t matrix[3]) {
 	point[1] = DotProduct(matrix[1], tvec);
 	point[2] = DotProduct(matrix[2], tvec);
 }
-#endif
 
 /*
 ==================
@@ -138,11 +128,7 @@ Returns qfalse if the move is blocked
 ==================
 */
 qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, vec3_t amove ) {
-#ifndef SMOKINGUNS
 	vec3_t		matrix[3], transpose[3];
-#else
-	vec3_t		forward, right, up;
-#endif
 	vec3_t		org, org2, move2;
 	gentity_t	*block;
 
@@ -166,14 +152,7 @@ qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, v
 	}
 	pushed_p++;
 
-	// we need this for pushing things later
-#ifdef SMOKINGUNS
-	VectorSubtract (vec3_origin, amove, org);
-	AngleVectors (org, forward, right, up);
-#endif
-
 	// try moving the contacted entity
-#ifndef SMOKINGUNS
 	// figure movement due to the pusher's amove
 	G_CreateRotationMatrix( amove, transpose );
 	G_TransposeMatrix( transpose, matrix );
@@ -188,28 +167,12 @@ qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, v
 	VectorSubtract (org2, org, move2);
 	// add movement
 	VectorAdd (check->s.pos.trBase, move, check->s.pos.trBase);
-#else
-	VectorAdd (check->s.pos.trBase, move, check->s.pos.trBase);
-	if (check->client) {
-		// make sure the client's view rotates when on a rotating mover
-		check->client->ps.delta_angles[YAW] += ANGLE2SHORT(amove[YAW]);
-	}
-
-	// figure movement due to the pusher's amove
-	VectorSubtract (check->s.pos.trBase, pusher->r.currentOrigin, org);
-	org2[0] = DotProduct (org, forward);
-	org2[1] = -DotProduct (org, right);
-	org2[2] = DotProduct (org, up);
-	VectorSubtract (org2, org, move2);
-#endif
 	VectorAdd (check->s.pos.trBase, move2, check->s.pos.trBase);
 	if ( check->client ) {
 		VectorAdd (check->client->ps.origin, move, check->client->ps.origin);
 		VectorAdd (check->client->ps.origin, move2, check->client->ps.origin);
-#ifndef SMOKINGUNS
 		// make sure the client's view rotates when on a rotating mover
 		check->client->ps.delta_angles[YAW] += ANGLE2SHORT(amove[YAW]);
-#endif
 	}
 
 	// may have pushed them off an edge
@@ -323,7 +286,6 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 	vec3_t		totalMins, totalMaxs;
 
 	*obstacle = NULL;
-
 
 	// mins/maxs are the bounds at the destination
 	// totalMins / totalMaxs are the bounds for the entire move
@@ -530,16 +492,8 @@ void G_MoverTeam( gentity_t *ent ) {
 	// the move succeeded
 	for ( part = ent ; part ; part = part->teamchain ) {
 		// call the reached function if time is at or past end point
-#ifndef SMOKINGUNS
-		if ( part->s.pos.trType == TR_LINEAR_STOP ) {
-			if ( level.time >= part->s.pos.trTime + part->s.pos.trDuration ) {
-				if ( part->reached ) {
-					part->reached( part );
-				}
-			}
-		}
-#else
-		if(!Q_stricmp(ent->classname, "func_door_rotating")){
+#ifdef SMOKINGUNS
+		if ( ent->s.eFlags & EF_ROTATING_DOOR ) {
 			if ( part->s.apos.trType == TR_LINEAR_STOP ) {
 				if ( level.time >= part->s.apos.trTime + part->s.apos.trDuration ) {
 					if ( part->reached ) {
@@ -547,16 +501,16 @@ void G_MoverTeam( gentity_t *ent ) {
 					}
 				}
 			}
-		} else {
-			if ( part->s.pos.trType == TR_LINEAR_STOP ) {
-				if ( level.time >= part->s.pos.trTime + part->s.pos.trDuration ) {
-					if ( part->reached ) {
-						part->reached( part );
-					}
+			continue ;
+		}
+#endif
+		if ( part->s.pos.trType == TR_LINEAR_STOP ) {
+			if ( level.time >= part->s.pos.trTime + part->s.pos.trDuration ) {
+				if ( part->reached ) {
+					part->reached( part );
 				}
 			}
 		}
-#endif
 	}
 }
 
@@ -608,7 +562,7 @@ void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
 	ent->moverState = moverState;
 
 #ifdef SMOKINGUNS
-	if(!Q_stricmp(ent->classname, "func_door_rotating")){
+	if ( ent->s.eFlags & EF_ROTATING_DOOR ) {
 
 		ent->s.apos.trTime = time;
 
@@ -672,6 +626,7 @@ void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
 		}
 #endif
 	}
+
 	BG_EvaluateTrajectory( &ent->s.pos, level.time, ent->r.currentOrigin );
 	trap_LinkEntity( ent );
 }
@@ -785,12 +740,9 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	ent->activator = activator;
 
 	if ( ent->moverState == MOVER_POS1 ) {
-		// start moving 50 msec later, because if this was player
-		// triggered, level.time hasn't been advanced yet
-
 		//calculate the side to which the door should open
 #ifdef SMOKINGUNS
-		if(!(Q_stricmp(ent->classname, "func_door_rotating"))){
+		if( ent->s.eFlags & EF_ROTATING_DOOR ) {
 			int		axis;
 
 			if (ent->spawnflags & DOOR_ROTATING_X_AXIS) {
@@ -855,6 +807,8 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 			}
 		}
 #endif
+		// start moving 50 msec later, because if this was player
+		// triggered, level.time hasn't been advanced yet
 		MatchTeam( ent, MOVER_1TO2, level.time + 50 );
 
 		// starting sound
@@ -874,22 +828,31 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 	// if all the way up, just delay before coming down
 	if ( ent->moverState == MOVER_POS2 ) {
-#ifndef SMOKINGUNS
-		ent->nextthink = level.time + ent->wait;
-#else
+#ifdef SMOKINGUNS
 		if(ent->s.angles2[0] == -1000 && !(ent->spawnflags & DOOR_RETURN)){
 			ReturnToPos1(ent);
-		} else {
-			ent->nextthink = level.time + ent->wait;
+			return;
 		}
 #endif
+		ent->nextthink = level.time + ent->wait;
 		return;
 	}
 
 	// only partway down before reversing
 	if ( ent->moverState == MOVER_2TO1 ) {
+#ifndef SMOKINGUNS
 		total = ent->s.pos.trDuration;
 		partial = level.time - ent->s.pos.trTime;
+#else
+		// Tequila: Handle the partial rotation of rotating doors
+		if( ent->s.eFlags & EF_ROTATING_DOOR ) {
+			total = ent->s.apos.trDuration;
+			partial = level.time - ent->s.apos.trTime;
+		} else {
+			total = ent->s.pos.trDuration;
+			partial = level.time - ent->s.pos.trTime;
+		}
+#endif
 		if ( partial > total ) {
 			partial = total;
 		}
@@ -904,8 +867,19 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 	// only partway up before reversing
 	if ( ent->moverState == MOVER_1TO2 ) {
+#ifndef SMOKINGUNS
 		total = ent->s.pos.trDuration;
 		partial = level.time - ent->s.pos.trTime;
+#else
+		// Tequila: Handle the partial rotation of rotating doors
+		if( ent->s.eFlags & EF_ROTATING_DOOR ) {
+			total = ent->s.apos.trDuration;
+			partial = level.time - ent->s.apos.trTime;
+		} else {
+			total = ent->s.pos.trDuration;
+			partial = level.time - ent->s.pos.trTime;
+		}
+#endif
 		if ( partial > total ) {
 			partial = total;
 		}
@@ -1014,30 +988,10 @@ void InitMover( gentity_t *ent ) {
 	VectorCopy( ent->pos1, ent->s.pos.trBase );
 
 	// calculate time to reach second position from speed
-#ifndef SMOKINGUNS
-	VectorSubtract( ent->pos2, ent->pos1, move );
-	distance = VectorLength( move );
-	if ( ! ent->speed ) {
-		ent->speed = 100;
-	}
-	VectorScale( move, ent->speed, ent->s.pos.trDelta );
-	ent->s.pos.trDuration = distance * 1000 / ent->speed;
-	if ( ent->s.pos.trDuration <= 0 ) {
-		ent->s.pos.trDuration = 1;
-	}
-#else
-	if(Q_stricmp(ent->classname, "func_door_rotating")){
-		VectorSubtract( ent->pos2, ent->pos1, move );
-		distance = VectorLength( move );
-		if ( ! ent->speed ) {
-			ent->speed = 100;
-		}
-		VectorScale( move, ent->speed, ent->s.pos.trDelta );
-		ent->s.pos.trDuration = distance * 1000 / ent->speed;
-		if ( ent->s.pos.trDuration <= 0 ) {
-			ent->s.pos.trDuration = 1;
-		}
-	} else {
+#ifdef SMOKINGUNS
+	ent->r.contents = CONTENTS_BODY;
+
+	if ( ent->s.eFlags & EF_ROTATING_DOOR ){
 		ent->s.apos.trType = TR_STATIONARY;
 		VectorCopy( ent->pos1, ent->s.apos.trBase );
 
@@ -1051,10 +1005,19 @@ void InitMover( gentity_t *ent ) {
 		if ( ent->s.pos.trDuration <= 0 ) {
 			ent->s.pos.trDuration = 1;
 		}
+		return ;
 	}
-
-	ent->r.contents = CONTENTS_BODY;
 #endif
+	VectorSubtract( ent->pos2, ent->pos1, move );
+	distance = VectorLength( move );
+	if ( ! ent->speed ) {
+		ent->speed = 100;
+	}
+	VectorScale( move, ent->speed, ent->s.pos.trDelta );
+	ent->s.pos.trDuration = distance * 1000 / ent->speed;
+	if ( ent->s.pos.trDuration <= 0 ) {
+		ent->s.pos.trDuration = 1;
+	}
 }
 
 
@@ -1331,6 +1294,9 @@ void SP_func_door (gentity_t *ent) {
 		VectorClear(ent->s.angles2);
 		ent->s.angles2[0] = -1000;
 	}
+
+	// Mark the door to block on entities
+	ent->s.eFlags |= EF_MOVER_STOP ;
 #endif
 
 }
@@ -1405,6 +1371,9 @@ void SP_func_door_rotating (gentity_t *ent) {
 			VectorCopy( temp, ent->pos1 );
 		}
 	}
+
+	// Mark entity as a rotating door blocking on other entities
+	ent->s.eFlags |= (EF_MOVER_STOP|EF_ROTATING_DOOR) ;
 
 	InitMover( ent );
 
