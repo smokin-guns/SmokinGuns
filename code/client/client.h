@@ -300,7 +300,9 @@ typedef struct {
 	int			maxPing;
 	int			ping;
 	qboolean	visible;
+#ifndef SMOKINGUNS
 	int			punkbuster;
+#endif
 } serverInfo_t;
 
 typedef struct {
