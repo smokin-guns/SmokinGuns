@@ -1339,7 +1339,7 @@ float G_LocationDamage(vec3_t point, gentity_t* targ, gentity_t* attacker, float
 	case HIT_LOWER_LEG_R:
 	case HIT_UPPER_LEG_L:
 	case HIT_UPPER_LEG_R:
-		take *= 1.8f;
+		take *= 1.5f;
 		if(targ->client->ps.speed == g_speed.integer){
 			targ->client->ps.speed *= 0.75f;
 			//trap_SendServerCommand( targ-g_entities, va("print \"You were hit in the leg!\n\""));
