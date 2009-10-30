@@ -487,6 +487,9 @@ typedef enum {
 #define	EF_DROPPED_ITEM		0x02000000		// marks dropped item
 #define	EF_BUY				0x04000000
 #define	EF_ACTIVATE			0x08000000
+
+// Tequila flags
+#define EF_ROTATING_DOOR	0x10000000		// Tequila: is a rotating door
 #endif
 
 
