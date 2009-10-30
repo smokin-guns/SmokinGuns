@@ -48,6 +48,8 @@ Changes since SG 1.0-20081231
   - Added cl_voipShowSender and cl_voipSenderPos cvar:
     - cl_voipShowSender must be set
 	- cl_voipSenderPos can be set from 0 to 5 to choose where the sender will be shown on the screen
+- support for shooter_dynamite and shooter_molotov map entities
+- Doors won't try to move players now
 *** CHANGES ***
 - Reloading bug fixed by Joe Kari
 - Fix game crash during game load when using cgame binary library
@@ -59,6 +61,7 @@ Changes since SG 1.0-20081231
 - g_allowVote can be set to the number of seconds before a player can call again a vote
 - players name can be tagged to make sure they are unique in game
 - settings are now stored in a per-user location, instead of in the game's installation directory
+- Fix rotating door comportement when blocked
 
 Changes in SG 1.0-20081231
 ******************
