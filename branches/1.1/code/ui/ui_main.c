@@ -2356,9 +2356,16 @@ static void UI_DrawGLInfo(rectDef_t *rect, float scale, vec4_t color, int textSt
 	const char *lines[64];
 	int y, numLines, i;
 
+#ifndef SMOKINGUNS
 	Text_Paint(rect->x + 2, rect->y, scale, color, va("VENDOR: %s", uiInfo.uiDC.glconfig.vendor_string), 0, 30, textStyle);
 	Text_Paint(rect->x + 2, rect->y + 15, scale, color, va("VERSION: %s: %s", uiInfo.uiDC.glconfig.version_string,uiInfo.uiDC.glconfig.renderer_string), 0, 30, textStyle);
 	Text_Paint(rect->x + 2, rect->y + 30, scale, color, va ("PIXELFORMAT: color(%d-bits) Z(%d-bits) stencil(%d-bits)", uiInfo.uiDC.glconfig.colorBits, uiInfo.uiDC.glconfig.depthBits, uiInfo.uiDC.glconfig.stencilBits), 0, 30, textStyle);
+#else
+#define UI_GL_INFO_TEXTLIMIT 60
+	Text_Paint(rect->x + 2, rect->y, scale, color, va("VENDOR: %s", uiInfo.uiDC.glconfig.vendor_string), 0, UI_GL_INFO_TEXTLIMIT, textStyle);
+	Text_Paint(rect->x + 2, rect->y + 15, scale, color, va("VERSION: %s: %s", uiInfo.uiDC.glconfig.version_string,uiInfo.uiDC.glconfig.renderer_string), 0, UI_GL_INFO_TEXTLIMIT, textStyle);
+	Text_Paint(rect->x + 2, rect->y + 30, scale, color, va ("PIXELFORMAT: color(%d-bits) Z(%d-bits) stencil(%d-bits)", uiInfo.uiDC.glconfig.colorBits, uiInfo.uiDC.glconfig.depthBits, uiInfo.uiDC.glconfig.stencilBits), 0, UI_GL_INFO_TEXTLIMIT, textStyle);
+#endif
 
 	// build null terminated extension strings
   // TTimo: https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=399
@@ -2384,10 +2391,17 @@ static void UI_DrawGLInfo(rectDef_t *rect, float scale, vec4_t color, int textSt
 
 	i = 0;
 	while (i < numLines) {
+#ifndef SMOKINGUNS
 		Text_Paint(rect->x + 2, y, scale, color, lines[i++], 0, 20, textStyle);
 		if (i < numLines) {
 			Text_Paint(rect->x + rect->w / 2, y, scale, color, lines[i++], 0, 20, textStyle);
 		}
+#else
+		Text_Paint(rect->x + 2, y, scale, color, lines[i++], 0, UI_GL_INFO_TEXTLIMIT/2-1, textStyle);
+		if (i < numLines) {
+			Text_Paint(rect->x + rect->w / 2, y, scale, color, lines[i++], 0, UI_GL_INFO_TEXTLIMIT/2, textStyle);
+		}
+#endif
 		y += 10;
 		if (y > rect->y + rect->h - 11) {
 			break;

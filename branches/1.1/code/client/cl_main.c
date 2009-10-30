@@ -3364,7 +3364,9 @@ static void CL_SetServerInfo(serverInfo_t *server, const char *info, int ping) {
 			server->netType = atoi(Info_ValueForKey(info, "nettype"));
 			server->minPing = atoi(Info_ValueForKey(info, "minping"));
 			server->maxPing = atoi(Info_ValueForKey(info, "maxping"));
+#ifndef SMOKINGUNS
 			server->punkbuster = atoi(Info_ValueForKey(info, "punkbuster"));
+#endif
 		}
 		server->ping = ping;
 	}
@@ -3482,7 +3484,9 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	cls.localServers[i].game[0] = '\0';
 	cls.localServers[i].gameType = 0;
 	cls.localServers[i].netType = from.type;
+#ifndef SMOKINGUNS
 	cls.localServers[i].punkbuster = 0;
+#endif
 
 	Q_strncpyz( info, MSG_ReadString( msg ), MAX_INFO_STRING );
 	if (strlen(info)) {
