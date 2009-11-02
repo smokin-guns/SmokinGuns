@@ -5053,9 +5053,9 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 			}
 		}
 	}
-}
-	// if its a breakable->shoot it
+
 #ifdef SMOKINGUNS
+	// if its a breakable->shoot it
 	if(!Q_stricmp(classname, "func_breakable")){
 		if(!(bs->flags & BFL_AVOID) && BotFuncBreakableGoal(bs, entitynum, activategoal)){
 			GetAvoidDir(bs->client, bs->origin, g_entities[entitynum].r.absmax,
