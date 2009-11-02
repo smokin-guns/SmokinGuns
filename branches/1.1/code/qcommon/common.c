@@ -1503,7 +1503,7 @@ void Hunk_SmallLog( void) {
 
 /*
 =================
-Com_InitZoneMemory
+Com_InitHunkZoneMemory
 =================
 */
 void Com_InitHunkMemory( void ) {
