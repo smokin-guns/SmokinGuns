@@ -4993,7 +4993,11 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 		return 0;
 	}
 	//if it is a door
+#ifndef SMOKINGUNS
 	if (!strcmp(classname, "func_door")) {
+#else
+	if (!Q_stricmp(classname, "func_door") || !Q_stricmp(classname, "func_door_rotating")) {
+#endif
 		if (trap_AAS_FloatForBSPEpairKey(ent, "health", &health)) {
 			//if the door has health then the door must be shot to open
 			if (health) {
@@ -5049,10 +5053,10 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 			}
 		}
 	}
+}
 	// if its a breakable->shoot it
 #ifdef SMOKINGUNS
-	if(!strcmp(classname, "func_breakable")){
-
+	if(!Q_stricmp(classname, "func_breakable")){
 		if(!(bs->flags & BFL_AVOID) && BotFuncBreakableGoal(bs, entitynum, activategoal)){
 			GetAvoidDir(bs->client, bs->origin, g_entities[entitynum].r.absmax,
 				g_entities[entitynum].r.absmin, bs->avoid_point);
@@ -5264,6 +5268,9 @@ void BotAIBlocked(bot_state_t *bs, bot_moveresult_t *moveresult, int activate) {
 	bot_activategoal_t activategoal;
 #ifdef SMOKINGUNS
 	bsp_trace_t bsptrace;
+#ifdef OBSTACLEDEBUG
+	char *netname ;
+#endif
 #endif
 
 	// if the bot is not blocked by anything
