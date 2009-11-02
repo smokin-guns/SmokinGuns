@@ -2332,7 +2332,12 @@ qboolean Item_Slider_HandleKey(itemDef_t *item, int key, qboolean down) {
 
 	//DC->Print("slider handle key\n");
 	if (item->window.flags & WINDOW_HASFOCUS && item->cvar && Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)) {
+#ifndef SMOKINGUNS
 		if (key == K_MOUSE1 || key == K_ENTER || key == K_MOUSE2 || key == K_MOUSE3) {
+#else
+		if (key == K_MOUSE1 || key == K_ENTER || key == K_MOUSE2 || key == K_MOUSE3
+		|| key == K_MWHEELUP || key == K_MWHEELDOWN) {
+#endif
 			editFieldDef_t *editDef = item->typeData;
 			if (editDef) {
 				rectDef_t testRect;
@@ -2352,11 +2357,26 @@ qboolean Item_Slider_HandleKey(itemDef_t *item, int key, qboolean down) {
 				//DC->Print("slider w: %f\n", testRect.w);
 				if (Rect_ContainsPoint(&testRect, DC->cursorx, DC->cursory)) {
 					work = DC->cursorx - x;
+#ifndef SMOKINGUNS
 					value = work / width;
 					value *= (editDef->maxVal - editDef->minVal);
 					// vm fuckage
 					// value = (((float)(DC->cursorx - x)/ SLIDER_WIDTH) * (editDef->maxVal - editDef->minVal));
 					value += editDef->minVal;
+#else
+					if (key == K_MWHEELUP || key == K_MWHEELDOWN) {
+						float step = (editDef->maxVal - editDef->minVal)*0.01f ;
+						value = DC->getCVarValue(item->cvar);
+						if (key == K_MWHEELUP)
+							value += step ;
+						else
+							value -= step ;
+					} else {
+						value = work / width;
+						value *= (editDef->maxVal - editDef->minVal);
+						value += editDef->minVal;
+					}
+#endif
 					DC->setCVar(item->cvar, va("%f", value));
 					return qtrue;
 				}
@@ -2695,6 +2715,10 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 
 		case K_MOUSE1:
 		case K_MOUSE2:
+#ifdef SMOKINGUNS
+		case K_MWHEELUP:
+		case K_MWHEELDOWN:
+#endif
 			if (item) {
 				if (item->type == ITEM_TYPE_TEXT) {
 					if (Rect_ContainsPoint(Item_CorrectedTextRect(item), DC->cursorx, DC->cursory)) {
@@ -5633,6 +5657,11 @@ qboolean MenuParse_itemDef( itemDef_t *item, int handle ) {
 		Item_InitControls(menu->items[menu->itemCount]);
 		menu->items[menu->itemCount++]->parent = menu;
 	}
+#ifdef SMOKINGUNS
+	else
+		PC_SourceError(handle,"itemDef exceeds the MAX_MENUITEMS (=" XSTRING(MAX_MENUITEMS)
+			") maximum menu item definition");
+#endif
 	return qtrue;
 }
 
