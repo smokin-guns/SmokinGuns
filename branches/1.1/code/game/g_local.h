@@ -1033,6 +1033,7 @@ extern	vmCvar_t	g_friendlyFire;
 extern	vmCvar_t	g_maxteamkills;
 extern	vmCvar_t	g_teamkillsforgettime;
 extern	vmCvar_t	g_teamkillschecktime;
+extern	vmCvar_t	g_mapcycles;
 #endif
 extern	vmCvar_t	g_password;
 extern	vmCvar_t	g_needpass;

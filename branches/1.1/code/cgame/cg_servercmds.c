@@ -220,10 +220,6 @@ void CG_ParseServerinfo( void ) {
 	trap_Cvar_Set("cg_newShotgunPattern", s);
 	cgs.newShotgunPattern = cg_newShotgunPattern.integer;
 
-//	s = Info_ValueForKey( info, "g_availablePlaylist" );
-//	trap_Cvar_Set("cg_availablePlaylist", s);
-//	Q_strncpyz( cgs.availablePlaylist, Info_ValueForKey( info, "g_availablePlaylist" ), sizeof(cgs.availablePlaylist) );
-
 	s = Info_ValueForKey( info, "g_roundNoMoveTime" );
 	trap_Cvar_Set("cg_roundNoMoveTime", s);
 	cgs.roundNoMoveTime = (int)(cg_roundNoMoveTime.value * 1000);
