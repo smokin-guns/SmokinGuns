@@ -93,7 +93,6 @@
 				BaseAddress="0x20000000"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				TurnOffAssemblyGeneration="true"
 				ImportLibrary="$(IntDir)\qagamex86.lib"
 				TargetMachine="1"
 			/>
@@ -368,7 +367,6 @@
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile="$(IntDir)\game.pch"
 				ExpandAttributedSource="true"
-				AssemblerOutput="2"
 				AssemblerListingLocation="$(IntDir)\"
 				ObjectFile="$(IntDir)\"
 				ProgramDataBaseFileName="$(IntDir)\"
