@@ -108,6 +108,7 @@ vmCvar_t	g_friendlyFire;
 vmCvar_t	g_maxteamkills;
 vmCvar_t	g_teamkillsforgettime;
 vmCvar_t	g_teamkillschecktime;
+vmCvar_t	g_mapcycles;
 #endif
 vmCvar_t	g_password;
 vmCvar_t	g_needpass;
@@ -248,6 +249,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_maxteamkills, "g_maxteamkills", "0", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 	{ &g_teamkillsforgettime, "g_teamkillsforgettime", "0", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 	{ &g_teamkillschecktime, "g_teamkillschecktime", "0", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+	{ &g_mapcycles, "g_mapcycles", "", CVAR_ARCHIVE, 0, qtrue },
 #endif
 
 	{ &g_teamAutoJoin, "g_teamAutoJoin", "0", CVAR_ARCHIVE  },
@@ -3777,6 +3779,24 @@ CheckCvars
 ==================
 */
 void CheckCvars( void ) {
+#ifdef SMOKINGUNS
+	static int g_passwordMod = -1;
+	static int g_mapcyclesMod = -1;
+
+	if ( g_password.modificationCount != g_passwordMod ) {
+		g_passwordMod = g_password.modificationCount;
+		if ( *g_password.string && Q_stricmp( g_password.string, "none" ) ) {
+			trap_Cvar_Set( "g_needpass", "1" );
+		} else {
+			trap_Cvar_Set( "g_needpass", "0" );
+		}
+	}
+
+	if ( g_mapcycles.modificationCount != g_mapcyclesMod ) {
+		g_mapcyclesMod = g_mapcycles.modificationCount;
+		trap_SetConfigstring( CS_MAPCYCLES, g_mapcycles.string );
+	}
+#else
 	static int lastMod = -1;
 
 	if ( g_password.modificationCount != lastMod ) {
@@ -3787,6 +3807,7 @@ void CheckCvars( void ) {
 			trap_Cvar_Set( "g_needpass", "0" );
 		}
 	}
+#endif
 }
 
 /*

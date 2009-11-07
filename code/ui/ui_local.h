@@ -634,6 +634,7 @@ typedef struct {
 #define MAX_TEAMS 64
 #define MAX_GAMETYPES 16
 #define MAX_MAPS 128
+#define MAX_MAPCYCLES 16
 #define MAX_SPMAPS 16
 #define PLAYERS_PER_TEAM 5
 #ifndef MAX_PINGREQUESTS
@@ -833,6 +834,9 @@ typedef struct {
 	int mapCount;
 	mapInfo mapList[MAX_MAPS];
 
+	char mapCycles[MAX_MAPCYCLES][MAX_NAME_LENGTH];
+	int mapCycleCount;
+	int mapCycleIndex;
 
 	int tierCount;
 	tierInfo tierList[MAX_TIERS];
