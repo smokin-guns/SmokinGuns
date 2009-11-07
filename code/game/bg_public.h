@@ -178,7 +178,10 @@ by Spoon
 
 #define	CS_ITEMS				27		// string of 0's and 1's that tell which items are present
 
+#ifdef SMOKINGUNS
 #define	CS_WEAPON_INFO			28		// spread, damage, and range for each weapon
+#define	CS_MAPCYCLES			29		// for the map cycle vote menu
+#endif
 
 #define	CS_MODELS				32
 #define	CS_SOUNDS				(CS_MODELS+MAX_MODELS)

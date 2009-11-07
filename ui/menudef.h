@@ -66,6 +66,8 @@
 #define FEEDER_SERVERSTATUS					0x0d			// server status
 #define FEEDER_FINDPLAYER					0x0e			// find player
 #define FEEDER_CINEMATICS					0x0f			// cinematics
+// Smokin' Guns
+#define FEEDER_MAPCYCLES					0x10			// map cycles for voting on
 
 // display flags
 #define CG_SHOW_BLUE_TEAM_HAS_REDFLAG     0x00000001
@@ -89,7 +91,7 @@
 #define CG_SHOW_YOURTEAMHASENEMYFLAG      0x00040000
 #define CG_SHOW_ANYNONTEAMGAME            0x00080000
 #define CG_SHOW_2DONLY						0x10000000
-// Smokin'Guns
+// Smokin' Guns
 #define CG_SHOW_WEAPON2						0x20000000
 
 
@@ -106,7 +108,6 @@
 #define UI_SHOW_NETANYNONTEAMGAME	 			0x00000400
 #define UI_SHOW_NETANYTEAMGAME		 			0x00000800
 #define UI_SHOW_NOTFAVORITESERVERS				0x00001000
-// Smokin'Guns
 #define UI_SHOW_NETANYDUELGAME					0x00002000
 
 
@@ -193,7 +194,7 @@
 #define CG_2NDPLACE 68
 #define CG_CAPTURES 69
 
-// Smokin'Guns hud
+// Smokin' Guns hud
 #define CG_FIELD_HEALTH	100
 #define CG_FIELD_MONEY	101
 #define CG_FIELD_AMMO	102
@@ -203,7 +204,7 @@
 #define CG_FIELD_SCORE1	106
 #define CG_FIELD_SCORE2	107
 
-// Smokin'Guns BUYMENU
+// Smokin' Guns Buy menu
 // buttons
 #define CG_BUTTON_PISTOLS	150
 #define CG_BUTTON_RIFLES	151
@@ -285,7 +286,7 @@
 #define UI_PREVIEWCINEMATIC 254
 #define UI_STARTMAPCINEMATIC 255
 #define UI_MAPS_SELECTION 256
-// Smokin'Guns MAPDESCRIPTIONS
+//MAPDESCRIPTIONS
 #define UI_MAPDESC_AUTHOR 257
 #define UI_MAPDESC_LINE1 258
 #define UI_MAPDESC_LINE2 259

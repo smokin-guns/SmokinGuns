@@ -2196,6 +2196,21 @@ static void UI_DrawCrosshair(rectDef_t *rect, float scale, vec4_t color) {
  	trap_R_SetColor( NULL );
 }
 
+#ifdef SMOKINGUNS
+static void UI_BuildMapCycleList( void ) {
+	char	info[MAX_INFO_STRING];
+	char	*p, *token;
+	int		i = 0;
+
+	trap_GetConfigString( CS_MAPCYCLES, info, sizeof( info ) );
+	p = info;
+	while ( *( token = COM_Parse( &p ) ) && i < MAX_MAPCYCLES ) {
+		Q_strncpyz( uiInfo.mapCycles[i++], token, sizeof( uiInfo.mapCycles[0] ) );
+	}
+	uiInfo.mapCycleCount = i;
+}
+#endif
+
 /*
 ===============
 UI_BuildPlayerList
@@ -4041,6 +4056,12 @@ static void UI_RunMenuScript(char **args) {
 			if (ui_currentNetMap.integer >=0 && ui_currentNetMap.integer < uiInfo.mapCount) {
 				trap_Cmd_ExecuteText( EXEC_APPEND, va("callvote map %s\n",uiInfo.mapList[ui_currentNetMap.integer].mapLoadName) );
 			}
+#ifdef SMOKINGUNS
+		} else if (Q_stricmp(name, "voteMapcycle") == 0) {
+			if (uiInfo.mapCycleIndex >=0 && uiInfo.mapCycleIndex < uiInfo.mapCycleCount) {
+				trap_Cmd_ExecuteText( EXEC_APPEND, va("callvote mapcycle %s\n",uiInfo.mapCycles[uiInfo.mapCycleIndex]) );
+			}
+#endif
 		} else if (Q_stricmp(name, "voteKick") == 0) {
 			if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
 				trap_Cmd_ExecuteText( EXEC_APPEND, va("callvote kick %s\n",uiInfo.playerNames[uiInfo.playerIndex]) );
@@ -4963,6 +4984,8 @@ static int UI_FeederCount(float feederID) {
 		return uiInfo.movieCount;
 	} else if (feederID == FEEDER_MAPS || feederID == FEEDER_ALLMAPS) {
 		return UI_MapCountByGameType(feederID == FEEDER_MAPS ? qtrue : qfalse);
+	} else if (feederID == FEEDER_MAPCYCLES) {
+		return uiInfo.mapCycleCount;
 	} else if (feederID == FEEDER_SERVERS) {
 		return uiInfo.serverStatus.numDisplayServers;
 	} else if (feederID == FEEDER_SERVERSTATUS) {
@@ -5150,6 +5173,10 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
 	} else if (feederID == FEEDER_MAPS || feederID == FEEDER_ALLMAPS) {
 		int actual;
 		return UI_SelectedMap(index, &actual);
+#ifdef SMOKINGUNS
+	} else if (feederID == FEEDER_MAPCYCLES) {
+		return uiInfo.mapCycles[index];
+#endif
 	} else if (feederID == FEEDER_SERVERS) {
 		if (index >= 0 && index < uiInfo.serverStatus.numDisplayServers) {
 #ifndef SMOKINGUNS
@@ -5335,7 +5362,10 @@ static void UI_FeederSelection(float feederID, int index) {
 			trap_Cvar_Set("ui_currentNetMap", va("%d", actual));
 			uiInfo.mapList[ui_currentNetMap.integer].cinematic = trap_CIN_PlayCinematic(va("%s.roq", uiInfo.mapList[ui_currentNetMap.integer].mapLoadName), 0, 0, 0, 0, (CIN_loop | CIN_silent) );
 		}
-
+#ifdef SMOKINGUNS
+  } else if (feederID == FEEDER_MAPCYCLES) {
+		uiInfo.mapCycleIndex = index;
+#endif
   } else if (feederID == FEEDER_SERVERS) {
 		const char *mapName = NULL;
 		uiInfo.serverStatus.currentServer = index;
@@ -6253,6 +6283,7 @@ void _UI_SetActiveMenu( uiMenuCommand_t menu ) {
 		  trap_Cvar_Set( "cl_paused", "1" );
 			trap_Key_SetCatcher( KEYCATCH_UI );
 			UI_BuildPlayerList();
+			UI_BuildMapCycleList();
 			Menus_CloseAll();
 			Menus_ActivateByName("ingame");
 		  return;

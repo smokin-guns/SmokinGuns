@@ -1546,7 +1546,6 @@ typedef struct {
 
 #ifdef SMOKINGUNS
 	int				newShotgunPattern;
-//	char				availablePlaylist[MAX_INFO_STRING];
 	int				roundNoMoveTime;
 
 	qboolean		specsareflies;
