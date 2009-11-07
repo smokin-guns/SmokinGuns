@@ -94,7 +94,6 @@
 				MapFileName="$(IntDir)\smokinguns.map"
 				SubSystem="2"
 				StackReserveSize="8388608"
-				OptimizeForWindows98="0"
 				LinkTimeCodeGeneration="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
