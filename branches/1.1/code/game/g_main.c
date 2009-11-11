@@ -1434,9 +1434,9 @@ void FindIntermissionPoint( int mappart ) {
 
 	if ( !ent ) {	// the map creator forgot to put in an intermission point...
 #ifndef SMOKINGUNS
-		SelectSpawnPoint ( vec3_origin, level.intermission_origin, level.intermission_angle );
+		SelectSpawnPoint ( vec3_origin, level.intermission_origin, level.intermission_angle, qfalse );
 #else
-		SelectSpawnPoint ( vec3_origin, level.intermission_origin, level.intermission_angle, mappart, NULL );
+		SelectSpawnPoint ( vec3_origin, level.intermission_origin, level.intermission_angle, qfalse, mappart, NULL );
 #endif
 	} else {
 		VectorCopy (ent->s.origin, level.intermission_origin);

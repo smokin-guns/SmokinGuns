@@ -1029,7 +1029,7 @@ qboolean Team_GetLocationMsg(gentity_t *ent, char *loc, int loclen)
 
 /*
 ================
-SelectRandomDeathmatchSpawnPoint
+SelectRandomTeamSpawnPoint
 
 go to a random point that doesn't telefrag
 ================
@@ -1201,9 +1201,9 @@ SelectCTFSpawnPoint
 ============
 */
 #ifndef SMOKINGUNS
-gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3_t angles ) {
+gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3_t angles, qboolean isbot ) {
 #else
-gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3_t angles, int mappart ) {
+gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3_t angles, qboolean isbot, int mappart ) {
 #endif
 	gentity_t	*spot;
 
@@ -1211,9 +1211,9 @@ gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3
 
 	if (!spot) {
 #ifndef SMOKINGUNS
-		return SelectSpawnPoint( vec3_origin, origin, angles );
+		return SelectSpawnPoint( vec3_origin, origin, angles, isbot );
 #else
-		return SelectSpawnPoint( vec3_origin, origin, angles, mappart, NULL );
+		return SelectSpawnPoint( vec3_origin, origin, angles, isbot, mappart, NULL );
 #endif
 	}
 

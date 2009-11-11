@@ -137,6 +137,7 @@ New cvars
   s_backend                         - read only, indicates the current sound
                                       backend
   s_muteWhenMinimized               - mute sound when minimized
+  s_muteWhenUnfocused               - mute sound when window is unfocused
 
   com_ansiColor                     - enable use of ANSI escape codes in the tty
   com_altivec                       - enable use of altivec on PowerPC systems
@@ -192,12 +193,16 @@ New cvars
                                       intend to use this.
   r_sdlDriver                       - read only, indicates the SDL driver
                                       backend being used
+  r_noborder                        - Remove window decoration from window
+                                      managers, like borders and titlebar.
 
 New commands
   video [filename]        - start video capture (use with demo command)
   stopvideo               - stop video capture
+  stopmusic               - stop background music
 
   print                   - print out the contents of a cvar
+  unset                   - unset a user created cvar
 
   banaddr <range>         - ban an ip address range from joining a game on this
                             server, valid <range> is either playernum or CIDR
@@ -210,6 +215,7 @@ New commands
   flushbans               - delete all bans
 
   net_restart             - restart network subsystem to change latched settings
+  game_restart <fs_game>  - Switch to another mod
 
 ------------------------------------------------------------ Miscellaneous -----
 
@@ -386,7 +392,6 @@ Using HTTP/FTP Download Support (Server)
   sv_allowDownload's value is now a bitmask made up of the following
   flags:
     1 - ENABLE
-    2 - do not use HTTP/FTP downloads
     4 - do not use UDP downloads
     8 - do not ask the client to disconnect when using HTTP/FTP
 

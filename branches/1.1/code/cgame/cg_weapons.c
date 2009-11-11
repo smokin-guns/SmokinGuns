@@ -249,33 +249,26 @@ void CG_RailTrail (clientInfo_t *ci, vec3_t start, vec3_t end) {
 #define SPACING  5
  
 	start[2] -= 4;
-	VectorCopy (start, move);
-	VectorSubtract (end, start, vec);
-	len = VectorNormalize (vec);
-	PerpendicularVector(temp, vec);
-	for (i = 0 ; i < 36; i++) {
-		RotatePointAroundVector(axis[i], vec, temp, i * 10);//banshee 2.4 was 10
-	}
-
+ 
 	le = CG_AllocLocalEntity();
 	re = &le->refEntity;
-
+ 
 	le->leType = LE_FADE_RGB;
 	le->startTime = cg.time;
 	le->endTime = cg.time + cg_railTrailTime.value;
 	le->lifeRate = 1.0 / (le->endTime - le->startTime);
-
+ 
 	re->shaderTime = cg.time / 1000.0f;
 	re->reType = RT_RAIL_CORE;
 	re->customShader = cgs.media.railCoreShader;
-
+ 
 	VectorCopy(start, re->origin);
 	VectorCopy(end, re->oldorigin);
-
+ 
 	re->shaderRGBA[0] = ci->color1[0] * 255;
-    re->shaderRGBA[1] = ci->color1[1] * 255;
-    re->shaderRGBA[2] = ci->color1[2] * 255;
-    re->shaderRGBA[3] = 255;
+	re->shaderRGBA[1] = ci->color1[1] * 255;
+	re->shaderRGBA[2] = ci->color1[2] * 255;
+	re->shaderRGBA[3] = 255;
 
 	le->color[0] = ci->color1[0] * 0.75;
 	le->color[1] = ci->color1[1] * 0.75;
@@ -284,60 +277,73 @@ void CG_RailTrail (clientInfo_t *ci, vec3_t start, vec3_t end) {
 
 	AxisClear( re->axis );
  
-	VectorMA(move, 20, vec, move);
-	VectorCopy(move, next_move);
-	VectorScale (vec, SPACING, vec);
-
-	if (cg_oldRail.integer != 0) {
+	if (cg_oldRail.integer)
+	{
 		// nudge down a bit so it isn't exactly in center
 		re->origin[2] -= 8;
 		re->oldorigin[2] -= 8;
 		return;
 	}
+
+	VectorCopy (start, move);
+	VectorSubtract (end, start, vec);
+	len = VectorNormalize (vec);
+	PerpendicularVector(temp, vec);
+	for (i = 0 ; i < 36; i++)
+	{
+		RotatePointAroundVector(axis[i], vec, temp, i * 10);//banshee 2.4 was 10
+	}
+
+	VectorMA(move, 20, vec, move);
+	VectorCopy(move, next_move);
+	VectorScale (vec, SPACING, vec);
+
 	skip = -1;
 
 	j = 18;
-    for (i = 0; i < len; i += SPACING) {
-		if (i != skip) {
+	for (i = 0; i < len; i += SPACING)
+	{
+		if (i != skip)
+		{
 			skip = i + SPACING;
 			le = CG_AllocLocalEntity();
-            re = &le->refEntity;
-            le->leFlags = LEF_PUFF_DONT_SCALE;
+			re = &le->refEntity;
+			le->leFlags = LEF_PUFF_DONT_SCALE;
 			le->leType = LE_MOVE_SCALE_FADE;
-            le->startTime = cg.time;
-            le->endTime = cg.time + (i>>1) + 600;
-            le->lifeRate = 1.0 / (le->endTime - le->startTime);
+			le->startTime = cg.time;
+			le->endTime = cg.time + (i>>1) + 600;
+			le->lifeRate = 1.0 / (le->endTime - le->startTime);
 
-            re->shaderTime = cg.time / 1000.0f;
-            re->reType = RT_SPRITE;
-            re->radius = 1.1f;
+			re->shaderTime = cg.time / 1000.0f;
+			re->reType = RT_SPRITE;
+			re->radius = 1.1f;
 			re->customShader = cgs.media.railRingsShader;
 
-            re->shaderRGBA[0] = ci->color2[0] * 255;
-            re->shaderRGBA[1] = ci->color2[1] * 255;
-            re->shaderRGBA[2] = ci->color2[2] * 255;
-            re->shaderRGBA[3] = 255;
+			re->shaderRGBA[0] = ci->color2[0] * 255;
+			re->shaderRGBA[1] = ci->color2[1] * 255;
+			re->shaderRGBA[2] = ci->color2[2] * 255;
+			re->shaderRGBA[3] = 255;
 
-            le->color[0] = ci->color2[0] * 0.75;
-            le->color[1] = ci->color2[1] * 0.75;
-            le->color[2] = ci->color2[2] * 0.75;
-            le->color[3] = 1.0f;
+			le->color[0] = ci->color2[0] * 0.75;
+			le->color[1] = ci->color2[1] * 0.75;
+			le->color[2] = ci->color2[2] * 0.75;
+			le->color[3] = 1.0f;
 
-            le->pos.trType = TR_LINEAR;
-            le->pos.trTime = cg.time;
+			le->pos.trType = TR_LINEAR;
+			le->pos.trTime = cg.time;
 
 			VectorCopy( move, move2);
-            VectorMA(move2, RADIUS , axis[j], move2);
-            VectorCopy(move2, le->pos.trBase);
+			VectorMA(move2, RADIUS , axis[j], move2);
+			VectorCopy(move2, le->pos.trBase);
 
-            le->pos.trDelta[0] = axis[j][0]*6;
-            le->pos.trDelta[1] = axis[j][1]*6;
-            le->pos.trDelta[2] = axis[j][2]*6;
+			le->pos.trDelta[0] = axis[j][0]*6;
+			le->pos.trDelta[1] = axis[j][1]*6;
+			le->pos.trDelta[2] = axis[j][2]*6;
 		}
 
-        VectorAdd (move, vec, move);
+		VectorAdd (move, vec, move);
 
-        j = j + ROTATION < 36 ? j + ROTATION : (j + ROTATION) % 36;
+		j = (j + ROTATION) % 36;
 	}
 }
 #endif
@@ -1398,6 +1404,8 @@ static void CG_AddWeaponWithPowerups( refEntity_t *gun, int powerups ) {
 		gun->customShader = cgs.media.invisShader;
 		trap_R_AddRefEntityToScene( gun );
 	} else {
+		trap_R_AddRefEntityToScene( gun );
+
 		if ( powerups & ( 1 << PW_BATTLESUIT ) ) {
 			gun->customShader = cgs.media.battleWeaponShader;
 			trap_R_AddRefEntityToScene( gun );
@@ -1470,6 +1478,9 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	qboolean render = qtrue;
 #endif
 	centity_t	*nonPredictedCent;
+#ifndef SMOKINGUNS
+	orientation_t	lerped;
+#endif
 
 #ifdef SMOKINGUNS
 	if(ps && ps->weapon == WP_SHARPS && cg.snap->ps.stats[STAT_WP_MODE]==1)
@@ -1665,7 +1676,22 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	}
 
 #ifndef SMOKINGUNS
-	CG_PositionEntityOnTag( &gun, parent, parent->hModel, "tag_weapon");
+	trap_R_LerpTag(&lerped, parent->hModel, parent->oldframe, parent->frame,
+		1.0 - parent->backlerp, "tag_weapon");
+	VectorCopy(parent->origin, gun.origin);
+
+	VectorMA(gun.origin, lerped.origin[0], parent->axis[0], gun.origin);
+
+	// Make weapon appear left-handed for 2 and centered for 3
+	if(ps && cg_drawGun.integer == 2)
+		VectorMA(gun.origin, -lerped.origin[1], parent->axis[1], gun.origin);
+	else if(!ps || cg_drawGun.integer != 3)
+       	VectorMA(gun.origin, lerped.origin[1], parent->axis[1], gun.origin);
+
+	VectorMA(gun.origin, lerped.origin[2], parent->axis[2], gun.origin);
+
+	MatrixMultiply(lerped.axis, ((refEntity_t *)parent)->axis, gun.axis);
+	gun.backlerp = parent->backlerp;
 
 	CG_AddWeaponWithPowerups( &gun, cent->currentState.powerups );
 #else
