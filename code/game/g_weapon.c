@@ -1074,7 +1074,7 @@ int ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, qbo
 	int			i;
 	float		r, u;
 	float		spread_dist , spread_angle , angle_shift , current_angle_shift ;
-	float		max_spread_circle , current_spread_circle , extra_circle ;
+	float		max_spread_circle , current_spread_circle , extra_circle = 0.0f;
 	int			current_spread_cell , pellet_per_circle , extra_center_pellet , current_pellet_per_circle ;
 	vec3_t		end;
 	vec3_t		forward, right, up;

@@ -819,7 +819,11 @@ int UI_ProportionalStringWidth( const char* str ) {
 	return width;
 }
 
+#ifndef SMOKINGUNS
+static void UI_DrawProportionalString2( int x, int y, const char* str, vec4_t color, float sizeScale, qhandle_t charset )
+#else
 void UI_DrawProportionalString2( int x, int y, const char* str, vec4_t color, float sizeScale, qhandle_t charset )
+#endif
 {
 	const char* s;
 	unsigned char	ch;
@@ -836,11 +840,7 @@ void UI_DrawProportionalString2( int x, int y, const char* str, vec4_t color, fl
 	trap_R_SetColor( color );
 
 	ax = x * cgs.screenXScale + cgs.screenXBias;
-#ifndef SMOKINGUNS
-	ay = y * cgs.screenXScale;
-#else
 	ay = y * cgs.screenYScale;
-#endif
 
 	s = str;
 	while ( *s )

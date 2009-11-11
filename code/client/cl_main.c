@@ -934,7 +934,7 @@ void CL_PlayDemo_f( void ) {
 	char		retry[MAX_OSPATH];
 
 	if (Cmd_Argc() != 2) {
-		Com_Printf ("playdemo <demoname>\n");
+		Com_Printf ("demo <demoname>\n");
 		return;
 	}
 
@@ -942,14 +942,17 @@ void CL_PlayDemo_f( void ) {
 	// 2 means don't force disconnect of local client
 	Cvar_Set( "sv_killserver", "2" );
 
-	CL_Disconnect( qtrue );
-
 	// open the demo file
 	arg = Cmd_Argv(1);
 
+	CL_Disconnect( qtrue );
+
 	// check for an extension .dm_?? (?? is protocol)
 	ext_test = arg + strlen(arg) - 6;
-	if ((strlen(arg) > 6) && (ext_test[0] == '.') && ((ext_test[1] == 'd') || (ext_test[1] == 'D')) && ((ext_test[2] == 'm') || (ext_test[2] == 'M')) && (ext_test[3] == '_'))
+	if ((strlen(arg) > 6) && (ext_test[0] == '.') &&
+		((ext_test[1] == 'd') || (ext_test[1] == 'D')) &&
+		((ext_test[2] == 'm') || (ext_test[2] == 'M')) &&
+		(ext_test[3] == '_'))
 	{
 		protocol = atoi(ext_test+4);
 		i=0;
@@ -1255,7 +1258,10 @@ void CL_Disconnect( qboolean showMainMenu ) {
 		CL_WritePacket();
 		CL_WritePacket();
 	}
-
+	
+	// Remove pure paks
+	FS_PureServerSetLoadedPaks("", "");
+	
 	CL_ClearState ();
 
 	// wipe the client connection
@@ -1763,6 +1769,19 @@ void CL_Vid_Restart_f( void ) {
 
 /*
 =================
+CL_Snd_Restart
+
+Restart the sound subsystem
+=================
+*/
+void CL_Snd_Restart(void)
+{
+	S_Shutdown();
+	S_Init();
+}
+
+/*
+=================
 CL_Snd_Restart_f
 
 Restart the sound subsystem
@@ -1770,10 +1789,9 @@ The cgame and game must also be forced to restart because
 handles will be invalid
 =================
 */
-void CL_Snd_Restart_f( void ) {
-	S_Shutdown();
-	S_Init();
-
+void CL_Snd_Restart_f(void)
+{
+	CL_Snd_Restart();
 	CL_Vid_Restart_f();
 }
 
