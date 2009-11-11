@@ -86,9 +86,9 @@ void Team_ReturnFlag(int team);
 #endif
 void Team_FreeEntity(gentity_t *ent);
 #ifndef SMOKINGUNS
-gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3_t angles );
+gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3_t angles, qboolean isbot );
 #else
-gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3_t angles, int mappart );
+gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3_t angles, qboolean isbot, int mappart );
 #endif
 gentity_t *Team_GetLocation(gentity_t *ent);
 qboolean Team_GetLocationMsg(gentity_t *ent, char *loc, int loclen);

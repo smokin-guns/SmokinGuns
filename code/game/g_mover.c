@@ -2001,15 +2001,14 @@ void Reached_Train( gentity_t *ent ) {
 	length = VectorLength( move );
 
 	ent->s.pos.trDuration = length * 1000 / speed;
-#ifdef SMOKINGUNS
+
 	// Tequila comment: Be sure to send to clients after any fast move case
 	ent->r.svFlags &= ~SVF_NOCLIENT;
 
 	// Tequila comment: Fast move case
 	if(ent->s.pos.trDuration<1) {
 		// Tequila comment: As trDuration is used later in a division, we need to avoid that case now
-		// I think the major side effect is the lag problem in dm_train as very high speed are
-		// used to cycle the landscape rocks with a func_train mover. With null trDuration,
+		// With null trDuration,
 		// the calculated rocks bounding box becomes infinite and the engine think for a short time
 		// any entity is riding that mover but not the world entity... In rare case, I found it
 		// can also stuck every map entities after func_door are used.
@@ -2021,7 +2020,6 @@ void Reached_Train( gentity_t *ent ) {
 		// Tequila comment: Don't send entity to clients so it becomes really invisible 
 		ent->r.svFlags |= SVF_NOCLIENT;
 	}
-#endif
 
 	// looping sound
 	ent->s.loopSound = next->soundLoop;

@@ -178,7 +178,7 @@ go to a random point that doesn't telefrag
 ================
 */
 #define	MAX_SPAWN_POINTS	128
-gentity_t *SelectRandomDeathmatchSpawnPoint( void ) {
+gentity_t *SelectRandomDeathmatchSpawnPoint(qboolean isbot) {
 	gentity_t	*spot;
 	int			count;
 	int			selection;
@@ -187,10 +187,18 @@ gentity_t *SelectRandomDeathmatchSpawnPoint( void ) {
 	count = 0;
 	spot = NULL;
 
-	while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL) {
-		if ( SpotWouldTelefrag( spot ) ) {
+	while((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL && count < MAX_SPAWN_POINTS)
+	{
+		if(SpotWouldTelefrag(spot))
+			continue;
+
+		if(((spot->flags & FL_NO_BOTS) && isbot) ||
+		   ((spot->flags & FL_NO_HUMANS) && !isbot))
+		{
+			// spot is not for this human/bot player
 			continue;
 		}
+
 		spots[ count ] = spot;
 		count++;
 	}
@@ -211,28 +219,23 @@ Chooses a player start, deathmatch start, etc
 ============
 */
 #ifndef SMOKINGUNS
-gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles ) {
+gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, qboolean isbot ) {
 #else
-#define IS_VALID_SPAWNPOINT(spot, client) \
- 	( !( (client->r.svFlags & SVF_BOT) && (spot->flags & FL_NO_BOTS) )\
-		&& !( !(client->r.svFlags & SVF_BOT) && (spot->flags & FL_NO_HUMANS) ) )
-
-gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles,
+gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, qboolean isbot,
 										   int mappart, gclient_t *client) {
 #endif
 	gentity_t	*spot;
 	vec3_t		delta;
 	float		dist;
-	float		list_dist[64];
-	gentity_t	*list_spot[64];
+	float		list_dist[MAX_SPAWN_POINTS];
+	gentity_t	*list_spot[MAX_SPAWN_POINTS];
 #ifndef SMOKINGUNS
 	int			numSpots, rnd, i, j;
 #else
 	int			numSpots, rnd, i, j, ignoreTeam;
-	gentity_t *ent_client;
-	gentity_t	*allSpot[64];
-	qboolean	telefragSpot[64];
-	int			availSpot[64];
+	gentity_t	*allSpot[MAX_SPAWN_POINTS];
+	qboolean	telefragSpot[MAX_SPAWN_POINTS];
+	int			availSpot[MAX_SPAWN_POINTS];
 	int			numAllSpots = 0;
 	int			numAvailSpots;
 	qboolean perfectSpot = qfalse, telefrag;
@@ -250,7 +253,7 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 #else
 		telefrag = SpotWouldTelefrag( spot );
 		if (g_gametype.integer != GT_DUEL) {
-			if (numAllSpots < 64) {
+			if (numAllSpots < MAX_SPAWN_POINTS) {
 				allSpot[ numAllSpots ] = spot;
 				telefragSpot[ numAllSpots ] = telefrag;
 				numAllSpots++;
@@ -288,25 +291,40 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 
 		// spots are inserted in sorted order, furthest away first
 #endif
+
+		if(((spot->flags & FL_NO_BOTS) && isbot) ||
+		   ((spot->flags & FL_NO_HUMANS) && !isbot))
+		{
+			// spot is not for this human/bot player
+			continue;
+		}
+
 		VectorSubtract( spot->s.origin, avoidPoint, delta );
 		dist = VectorLength( delta );
-		for (i = 0; i < numSpots; i++) {
-			if ( dist > list_dist[i] ) {
-				if ( numSpots >= 64 )
-					numSpots = 64-1;
-				for (j = numSpots; j > i; j--) {
+
+		for (i = 0; i < numSpots; i++)
+		{
+			if(dist > list_dist[i])
+			{
+				if (numSpots >= MAX_SPAWN_POINTS)
+					numSpots = MAX_SPAWN_POINTS - 1;
+					
+				for(j = numSpots; j > i; j--)
+				{
 					list_dist[j] = list_dist[j-1];
 					list_spot[j] = list_spot[j-1];
 				}
+
 				list_dist[i] = dist;
 				list_spot[i] = spot;
+
 				numSpots++;
-				if (numSpots > 64)
-					numSpots = 64;
 				break;
 			}
 		}
-		if (i >= numSpots && numSpots < 64) {
+
+		if(i >= numSpots && numSpots < MAX_SPAWN_POINTS)
+		{
 			list_dist[numSpots] = dist;
 			list_spot[numSpots] = spot;
 			numSpots++;
@@ -320,10 +338,13 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 	}
 #endif
 
-	if (!numSpots) {
+	if (!numSpots)
+	{
 		spot = G_Find( NULL, FOFS(classname), "info_player_deathmatch");
+
 		if (!spot)
 			G_Error( "Couldn't find a spawn point" );
+
 		VectorCopy (spot->s.origin, origin);
 #ifndef SMOKINGUNS
 		origin[2] += 9;
@@ -345,10 +366,6 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 	ignoreTeam = (g_gametype.integer == GT_TEAM)
 	             ? client->ps.persistant[PERS_TEAM] : -1;
 
-	// Get gentity_t from gclient_t
-	// We cannot use client->ps.clientNum because it is not yet initialized
-	ent_client = &g_entities[client - level.clients];
-
 	// try find a spawn point that's not too close to another player
 	rnd = random() * (numSpots / 2);
 	for ( i = rnd; i >= 0; i-- ) {
@@ -356,7 +373,8 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 		if ( !G_IsAnyClientWithinRadius(spot->s.origin, 700, ignoreTeam) ) {
 			// Check if the spawn point is appropriate for the bot or human player.
 			// If not, try another one.
-			if ( !IS_VALID_SPAWNPOINT(spot, ent_client) )
+			if (((spot->flags & FL_NO_BOTS) && isbot) ||
+				((spot->flags & FL_NO_HUMANS) && !isbot))
 				continue;
 			perfectSpot = qtrue;
 			rnd = i;
@@ -371,7 +389,8 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 			if ( !G_IsAnyClientWithinRadius(spot->s.origin, 700, ignoreTeam) ) {
 				// Check if the spawn point is appropriate for the bot or human player.
 				// If not, try another one.
-				if ( !IS_VALID_SPAWNPOINT(spot, ent_client) )
+				if (((spot->flags & FL_NO_BOTS) && isbot) ||
+					((spot->flags & FL_NO_HUMANS) && !isbot))
 					continue;
 				perfectSpot = qtrue;
 				rnd = i;
@@ -383,16 +402,18 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 	// No valid spawn point is found.
 	// By valid, we mean an allowed spawn point for bot or human AND
 	// no client within a radius of 700 units
-	if ( !perfectSpot && !IS_VALID_SPAWNPOINT(list_spot[rnd], ent_client) ) {
+	if ( !perfectSpot && (((list_spot[rnd]->flags & FL_NO_BOTS) && isbot) ||
+		((list_spot[rnd]->flags & FL_NO_HUMANS) && !isbot)) ) {
 		developer = trap_Cvar_VariableIntegerValue("developer");
 
 		numAvailSpots = 0;
 		for (i = 0; i < numSpots; i++) {
 			spot = list_spot[i];
-			if ( IS_VALID_SPAWNPOINT(spot, ent_client) ) {
-				availSpot[ numAvailSpots ] = i;
-				numAvailSpots++;
-			}
+			if (((spot->flags & FL_NO_BOTS) && isbot) ||
+				((spot->flags & FL_NO_HUMANS) && !isbot))
+				continue;
+			availSpot[ numAvailSpots ] = i;
+			numAvailSpots++;
 		}
 		// At least one spot *SHOULD* be available
 		if (numAvailSpots > 0) {
@@ -401,7 +422,7 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 			spot = list_spot[rnd];
 
 			if ( developer ) {
-				G_Printf("Error: Invalid %s spawn point\n", ent_client->r.svFlags & SVF_BOT ? "bot" : "human");
+				G_Printf("Error: Invalid %s spawn point\n", isbot ? "bot" : "human");
 				G_Printf("Fix: a valid spawn point has been elected. Is any client within radius ? %s\n",
 					G_IsAnyClientWithinRadius(spot->s.origin, 700, ignoreTeam) ? "Yes" : "No");
 			}
@@ -413,29 +434,31 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 			// -> Yes, as it is better than an infinite loop ;)
 			numAvailSpots = 0;
 			if ( developer ) {
-				G_Printf("Error: Invalid %s spawn point\n", ent_client->r.svFlags & SVF_BOT ? "bot" : "human");
+				G_Printf("Error: Invalid %s spawn point\n", isbot ? "bot" : "human");
 				for (i = 0; i < numAllSpots; i++) {
 					spot = allSpot[i];
-					if ( (ent_client->r.svFlags & SVF_BOT) && (spot->flags & FL_NO_BOTS) )
+					if ( (spot->flags & FL_NO_BOTS) && isbot )
 						G_Printf("DumpInfo: spawnPoint[%i]: not allowed for you, bot, telefrag: %s\n", i, telefragSpot[i] ? "Yes" : "No");
-					else if ( !(ent_client->r.svFlags & SVF_BOT) && (spot->flags & FL_NO_HUMANS) )
+					else if ( (spot->flags & FL_NO_HUMANS) && !isbot )
 						G_Printf("DumpInfo: spawnPoint[%i]: not allowed for you, human, telefrag: %s\n", i, telefragSpot[i] ? "Yes" : "No");
 					else
 						G_Printf("DumpInfo: spawnPoint[%i]: allowed, telefrag: %s\n", i, telefragSpot[i] ? "Yes" : "No");
 
-					if ( IS_VALID_SPAWNPOINT(spot, ent_client) ) {
-						availSpot[ numAvailSpots ] = i;
-						numAvailSpots++;
-					}
+					if (((spot->flags & FL_NO_BOTS) && isbot) ||
+						((spot->flags & FL_NO_HUMANS) && !isbot))
+						continue;
+					availSpot[ numAvailSpots ] = i;
+					numAvailSpots++;
 				}
 			}
 			else {
 				for (i = 0; i < numAllSpots; i++) {
 					spot = allSpot[i];
-					if ( IS_VALID_SPAWNPOINT(spot, ent_client) ) {
-						availSpot[ numAvailSpots ] = i;
-						numAvailSpots++;
-					}
+					if (((spot->flags & FL_NO_BOTS) && isbot) ||
+						((spot->flags & FL_NO_HUMANS) && !isbot))
+						continue;
+					availSpot[ numAvailSpots ] = i;
+					numAvailSpots++;
 				}
 			}
 
@@ -457,7 +480,7 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 
 				if ( developer )
 					G_Printf("Fatal: %s spawn problem ! Maybe FL_NO_BOTS and FL_NO_HUMANS have to be removed on all spawn points ??\n",
-						ent_client->r.svFlags & SVF_BOT ? "bot" : "human");
+						isbot ? "bot" : "human");
 			}
 		}
 	}
@@ -491,11 +514,11 @@ Chooses a player start, deathmatch start, etc
 ============
 */
 #ifndef SMOKINGUNS
-gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles ) {
-	return SelectRandomFurthestSpawnPoint( avoidPoint, origin, angles );
+gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, qboolean isbot ) {
+	return SelectRandomFurthestSpawnPoint( avoidPoint, origin, angles, isbot );
 #else
-gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, int mappart, gclient_t *client ) {
-	return SelectRandomFurthestSpawnPoint( avoidPoint, origin, angles, mappart, client );
+gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, qboolean isbot, int mappart, gclient_t *client ) {
+	return SelectRandomFurthestSpawnPoint( avoidPoint, origin, angles, isbot, mappart, client );
 #endif
 
 	/*
@@ -536,26 +559,32 @@ use normal spawn selection.
 ============
 */
 #ifndef SMOKINGUNS
-gentity_t *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles ) {
+gentity_t *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles, qboolean isbot ) {
 #else
-gentity_t *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles, int mappart, gclient_t *client) {
+gentity_t *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles, qboolean isbot, int mappart, gclient_t *client) {
 #endif
 	gentity_t	*spot;
 
 	spot = NULL;
-	while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL) {
-		if ( spot->spawnflags & 1 ) {
-			break;
+
+	while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL)
+	{
+		if(((spot->flags & FL_NO_BOTS) && isbot) ||
+		   ((spot->flags & FL_NO_HUMANS) && !isbot))
+		{
+			continue;
 		}
+		
+		if((spot->spawnflags & 0x01))
+			break;
 	}
 
-	if ( !spot || SpotWouldTelefrag( spot ) ) {
+	if (!spot || SpotWouldTelefrag(spot))
 #ifndef SMOKINGUNS
-		return SelectSpawnPoint( vec3_origin, origin, angles );
+		return SelectSpawnPoint(vec3_origin, origin, angles, isbot);
 #else
-		return SelectSpawnPoint( vec3_origin, origin, angles, mappart, client );
+		return SelectSpawnPoint( vec3_origin, origin, angles, isbot, mappart, client );
 #endif
-	}
 
 	VectorCopy (spot->s.origin, origin);
 #ifndef SMOKINGUNS
@@ -1910,6 +1939,9 @@ void ClientSpawn(gentity_t *ent) {
 
 	index = ent - g_entities;
 	client = ent->client;
+
+	VectorClear(spawn_origin);
+
 #ifdef SMOKINGUNS
 	if (g_gametype.integer != GT_DUEL)
 		// hika comments: client->ps.pm_type is set to PM_DEAD in player_die() at g_combat.c
@@ -1934,7 +1966,9 @@ void ClientSpawn(gentity_t *ent) {
 		spawnPoint = SelectCTFSpawnPoint (
 						client->sess.sessionTeam,
 						client->pers.teamState.state,
-						spawn_origin, spawn_angles);
+						spawn_origin, spawn_angles,
+						!!(ent->r.svFlags & SVF_BOT));
+	}
 #else
 	if ( client->sess.sessionTeam == TEAM_SPECTATOR && (g_gametype.integer != GT_DUEL ||
 		client->realspec)) {
@@ -1950,7 +1984,9 @@ void ClientSpawn(gentity_t *ent) {
 			spawnPoint = SelectCTFSpawnPoint (
 				client->sess.sessionTeam,
 				client->pers.teamState.state,
-				spawn_origin, spawn_angles, ent->mappart);
+				spawn_origin, spawn_angles,
+				!!(ent->r.svFlags & SVF_BOT),
+				ent->mappart);
 		}
 	} else if (g_gametype.integer == GT_DUEL){
 		if (client->sess.sessionTeam == TEAM_SPECTATOR) {
@@ -1960,43 +1996,37 @@ void ClientSpawn(gentity_t *ent) {
 		} else {
 			spawnPoint = SelectSpawnPoint (
 						client->ps.origin,
-						spawn_origin, spawn_angles, ent->mappart, ent->client);
+						spawn_origin, spawn_angles,
+						!!(ent->r.svFlags & SVF_BOT),
+						ent->mappart, ent->client);
 		}
 #endif
-	} else {
-		do {
+	}
+	else
+	{
 			// the first spawn should be at a good looking spot
-			if ( !client->pers.initialSpawn && client->pers.localClient ) {
+		if ( !client->pers.initialSpawn && client->pers.localClient )
+		{
 				client->pers.initialSpawn = qtrue;
 #ifndef SMOKINGUNS
-				spawnPoint = SelectInitialSpawnPoint( spawn_origin, spawn_angles );
+				spawnPoint = SelectInitialSpawnPoint( spawn_origin, spawn_angles,
+							     !!(ent->r.svFlags & SVF_BOT));
 #else
-				spawnPoint = SelectInitialSpawnPoint( spawn_origin, spawn_angles, ent->mappart, ent->client );
+				spawnPoint = SelectInitialSpawnPoint( spawn_origin, spawn_angles,
+							     !!(ent->r.svFlags & SVF_BOT), ent->mappart, ent->client );
 #endif
-			} else {
+			}
+			else
+			{
 				// don't spawn near existing origin if possible
 				spawnPoint = SelectSpawnPoint (
 					client->ps.origin,
 #ifndef SMOKINGUNS
-					spawn_origin, spawn_angles);
+					spawn_origin, spawn_angles, !!(ent->r.svFlags & SVF_BOT));
 #else
-					spawn_origin, spawn_angles, ent->mappart, client);
+					spawn_origin, spawn_angles, !!(ent->r.svFlags & SVF_BOT), ent->mappart, client);
 #endif
 			}
-
-			// Tim needs to prevent bots from spawning at the initial point
-			// on q3dm0...
-			if ( ( spawnPoint->flags & FL_NO_BOTS ) && ( ent->r.svFlags & SVF_BOT ) ) {
-				continue;	// try again
-			}
-			// just to be symetric, we have a nohumans option...
-			if ( ( spawnPoint->flags & FL_NO_HUMANS ) && !( ent->r.svFlags & SVF_BOT ) ) {
-				continue;	// try again
-			}
-
-			break;
-
-		} while ( 1 );
 	}
 	client->pers.teamState.state = TEAM_ACTIVE;
 

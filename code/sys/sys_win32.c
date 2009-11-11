@@ -81,14 +81,6 @@ char *Sys_DefaultHomePath( void )
 		Q_strcat( homePath, sizeof( homePath ), "\\" PRODUCT_NAME );
 #endif
 		FreeLibrary(shfolder);
-		if( !CreateDirectory( homePath, NULL ) )
-		{
-			if( GetLastError() != ERROR_ALREADY_EXISTS )
-			{
-				Com_Printf("Unable to create directory \"%s\"\n", homePath );
-				return NULL;
-			}
-		}
 	}
 
 	return homePath;
@@ -295,9 +287,15 @@ const char *Sys_Dirname( char *path )
 Sys_Mkdir
 ==============
 */
-void Sys_Mkdir( const char *path )
+qboolean Sys_Mkdir( const char *path )
 {
-	_mkdir (path);
+	if( !CreateDirectory( path, NULL ) )
+	{
+		if( GetLastError( ) != ERROR_ALREADY_EXISTS )
+			return qfalse;
+	}
+
+	return qtrue;
 }
 
 /*
@@ -667,6 +665,19 @@ void Sys_PlatformInit( void )
 	else
 		SDL_VIDEODRIVER_externallySet = qfalse;
 #endif
+}
+
+/*
+==============
+Sys_SetEnv
+
+set/unset environment variables (empty value removes it)
+==============
+*/
+
+void Sys_SetEnv(const char *name, const char *value)
+{
+	_putenv(va("%s=%s", name, value));
 }
 
 /*
