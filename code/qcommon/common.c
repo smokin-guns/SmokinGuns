@@ -269,7 +269,10 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 	if(com_errorEntered)
 	{
 		if(!calledSysError)
+		{
+			calledSysError = qtrue;
 			Sys_Error("recursive error after: %s", com_errorMessage);
+		}
 		
 		return;
 	}
