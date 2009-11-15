@@ -1263,7 +1263,7 @@ float G_LocationDamage(vec3_t point, gentity_t* targ, gentity_t* attacker, float
 	switch ( location )
 	{
 	case HIT_HEAD:
-		take *= 5.0f;
+		take *= 5.5f;
 		break;
 	case HIT_NECK:
 		take *= 2.8f;
