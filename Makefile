@@ -156,6 +156,10 @@ ifndef DEBUG_CFLAGS
 DEBUG_CFLAGS=-g -O0
 endif
 
+ifndef FRAMEBUFFER_AND_GLSL_SUPPORT
+FRAMEBUFFER_AND_GLSL_SUPPORT=0
+endif
+
 #############################################################################
 
 BD=$(BUILD_DIR)/debug-$(PLATFORM)-$(ARCH)
@@ -918,6 +922,10 @@ ifeq ($(USE_VOIP),1)
   endif
 endif
 
+ifeq ($(FRAMEBUFFER_AND_GLSL_SUPPORT),1)
+  CLIENT_CFLAGS += -DFRAMEBUFFER_AND_GLSL_SUPPORT
+endif
+
 ifeq ($(USE_INTERNAL_ZLIB),1)
   BASE_CFLAGS += -DNO_GZIP
   ifneq ($(USE_LOCAL_HEADERS),1)
@@ -1548,6 +1556,12 @@ Q3OBJ = \
   $(B)/client/con_passive.o \
   $(B)/client/con_log.o \
   $(B)/client/sys_main.o
+
+ifeq ($(FRAMEBUFFER_AND_GLSL_SUPPORT),1)
+  Q3OBJ += \
+  	$(B)/client/tr_framebuffer.o \
+  	$(B)/client/tr_glslprogs.o
+endif
 
 ifeq ($(ARCH),i386)
   Q3OBJ += \

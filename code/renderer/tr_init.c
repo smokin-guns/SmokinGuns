@@ -164,6 +164,20 @@ int		max_polys;
 cvar_t	*r_maxpolyverts;
 int		max_polyverts;
 
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+cvar_t *r_ext_framebuffer;
+cvar_t *r_ext_framebuffer_bloom;
+cvar_t *r_ext_framebuffer_blur_size;
+cvar_t *r_ext_framebuffer_blur_ammount;
+cvar_t *r_ext_framebuffer_blur_samples;
+
+cvar_t *r_ext_framebuffer_bloom_sharpness;
+cvar_t *r_ext_framebuffer_bloom_brightness;
+
+cvar_t *r_ext_framebuffer_rotoscope;
+cvar_t *r_ext_framebuffer_rotoscope_zedge;
+#endif
+
 /*
 ** InitOpenGL
 **
@@ -1031,6 +1045,19 @@ void R_Register( void )
 	r_maxpolys = ri.Cvar_Get( "r_maxpolys", va("%d", MAX_POLYS), 0);
 	r_maxpolyverts = ri.Cvar_Get( "r_maxpolyverts", va("%d", MAX_POLYVERTS), 0);
 
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+	// Framebuffer variables
+	r_ext_framebuffer = ri.Cvar_Get( "r_ext_framebuffer", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_framebuffer_bloom = ri.Cvar_Get( "r_ext_framebuffer_bloom", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_framebuffer_blur_size = ri.Cvar_Get( "r_ext_framebuffer_blur_size", "256", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_framebuffer_blur_ammount = ri.Cvar_Get( "r_ext_framebuffer_blur_amount", "7", CVAR_ARCHIVE);
+	r_ext_framebuffer_blur_samples = ri.Cvar_Get( "r_ext_framebuffer_blur_samples", "9", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_framebuffer_bloom_sharpness = ri.Cvar_Get( "r_ext_framebuffer_bloom_sharpness", "0.75", CVAR_ARCHIVE );
+	r_ext_framebuffer_bloom_brightness = ri.Cvar_Get( "r_ext_framebuffer_bloom_brightness", "0.85", CVAR_ARCHIVE );
+	r_ext_framebuffer_rotoscope = ri.Cvar_Get( "r_ext_framebuffer_rotoscope", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_framebuffer_rotoscope_zedge = ri.Cvar_Get( "r_ext_framebuffer_rotoscope_zedge", "0", CVAR_ARCHIVE | CVAR_LATCH);
+#endif
+
 	// make sure all the commands added here are also
 	// removed in R_Shutdown
 	ri.Cmd_AddCommand( "imagelist", R_ImageList_f );
@@ -1129,6 +1156,10 @@ void R_Init( void ) {
 
 	InitOpenGL();
 
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+	R_FrameBuffer_Init();
+#endif
+
 	R_InitImages();
 
 	R_InitShaders();
@@ -1171,6 +1202,9 @@ void RE_Shutdown( qboolean destroyWindow ) {
 		R_SyncRenderThread();
 		R_ShutdownCommandBuffers();
 		R_DeleteTextures();
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+		R_FrameBuffer_Shutdown();
+#endif
 	}
 
 	R_DoneFreeType();
