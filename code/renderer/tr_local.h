@@ -983,6 +983,11 @@ extern qboolean  textureFilterAnisotropic;
 extern int       maxAnisotropy;
 extern float     displayAspect;
 
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+//same as above
+extern qboolean	framebufferSupported;
+extern qboolean	glslSupported;
+#endif
 
 //
 // cvars
@@ -1119,6 +1124,20 @@ extern	cvar_t	*r_saveFontData;
 extern cvar_t	*r_marksOnTriangleMeshes;
 
 extern	cvar_t	*r_GLlibCoolDownMsec;
+
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+extern cvar_t *r_ext_framebuffer;
+extern cvar_t *r_ext_framebuffer_bloom;
+extern cvar_t *r_ext_framebuffer_blur_size;
+extern cvar_t *r_ext_framebuffer_blur_ammount;
+extern cvar_t *r_ext_framebuffer_blur_samples;
+
+extern cvar_t *r_ext_framebuffer_bloom_sharpness;
+extern cvar_t *r_ext_framebuffer_bloom_brightness;
+
+extern cvar_t *r_ext_framebuffer_rotoscope;
+extern cvar_t *r_ext_framebuffer_rotoscope_zedge;
+#endif
 
 //====================================================================
 
@@ -1265,6 +1284,23 @@ shader_t *R_FindShaderByName( const char *name );
 void		R_InitShaders( void );
 void		R_ShaderList_f( void );
 void    R_RemapShader(const char *oldShader, const char *newShader, const char *timeOffset);
+
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+/*
+====================================================================
+
+FRAMEBUFFER RENDER PATH SPECIFIC FUNCTIONS AND STATE VARIABLES
+
+====================================================================
+*/
+void 		R_FrameBufferBind( void );
+void 		R_FrameBufferUnBind( void );
+void		R_FrameBuffer_Init( void );
+void		R_FrameBuffer_BeginFrame( void );
+void		R_FrameBuffer_EndFrame( void );
+void		R_FrameBuffer_ResetDraw( void );
+void		R_FrameBuffer_Shutdown( void );
+#endif
 
 /*
 ====================================================================
