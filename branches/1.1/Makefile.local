@@ -22,6 +22,10 @@ ifeq ($(BUILD_GAME_QVM),)
   # Build QVM game by default
   BUILD_GAME_QVM   = 1
 endif
+ifeq ($(FRAMEBUFFER_AND_GLSL_SUPPORT),)
+  # Build rendere with frambuffer and GLSL support by default
+  FRAMEBUFFER_AND_GLSL_SUPPORT = 1
+endif
 ########################################################################
 # Don't modify the following or the build will just be broken
 BUILD_STANDALONE  = 1

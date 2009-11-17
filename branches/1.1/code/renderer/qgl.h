@@ -40,6 +40,40 @@ extern void (APIENTRYP qglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat
 extern void (APIENTRYP qglLockArraysEXT) (GLint first, GLsizei count);
 extern void (APIENTRYP qglUnlockArraysEXT) (void);
 
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+//added framebuffer extensions
+extern void (APIENTRYP qglGenFramebuffersEXT )(GLsizei, GLuint *);
+extern void (APIENTRYP qglBindFramebufferEXT )(GLenum, GLuint);
+extern void (APIENTRYP qglGenRenderbuffersEXT )(GLsizei, GLuint *);
+extern void (APIENTRYP qglBindRenderbufferEXT )(GLenum, GLuint);
+extern void (APIENTRYP qglRenderbufferStorageEXT )(GLenum, GLenum, GLsizei, GLsizei);
+extern void (APIENTRYP qglRenderbufferStorageMultisampleEXT )(GLenum, GLsizei, GLenum, GLsizei, GLsizei);
+extern void (APIENTRYP qglFramebufferRenderbufferEXT )(GLenum, GLenum, GLenum, GLuint);
+extern void (APIENTRYP qglFramebufferTexture2DEXT )(GLenum, GLenum, GLenum, GLuint, GLint);
+extern GLenum (APIENTRYP qglCheckFramebufferStatusEXT )(GLenum);
+extern void (APIENTRYP qglDeleteFramebuffersEXT )(GLsizei, const GLuint *);
+extern void (APIENTRYP qglDeleteRenderbuffersEXT )(GLsizei, const GLuint *);
+
+//added fragment/vertex program extensions
+extern  void (APIENTRYP qglAttachShader) (GLuint, GLuint);
+extern  void (APIENTRYP qglBindAttribLocation) (GLuint, GLuint, const GLchar *);
+extern  void (APIENTRYP qglCompileShader) (GLuint);
+extern GLuint (APIENTRYP qglCreateProgram) (void);
+extern GLuint (APIENTRYP qglCreateShader) (GLenum);
+extern void (APIENTRYP qglDeleteProgram) (GLuint);
+extern void (APIENTRYP qglDeleteShader) (GLuint);
+extern void (APIENTRYP qglShaderSource) (GLuint, GLsizei, const GLchar* *, const GLint *);
+extern void (APIENTRYP qglLinkProgram) (GLuint);
+extern void (APIENTRYP qglUseProgram) (GLuint);	
+extern GLint (APIENTRYP qglGetUniformLocation) (GLuint, const GLchar *);
+extern void (APIENTRYP qglUniform1f) (GLint, GLfloat);
+extern void (APIENTRYP qglUniform2f) (GLint, GLfloat, GLfloat);
+extern void (APIENTRYP qglUniform1i) (GLint, GLint);
+extern void (APIENTRYP qglGetProgramiv) (GLuint, GLenum, GLint *);
+extern void (APIENTRYP qglGetProgramInfoLog) (GLuint, GLsizei, GLsizei *, GLchar *);
+extern void (APIENTRYP qglGetShaderiv) (GLuint, GLenum, GLint *);
+extern void (APIENTRYP qglGetShaderInfoLog) (GLuint, GLsizei, GLsizei *, GLchar *);
+#endif
 
 //===========================================================================
 

@@ -751,6 +751,11 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 	}
 	R_SyncRenderThread();
 
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+	// Needed here to support cinematics
+	R_FrameBuffer_EndFrame();
+#endif
+
 	// we definately want to sync every frame for the cinematics
 	qglFinish();
 
@@ -1109,6 +1114,14 @@ const void	*RB_SwapBuffers( const void *data ) {
 		ri.Hunk_FreeTempMemory( stencilReadback );
 	}
 
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+	// Check to render Framebuffer if still not done
+	if (!backEnd.projection2D) {
+		R_FrameBuffer_EndFrame();
+	}
+	//reset the framebuffer so next frame will render in the right buffer
+	R_FrameBuffer_ResetDraw();
+#endif
 
 	if ( !glState.finishCalled ) {
 		qglFinish();
@@ -1148,22 +1161,41 @@ void RB_ExecuteRenderCommands( const void *data ) {
 			data = RB_SetColor( data );
 			break;
 		case RC_STRETCH_PIC:
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+			R_FrameBuffer_EndFrame();
+#endif
 			data = RB_StretchPic( data );
 			break;
 		case RC_DRAW_SURFS:
 			data = RB_DrawSurfs( data );
 			break;
 		case RC_DRAW_BUFFER:
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+			R_FrameBuffer_BeginFrame();
+#endif
 			data = RB_DrawBuffer( data );
 			break;
 		case RC_SWAP_BUFFERS:
 			data = RB_SwapBuffers( data );
 			break;
+		//these two use a hack to let them copy the framebuffer effects too
 		case RC_SCREENSHOT:
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+			R_FrameBufferUnBind();
+#endif
 			data = RB_TakeScreenshotCmd( data );
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+			R_FrameBufferBind();
+#endif
 			break;
 		case RC_VIDEOFRAME:
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+			R_FrameBufferUnBind();
+#endif
 			data = RB_TakeVideoFrameCmd( data );
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+			R_FrameBufferBind();
+#endif
 			break;
 		case RC_COLORMASK:
 			data = RB_ColorMask(data);
