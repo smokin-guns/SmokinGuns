@@ -1099,6 +1099,8 @@ extern	vmCvar_t	du_forcetrio;
 extern	vmCvar_t	sg_rtppoints;
 extern	vmCvar_t	g_deathcam;
 
+extern	vmCvar_t	g_startingWeapon;
+
 // for storing the weapon properties config string
 extern	vmCvar_t	g_weaponInfo;
 
