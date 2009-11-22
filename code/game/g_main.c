@@ -196,6 +196,8 @@ vmCvar_t	br_teamrole;
 vmCvar_t	g_newShotgunPattern;
 vmCvar_t	g_roundNoMoveTime;
 
+vmCvar_t	g_startingWeapon;
+
 // for storing the weapon properties config string
 vmCvar_t	g_weaponInfo;
 
@@ -366,6 +368,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_forcebreakrespawn, "g_forcebreakrespawn", "0", 0, 0, qtrue },
 
 	{ &g_weaponInfo, "g_weaponInfo", "", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_startingWeapon, "g_startingWeapon", "2", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
 #endif
 
 };

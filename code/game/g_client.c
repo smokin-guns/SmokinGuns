@@ -1901,6 +1901,49 @@ static void G_RestorePlayerStats(gentity_t *ent, qboolean save){
 	}
 	client->ps.eventSequence = eventSequence;
 }
+
+/*
+===========
+AddDefaultWeapons
+
+Adds the default weapon or weapons that a player starts with, with ammo.
+Returns the best of the added weapons.
+============
+*/
+static int AddDefaultWeapons( playerState_t *ps ) {
+	int		startingWeapon;
+
+	if ( g_gametype.integer == GT_DUEL ) {
+		startingWeapon = WP_REM58;
+	} else {
+		startingWeapon = g_startingWeapon.integer;
+	}
+
+	if ( startingWeapon < 0 || startingWeapon >= WP_NUM_WEAPONS ) {
+		startingWeapon = 0;
+	}
+
+	// always start with at least a knife
+	ps->stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
+	ps->ammo[WP_KNIFE] = 1;
+
+	// optionally add another weapon, with ammo
+	if ( startingWeapon ) {
+		int clip = bg_weaponlist[startingWeapon].clip;
+
+		if ( clip ) {
+			ps->stats[STAT_WEAPONS] |= ( 1 << startingWeapon );
+			ps->ammo[startingWeapon] = bg_weaponlist[startingWeapon].clipAmmo;
+			ps->ammo[clip] = bg_weaponlist[startingWeapon].maxAmmo;
+		} else {
+			// add ammo for weapons that don't use clip ammo
+			gitem_t *item = BG_FindItemForAmmo( startingWeapon );
+			ps->ammo[startingWeapon] = item->quantity;
+		}
+	}
+
+	return startingWeapon ? startingWeapon : WP_KNIFE;
+}
 #endif
 
 /*
@@ -1933,6 +1976,7 @@ void ClientSpawn(gentity_t *ent) {
 	char		userinfo[MAX_INFO_STRING];
 	int		flags;
 	int		min_money = 0;
+	int		defaultWeapon =	WP_NONE;
 	qboolean	player_died;
 	qboolean	specwatch = ent->client->specwatch;
 #endif
@@ -2144,12 +2188,7 @@ void ClientSpawn(gentity_t *ent) {
 #else
 	//weapons
 	if((g_gametype.integer < GT_RTP && g_gametype.integer != GT_DUEL) || player_died){
-		client->ps.stats[STAT_WEAPONS] = ( 1 << WP_REM58 );
-		client->ps.ammo[WP_REM58] = bg_weaponlist[WP_REM58].clipAmmo;
-		client->ps.ammo[WP_BULLETS_CLIP] = bg_weaponlist[WP_REM58].maxAmmo;
-
-		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
-		client->ps.ammo[WP_KNIFE] = 1;
+		defaultWeapon = AddDefaultWeapons( &client->ps );
 	} else {
 		int i;
 
@@ -2204,10 +2243,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	}
 #else
-	if ( ent->client->sess.sessionTeam >= TEAM_SPECTATOR ) {
-
-	} else {
-
+	if ( ent->client->sess.sessionTeam < TEAM_SPECTATOR ) {
 		if ( g_gametype.integer == GT_DUEL )  {
 			min_money = DU_MIN_MONEY ;
 		}
@@ -2250,8 +2286,7 @@ void ClientSpawn(gentity_t *ent) {
 			client->ps.weapon2 = 0;
 			client->pers.cmd.weapon = WP_NONE;
 		} else if(g_gametype.integer < GT_RTP || player_died){
-
-			client->ps.weapon = WP_REM58;
+			client->ps.weapon = defaultWeapon;
 			client->ps.weapon2 = 0;
 		}
 
