@@ -607,6 +607,19 @@ void Sys_Sleep( int msec )
 	}
 	else
 	{
+#if defined(SMOKINGUNS) && DEDICATED
+		// Tequila: If process is daemonized or stdin is set to /dev/null, we
+		// won't be able to use select syscall with a timeout, so we should use
+		// nanosleep syscall. Tested on linux.
+		if (!stdin_active) {
+			struct timespec sleep;
+			struct timespec remain;
+			sleep.tv_sec = msec/1000;
+			sleep.tv_nsec = (msec%1000)*1000000;
+			nanosleep(&sleep,&remain);
+			return;
+		}
+#endif
 		struct timeval timeout;
 
 		timeout.tv_sec = msec/1000;
@@ -735,7 +748,7 @@ Unix specific post init
 void Sys_PlatformPostInit( char *progname )
 {
 #ifdef DEDICATED
-	cvar_t *cv_pid;
+	cvar_t *cv_pid, *net_port;
 	FILE *fd;
 	char *pid;
 
@@ -743,11 +756,20 @@ void Sys_PlatformPostInit( char *progname )
 
 	// Original code for handling the PID file by hika AT bsdmon DOT com
 
+	// Get net_port number
+	net_port = Cvar_Get( "net_port", va( "%i", PORT_SERVER ), CVAR_LATCH );
+
 	// Get pid file path
-	cv_pid = Cvar_Get ("sv_pidfile", va("/var/run/%s.pid", Sys_Basename(progname)) , CVAR_INIT);
+	cv_pid = Cvar_Get ("sv_pidfile", va("/var/run/%s-%s.pid", Sys_Basename(progname), net_port->string) , CVAR_INIT);
 
 	if (cv_pid && cv_pid->string[0]) {
 		fd = fopen(cv_pid->string, "w");
+
+		if (fd == NULL) {
+			// Try to open PID file in Smokin'Guns home directory if sytem folder is not writable
+			Cvar_Set( "sv_pidfile", va("%s/%s-%s.pid", homePath, Sys_Basename(progname), net_port->string) );
+			fd = fopen(cv_pid->string, "w");
+		}
 
 		if (fd != NULL) {
 			// Write pid to a file
@@ -846,6 +868,7 @@ Daemonize by forking
 */
 void Sys_Daemonize( void )
 {
+	errno = 0 ; // Reset errno
 	switch (fork()) {
 		case -1:
 			// Fork error: probably a memory or system problem
