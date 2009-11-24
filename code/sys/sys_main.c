@@ -590,7 +590,7 @@ int main( int argc, char **argv )
 				qjail = cv_value;
 			else if (!strcmp(cv_name, "sv_user"))
 				quser = cv_value;
-			else if (!strcmp(cv_name, "sv_daemon") && atoi(cv_value) && !errno)
+			else if (!strcmp(cv_name, "sv_daemon") && atoi(cv_value))
 				qdaemon = qtrue;
 		}
 	}

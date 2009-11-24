@@ -3025,6 +3025,11 @@ void Com_Frame( void ) {
 			lastTime = com_frameTime;		// possible on first frame
 		}
 		msec = com_frameTime - lastTime;
+#if defined(SMOKINGUNS) && DEDICATED
+		// Avoid looping too quickly when no event is found
+		if (!msec && lastTime == com_frameTime)
+			Sys_Sleep(10);
+#endif
 	} while ( msec < minMsec );
 	Cbuf_Execute ();
 
@@ -3087,9 +3092,11 @@ void Com_Frame( void ) {
 
 	CL_Frame( msec );
 
+#ifndef SMOKINGUNS
 	if ( com_speeds->integer ) {
 		timeAfter = Sys_Milliseconds ();
 	}
+#endif
 #endif
 
 	//
@@ -3097,6 +3104,11 @@ void Com_Frame( void ) {
 	//
 	if ( com_speeds->integer ) {
 		int			all, sv, ev, cl;
+		timeAfter = Sys_Milliseconds ();
+#if defined(SMOKINGUNS) && DEDICATED
+		timeBeforeEvents = timeAfter;
+		timeBeforeClient = timeAfter;
+#endif
 
 		all = timeAfter - timeBeforeServer;
 		sv = timeBeforeEvents - timeBeforeServer;
