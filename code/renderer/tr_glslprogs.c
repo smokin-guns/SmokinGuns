@@ -19,6 +19,7 @@
  *      MA 02110-1301, USA.
  */
 
+#include "tr_local.h"
 #include "tr_glslprogs.h"
 //for all the glsl source its best if we keep them in the mainline code unless
 //someone (not me!) wants to implement them into the q3 mainline pak code
@@ -34,14 +35,19 @@
 
 //this vertex shader is basically complete, we shouldn't really need anything
 //else(?). it just maps the vertex position to a screen position.
-const char *glslBase_vert = "\n\
+
+gslsProg_t glsl_progs[] =
+{
+    {
+        "glslBase_vert", NULL, "\n\
 void main() {\n\
   gl_TexCoord[0] = gl_MultiTexCoord0;\n\
   gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n\
 }\
-";
-
-const char *glslGauss9 = "\n\
+"
+    },
+    {
+        "glslGauss9", NULL, "\n\
 #define NK9_0 0.17857142857142855\n\
 #define NK9_1 0.1607142857142857\n\
 #define NK9_2 0.14285714285714285\n\
@@ -69,10 +75,10 @@ vec4 GaussPass(sampler2D src, vec2 coord, vec2 blrsize) {\n\
   return accum;\n\
 \n\
 }\n\
-";
-
-
-const char *glslGauss7 = "\n\
+"
+    },
+    {
+        "glslGauss7", NULL, "\n\
 #define NK7_0 0.19230769230769229\n\
 #define NK7_1 0.18269230769230768\n\
 #define NK7_2 0.15384615384615385\n\
@@ -97,9 +103,10 @@ vec4 GaussPass(sampler2D src, vec2 coord, vec2 blrsize) {\n\
   return accum;\n\
 \n\
 }\n\
-";
-
-const char *glslGauss5 = "\n\
+"
+    },
+    {
+        "glslGauss5", NULL, "\n\
 #define NK5_0 0.33333333\n\
 #define NK5_1 0.26666666\n\
 #define NK5_2 0.06666666\n\
@@ -121,18 +128,20 @@ vec4 GaussPass(sampler2D src, vec2 coord, vec2 blrsize) {\n\
   return accum;\n\
   \n\
 }\n\
-";
-
-const char *glslBlurMain = "\n\
+"
+    },
+    {
+        "glslBlurMain", NULL, "\n\
 uniform sampler2D srcSampler;\n\
 uniform vec2 blurSize;\n\
 void main()\n\
 {\n\
   gl_FragColor = GaussPass(srcSampler, gl_TexCoord[0].xy, blurSize);\n\
 }\n\
-";
-
-const char *glslSigScreen = "\n\
+"
+    },
+    {
+        "glslSigScreen", NULL, "\n\
 uniform sampler2D srcSampler;\n\
 uniform sampler2D blurSampler;\n\
 //#define sharpness 0.75 \n\
@@ -157,9 +166,10 @@ void main()\n\
   \n\
   gl_FragColor = 1.0 - ((1.0 - basecolor) * (1.0 - val));\n\
 }\n\
-";
-
-const char *glslSobel = "\n\
+"
+    },
+    {
+        "glslSobel", NULL, "\n\
 float sobel(sampler2D tex, vec2 basecoord, vec2 texel_size) {\n\
   /* computes a sobel value from the surrounding pixels */\n\
   vec4 hori, vert;\n\
@@ -188,9 +198,10 @@ float sobel(sampler2D tex, vec2 basecoord, vec2 texel_size) {\n\
   return sqrt(float((vert * vert) + (hori * hori)));\n\
   \n\
 }\n\
-";
-
-const char *glslSobelZ = "\n\
+"
+    },
+    {
+        "glslSobelZ", NULL, "\n\
 float sobel(sampler2D tex, vec2 basecoord, vec2 texel_size) {\n\
   /* computes a sobel value from the surrounding pixels */\n\
   vec4 hori, vert;\n\
@@ -224,9 +235,10 @@ float sobel(sampler2D tex, vec2 basecoord, vec2 texel_size) {\n\
   return sqrt(float((vert * vert) + (hori * hori))) * depth;\n\
   \n\
 }\n\
-";
-
-const char *glslToonColour = "\n\
+"
+    },
+    {
+        "glslToonColour", NULL, "\n\
 vec4 ToonColour(vec4 incolour) {\n\
 \n\
   vec3 huetemp;\n\
@@ -271,9 +283,10 @@ vec4 ToonColour(vec4 incolour) {\n\
 \n\
   return vec4(incolour);\n\
 }\n\
-";
-
-const char *glslRotoscope = "\n\
+"
+    },
+    {
+        "glslRotoscope", NULL, "\n\
 uniform vec2 texelSize;\n\
 uniform sampler2D srcSampler;\n\
 void main()\n\
@@ -286,9 +299,10 @@ void main()\n\
   gl_FragColor = final_color * fragsobel;\n\
 \n\
 }\n\
-";
-
-const char *glslRotoscopeZ = "\n\
+"
+    },
+    {
+        "glslRotoscopeZ", NULL, "\n\
 uniform vec2 texelSize;\n\
 uniform sampler2D srcSampler;\n\
 uniform sampler2D depthSampler;\n\
@@ -305,4 +319,69 @@ void main()\n\
   gl_FragColor = final_color * (1.0 - fragsobel);\n\
 \n\
 }\n\
-";
+"
+    }
+};
+
+const int max_progs = sizeof(glsl_progs)/sizeof(glsl_progs[0]);
+
+void R_GLSLProgs_Init( void ) {
+    int i = max_progs;
+    int len ;
+    fileHandle_t fh;
+
+    if (!glslSupported) {
+        return;
+    }
+
+    while (i--) {
+        len = FS_FOpenFileRead(va("%s.cfg",glsl_progs[i].name),&fh,qtrue) + 1;
+        if (len>0) {
+            int *buffer ;
+            buffer = ri.Malloc(len);
+            ri.Printf( PRINT_ALL, "Loading %s GLSL program from file (%i bytes)\n", glsl_progs[i].name, len );
+            if ( FS_Read( buffer, len, fh ) != len ) {
+                ri.Free(buffer);
+                glsl_progs[i].program = glsl_progs[i].default_program ;
+                // TODO Output error message
+            } else {
+                buffer[len-1] = 0 ;
+                glsl_progs[i].program = (char *)buffer;
+                ri.Printf( PRINT_ALL, "%s\n", buffer );
+            }
+        } else {
+            glsl_progs[i].program = glsl_progs[i].default_program ;
+        }
+    }
+}
+
+void R_GLSLProgs_Delete( void ) {
+    int i = max_progs;
+
+    if (!glslSupported) {
+        return;
+    }
+
+    while (i--) {
+        if (glsl_progs[i].program == glsl_progs[i].default_program)
+            continue ;
+        ri.Free((void *)glsl_progs[i].program);
+    }
+}
+
+const char *R_GLSLGetProgByName( const char *name ) {
+    int i = max_progs;
+
+    if (!glslSupported) {
+        return NULL;
+    }
+
+    while (i--) {
+        if (!Q_stricmp(name,glsl_progs[i].name)) {
+            return glsl_progs[i].program ;
+        }
+    }
+
+    // TODO Put error message for developer here
+    return NULL ;
+}

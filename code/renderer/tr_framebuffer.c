@@ -678,24 +678,24 @@ void R_FrameBuffer_BlurInit( void ) {
 	glslBlur.frag_numSources = 2;
 
 	glslBlur.vertex_glsl = ri.Malloc(sizeof(char *) * glslBlur.vert_numSources);
-	glslBlur.vertex_glsl[0] = glslBase_vert;
+	glslBlur.vertex_glsl[0] = R_GLSLGetProgByName("glslBase_vert");
 
 	glslBlur.fragment_glsl = ri.Malloc(sizeof(char *) * glslBlur.frag_numSources);
 	switch (r_ext_framebuffer_blur_samples->integer) {
 		case (5):
-			glslBlur.fragment_glsl[0] = glslGauss5;
+			glslBlur.fragment_glsl[0] = R_GLSLGetProgByName("glslGauss5");
 			break;
 		case (7):
-			glslBlur.fragment_glsl[0] = glslGauss7;
+			glslBlur.fragment_glsl[0] = R_GLSLGetProgByName("glslGauss7");
 			break;
 		case (9):
-			glslBlur.fragment_glsl[0] = glslGauss9;
+			glslBlur.fragment_glsl[0] = R_GLSLGetProgByName("glslGauss9");
 			break;
 		default:
-			glslBlur.fragment_glsl[0] = glslGauss9;
+			glslBlur.fragment_glsl[0] = R_GLSLGetProgByName("glslGauss9");
 			break;
 	}
-	glslBlur.fragment_glsl[1] = glslBlurMain;
+	glslBlur.fragment_glsl[1] = R_GLSLGetProgByName("glslBlurMain");
 
 	R_Build_glsl(&glslBlur);
 }
@@ -771,17 +771,17 @@ void R_FrameBuffer_RotoInit( struct r_fbuffer *src ) {
 	glslRoto.frag_numSources = 3;
 
 	glslRoto.vertex_glsl = ri.Malloc(sizeof(char *) * glslRoto.vert_numSources);
-	glslRoto.vertex_glsl[0] = glslBase_vert;
+	glslRoto.vertex_glsl[0] = R_GLSLGetProgByName("glslBase_vert");
 
 	glslRoto.fragment_glsl = ri.Malloc(sizeof(char *) * glslRoto.frag_numSources);
-	glslRoto.fragment_glsl[0] = glslToonColour;
+	glslRoto.fragment_glsl[0] = R_GLSLGetProgByName("glslToonColour");
 
 	if ((r_ext_framebuffer_rotoscope_zedge->integer) && (src->modeFlags & FB_ZTEXTURE)) {
-		glslRoto.fragment_glsl[1] = glslSobelZ;
-		glslRoto.fragment_glsl[2] = glslRotoscopeZ;
+		glslRoto.fragment_glsl[1] = R_GLSLGetProgByName("glslSobelZ");
+		glslRoto.fragment_glsl[2] = R_GLSLGetProgByName("glslRotoscopeZ");
 	} else {
-		glslRoto.fragment_glsl[1] = glslSobel;
-		glslRoto.fragment_glsl[2] = glslRotoscope;
+		glslRoto.fragment_glsl[1] = R_GLSLGetProgByName("glslSobel");
+		glslRoto.fragment_glsl[2] = R_GLSLGetProgByName("glslRotoscope");
 	}
 
 	R_Build_glsl(&glslRoto);
@@ -828,9 +828,9 @@ void R_FrameBuffer_BloomInit( void ) {
 	glslBloom.vert_numSources = 1;
 	glslBloom.frag_numSources = 1;
 	glslBloom.vertex_glsl = ri.Malloc(sizeof(char *) * glslBloom.frag_numSources);
-	glslBloom.vertex_glsl[0] = glslBase_vert;
+	glslBloom.vertex_glsl[0] = R_GLSLGetProgByName("glslBase_vert");
 	glslBloom.fragment_glsl = ri.Malloc(sizeof(char *) * glslBloom.frag_numSources);
-	glslBloom.fragment_glsl[0] = glslSigScreen;
+	glslBloom.fragment_glsl[0] = R_GLSLGetProgByName("glslSigScreen");
 
 	R_Build_glsl(&glslBloom);
 }
@@ -952,6 +952,9 @@ void R_FrameBuffer_Init( void ) {
 		Cbuf_AddText( "vid_restart" ); // Reset the video without FBO
 		return;
 	}
+	
+	// Load GLSL programs
+	R_GLSLProgs_Init();
 
 	//init our effects
 	if (r_ext_framebuffer_rotoscope->integer == 1) {
@@ -1078,6 +1081,9 @@ void R_FrameBuffer_Shutdown( void ) {
 	if ( r_ext_framebuffer_rotoscope->integer == 1) {
 		R_FrameBuffer_RotoDelete();
 	}
+	
+	//unload GLSL Programs
+	R_GLSLProgs_Delete();
 
 	//delete the main screen buffer
 	R_DeleteFBuffer(&screenBuffer);
