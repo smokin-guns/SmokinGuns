@@ -484,7 +484,7 @@ qboolean R_TestFbuffer_SeparateDS( void ) {
 	qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, buffers[0]);
 
 	//create the depth buffer
-	R_CreateRenderbuffer( &buffers[2], width, height, GL_DEPTH_COMPONENT);
+	R_CreateRenderbuffer( &buffers[1], width, height, GL_DEPTH_COMPONENT);
 
 	//stencil buffer as a render buffer
 	R_CreateRenderbuffer( &buffers[2], width, height, GL_STENCIL_INDEX8_EXT);
@@ -905,7 +905,7 @@ void R_FrameBuffer_Init( void ) {
 	if (R_TestFbuffer_SeparateDS()) {
 		separateDepthStencilSupported = qtrue;
 	} else {
-		ri.Printf( PRINT_WARNING, "WARNING: separate depth stencil failed\n");
+		ri.Printf( PRINT_WARNING, "WARNING: separate depth stencil not supported\n");
 	}
 	if (R_TestFbuffer_texD()) {
 		depthTextureSupported = qtrue;
@@ -918,12 +918,13 @@ void R_FrameBuffer_Init( void ) {
 		framebufferSupported = qfalse;
 		ri.Cvar_Set("r_ext_framebuffer","0");
 		ri.Printf( PRINT_WARNING, "ERROR: Framebuffer rendering path disabled: Not enough color buffers available\n");
-		Cbuf_AddText( "vid_restart" ); // Reset the video without FBO
+		Cbuf_AddText( "vid_restart\n" ); // Reset the video without FBO
 		return;
 	}
 
 	//set our main screen flags
 	if ((glConfig.stencilBits > 0)) {
+ri.Printf( PRINT_WARNING,"glConfig.stencilBits = %i\n",glConfig.stencilBits);
 		if ( packedDepthStencilSupported ) {
 			screenbuff_flags |= FB_PACKED | FB_STENCIL;
 		}
@@ -949,7 +950,7 @@ void R_FrameBuffer_Init( void ) {
 		framebufferSupported = qfalse;
 		ri.Cvar_Set("r_ext_framebuffer","0");
 		ri.Printf( PRINT_WARNING, "ERROR: Framebuffer rendering path disabled: Framebuffer creation failed\n");
-		Cbuf_AddText( "vid_restart" ); // Reset the video without FBO
+		Cbuf_AddText( "vid_restart\n" ); // Reset the video without FBO
 		return;
 	}
 	
