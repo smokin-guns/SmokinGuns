@@ -27,16 +27,14 @@
 //there is no defined way of 'including' code from other places. so we will
 //just have to live with this for now
 
+typedef struct {
+	const char *name;
+	const char *program;
+	const char *default_program;
+} gslsProg_t ;
 
-extern const char *glslBase_vert;
-extern const char *glslGauss9;
-extern const char *glslGauss7;
-extern const char *glslGauss5;
-extern const char *glslBlurMain;
-extern const char *glslSigScreen;
-extern const char *glslToonColour;
-extern const char *glslSobel;
-extern const char *glslRotoscope;
-extern const char *glslRotoscopeZ;
-extern const char *glslSobelZ;
+void R_GLSLProgs_Init( void );
+void R_GLSLProgs_Delete( void );
+const char *R_GLSLGetProgByName( const char *name );
+
 #endif //TR_GLSLPROGS_H
