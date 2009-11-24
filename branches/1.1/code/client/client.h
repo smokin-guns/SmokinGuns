@@ -417,6 +417,10 @@ extern	cvar_t	*cl_lanForcePackets;
 extern	cvar_t	*cl_autoRecordDemo;
 
 extern	cvar_t	*cl_consoleKeys;
+#ifdef SMOKINGUNS
+extern cvar_t *cl_consoleType;
+extern cvar_t *cl_consoleColor[4];
+#endif
 
 #ifdef USE_MUMBLE
 extern	cvar_t	*cl_useMumble;

@@ -104,6 +104,10 @@ cvar_t	*cl_lanForcePackets;
 cvar_t	*cl_guidServerUniq;
 
 cvar_t	*cl_consoleKeys;
+#ifdef SMOKINGUNS
+cvar_t  *cl_consoleType;
+cvar_t  *cl_consoleColor[4];
+#endif
 
 clientActive_t		cl;
 clientConnection_t	clc;
@@ -3209,6 +3213,13 @@ void CL_Init( void ) {
 
 	// ~ and `, as keys and characters
 	cl_consoleKeys = Cvar_Get( "cl_consoleKeys", "~ ` 0x7e 0x60", CVAR_ARCHIVE);
+#ifdef SMOKINGUNS  
+	cl_consoleType = Cvar_Get( "cl_consoleType", "0", CVAR_ARCHIVE );
+	cl_consoleColor[0] = Cvar_Get( "cl_consoleColorRed", "1", CVAR_ARCHIVE );
+	cl_consoleColor[1] = Cvar_Get( "cl_consoleColorGreen", "0", CVAR_ARCHIVE );
+	cl_consoleColor[2] = Cvar_Get( "cl_consoleColorBlue", "0", CVAR_ARCHIVE );
+	cl_consoleColor[3] = Cvar_Get( "cl_consoleColorAlpha", "0.8", CVAR_ARCHIVE );
+#endif
 
 	// userinfo
 	Cvar_Get ("name", "UnnamedPlayer", CVAR_USERINFO | CVAR_ARCHIVE );
