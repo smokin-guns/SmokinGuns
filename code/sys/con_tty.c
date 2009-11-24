@@ -40,7 +40,11 @@ called before and after a stdout or stderr output
 =============================================================
 */
 
+#if defined(SMOKINGUNS) && DEDICATED
+qboolean stdin_active;
+#else
 static qboolean stdin_active;
+#endif
 // general flag to tell about tty console mode
 static qboolean ttycon_on = qfalse;
 static int ttycon_hide = 0;
