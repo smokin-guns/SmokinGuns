@@ -50,6 +50,7 @@ Changes since SG 1.0-20081231
 	- cl_voipSenderPos can be set from 0 to 5 to choose where the sender will be shown on the screen
 - support for shooter_dynamite and shooter_molotov map entities
 - Doors won't try to move players now
+- support UI item to select OpenAL device from available OpenAL devices
 *** CHANGES ***
 - Reloading bug fixed by Joe Kari
 - Fix game crash during game load when using cgame binary library
