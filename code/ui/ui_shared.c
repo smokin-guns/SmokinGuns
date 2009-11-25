@@ -5061,6 +5061,49 @@ qboolean ItemParse_cvarFloat( itemDef_t *item, int handle ) {
 	return qfalse;
 }
 
+#ifdef SMOKINGUNS
+void trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize );
+
+qboolean ItemParse_alAvailableDevicesList( itemDef_t *item, int handle ) {
+	char *token, *text_p;
+	char device[MAX_STRING_CHARS];
+	char devices[MAX_STRING_CHARS];
+	multiDef_t *multiPtr;
+	int words = 0;
+
+	Item_ValidateTypeData(item);
+	if (!item->typeData)
+		return qfalse;
+	multiPtr = (multiDef_t*)item->typeData;
+	multiPtr->count = 0;
+	multiPtr->strDef = qtrue;
+
+	trap_Cvar_VariableStringBuffer("s_alAvailableDevices", devices, sizeof(devices));
+	text_p = devices ;
+
+	while ( 1 ) {
+		token = COM_ParseExt( &text_p, qfalse );
+		if (!token[0]) {
+			multiPtr->cvarList[multiPtr->count] = multiPtr->cvarStr[multiPtr->count] = String_Alloc(device);
+			multiPtr->count++;
+			if (multiPtr->count >= MAX_MULTI_CVARS) {
+				return qfalse;
+			}
+			if ( !text_p ) {
+				break;
+			}
+			device[0] = '\0';
+			words = 0 ;
+			continue;
+		}
+		if (words++)
+			Q_strcat(device,sizeof(device)," ");
+		Q_strcat(device,sizeof(device),token);
+	}
+	return qtrue;
+}
+#endif
+
 qboolean ItemParse_cvarStrList( itemDef_t *item, int handle ) {
 	pc_token_t token;
 	multiDef_t *multiPtr;
@@ -5270,6 +5313,9 @@ keywordHash_t itemParseKeywords[] = {
 	{"maxPaintChars", ItemParse_maxPaintChars, NULL},
 	{"focusSound", ItemParse_focusSound, NULL},
 	{"cvarFloat", ItemParse_cvarFloat, NULL},
+#ifdef SMOKINGUNS
+	{"alAvailableDevicesList", ItemParse_alAvailableDevicesList, NULL},
+#endif
 	{"cvarStrList", ItemParse_cvarStrList, NULL},
 	{"cvarFloatList", ItemParse_cvarFloatList, NULL},
 	{"addColorRange", ItemParse_addColorRange, NULL},
