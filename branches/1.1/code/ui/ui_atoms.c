@@ -116,36 +116,36 @@ char *UI_Cvar_VariableString( const char *var_name ) {
 
 
 void UI_SetBestScores(postGameInfo_t *newInfo, qboolean postGame) {
-	trap_Cvar_Set("ui_scoreAccuracy",     va("%i%%", newInfo->accuracy));
+	trap_Cvar_Set("ui_scoreAccuracy",		va("%i%%", newInfo->accuracy));
 	trap_Cvar_Set("ui_scoreImpressives",	va("%i", newInfo->impressives));
-	trap_Cvar_Set("ui_scoreExcellents", 	va("%i", newInfo->excellents));
-	trap_Cvar_Set("ui_scoreDefends", 			va("%i", newInfo->defends));
-	trap_Cvar_Set("ui_scoreAssists", 			va("%i", newInfo->assists));
-	trap_Cvar_Set("ui_scoreGauntlets", 		va("%i", newInfo->gauntlets));
-	trap_Cvar_Set("ui_scoreScore", 				va("%i", newInfo->score));
-	trap_Cvar_Set("ui_scorePerfect",	 		va("%i", newInfo->perfects));
-	trap_Cvar_Set("ui_scoreTeam",					va("%i to %i", newInfo->redScore, newInfo->blueScore));
-	trap_Cvar_Set("ui_scoreBase",					va("%i", newInfo->baseScore));
+	trap_Cvar_Set("ui_scoreExcellents",		va("%i", newInfo->excellents));
+	trap_Cvar_Set("ui_scoreDefends",		va("%i", newInfo->defends));
+	trap_Cvar_Set("ui_scoreAssists",		va("%i", newInfo->assists));
+	trap_Cvar_Set("ui_scoreGauntlets",		va("%i", newInfo->gauntlets));
+	trap_Cvar_Set("ui_scoreScore",			va("%i", newInfo->score));
+	trap_Cvar_Set("ui_scorePerfect",		va("%i", newInfo->perfects));
+	trap_Cvar_Set("ui_scoreTeam",			va("%i to %i", newInfo->redScore, newInfo->blueScore));
+	trap_Cvar_Set("ui_scoreBase",			va("%i", newInfo->baseScore));
 	trap_Cvar_Set("ui_scoreTimeBonus",		va("%i", newInfo->timeBonus));
 	trap_Cvar_Set("ui_scoreSkillBonus",		va("%i", newInfo->skillBonus));
 	trap_Cvar_Set("ui_scoreShutoutBonus",	va("%i", newInfo->shutoutBonus));
-	trap_Cvar_Set("ui_scoreTime",					va("%02i:%02i", newInfo->time / 60, newInfo->time % 60));
+	trap_Cvar_Set("ui_scoreTime",			va("%02i:%02i", newInfo->time / 60, newInfo->time % 60));
 	trap_Cvar_Set("ui_scoreCaptures",		va("%i", newInfo->captures));
-  if (postGame) {
-		trap_Cvar_Set("ui_scoreAccuracy2",     va("%i%%", newInfo->accuracy));
+	if (postGame) {
+		trap_Cvar_Set("ui_scoreAccuracy2",		va("%i%%", newInfo->accuracy));
 		trap_Cvar_Set("ui_scoreImpressives2",	va("%i", newInfo->impressives));
-		trap_Cvar_Set("ui_scoreExcellents2", 	va("%i", newInfo->excellents));
-		trap_Cvar_Set("ui_scoreDefends2", 			va("%i", newInfo->defends));
-		trap_Cvar_Set("ui_scoreAssists2", 			va("%i", newInfo->assists));
-		trap_Cvar_Set("ui_scoreGauntlets2", 		va("%i", newInfo->gauntlets));
-		trap_Cvar_Set("ui_scoreScore2", 				va("%i", newInfo->score));
-		trap_Cvar_Set("ui_scorePerfect2",	 		va("%i", newInfo->perfects));
-		trap_Cvar_Set("ui_scoreTeam2",					va("%i to %i", newInfo->redScore, newInfo->blueScore));
-		trap_Cvar_Set("ui_scoreBase2",					va("%i", newInfo->baseScore));
+		trap_Cvar_Set("ui_scoreExcellents2",	va("%i", newInfo->excellents));
+		trap_Cvar_Set("ui_scoreDefends2",		va("%i", newInfo->defends));
+		trap_Cvar_Set("ui_scoreAssists2",		va("%i", newInfo->assists));
+		trap_Cvar_Set("ui_scoreGauntlets2",		va("%i", newInfo->gauntlets));
+		trap_Cvar_Set("ui_scoreScore2",			va("%i", newInfo->score));
+		trap_Cvar_Set("ui_scorePerfect2",		va("%i", newInfo->perfects));
+		trap_Cvar_Set("ui_scoreTeam2",			va("%i to %i", newInfo->redScore, newInfo->blueScore));
+		trap_Cvar_Set("ui_scoreBase2",			va("%i", newInfo->baseScore));
 		trap_Cvar_Set("ui_scoreTimeBonus2",		va("%i", newInfo->timeBonus));
-		trap_Cvar_Set("ui_scoreSkillBonus2",		va("%i", newInfo->skillBonus));
+		trap_Cvar_Set("ui_scoreSkillBonus2",	va("%i", newInfo->skillBonus));
 		trap_Cvar_Set("ui_scoreShutoutBonus2",	va("%i", newInfo->shutoutBonus));
-		trap_Cvar_Set("ui_scoreTime2",					va("%02i:%02i", newInfo->time / 60, newInfo->time % 60));
+		trap_Cvar_Set("ui_scoreTime2",			va("%02i:%02i", newInfo->time / 60, newInfo->time % 60));
 		trap_Cvar_Set("ui_scoreCaptures2",		va("%i", newInfo->captures));
 	}
 }
@@ -292,7 +292,7 @@ static void UI_CalcPostGameStats( void ) {
 	// see if the score is higher for this one
 	newHigh = (newInfo.redScore > newInfo.blueScore && newInfo.score > oldInfo.score);
 
-	if  (newHigh) {
+	if (newHigh) {
 		// if so write out the new one
 		uiInfo.newHighScoreTime = uiInfo.uiDC.realTime + 20000;
 		if (trap_FS_FOpenFile(fileName, &f, FS_WRITE) >= 0) {
@@ -358,11 +358,11 @@ qboolean UI_ConsoleCommand( int realTime ) {
 			char shader1[MAX_QPATH];
 			char shader2[MAX_QPATH];
 			char shader3[MAX_QPATH];
-			
+
 			Q_strncpyz(shader1, UI_Argv(1), sizeof(shader1));
 			Q_strncpyz(shader2, UI_Argv(2), sizeof(shader2));
 			Q_strncpyz(shader3, UI_Argv(3), sizeof(shader3));
-			
+
 			trap_R_RemapShader(shader1, shader2, shader3);
 			return qtrue;
 		}
@@ -498,8 +498,8 @@ Coordinates are 640*480 virtual values
 void UI_DrawRect( float x, float y, float width, float height, const float *color ) {
 	trap_R_SetColor( color );
 
-  UI_DrawTopBottom(x, y, width, height);
-  UI_DrawSides(x, y, width, height);
+	UI_DrawTopBottom(x, y, width, height);
+	UI_DrawSides(x, y, width, height);
 
 	trap_R_SetColor( NULL );
 }

@@ -636,7 +636,7 @@ static float UI_MovedirAdjustment( playerInfo_t *pi ) {
 		return 22;
 	}
 	if ( moveVector[1] > 0 && moveVector[0] == 0 ) {
-		return  -45;
+		return -45;
 	}
 
 	return -22;
@@ -663,9 +663,9 @@ static void UI_PlayerAngles( playerInfo_t *pi, vec3_t legs[3], vec3_t torso[3], 
 	// allow yaw to drift a bit
 	if ( ( pi->legsAnim & ~ANIM_TOGGLEBIT ) != LEGS_IDLE
 #ifndef SMOKINGUNS
-		|| ( pi->torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_STAND  ) {
+		|| ( pi->torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_STAND ) {
 #else
-		|| ( pi->torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_PISTOL_STAND  ) {
+		|| ( pi->torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_PISTOL_STAND ) {
 #endif
 		// if not standing still, always point all in the same direction
 		pi->torso.yawing = qtrue;	// always center
@@ -748,7 +748,7 @@ float	UI_MachinegunSpinAngle( playerInfo_t *pi ) {
 		angle = pi->barrelAngle + delta * speed;
 	}
 
-	torsoAnim = pi->torsoAnim  & ~ANIM_TOGGLEBIT;
+	torsoAnim = pi->torsoAnim & ~ANIM_TOGGLEBIT;
 #ifndef SMOKINGUNS
 	if( torsoAnim == TORSO_ATTACK2 ) {
 		torsoAnim = TORSO_ATTACK;
@@ -854,7 +854,7 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 
 	// get the animation state (after rotation, to allow feet shuffle)
 	UI_PlayerAnimation( pi, &legs.oldframe, &legs.frame, &legs.backlerp,
-		 &torso.oldframe, &torso.frame, &torso.backlerp );
+		&torso.oldframe, &torso.frame, &torso.backlerp );
 
 	renderfx = RF_LIGHTING_ORIGIN | RF_NOSHADOW;
 
@@ -1350,9 +1350,9 @@ qboolean UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName
 		Com_sprintf( filename, sizeof( filename ), "models/players/%s/head.md3", headModelName );
 	}
 #else
-	  Com_sprintf( filename, sizeof( filename ), "models/wq3_players/%s/head.md3", modelName );
+		Com_sprintf( filename, sizeof( filename ), "models/wq3_players/%s/head.md3", modelName );
 #endif
-	  pi->headModel = trap_R_RegisterModel( filename );
+		pi->headModel = trap_R_RegisterModel( filename );
 #ifndef SMOKINGUNS
 	if ( !pi->headModel && headModelName[0] != '*') {
 		Com_sprintf( filename, sizeof( filename ), "models/players/heads/%s/%s.md3", headModelName, headModelName );
@@ -1371,7 +1371,7 @@ qboolean UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName
 		if ( !UI_RegisterClientSkin( pi, modelName, "default", headModelName, "default", teamName ) ) {
 #else
 	if ( !UI_RegisterClientSkin( pi, modelName, skinName ) ) {
-    if ( !UI_RegisterClientSkin( pi, modelName, "default" ) ) {
+	if ( !UI_RegisterClientSkin( pi, modelName, "default" ) ) {
 #endif
 			Com_Printf( "Failed to load skin file: %s : %s\n", modelName, skinName );
 			return qfalse;
