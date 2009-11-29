@@ -620,14 +620,12 @@ void Con_DrawSolidConsole( float frac ) {
 #ifndef SMOKINGUNS
 		SCR_DrawPic( 0, 0, SCREEN_WIDTH, y, cls.consoleShader );
 #else
+		color[0] = cl_consoleType->integer ? cl_consoleColor[0]->value : 1.0f ;
+		color[1] = cl_consoleType->integer ? cl_consoleColor[1]->value : 1.0f ;
+		color[2] = cl_consoleType->integer ? cl_consoleColor[2]->value : 1.0f ;
+		color[3] = cl_consoleColor[3]->value;
+		re.SetColor( color );
 		if ( cl_consoleType->integer ) {
-			color[0] = cl_consoleType->integer > 1 ? cl_consoleColor[0]->value : 1.0f ;
-			color[1] = cl_consoleType->integer > 1 ? cl_consoleColor[1]->value : 1.0f ;
-			color[2] = cl_consoleType->integer > 1 ? cl_consoleColor[2]->value : 1.0f ;
-			color[3] = cl_consoleColor[3]->value;
-			re.SetColor( color );
-		}
-		if ( cl_consoleType->integer == 2 ) {
 			SCR_DrawPic( 0, 0, SCREEN_WIDTH, y, cls.whiteShader );
 		} else {
 			SCR_DrawPic( 0, 0, SCREEN_WIDTH, y, cls.consoleShader );
@@ -638,10 +636,11 @@ void Con_DrawSolidConsole( float frac ) {
 	color[0] = 1;
 	color[1] = 0;
 	color[2] = 0;
-#ifdef SMOKINGUNS
-	if( !cl_consoleType->integer )
+#ifndef SMOKINGUNS
+	color[3] = 1;
+#else
+	color[3] = cl_consoleColor[3]->value;
 #endif
-		color[3] = 1;
 	SCR_FillRect( 0, y, SCREEN_WIDTH, 2, color );
 
 

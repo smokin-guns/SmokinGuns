@@ -51,6 +51,12 @@ Changes since SG 1.0-20081231
 - support for shooter_dynamite and shooter_molotov map entities
 - Doors won't try to move players now
 - support UI item to select OpenAL device from available OpenAL devices
+- support new console aspects, thanks to Conq idea. Added 5 cvars to control it:
+  - cl_consoleType: "0" classic wooden wall texture, "1" color
+  - cl_consoleRed: from 0.0 to 1.0, the red component for the color console
+  - cl_consoleGreen: from 0.0 to 1.0, the green conponent for the color console
+  - cl_consoleBlue: from 0.0 to 1.0, the blue component for the color console
+  - cl_transparency: from 0.0 to 1.0, the alpha component or transparency for any kind of console
 *** CHANGES ***
 - Reloading bug fixed by Joe Kari
 - Fix game crash during game load when using cgame binary library
