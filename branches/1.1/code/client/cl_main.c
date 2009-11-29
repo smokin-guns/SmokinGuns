@@ -3218,7 +3218,7 @@ void CL_Init( void ) {
 	cl_consoleColor[0] = Cvar_Get( "cl_consoleColorRed", "1", CVAR_ARCHIVE );
 	cl_consoleColor[1] = Cvar_Get( "cl_consoleColorGreen", "0", CVAR_ARCHIVE );
 	cl_consoleColor[2] = Cvar_Get( "cl_consoleColorBlue", "0", CVAR_ARCHIVE );
-	cl_consoleColor[3] = Cvar_Get( "cl_consoleColorAlpha", "0.8", CVAR_ARCHIVE );
+	cl_consoleColor[3] = Cvar_Get( "cl_consoleTransparency", "0.8", CVAR_ARCHIVE );
 #endif
 
 	// userinfo
