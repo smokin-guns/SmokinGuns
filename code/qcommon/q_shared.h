@@ -63,6 +63,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #endif
 
   #define PRODUCT_NAME				"Smokin' Guns"
+  #define PRODUCT_SHORTNAME			"SmokinGuns"
+  #define PRODUCT_URL				"http://www.smokin-guns.net"
   #define BASEGAME					"smokinguns"
   // Tequila comment: SDK_BASEGAME is used for compatibility reason
   // If we don't use it, 1.0 client won't accept to connect to servers
