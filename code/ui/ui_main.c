@@ -2116,12 +2116,12 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 			if(atoi(Info_ValueForKey(info, "g_gametype")) < GT_TEAM)
 				s = va("Join Game");
 			else
-				s = va("Join %s", Info_ValueForKey(info, "g_redteamname") );
+				s = va("Join %s", Info_ValueForKey(info, "g_redteam") );
 			break;
 		case UI_JOIN_BLUE:
 			if(atoi(Info_ValueForKey(info, "g_gametype")) < GT_TEAM){
 			} else
-				s = va("Join %s", Info_ValueForKey(info, "g_blueteamname") );
+				s = va("Join %s", Info_ValueForKey(info, "g_blueteam") );
 			break;
 #endif
 		default:
@@ -2176,9 +2176,9 @@ static void UI_DrawRedBlue(rectDef_t *rect, float scale, vec4_t color, int textS
 	trap_GetConfigString( CS_SERVERINFO, info, sizeof(info) );
 
 	if(uiInfo.redBlue == 0){
-		teamname = Info_ValueForKey(info, "g_redteamname");
+		teamname = Info_ValueForKey(info, "g_redteam");
 	} else {
-		teamname = Info_ValueForKey(info, "g_blueteamname");
+		teamname = Info_ValueForKey(info, "g_blueteam");
 	}
 
 	Text_Paint(rect->x, rect->y, scale, color, teamname, 0, 0, textStyle);
@@ -2532,7 +2532,7 @@ static void UI_OwnerDraw(itemDef_t *item, float x, float y, float w, float h, fl
 			if(atoi(Info_ValueForKey(info, "g_gametype")) < GT_TEAM)
 				s = va("Join Game");
 			else
-				s = va("%s", Info_ValueForKey(info, "g_redteamname") );
+				s = va("%s", Info_ValueForKey(info, "g_redteam") );
 
 			Text_Paint(rect.x, rect.y, scale, color,
 				s, 0, 0, textStyle);
@@ -2542,7 +2542,7 @@ static void UI_OwnerDraw(itemDef_t *item, float x, float y, float w, float h, fl
 			if(atoi(Info_ValueForKey(info, "g_gametype")) < GT_TEAM){
 
 			} else {
-				s = va("%s", Info_ValueForKey(info, "g_blueteamname") );
+				s = va("%s", Info_ValueForKey(info, "g_blueteam") );
 				Text_Paint(rect.x, rect.y, scale, color,
 					s, 0, 0, textStyle);
 			}
@@ -3578,13 +3578,8 @@ static void UI_StartSkirmish(qboolean next) {
 	trap_Cvar_Set("g_warmup", "15");
 	trap_Cvar_Set("sv_pure", "0");
 	trap_Cvar_Set("g_friendlyFire", "0");
-#ifndef SMOKINGUNS
 	trap_Cvar_Set("g_redTeam", UI_Cvar_VariableString("ui_teamName"));
 	trap_Cvar_Set("g_blueTeam", UI_Cvar_VariableString("ui_opponentName"));
-#else
-	trap_Cvar_Set("g_redTeamname", UI_Cvar_VariableString("ui_teamName"));
-	trap_Cvar_Set("g_blueTeamname", UI_Cvar_VariableString("ui_opponentName"));
-#endif
 
 	if (trap_Cvar_VariableValue("ui_recordSPDemo")) {
 		Com_sprintf(buff, MAX_STRING_CHARS, "%s_%i", uiInfo.mapList[ui_currentMap.integer].mapLoadName, g);
@@ -3775,8 +3770,8 @@ static void UI_RunMenuScript(char **args) {
 			trap_Cvar_Set("g_redTeam", UI_Cvar_VariableString("ui_teamName"));
 			trap_Cvar_Set("g_blueTeam", UI_Cvar_VariableString("ui_opponentName"));
 #else
-			trap_Cvar_Set("g_redteamname", UI_Cvar_VariableString("ui_redteam"));
-			trap_Cvar_Set("g_blueteamname", UI_Cvar_VariableString("ui_blueteam"));
+			trap_Cvar_Set("g_redteam", UI_Cvar_VariableString("ui_redteam"));
+			trap_Cvar_Set("g_blueteam", UI_Cvar_VariableString("ui_blueteam"));
 #endif
 			trap_Cmd_ExecuteText( EXEC_APPEND, va( "wait ; wait ; map %s\n", uiInfo.mapList[ui_currentNetMap.integer].mapLoadName ) );
 			skill = trap_Cvar_VariableValue( "g_spSkill" );
@@ -4261,8 +4256,8 @@ static void UI_RunMenuScript(char **args) {
 			trap_Cvar_Set("ui_sv_fraglimit", Info_ValueForKey( serverinfo, "fraglimit" ));
 			trap_Cvar_Set("ui_sv_duellimit", Info_ValueForKey( serverinfo, "duellimit" ));
 			trap_Cvar_Set("ui_sv_timelimit", Info_ValueForKey( serverinfo, "timelimit" ));
-			trap_Cvar_Set("ui_sv_redteamname", Info_ValueForKey( serverinfo, "g_redteamname" ));
-			trap_Cvar_Set("ui_sv_blueteamname", Info_ValueForKey( serverinfo, "g_blueteamname" ));
+			trap_Cvar_Set("ui_sv_redteamname", Info_ValueForKey( serverinfo, "g_redteam" ));
+			trap_Cvar_Set("ui_sv_blueteamname", Info_ValueForKey( serverinfo, "g_blueteam" ));
 			trap_Cvar_Set("ui_sv_protocol", Info_ValueForKey( serverinfo, "protocol" ));
 			trap_Cvar_Set("ui_sv_maxclients", Info_ValueForKey( serverinfo, "sv_maxclients" ));
 			trap_Cvar_Set("ui_sv_hostname", Info_ValueForKey( serverinfo, "sv_hostname" ));
