@@ -202,11 +202,11 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 			newtime = localtime( &aclock );
 
 			logfile = FS_FOpenFileWrite( "qconsole.log" );
-			
+
 			if(logfile)
 			{
 				Com_Printf( "logfile opened on %s\n", asctime( newtime ) );
-			
+
 				if ( com_logfile->integer > 1 )
 				{
 					// force it to not buffer so we get valid
@@ -273,7 +273,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 			calledSysError = qtrue;
 			Sys_Error("recursive error after: %s", com_errorMessage);
 		}
-		
+
 		return;
 	}
 
@@ -2392,13 +2392,13 @@ void Com_Setenv_f(void)
 	if(argc > 2)
 	{
 		char *arg2 = Cmd_ArgsFrom(2);
-		
+
 		Sys_SetEnv(arg1, arg2);
 	}
 	else if(argc == 2)
 	{
 		char *env = getenv(arg1);
-		
+
 		if(env)
 			Com_Printf("%s=%s\n", arg1, env);
 		else
@@ -2443,7 +2443,7 @@ void Com_GameRestart(int checksumFeed, qboolean clientRestart)
 	if(!com_gameRestarting && com_fullyInitialized)
 	{
 		com_gameRestarting = qtrue;
-		
+
 		if(clientRestart)
 		{
 			CL_Disconnect(qfalse);
@@ -2455,17 +2455,17 @@ void Com_GameRestart(int checksumFeed, qboolean clientRestart)
 			SV_Shutdown("Game directory changed");
 
 		FS_Restart(checksumFeed);
-	
+
 		// Clean out any user and VM created cvars
 		Cvar_Restart(qtrue);
 		Com_ExecuteCfg();
-		
+
 		// Restart sound subsystem so old handles are flushed
 		CL_Snd_Restart();
 
 		if(clientRestart)
 			CL_StartHunkUsers(qfalse);
-		
+
 		com_gameRestarting = qfalse;
 	}
 }
@@ -2762,7 +2762,11 @@ void Com_Init( char *commandLine ) {
 
 	com_introPlayed = Cvar_Get( "com_introplayed", "0", CVAR_ARCHIVE);
 
+#ifndef SMOKINGUNS
 	s = va("%s %s %s", Q3_VERSION, PLATFORM_STRING, __DATE__ );
+#else
+	s = va("%s %i %s", XSTRING(PRODUCT_VERSION), SG_RELEASE, PLATFORM_STRING );
+#endif
 	com_version = Cvar_Get ("version", s, CVAR_ROM | CVAR_SERVERINFO );
 
 	Sys_Init();
@@ -3418,7 +3422,7 @@ void Field_CompleteCommand( char *cmd,
 		if( ( p = Field_FindFirstSeparator( cmd ) ) )
 			Field_CompleteCommand( p + 1, qtrue, qtrue ); // Compound command
 		else
-			Cmd_CompleteArgument( baseCmd, cmd, completionArgument ); 
+			Cmd_CompleteArgument( baseCmd, cmd, completionArgument );
 	}
 	else
 	{
