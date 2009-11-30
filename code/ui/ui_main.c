@@ -4265,7 +4265,7 @@ static void UI_RunMenuScript(char **args) {
 			trap_Cvar_Set("ui_sv_dmflags", Info_ValueForKey( serverinfo, "dmflags" ));
 			trap_Cvar_Set("ui_sv_bot_minplayers", Info_ValueForKey( serverinfo, "bot_minplayers" ));
 			trap_Cvar_Set("ui_sv_version", Info_ValueForKey( serverinfo, "version" ));
-			trap_Cvar_Set("ui_sv_wq_version", Info_ValueForKey( serverinfo, "sg_version" ));
+			trap_Cvar_Set("ui_sv_sg_version", Info_ValueForKey( serverinfo, "sg_version" ));
 		}
 #endif
 		else {
@@ -4625,7 +4625,12 @@ serverStatusCvar_t serverStatusCvars[] = {
 	{"gamename", "Game name"},
 	{"g_gametype", "Game type"},
 	{"mapname", "Map"},
+#ifndef SMOKINGUNS
 	{"version", ""},
+#else
+	{"version", "Engine version"},
+	{"sg_version", "Game version"},
+#endif
 	{"protocol", ""},
 	{"timelimit", ""},
 	{"fraglimit", ""},
@@ -4633,9 +4638,11 @@ serverStatusCvar_t serverStatusCvars[] = {
 	{"scorelimit", ""},
 	{"duellimit", ""},
 	{"g_roundtime", "Roundtime"},
-	{"g_enabletrio", "Enable Trio"},
-	{"g_forcetrio", "Force Trio"},
+	{"du_enabletrio", "Enable Trio"},
+	{"du_forcetrio", "Force Trio"},
 	{"g_chaseonly", "Force Chasecam"},
+	{"g_allowVote", "Vote allowed"},
+	{"g_allowVoteKick", "Kick vote allowed"},
 #endif
 	{NULL, NULL}
 };
