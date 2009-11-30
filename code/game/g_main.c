@@ -32,9 +32,9 @@ typedef struct {
 	char		*cvarName;
 	char		*defaultString;
 	int			cvarFlags;
-	int			modificationCount;  // for tracking changes
-	qboolean	trackChange;	    // track this variable, and announce if changed
-  qboolean teamShader;        // track and if changed, update shader state
+	int			modificationCount;	// for tracking changes
+	qboolean	trackChange;		// track this variable, and announce if changed
+	qboolean	teamShader;			// track and if changed, update shader state
 } cvarTable_t;
 
 gentity_t		g_entities[MAX_GENTITIES];
@@ -171,6 +171,7 @@ vmCvar_t	g_proxMineTimeout;
 #else
 vmCvar_t	g_version;
 vmCvar_t	g_url;
+vmCvar_t	g_checkClients;
 vmCvar_t	g_breakspawndelay;
 vmCvar_t	g_forcebreakrespawn;
 
@@ -362,6 +363,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_version, "sg_version", XSTRING(PRODUCT_VERSION) " " XSTRING(SG_RELEASE), CVAR_ROM | CVAR_SERVERINFO , 0, qtrue },
 	{ &g_url, "MOD_URL", "www.smokin-guns.net", CVAR_ROM | CVAR_SERVERINFO, 0, qtrue },
+	{ &g_checkClients, "g_checkClients", "1", CVAR_ARCHIVE, 0, qfalse  },
 
 	// If g_breakspawndelay == 0, use BREAK_RESPAWN_TIME instead in g_mover.c
 	{ &g_breakspawndelay, "g_breakspawndelay", "0", 0, 0, qtrue },

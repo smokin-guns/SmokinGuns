@@ -308,7 +308,7 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 			{
 				if (numSpots >= MAX_SPAWN_POINTS)
 					numSpots = MAX_SPAWN_POINTS - 1;
-					
+
 				for(j = numSpots; j > i; j--)
 				{
 					list_dist[j] = list_dist[j-1];
@@ -574,7 +574,7 @@ gentity_t *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles, qboolean isbot
 		{
 			continue;
 		}
-		
+
 		if((spot->spawnflags & 0x01))
 			break;
 	}
@@ -1337,7 +1337,7 @@ void ClientUserinfoChanged( int clientNum ) {
 			 */
 			if ( !client->pers.renameTime || !g_delayedRenaming.integer ||
 				( level.time - client->pers.renameTime >= g_delayedRenaming.integer*1000 ) ||
-				!( g_splitChat.integer && g_gametype.integer >= GT_RTP && client->sess.sessionTeam >= TEAM_SPECTATOR ) ) {				
+				!( g_splitChat.integer && g_gametype.integer >= GT_RTP && client->sess.sessionTeam >= TEAM_SPECTATOR ) ) {
 				trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname,
 					client->pers.netname) );
 				// Store when last renaming occured only if needed
@@ -1552,7 +1552,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	{
 #ifndef SMOKINGUNS
 		s = va("n\\%s\\guid\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
-			client->pers.netname, guid, client->sess.sessionTeam, model, headModel, redTeam, blueTeam, c1, c2, 
+			client->pers.netname, guid, client->sess.sessionTeam, model, headModel, redTeam, blueTeam, c1, c2,
 			client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader);
 #else
 		s = va("guid\\%s\\n\\%s\\t\\%i\\model\\%s\\g_redteam\\%s\\g_blueteam\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d\\v\\%s",
@@ -1600,18 +1600,18 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 
 	trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 
- 	// IP filtering
- 	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=500
- 	// recommanding PB based IP / GUID banning, the builtin system is pretty limited
- 	// check to see if they are on the banned IP list
+	// IP filtering
+	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=500
+	// recommanding PB based IP / GUID banning, the builtin system is pretty limited
+	// check to see if they are on the banned IP list
 	value = Info_ValueForKey (userinfo, "ip");
 	if ( G_FilterPacket( value ) ) {
 		return "You are banned from this server.";
 	}
 
-  // we don't check password for bots and local client
-  // NOTE: local client <-> "ip" "localhost"
-  //   this means this client is not running in our current process
+	// we don't check password for bots and local client
+	// NOTE: local client <-> "ip" "localhost"
+	//   this means this client is not running in our current process
 	if ( !isBot && (strcmp(value, "localhost") != 0)) {
 		// check for a password
 		value = Info_ValueForKey (userinfo, "password");
@@ -1620,6 +1620,16 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 			return "Invalid password";
 		}
 	}
+
+#ifdef SMOKINGUNS
+	// Check clients is valid. If g_checkClients is set, quake3 client will be
+	// discarded with a fair message immediately
+	if ( g_checkClients.integer ) {
+		value = Info_ValueForKey (userinfo, "cl_version");
+		if (!*value)
+			return "Please download Smokin'Guns " XSTRING(PRODUCT_VERSION) " from http://www.smokin-guns.net" ;
+	}
+#endif
 
 	// they can connect
 	ent->client = level.clients + clientNum;
@@ -1654,7 +1664,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 #endif
 	}
 
-	// get and distribute relevent paramters
+	// get and distribute relevent parameters
 	G_LogPrintf( "ClientConnect: %i\n", clientNum );
 	ClientUserinfoChanged( clientNum );
 #ifdef SMOKINGUNS
@@ -1785,7 +1795,7 @@ void ClientBegin( int clientNum ) {
 	//start into game: receive money (by Spoon)
 #ifdef SMOKINGUNS
 	ent->client->ps.stats[STAT_MONEY] = START_MONEY;
-	
+
 	// Send round time for round based games
 	if ( g_gametype.integer >= GT_RTP && !( ent->r.svFlags & SVF_BOT ) ) {
 		gentity_t	*te = G_TempEntity( vec3_origin, EV_ROUND_TIME );
@@ -2261,7 +2271,7 @@ void ClientSpawn(gentity_t *ent) {
 				min_money = MIN_MONEY ;
 			}
 		}
-		
+
 		// don't apply this in duel mode
 		if(g_gametype.integer != GT_DUEL){
 			// make sure the player doesn't interfere with KillBox
@@ -2485,10 +2495,10 @@ void ClientDisconnect( int clientNum ) {
 	if ( ent->r.svFlags & SVF_BOT ) {
 		BotAIShutdownClient( clientNum, qfalse );
 	}
-	
+
 	// Joe Kari: exec content of the onEvent_playerDisconnect cvar
 #ifdef SMOKINGUNS
-	else 
+	else
 	{
 		trap_SendConsoleCommand( EXEC_APPEND , "vstr onEvent_playerDisconnect\n" ) ;
 		trap_SendConsoleCommand( EXEC_APPEND , va( "vstr onEvent_playerDownTo%i\n" , g_humancount ) ) ;
