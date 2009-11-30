@@ -1624,7 +1624,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 #ifdef SMOKINGUNS
 	// Check clients is valid. If g_checkClients is set, quake3 client will be
 	// discarded with a fair message immediately
-	if ( g_checkClients.integer ) {
+	if ( !isBot && g_checkClients.integer ) {
 		value = Info_ValueForKey (userinfo, "cl_version");
 		if (!*value)
 			return "Please download Smokin'Guns " XSTRING(PRODUCT_VERSION) " from http://www.smokin-guns.net" ;
