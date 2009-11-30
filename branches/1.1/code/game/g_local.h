@@ -1084,7 +1084,6 @@ extern	vmCvar_t	g_proxMineTimeout;
 //unlagged - server options
 // some new server-side variables
 extern	vmCvar_t	g_delagHitscan;
-extern	vmCvar_t	g_unlaggedVersion;
 extern	vmCvar_t	g_truePing;
 // this is for convenience - using "sv_fps.integer" is nice :)
 extern	vmCvar_t	sv_fps;
@@ -1106,7 +1105,6 @@ extern	vmCvar_t	g_weaponInfo;
 
 // shows current version (make sure the game was updated correctly)
 extern	vmCvar_t	g_version;
-extern	vmCvar_t	g_url;
 
 // check connecting clients
 extern	vmCvar_t	g_checkClients;

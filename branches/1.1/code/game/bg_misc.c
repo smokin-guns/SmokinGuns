@@ -2180,7 +2180,7 @@ gitem_t	*BG_FindItemForWeapon( weapon_t weapon ) {
 #ifndef SMOKINGUNS
 	Com_Error( ERR_DROP, "Couldn't find item for weapon %i", weapon);
 #else
-	Com_Printf( "Couldn't find item for weapon %i\nPlease report on http://www.smokin-guns.net forum or http://sourceforge.net/projects/smokinguns\n", weapon);
+	Com_Printf( "Couldn't find item for weapon %i\nPlease report on " PRODUCT_URL " forum or http://sourceforge.net/projects/smokinguns\n", weapon);
 #endif
 	return NULL;
 }
@@ -2201,7 +2201,7 @@ gitem_t	*BG_FindItemForAmmo( weapon_t ammo ) {
 		}
 	}
 
-	Com_Printf( "Couldn't find item for ammo %i\nPlease report on http://www.smokin-guns.net forum or http://sourceforge.net/projects/smokinguns\n", ammo);
+	Com_Printf( "Couldn't find item for ammo %i\nPlease report on " PRODUCT_URL " forum or http://sourceforge.net/projects/smokinguns\n", ammo);
 	return NULL;
 }
 
@@ -2500,7 +2500,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 
 	case IT_TEAM: // team items, such as flags
 #ifndef SMOKINGUNS
-#ifdef MISSIONPACK		
+#ifdef MISSIONPACK
 		if( gametype == GT_1FCTF ) {
 			// neutral flag can always be picked up
 			if( item->giTag == PW_NEUTRALFLAG ) {
@@ -3488,13 +3488,13 @@ void BG_ParseWeaponInfo( const char *info ) {
 		p++;
 
 		BG_ParseWeaponValues( weapon, p );
-		
+
 		while ( *p != '\\' ) {
 			if ( *p == '\0' )
 				return;
 			p++;
 		}
-		p++;	
+		p++;
 	}
 }
 #endif
