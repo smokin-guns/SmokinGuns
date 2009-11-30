@@ -1108,6 +1108,9 @@ extern	vmCvar_t	g_weaponInfo;
 extern	vmCvar_t	g_version;
 extern	vmCvar_t	g_url;
 
+// check connecting clients
+extern	vmCvar_t	g_checkClients;
+
 // time elapsed for breakable item to respawn
 extern	vmCvar_t	g_breakspawndelay;
 extern	vmCvar_t	g_forcebreakrespawn;
