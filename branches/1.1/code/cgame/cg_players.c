@@ -1394,18 +1394,10 @@ void CG_NewClientInfo( int clientNum ) {
 	v = Info_ValueForKey( configstring, "tl" );
 	newInfo.teamLeader = atoi(v);
 
-#ifndef SMOKINGUNS
 	v = Info_ValueForKey( configstring, "g_redteam" );
-#else
-	v = Info_ValueForKey( configstring, "g_redteamname" );
-#endif
 	Q_strncpyz(newInfo.redTeam, v, MAX_TEAMNAME);
 
-#ifndef SMOKINGUNS
 	v = Info_ValueForKey( configstring, "g_blueteam" );
-#else
-	v = Info_ValueForKey( configstring, "g_blueteamname" );
-#endif
 	Q_strncpyz(newInfo.blueTeam, v, MAX_TEAMNAME);
 
 	// model

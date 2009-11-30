@@ -436,15 +436,13 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_obeliskRespawnDelay, "g_obeliskRespawnDelay", "10", CVAR_SERVERINFO},
 	{ &cg_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE},
 #else
-	{ &cg_redTeamName, "g_redteamname", DEFAULT_REDTEAM_NAME, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO },
-	{ &cg_blueTeamName, "g_blueteamname", DEFAULT_BLUETEAM_NAME, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO },
 	//added to SG <-
 	{ &cg_farclip, "cg_farclip", "1", CVAR_ARCHIVE},
 	{ &cg_farclipValue, "cg_farclipValue", "1", CVAR_ARCHIVE},
 	{ &cg_farclipZoomValue, "cg_farclipZoomValue", "3", CVAR_ARCHIVE},
-	
+
 	{ &cg_mapLOD, "cg_mapLOD", "2", CVAR_ARCHIVE},
-	
+
 	{ &cg_newShotgunPattern, "cg_newShotgunPattern", "0", CVAR_ROM},
 //	{ &cg_availablePlaylist, "cg_availablePlaylist", "0", CVAR_ROM},
 	{ &cg_roundNoMoveTime, "cg_roundNoMoveTime", "3", CVAR_ROM},
@@ -2685,7 +2683,7 @@ static const char *CG_FeederItemText(float feederID, int index, int column, qhan
 #ifndef SMOKINGUNS
 				if ( sp->ping == -1 ) {
 					return "connecting";
-				} 
+				}
 				return va("%4i", sp->ping);
 #else
 				return va("%4i", sp->time);

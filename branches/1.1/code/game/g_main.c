@@ -237,10 +237,10 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &du_forcetrio, "du_forcetrio", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 
 	{ &br_teamrole, "br_teamrole", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
-  	{ &g_moneyRespawn, "g_moneyRespawn", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
-  	
-  	{ &g_newShotgunPattern, "g_newShotgunPattern", "1", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
- 	{ &g_roundNoMoveTime, "g_roundNoMoveTime", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+	{ &g_moneyRespawn, "g_moneyRespawn", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+
+	{ &g_newShotgunPattern, "g_newShotgunPattern", "1", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_roundNoMoveTime, "g_roundNoMoveTime", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 #endif
 
 	{ &g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse  },
@@ -323,8 +323,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_proxMineTimeout, "g_proxMineTimeout", "20000", 0, 0, qfalse },
 #endif
 #else
-	{ &g_redteam, "g_redteamname", DEFAULT_REDTEAM_NAME, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO , 0, qtrue, qtrue },
-	{ &g_blueteam, "g_blueteamname", DEFAULT_BLUETEAM_NAME, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO , 0, qtrue, qtrue  },
+	{ &g_redteam, "g_redteam", DEFAULT_REDTEAM_NAME, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO , 0, qtrue, qtrue },
+	{ &g_blueteam, "g_blueteam", DEFAULT_BLUETEAM_NAME, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO , 0, qtrue, qtrue  },
 #endif
 
 	{ &g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
@@ -353,7 +353,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_blueteamcount, "g_blueteamcount", "0", CVAR_SERVERINFO, 0, qfalse  },
 
 	{ &g_robberReward, "g_robberReward", "1", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qfalse  },
-	
+
 	{ &g_redteamscore, "g_redteamscore", "0", CVAR_SERVERINFO, 0, qfalse  },
 	{ &g_blueteamscore, "g_blueteamscore", "0", CVAR_SERVERINFO, 0, qfalse  },
 
@@ -1993,12 +1993,12 @@ void CheckExitRules( void ) {
 			LogExit( "Scorelimit hit." );
 			return;
 		}
-		
+
 		// Joe Kari: don't check for Timelimit if the round has begun (more than 15 seconds)
 		if ( ( level.time > g_roundstarttime + 15000 ) && ( level.time < g_roundendtime ) ) {
 			return;
 		}
-	
+
 	}
 #endif
 }
@@ -2321,7 +2321,7 @@ static void BankRobbed( void ){
 							client->pers.savedMoney = MAX_MONEY;
 	}
 
-	//the bank was robbed 
+	//the bank was robbed
 	if(level.nextroundstart <= level.time){
 		switch ( br_teamrole.integer ) {
 			case 1:
@@ -2482,7 +2482,7 @@ void CheckRound(void){
 			} else if ( !TeamCount( -1, TEAM_BLUE ) && !TeamCount( -1, TEAM_RED )) {
 				tied = qtrue;
 			} else {
-				// Joe Kari: defenders in BR should win if time run out 
+				// Joe Kari: defenders in BR should win if time run out
 				// and people are still alive in both team
 				if (g_gametype.integer == GT_BR) {
 					winner = g_defendteam ;
@@ -2491,14 +2491,14 @@ void CheckRound(void){
 					tied = qtrue;
 				}
 			}
-			
-			
+
+
 			if (!tied) {	// there is someone left in the game -- they won
-				
+
 				gentity_t	*tent;
-				
+
 				AddScoreRTPTeam(winner , 1);
-				
+
 				if(g_defendteam != winner){
 					if(winner == TEAM_BLUE){
 						trap_SendServerCommand( -1, va( "cp \"%s won.\"",g_blueteam.string ) );
@@ -2548,15 +2548,15 @@ void CheckRound(void){
 					if(client->pers.savedMoney > MAX_MONEY)
 						client->pers.savedMoney = MAX_MONEY;
 				}
-				
+
 			} else {
-				
+
 				if(level.time >= g_roundendtime && g_roundendtime){
 					trap_SendServerCommand( -1, "cp \"Time Out\"" );
 				} else {
 					trap_SendServerCommand( -1, "cp \"Round was tied!\"" );
 				}
-				
+
 				//add money
 				for (i = 0; i < level.maxclients; i++){
 					gclient_t *client= &level.clients[i];
