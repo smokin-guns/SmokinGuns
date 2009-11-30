@@ -473,11 +473,11 @@ not have future usercmd_t executed before it is executed
 void CL_AddReliableCommand(const char *cmd, qboolean isDisconnectCmd)
 {
 	int unacknowledged = clc.reliableSequence - clc.reliableAcknowledge;
-	
+
 	// if we would be losing an old command that hasn't been acknowledged,
 	// we must drop the connection
 	// also leave one slot open for the disconnect command in this case.
-	
+
 	if ((isDisconnectCmd && unacknowledged > MAX_RELIABLE_COMMANDS) ||
 	    (!isDisconnectCmd && unacknowledged >= MAX_RELIABLE_COMMANDS))
 	{
@@ -1262,10 +1262,10 @@ void CL_Disconnect( qboolean showMainMenu ) {
 		CL_WritePacket();
 		CL_WritePacket();
 	}
-	
+
 	// Remove pure paks
 	FS_PureServerSetLoadedPaks("", "");
-	
+
 	CL_ClearState ();
 
 	// wipe the client connection
@@ -1535,7 +1535,7 @@ void CL_Connect_f( void ) {
 		Com_Printf( "usage: connect [-4|-6] server\n");
 		return;
 	}
-	
+
 	if(argc == 2)
 		server = Cmd_Argv(1);
 	else
@@ -1546,7 +1546,7 @@ void CL_Connect_f( void ) {
 			family = NA_IP6;
 		else
 			Com_Printf( "warning: only -4 or -6 as address type understood.\n");
-		
+
 		server = Cmd_Argv(2);
 	}
 
@@ -1597,7 +1597,7 @@ void CL_Connect_f( void ) {
 	else
 	{
 		cls.state = CA_CONNECTING;
-		
+
 		// Set a client challenge number that ideally is mirrored back by the server.
 		clc.challenge = ((rand() << 16) ^ rand()) ^ Com_Milliseconds();
 	}
@@ -1869,7 +1869,7 @@ void CL_DownloadsComplete( void ) {
 
 #ifdef USE_CURL
 	// if we downloaded with cURL
-	if(clc.cURLUsed) { 
+	if(clc.cURLUsed) {
 		clc.cURLUsed = qfalse;
 		CL_cURL_Shutdown();
 		if( clc.cURLDisconnected ) {
@@ -2045,7 +2045,7 @@ void CL_NextDownload(void)
 					"disabled on your client. "
 					"(cl_allowDownload is %d)",
 					cl_allowDownload->integer);
-				return;	
+				return;
 			}
 			else {
 				CL_BeginDownload( localName, remoteName );
@@ -2117,7 +2117,7 @@ void CL_CheckForResend( void ) {
 	int		port, i;
 	char	info[MAX_INFO_STRING];
 	char	data[MAX_INFO_STRING];
-	
+
 	// don't send anything if playing back a demo
 	if ( clc.demoplaying ) {
 		return;
@@ -2325,10 +2325,10 @@ void CL_ServersResponsePacket( const netadr_t* from, msg_t *msg, qboolean extend
 
 			if (buffend - buffptr < sizeof(addresses[numservers].ip6) + sizeof(addresses[numservers].port) + 1)
 				break;
-			
+
 			for(i = 0; i < sizeof(addresses[numservers].ip6); i++)
 				addresses[numservers].ip6[i] = *buffptr++;
-			
+
 			addresses[numservers].type = NA_IP6;
 			addresses[numservers].scope_id = from->scope_id;
 		}
@@ -2408,15 +2408,15 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 			Com_DPrintf("Unwanted challenge response received.  Ignored.\n");
 			return;
 		}
-		
+
 		if(!NET_CompareAdr(from, clc.serverAddress))
 		{
 			// This challenge response is not coming from the expected address.
 			// Check whether we have a matching client challenge to prevent
 			// connection hi-jacking.
-			
+
 			c = Cmd_Argv(2);
-			
+
 			if(!*c || atoi(c) != clc.challenge)
 			{
 				Com_DPrintf("Challenge response received from unexpected source. Ignored.\n");
@@ -2588,7 +2588,7 @@ void CL_CheckTimeout( void ) {
 	//
 	// check timeout
 	//
-	if ( ( !CL_CheckPaused() || !sv_paused->integer ) 
+	if ( ( !CL_CheckPaused() || !sv_paused->integer )
 		&& cls.state >= CA_CONNECTED && cls.state != CA_CINEMATIC
 	    && cls.realtime - clc.lastPacketTime > cl_timeout->value*1000) {
 		if (++cl.timeoutcount > 5) {	// timeoutcount saves debugger
@@ -2614,7 +2614,7 @@ qboolean CL_CheckPaused(void)
 	// lag behind.
 	if(cl_paused->integer || cl_paused->modified)
 		return qtrue;
-	
+
 	return qfalse;
 }
 
@@ -2698,7 +2698,7 @@ void CL_Frame ( int msec ) {
 			}
 		}
 	}
-	
+
 	if( cl_autoRecordDemo->integer ) {
 		if( cls.state == CA_ACTIVE && !clc.demorecording && !clc.demoplaying ) {
 			// If not recording a demo, and we should be, start one
@@ -3213,7 +3213,7 @@ void CL_Init( void ) {
 
 	// ~ and `, as keys and characters
 	cl_consoleKeys = Cvar_Get( "cl_consoleKeys", "~ ` 0x7e 0x60", CVAR_ARCHIVE);
-#ifdef SMOKINGUNS  
+#ifdef SMOKINGUNS
 	cl_consoleType = Cvar_Get( "cl_consoleType", "0", CVAR_ARCHIVE );
 	cl_consoleColor[0] = Cvar_Get( "cl_consoleColorRed", "1", CVAR_ARCHIVE );
 	cl_consoleColor[1] = Cvar_Get( "cl_consoleColorGreen", "0", CVAR_ARCHIVE );
@@ -3231,8 +3231,10 @@ void CL_Init( void ) {
 	Cvar_Get ("team_headmodel", "*james", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("g_redTeam", "Stroggs", CVAR_SERVERINFO | CVAR_ARCHIVE);
 	Cvar_Get ("g_blueTeam", "Pagans", CVAR_SERVERINFO | CVAR_ARCHIVE);
+#ifndef SMOKINGUNS
 	Cvar_Get ("color1",  "4", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("color2", "5", CVAR_USERINFO | CVAR_ARCHIVE );
+#endif
 	Cvar_Get ("handicap", "100", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("teamtask", "0", CVAR_USERINFO );
 	Cvar_Get ("sex", "male", CVAR_USERINFO | CVAR_ARCHIVE );
@@ -3342,7 +3344,7 @@ void CL_Shutdown( void ) {
 	// check whether the client is running at all.
 	if(!(com_cl_running && com_cl_running->integer))
 		return;
-	
+
 	Com_Printf( "----- CL_Shutdown -----\n" );
 
 	if ( recursive ) {
@@ -3793,18 +3795,18 @@ void CL_GlobalServers_f( void ) {
 	if(!*masteraddress)
 	{
 		Com_Printf( "CL_GlobalServers_f: Error: No master server address given.\n");
-		return;	
+		return;
 	}
 
 	// reset the list, waiting for response
 	// -1 is used to distinguish a "no response"
 
 	i = NET_StringToAdr(masteraddress, &to, NA_UNSPEC);
-	
+
 	if(!i)
 	{
 		Com_Printf( "CL_GlobalServers_f: Error: could not resolve address of master %s\n", masteraddress);
-		return;	
+		return;
 	}
 	else if(i == 2)
 		to.port = BigShort(PORT_MASTER);
@@ -4023,7 +4025,7 @@ void CL_Ping_f( void ) {
 		Com_Printf( "usage: ping [-4|-6] server\n");
 		return;
 	}
-	
+
 	if(argc == 2)
 		server = Cmd_Argv(1);
 	else
@@ -4034,7 +4036,7 @@ void CL_Ping_f( void ) {
 			family = NA_IP6;
 		else
 			Com_Printf( "warning: only -4 or -6 as address type understood.\n");
-		
+
 		server = Cmd_Argv(2);
 	}
 
@@ -4185,7 +4187,7 @@ void CL_ServerStatus_f(void) {
 
 		toptr = &clc.serverAddress;
 	}
-	
+
 	if(!toptr)
 	{
 		Com_Memset( &to, 0, sizeof(netadr_t) );
@@ -4200,7 +4202,7 @@ void CL_ServerStatus_f(void) {
 				family = NA_IP6;
 			else
 				Com_Printf( "warning: only -4 or -6 as address type understood.\n");
-		
+
 			server = Cmd_Argv(2);
 		}
 

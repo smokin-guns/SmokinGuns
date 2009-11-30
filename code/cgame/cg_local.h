@@ -473,8 +473,6 @@ typedef struct {
 #ifndef SMOKINGUNS
 	vec3_t			color1;
 	vec3_t			color2;
-#else
-	vec3_t			color;
 #endif
 
 	int				score;			// updated by score servercmds
@@ -735,7 +733,7 @@ typedef struct {
 	qboolean	scoreBoardShowing;
 	int			scoreFadeTime;
 	char		killerName[MAX_NAME_LENGTH];
-	
+
 	// Spectating field in scoreboard
 	char			spectatorList[MAX_STRING_CHARS];		// list of names
 	int				spectatorLen;												// length of list
