@@ -170,14 +170,12 @@ vmCvar_t	g_proxMineTimeout;
 #endif
 #else
 vmCvar_t	g_version;
-vmCvar_t	g_url;
 vmCvar_t	g_checkClients;
 vmCvar_t	g_breakspawndelay;
 vmCvar_t	g_forcebreakrespawn;
 
 //unlagged - server options
 vmCvar_t	g_delagHitscan;
-vmCvar_t	g_unlaggedVersion;
 vmCvar_t	g_truePing;
 vmCvar_t	sv_fps;
 //unlagged - server options
@@ -335,7 +333,6 @@ static cvarTable_t		gameCvarTable[] = {
 #else
 //unlagged - server options
 	{ &g_delagHitscan, "g_delagHitscan", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
-	{ &g_unlaggedVersion, "g_unlaggedVersion", "2.0", CVAR_ROM | CVAR_SERVERINFO, 0, qfalse },
 	{ &g_truePing, "g_truePing", "1", CVAR_ARCHIVE, 0, qtrue },
 	// it's CVAR_SYSTEMINFO so the client's sv_fps will be automagically set to its value
 	{ &sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qfalse },
@@ -362,7 +359,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &m_teamlose, "m_teamlose", ROUND_LOSE_MONEY, CVAR_CHEAT, 0, qtrue },
 
 	{ &g_version, "sg_version", XSTRING(PRODUCT_VERSION) " " XSTRING(SG_RELEASE), CVAR_ROM | CVAR_SERVERINFO , 0, qtrue },
-	{ &g_url, "MOD_URL", "www.smokin-guns.net", CVAR_ROM | CVAR_SERVERINFO, 0, qtrue },
 	{ &g_checkClients, "g_checkClients", "1", CVAR_ARCHIVE, 0, qfalse  },
 
 	// If g_breakspawndelay == 0, use BREAK_RESPAWN_TIME instead in g_mover.c

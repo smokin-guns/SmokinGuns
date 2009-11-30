@@ -1626,7 +1626,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	if ( !isBot && g_checkClients.integer ) {
 		value = Info_ValueForKey (userinfo, "cl_version");
 		if (!*value)
-			return "Please download Smokin'Guns " XSTRING(PRODUCT_VERSION) " from http://www.smokin-guns.net" ;
+			return "Please download " PRODUCT_NAME " " XSTRING(PRODUCT_VERSION) " from " PRODUCT_URL ;
 	}
 #endif
 

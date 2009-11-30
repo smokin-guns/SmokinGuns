@@ -28,16 +28,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 #if 0
-#define SG_CvarMagic(x) Com_Printf("No Smokin' Guns magic on %s defined\n",(x)->name)
-#define SG_CheckRef(x,y) Com_Printf("Smokin' Guns checks off\n")
+#define SG_CvarMagic(x) Com_Printf("No " PRODUCT_NAME " magic on %s defined\n",(x)->name)
+#define SG_CheckRef(x,y) Com_Printf(PRODUCT_NAME " checks off\n")
 #else
 static ID_INLINE void SG_CvarMagic(cvar_t *cvar) {
 	Cvar_Get ("sa_engine_in_use", "1", CVAR_USERINFO|CVAR_ROM );
-	Com_Printf("Smokin' Guns magic on %s applied\n", cvar->name);
+	Com_Printf(PRODUCT_NAME " magic on %s applied\n", cvar->name);
 }
 
 static ID_INLINE void SG_CheckRef(refexport_t *re) {
 	if ( re != NULL )
-		Com_Printf("Smokin' Guns checks on\n");
+		Com_Printf(PRODUCT_NAME " checks on\n");
 }
 #endif

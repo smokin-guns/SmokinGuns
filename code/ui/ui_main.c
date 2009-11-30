@@ -82,7 +82,7 @@ static const serverFilter_t serverFilters[] = {
 	{"Weapons Factory Arena", "wfa" },
 	{"OSP", "osp" },
 #else
-	{"Smokin' Guns", BASEGAME}
+	{PRODUCT_NAME, BASEGAME}
 #endif
 };
 
@@ -4493,7 +4493,7 @@ static void UI_BuildServerDisplayList(qboolean force) {
 #ifndef SMOKINGUNS
 		strcpy(uiInfo.serverStatus.motd, "Welcome to Team Arena!");
 #else
-		strcpy(uiInfo.serverStatus.motd, "Smokin' Guns");
+		strcpy(uiInfo.serverStatus.motd, PRODUCT_NAME);
 #endif
 		len = strlen(uiInfo.serverStatus.motd);
 	}

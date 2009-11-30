@@ -63,13 +63,13 @@ char *Sys_DefaultHomePath(void)
 #ifndef SMOKINGUNS
 					"/Library/Application Support/Quake3" );
 #else
-					"/Library/Application Support/SmokinGuns" );
+					"/Library/Application Support/" PRODUCT_SHORTNAME );
 #endif
 #else
 #ifndef SMOKINGUNS
 			Q_strcat( homePath, sizeof( homePath ), "/.q3a" );
 #else
-			Q_strcat( homePath, sizeof( homePath ), "/.smokinguns" );
+			Q_strcat( homePath, sizeof( homePath ), "/." BASEGAME );
 #endif
 #endif
 		}
@@ -132,12 +132,12 @@ const char *Sys_GetSystemInstallPath(const char *path)
 #ifdef DEFAULT_BASEDIR
 		XSTRING(DEFAULT_BASEDIR),
 #endif
-		XSTRING(PREFIX) "/SmokinGuns",
-		"/usr/local/SmokinGuns",
-		"/opt/SmokinGuns",
-		"/opt/games/SmokinGuns",
-		"/usr/games/SmokinGuns",
-		"/SmokinGuns",
+		XSTRING(PREFIX) "/" PRODUCT_SHORTNAME,
+		"/usr/local/" PRODUCT_SHORTNAME,
+		"/opt/" PRODUCT_SHORTNAME,
+		"/opt/games/" PRODUCT_SHORTNAME,
+		"/usr/games/" PRODUCT_SHORTNAME,
+		"/" PRODUCT_SHORTNAME,
 		"/",
 		NULL,
 	};
@@ -161,7 +161,7 @@ const char *Sys_GetSystemInstallPath(const char *path)
 	// Let's also try ~/SmokinGuns/ - just for kicks
 	if ((hp = getenv("HOME")) != NULL) {
 		Q_strncpyz(homedir, hp, sizeof(homedir));
-		Q_strcat(homedir, sizeof(homedir), "/SmokinGuns");
+		Q_strcat(homedir, sizeof(homedir), "/" PRODUCT_SHORTNAME);
 		if (Sys_TestSysInstallPath(homedir)) {
 			return va("%s",homedir);
 		}
@@ -169,7 +169,7 @@ const char *Sys_GetSystemInstallPath(const char *path)
 		// Let's also try ~/Smokin' Guns/ - just to support default
 		// folder set from the Smokin' Guns 1.0 zip file
 		Q_strncpyz(homedir, hp, sizeof(homedir));
-		Q_strcat(homedir, sizeof(homedir), "/Smokin' Guns");
+		Q_strcat(homedir, sizeof(homedir), "/" PRODUCT_NAME);
 		if (Sys_TestSysInstallPath(homedir)) {
 			return va("%s",homedir);
 		}
@@ -484,7 +484,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 	}
 
 	extLen = strlen( extension );
-	
+
 	// search
 	nfiles = 0;
 
@@ -796,7 +796,7 @@ void Sys_PlatformExit( void )
 {
 #ifdef DEDICATED
 	char pidfile[MAX_OSPATH];
-	
+
 	// single exit point (regular exit or in case of signal fault)
 	// includes unlinking of the PID file. Original code for handling
 	// the PID file by hika AT bsdmon DOT com
