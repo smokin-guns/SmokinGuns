@@ -703,16 +703,12 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 
 #ifndef SMOKINGUNS
 	key = "color1";
-#else
-	key = "color";
-#endif
 	s = Info_ValueForKey( botinfo, key );
 	if ( !*s ) {
 		s = "4";
 	}
 	Info_SetValueForKey( userinfo, key, s );
 
-#ifndef SMOKINGUNS
 	key = "color2";
 	s = Info_ValueForKey( botinfo, key );
 	if ( !*s ) {
