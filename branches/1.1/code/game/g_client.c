@@ -1213,8 +1213,8 @@ void ClientUserinfoChanged( int clientNum ) {
 	char	headModel[MAX_QPATH];
 	char	oldname[MAX_STRING_CHARS];
 	gclient_t	*client;
-	char	c1[MAX_INFO_STRING];
 #ifndef SMOKINGUNS
+	char	c1[MAX_INFO_STRING];
 	char	c2[MAX_INFO_STRING];
 #endif
 	char	redTeam[MAX_INFO_STRING];
@@ -1521,7 +1521,6 @@ void ClientUserinfoChanged( int clientNum ) {
 	strcpy(c1, Info_ValueForKey( userinfo, "color1" ));
 	strcpy(c2, Info_ValueForKey( userinfo, "color2" ));
 #else
-	strcpy(c1, Info_ValueForKey( userinfo, "color" ));
 	strcpy(version, Info_ValueForKey( userinfo, "cl_version" ));
 #endif
 	strcpy(redTeam, Info_ValueForKey( userinfo, "g_redteam" ));

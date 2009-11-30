@@ -1012,6 +1012,7 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 CG_ColorFromString
 ====================
 */
+#ifndef SMOKINGUNS
 static void CG_ColorFromString( const char *v, vec3_t color ) {
 	int val;
 
@@ -1034,6 +1035,7 @@ static void CG_ColorFromString( const char *v, vec3_t color ) {
 		color[0] = 1.0f;
 	}
 }
+#endif
 
 /*
 ===================
@@ -1356,14 +1358,12 @@ void CG_NewClientInfo( int clientNum ) {
 	Q_strncpyz( newInfo.name, v, sizeof( newInfo.name ) );
 
 	// colors
-	v = Info_ValueForKey( configstring, "c1" );
 #ifndef SMOKINGUNS
+	v = Info_ValueForKey( configstring, "c1" );
 	CG_ColorFromString( v, newInfo.color1 );
 
 	v = Info_ValueForKey( configstring, "c2" );
 	CG_ColorFromString( v, newInfo.color2 );
-#else
-	CG_ColorFromString( v, newInfo.color );
 #endif
 
 	// bot skill
@@ -2704,7 +2704,7 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane, vec3_t pos
 	alpha = 1.0 - trace.fraction;
 
 	// hack / FPE - bogus planes?
-	//assert( DotProduct( trace.plane.normal, trace.plane.normal ) != 0.0f ) 
+	//assert( DotProduct( trace.plane.normal, trace.plane.normal ) != 0.0f )
 
 	// add the mark as a temporary, so it goes directly to the renderer
 	// without taking a spot in the cg_marks array
@@ -3198,7 +3198,7 @@ void CG_Turret( centity_t *cent ){
 			// Just the mag as idle animation
 			mag.hModel = cgs.media.g_mag;
 			CG_RunLerpFrame( ci, &cent->pe.weapon, WP_ANIM_IDLE, 1.0, WP_GATLING);
-		}			
+		}
 
 	} else {
 		if( player && (player->currentState.torsoAnim &~ ANIM_TOGGLEBIT) == TORSO_GATLING_RELOAD)
@@ -3995,7 +3995,7 @@ void CG_Player( centity_t *cent ) {
 			angle = ((cg.time / 4) & 255) * (M_PI * 2) / 255;
 			dir[2] = 15 + sin(angle) * 8;
 			VectorAdd(torso.origin, dir, skull.origin);
-			
+
 			dir[2] = 0;
 			VectorCopy(dir, skull.axis[1]);
 			VectorNormalize(skull.axis[1]);
@@ -4073,7 +4073,7 @@ void CG_Player( centity_t *cent ) {
 			dir[1] = cos(angle) * 20;
 			dir[2] = 0;
 			VectorAdd(torso.origin, dir, skull.origin);
-			
+
 			VectorCopy(dir, skull.axis[1]);
 			VectorNormalize(skull.axis[1]);
 			VectorSet(skull.axis[2], 0, 0, 1);
