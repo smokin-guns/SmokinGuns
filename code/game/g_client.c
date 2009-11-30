@@ -1265,7 +1265,7 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	// see if the player wants to debug the backward reconciliation
 	s = Info_ValueForKey( userinfo, "cg_debugDelag" );
-	if ( !atoi( s ) ) {
+	if ( !atoi( s ) || !g_cheats.integer ) {
 		client->pers.debugDelag = qfalse;
 	}
 	else {
@@ -1274,15 +1274,15 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	// see if the player is simulating incoming latency
 	s = Info_ValueForKey( userinfo, "cg_latentSnaps" );
-	client->pers.latentSnaps = atoi( s );
+	client->pers.latentSnaps = g_cheats.integer ? atoi( s ) : 0 ;
 
 	// see if the player is simulating outgoing latency
 	s = Info_ValueForKey( userinfo, "cg_latentCmds" );
-	client->pers.latentCmds = atoi( s );
+	client->pers.latentCmds = g_cheats.integer ? atoi( s ) : 0 ;
 
 	// see if the player is simulating outgoing packet loss
 	s = Info_ValueForKey( userinfo, "cg_plOut" );
-	client->pers.plOut = atoi( s );
+	client->pers.plOut = g_cheats.integer ? atoi( s ) : 0 ;
 //unlagged - client options
 #endif
 
