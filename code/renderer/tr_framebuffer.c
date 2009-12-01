@@ -238,12 +238,8 @@ GLuint *R_CreateRenderbuffer(	GLuint *store, int width, int height,
 	qglGenRenderbuffersEXT( 1, store );
 	qglBindRenderbufferEXT( GL_RENDERBUFFER_EXT, *store );
 	if (r_ext_multisample->integer) {
-		R_CheckFramebufferStatus("error check before GL_EXT_framebuffer_multisample use try");
 		// Add support for GL_EXT_framebuffer_multisample
-		ri.Printf( PRINT_ALL, "...trying to use GL_EXT_framebuffer_multisample\n" );
 		qglRenderbufferStorageMultisampleEXT( GL_RENDERBUFFER_EXT, r_ext_multisample->integer, bindType, width, height );
-		ri.Printf( PRINT_ALL, "...trying to use GL_EXT_framebuffer_multisample: %s\n",
-			R_CheckFramebufferStatus("framebuffer_multisample") ? "success" : "failure" );
 	} else {
 		qglRenderbufferStorageEXT( GL_RENDERBUFFER_EXT, bindType, width, height );
 	}
@@ -924,7 +920,6 @@ void R_FrameBuffer_Init( void ) {
 
 	//set our main screen flags
 	if ((glConfig.stencilBits > 0)) {
-ri.Printf( PRINT_WARNING,"glConfig.stencilBits = %i\n",glConfig.stencilBits);
 		if ( packedDepthStencilSupported ) {
 			screenbuff_flags |= FB_PACKED | FB_STENCIL;
 		}
