@@ -944,6 +944,14 @@ void IN_Frame( void )
 		// Console is down in windowed mode
 		IN_DeactivateMouse( );
 	}
+#ifdef SMOKINGUNS
+	else if( com_dedicated->integer )
+	{
+		// Client in dedicated mode
+		IN_DeactivateMouse( );
+		Key_SetCatcher( KEYCATCH_CONSOLE );
+	}
+#endif
 	else if( !r_fullscreen->integer && loading )
 	{
 		// Loading in windowed mode
