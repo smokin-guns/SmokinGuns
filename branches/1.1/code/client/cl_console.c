@@ -623,7 +623,7 @@ void Con_DrawSolidConsole( float frac ) {
 		color[0] = cl_consoleType->integer ? cl_consoleColor[0]->value : 1.0f ;
 		color[1] = cl_consoleType->integer ? cl_consoleColor[1]->value : 1.0f ;
 		color[2] = cl_consoleType->integer ? cl_consoleColor[2]->value : 1.0f ;
-		color[3] = cl_consoleColor[3]->value;
+		color[3] = com_dedicated->integer ? 1.0f : cl_consoleColor[3]->value ;
 		re.SetColor( color );
 		if ( cl_consoleType->integer ) {
 			SCR_DrawPic( 0, 0, SCREEN_WIDTH, y, cls.whiteShader );
