@@ -1793,7 +1793,7 @@ void ClientBegin( int clientNum ) {
 
 	//start into game: receive money (by Spoon)
 #ifdef SMOKINGUNS
-	ent->client->ps.stats[STAT_MONEY] = START_MONEY;
+	ent->client->ps.stats[STAT_MONEY] = g_startingMoney.integer;
 
 	// Send round time for round based games
 	if ( g_gametype.integer >= GT_RTP && !( ent->r.svFlags & SVF_BOT ) ) {
@@ -2260,14 +2260,14 @@ void ClientSpawn(gentity_t *ent) {
 			if ( g_moneyRespawn.integer == 1 ) {
 				// Joe Kari: new minimum money at respawn formula //
 				if ( ( g_gametype.integer == GT_BR ) || ( g_gametype.integer == GT_RTP ) ) {
-					min_money = MIN_MONEY + ( client->ps.stats[ STAT_MONEY ] - m_teamlose.integer ) / 4 ;
+					min_money = g_startingMoney.integer + ( client->ps.stats[ STAT_MONEY ] - m_teamlose.integer ) / 4;
 				} else {
-					min_money = MIN_MONEY + client->ps.stats[ STAT_MONEY ] / 4 ;
+					min_money = g_startingMoney.integer + client->ps.stats[ STAT_MONEY ] / 4;
 				}
 			}
-			if ( min_money < MIN_MONEY ) {
+			if ( min_money < g_startingMoney.integer ) {
 				// former minimum money at respawn formula : //
-				min_money = MIN_MONEY ;
+				min_money = g_startingMoney.integer;
 			}
 		}
 

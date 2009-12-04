@@ -106,9 +106,8 @@ MONEY_SYSTEM-VALUES
 by Spoon
 -----------------------
 */
-#define	START_MONEY				20.00
 #define MAX_MONEY				200.00
-#define	MIN_MONEY				20.00
+#define	MIN_MONEY				"20"
 #define DU_MIN_MONEY			20.00
 #define SOCIAL_MONEY			28.00
 

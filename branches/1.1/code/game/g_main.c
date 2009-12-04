@@ -87,7 +87,7 @@ vmCvar_t	g_specsareflies;
 
 vmCvar_t	g_splitChat;
 
-//debugging
+vmCvar_t	g_startingMoney;
 vmCvar_t	m_maxreward;
 vmCvar_t	m_teamwin;
 vmCvar_t	m_teamlose;
@@ -354,6 +354,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_redteamscore, "g_redteamscore", "0", CVAR_SERVERINFO, 0, qfalse  },
 	{ &g_blueteamscore, "g_blueteamscore", "0", CVAR_SERVERINFO, 0, qfalse  },
 
+	{ &g_startingMoney, "g_startingMoney", MIN_MONEY, CVAR_ARCHIVE, 0, qtrue },
 	{ &m_maxreward, "m_maxreward", MAX_REWARD, CVAR_CHEAT, 0, qtrue },
 	{ &m_teamwin, "m_teamwin", ROUND_WIN_MONEY, CVAR_CHEAT, 0, qtrue },
 	{ &m_teamlose, "m_teamlose", ROUND_LOSE_MONEY, CVAR_CHEAT, 0, qtrue },
@@ -2295,8 +2296,8 @@ static void BankRobbed( void ){
 	for (i = 0; i < level.maxclients; i++){
 		gclient_t *client= &level.clients[i];
 
-		if(client->ps.stats[STAT_MONEY] < MIN_MONEY)
-			client->ps.stats[STAT_MONEY] = MIN_MONEY;
+		if(client->ps.stats[STAT_MONEY] < g_startingMoney.integer)
+			client->ps.stats[STAT_MONEY] = g_startingMoney.integer;
 
 		if(client->sess.sessionTeam == g_robteam ||
 			client->sess.sessionTeam == g_robteam+3){
@@ -2522,8 +2523,8 @@ void CheckRound(void){
 				for (i = 0; i < level.maxclients; i++){
 					gclient_t *client= &level.clients[i];
 
-					if(client->ps.stats[STAT_MONEY] < MIN_MONEY)
-						client->ps.stats[STAT_MONEY] = MIN_MONEY;
+					if(client->ps.stats[STAT_MONEY] < g_startingMoney.integer)
+						client->ps.stats[STAT_MONEY] = g_startingMoney.integer;
 
 					if(client->sess.sessionTeam == winner ||
 						client->sess.sessionTeam == winner+3){
@@ -2557,8 +2558,8 @@ void CheckRound(void){
 				for (i = 0; i < level.maxclients; i++){
 					gclient_t *client= &level.clients[i];
 
-					if(client->ps.stats[STAT_MONEY] < MIN_MONEY)
-						client->ps.stats[STAT_MONEY] = MIN_MONEY;
+					if(client->ps.stats[STAT_MONEY] < g_startingMoney.integer)
+						client->ps.stats[STAT_MONEY] = g_startingMoney.integer;
 
 					if(client->sess.sessionTeam != TEAM_SPECTATOR){
 
