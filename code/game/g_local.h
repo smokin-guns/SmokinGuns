@@ -1179,6 +1179,7 @@ extern	vmCvar_t	g_splitChat;
 
 //Spoon End
 
+extern	vmCvar_t	g_startingMoney;
 extern	vmCvar_t	m_maxreward;
 extern	vmCvar_t	m_teamwin;
 extern	vmCvar_t	m_teamlose;
