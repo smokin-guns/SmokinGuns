@@ -341,7 +341,7 @@ static cvarTable_t		cvarTable[] = {
 #ifndef SMOKINGUNS
 	{ &cg_drawCrosshair, "cg_drawCrosshair", "4", CVAR_ARCHIVE },
 #else
-	{ &cg_drawCrosshair, "cg_drawCrosshair", "1", CVAR_ARCHIVE },
+	{ &cg_drawCrosshair, "cg_drawCrosshair", "2", CVAR_ARCHIVE },
 #endif
 	{ &cg_drawCrosshairNames, "cg_drawCrosshairNames", "1", CVAR_ARCHIVE },
 	{ &cg_drawRewards, "cg_drawRewards", "1", CVAR_ARCHIVE },

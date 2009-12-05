@@ -6112,7 +6112,7 @@ void _UI_Init( qboolean inGameLoad ) {
 	// make sure people won't start without a crosshair when they
 	// upgrade to SG 1.1 (it defaulted to 8 in SG 1.0)
 	if (uiInfo.currentCrosshair >= NUM_CROSSHAIRS) {
-		uiInfo.currentCrosshair = 1;
+		uiInfo.currentCrosshair = 2;
 		trap_Cvar_SetValue("cg_drawCrosshair", uiInfo.currentCrosshair);
 	}
 #endif
@@ -6809,7 +6809,11 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_browserShowEmpty, "ui_browserShowEmpty", "1", CVAR_ARCHIVE },
 
 	{ &ui_brassTime, "cg_brassTime", "2500", CVAR_ARCHIVE },
-	{ &ui_drawCrosshair, "cg_drawCrosshair", "1", CVAR_ARCHIVE },
+#ifdef SMOKINGUNS
+	{ &ui_drawCrosshair, "cg_drawCrosshair", "2", CVAR_ARCHIVE },
+#else
+	{ &ui_drawCrosshair, "cg_drawCrosshair", "4", CVAR_ARCHIVE },
+#endif
 	{ &ui_drawCrosshairNames, "cg_drawCrosshairNames", "1", CVAR_ARCHIVE },
 	{ &ui_marks, "cg_marks", "1", CVAR_ARCHIVE },
 
