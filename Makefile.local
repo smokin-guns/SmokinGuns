@@ -40,7 +40,7 @@ USE_MP_UIDIR      = 1
 STANDALONE_CFLAGS = -DSMOKINGUNS -DSG_RELEASE=$(shell date +%Y%m%d)
 ########################################################################
 # Official release options
-VERSION           = 1.1b2
+VERSION           = 1.1b3
 USE_CODEC_VORBIS  = 0
 ########################################################################
 # Here some convenient defaults
