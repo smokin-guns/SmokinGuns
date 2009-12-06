@@ -246,6 +246,7 @@ vmCvar_t		cg_impactparticles;
 vmCvar_t		cg_gunsmoke;
 vmCvar_t		cg_addguns;
 vmCvar_t		cg_hitmsg;
+vmCvar_t		cg_hitfarmsg;
 vmCvar_t		cg_ownhitmsg;
 vmCvar_t		cg_playownflysound;
 vmCvar_t		cg_showescape;
@@ -504,6 +505,7 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_boostfps, "cg_boostfps", "1", CVAR_ARCHIVE },
 	{ &cg_drawdebug, "cg_drawdebug", "0", CVAR_CHEAT },
 	{ &cg_hitmsg, "cg_hitmsg", "1", CVAR_ARCHIVE },
+	{ &cg_hitfarmsg, "cg_hitfarmsg", "1", CVAR_ARCHIVE },
 	{ &cg_ownhitmsg, "cg_ownhitmsg", "1", CVAR_ARCHIVE },
 
 	//music volume
