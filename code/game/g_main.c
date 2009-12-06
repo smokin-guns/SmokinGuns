@@ -196,6 +196,11 @@ vmCvar_t	g_newShotgunPattern;
 vmCvar_t	g_roundNoMoveTime;
 
 vmCvar_t	g_startingWeapon;
+vmCvar_t	g_bulletDamageMode;
+vmCvar_t	g_bulletDamageAlert;
+vmCvar_t	g_bulletDamageALDRmidrangefactor;
+vmCvar_t	g_bulletDamageALDRmidpointfactor;
+vmCvar_t	g_bulletDamageALDRminifactor;
 
 // for storing the weapon properties config string
 vmCvar_t	g_weaponInfo;
@@ -368,6 +373,11 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_weaponInfo, "g_weaponInfo", "", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_startingWeapon, "g_startingWeapon", "2", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
+	{ &g_bulletDamageMode, "g_bulletDamageMode", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
+	{ &g_bulletDamageAlert, "g_bulletDamageAlert", "25", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_bulletDamageALDRmidrangefactor, "g_bulletDamageALDRmidrangefactor", "2", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_bulletDamageALDRmidpointfactor, "g_bulletDamageALDRmidpointfactor", "0.66", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_bulletDamageALDRminifactor, "g_bulletDamageALDRminifactor", "0.5", CVAR_ARCHIVE, 0, qtrue },
 #endif
 
 };

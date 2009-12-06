@@ -161,7 +161,7 @@ static void UpdateIPBans (void)
 			else
 				Q_strcat(ip, sizeof(ip), va("%i", b[j]));
 			Q_strcat(ip, sizeof(ip), (j<3) ? "." : " ");
-		}		
+		}
 		if (strlen(iplist_final)+strlen(ip) < MAX_CVAR_VALUE_STRING)
 		{
 			Q_strcat( iplist_final, sizeof(iplist_final), ip);
@@ -682,7 +682,7 @@ qboolean	ConsoleCommand( void ) {
 		CMD_WEAPON_INFO(damage);
 		return qtrue;
 	}
-	
+
 	if (Q_stricmp(cmd, "range") == 0) {
 		CMD_WEAPON_INFO(range);
 		return qtrue;
