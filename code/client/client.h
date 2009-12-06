@@ -441,6 +441,7 @@ extern	cvar_t	*cl_voipShowMeter;
 #ifdef SMOKINGUNS
 extern	cvar_t	*cl_voipShowSender;
 extern	cvar_t	*cl_voipSenderPos;
+extern	cvar_t	*cl_voipDefaultGain;
 #endif
 extern	cvar_t	*cl_voip;
 #endif
