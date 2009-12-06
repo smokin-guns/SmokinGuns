@@ -229,6 +229,12 @@ struct gentity_s {
 
 	// marks a spawnpoint as trio
 	qboolean trio;
+
+	// Tequila: Handle far shot event
+	float		base_damage;
+	qboolean	farshot;
+	float		damage_ratio;
+	int			noalerttime;
 #endif
 };
 
@@ -1099,6 +1105,11 @@ extern	vmCvar_t	sg_rtppoints;
 extern	vmCvar_t	g_deathcam;
 
 extern	vmCvar_t	g_startingWeapon;
+extern	vmCvar_t	g_bulletDamageMode;
+extern	vmCvar_t	g_bulletDamageAlert;
+extern	vmCvar_t	g_bulletDamageALDRmidrangefactor;
+extern	vmCvar_t	g_bulletDamageALDRmidpointfactor;
+extern	vmCvar_t	g_bulletDamageALDRminifactor;
 
 // for storing the weapon properties config string
 extern	vmCvar_t	g_weaponInfo;

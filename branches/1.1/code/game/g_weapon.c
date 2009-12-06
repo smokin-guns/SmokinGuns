@@ -355,7 +355,7 @@ SnapVectorTowards
 
 Round a vector to integers for more efficient network
 transmission, but make sure that it rounds towards a given point
-rather than blindly truncating.  This prevents it from truncating 
+rather than blindly truncating.  This prevents it from truncating
 into a wall.
 ======================
 */
@@ -458,17 +458,109 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage ) {
 //modify the damage by calculating the distance
 =================
 */
-float Modify_BulletDamage(float damage, int weapon, vec3_t start, vec3_t end){
-	float distance = Distance(start,end);
 
-	if(distance > bg_weaponlist[weapon].range){
-		damage -= (1/sqrt(bg_weaponlist[weapon].range/distance))*2;
+static float LegacyDamageReduction( float distance, float range ) {
+	// Smokin'Guns 1.0 way of bullet damage calculation
+	return (1/sqrt(range/distance))*2 ;
+}
+
+// Tequila: Bullet damage calculation alternative for Smokin'Guns v1.1b3
+#define DAMAGE_MAXRANGE_FACTOR 10
+static float AdvancedLinearDamageReduction( const float damage, const float distance, const float range ) {
+	float slope;
+	// Set current damage reduction to maximum damage reduction
+	float max_damage_red = damage - g_bulletDamageALDRminifactor.value*damage;
+	// Set damage reduction other the next range first part
+	float damage_red = g_bulletDamageALDRmidpointfactor.value * max_damage_red ;
+
+	// Check if distance is between range and g_bulletDamageALDRmidrangefactor*range
+	if ( distance < g_bulletDamageALDRmidrangefactor.value * range ) {
+		// Set slope for this first part as reduction by distance
+		slope = damage_red / ((g_bulletDamageALDRmidrangefactor.value - 1)*range);
+		// Then just apply the slope factor on the remaining distance
+		return slope * (distance - range);
 	}
 
-	//G_Printf("distance:%f, damage: %f org. damage: %f\n", distance, damage,
-	//	bg_weaponlist[weapon].damage);
+	// Check if distance is between g_bulletDamageALDRmidrangefactor*range and
+	// DAMAGE_MAXRANGE_FACTOR*range
+	if ( distance < DAMAGE_MAXRANGE_FACTOR * range ) {
+		// Set slope as first part damage reduction complement to maximum damage reduction
+		// reduced to the second part range
+		slope = (max_damage_red - damage_red)/((DAMAGE_MAXRANGE_FACTOR - g_bulletDamageALDRmidrangefactor.value) * range);
+		// Current damage reduction is the reduction damage at midrange point
+		// So, just add the linear reduction for that part
+		damage_red += slope * (distance - g_bulletDamageALDRmidrangefactor.value*range);
+		return damage_red;
+	}
+	// Otherwise, just return maximum damage reduction
+	return max_damage_red;
+}
 
-	return damage > 0 ? damage : 0 ;
+static float Modify_BulletDamage(float damage, int weapon, vec3_t start, vec3_t end){
+	float distance = Distance(start,end);
+	float range = (float)bg_weaponlist[weapon].range ;
+	float damage_mod = 0.0f;
+
+	if (distance<=range) {
+		return damage;
+	}
+
+	if (g_bulletDamageMode.integer == 1)
+		damage_mod = AdvancedLinearDamageReduction( damage, distance, range );
+	else
+		damage_mod = LegacyDamageReduction( distance, range );
+
+	if ( g_debugDamage.integer >= 2 ) {
+		G_Printf(S_COLOR_CYAN "%i: distance:%.1f, range: %i, org. damage: %.1f, mod. damage: -%.1f, ",
+			level.time, distance, (int)range, damage, damage_mod );
+		if (g_bulletDamageMode.integer == 1)
+			G_Printf("old mod. damage: -%.1f\n",
+				LegacyDamageReduction( distance, range ));
+		else
+			G_Printf("new (1) mod. damage: -%.1f\n",
+				AdvancedLinearDamageReduction( damage, distance, range ));
+	}
+
+	// Finally modify the damage
+	damage -= damage_mod ;
+
+	return damage > 0.0f ? damage : 0.0f ;
+}
+
+void CheckBulletDamage(gentity_t *ent, gentity_t *traceEnt, float damage) {
+	if (!g_bulletDamageAlert.value)
+		return;
+
+	if ( !ent || !traceEnt || !traceEnt->client || !ent->base_damage)
+		return;
+
+	if (damage < 0) {
+		if (ent->farshot) {
+			if (ent->noalerttime<level.time) {
+				//Alert client to come closer
+				gentity_t *tent = G_TempEntity( vec3_origin, EV_HIT_FAR );
+				tent->s.otherEntityNum = traceEnt->s.number;
+				tent->r.svFlags |= SVF_SINGLECLIENT;
+				tent->r.singleClient = ent->s.number;
+				tent->s.angles2[0] = ent->damage_ratio;
+
+				// Avoid to alert client too often, one second before next possible alert should be good
+				ent->noalerttime = level.time + 1000;
+			}
+			ent->base_damage = 0.0f;
+			ent->farshot = qfalse;
+		}
+		return;
+	}
+
+	// Check if damage was reduced, than store the reduction ratio
+	if (ent->base_damage > damage) {
+		float damage_red = ent->base_damage - damage;
+		ent->damage_ratio = damage_red / ent->base_damage * 100;
+		if (ent->damage_ratio < g_bulletDamageAlert.value)
+			return;
+		ent->farshot = qtrue;
+	}
 }
 
 /*
@@ -551,7 +643,7 @@ pistolfire:
 
 	if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 		//NT - make sure we un-time-shift the clients
-        goto untimeshift;
+		goto untimeshift;
 	}
 
 	// Tequila: Really don't shoot ourself
@@ -571,10 +663,13 @@ pistolfire:
 
 	traceEnt = &g_entities[ tr.entityNum ];
 
-	if ( traceEnt->takedamage){
+	if (traceEnt->takedamage){
+		ent->base_damage = damage ; // Keep current base damage
 		damage = Modify_BulletDamage(damage, weapon, ent->r.currentOrigin, tr.endpos);
+		CheckBulletDamage(ent,traceEnt,damage);
 
 		if (!damage) {
+			CheckBulletDamage(ent,traceEnt,-1); // Look to alert attacker to come closer
 			goto untimeshift;
 		}
 
@@ -612,9 +707,12 @@ pistolfire:
 				//do another trace
 				shaderNum = Weapon_Trace(&tr, tr.endpos, end, tr.entityNum);
 
+				ent->base_damage = damage ; // Keep current base damage
 				damage = Modify_BulletDamage(damage, weapon, ent->r.currentOrigin, tr.endpos);
+				CheckBulletDamage(ent,traceEnt,damage);
 
-				if ( damage < 1.0f ) {
+				if ( damage < 0.5f ) {
+					CheckBulletDamage(ent,traceEnt,-1); // Look to alert attacker to come closer
 					// Tequila comment: Stop anyway when no damage can be applied
 					goto untimeshift;
 				}
@@ -659,6 +757,7 @@ pistolfire:
 
 			G_Damage( traceEnt, ent, ent, forward, tr.endpos,
 				damage, 0, weapon);
+			CheckBulletDamage(ent,traceEnt,-1); // Look to alert attacker to come closer
 		} else {
 			G_Damage( traceEnt, ent, ent, forward, tr.endpos,
 				damage, 0, weapon);
@@ -887,10 +986,13 @@ shotgunfire:
 		gclient_t *client = traceEnt->client;
 		float	olddamage = damage;
 
+		ent->base_damage = damage; // Keep current base damage
 		damage = Modify_BulletDamage(damage, ent->client->ps.weapon, ent->r.currentOrigin,
 			tr.endpos);
+		CheckBulletDamage(ent,traceEnt,damage);
 
 		if (!damage) {
+			CheckBulletDamage(ent,traceEnt,-1); // Look to alert attacker to come closer
 			return qfalse;
 		}
 
@@ -927,9 +1029,12 @@ shotgunfire:
 
 				shaderNum = Weapon_Trace(&tr, tr.endpos, tr_end, tr.entityNum);
 
+				ent->base_damage = damage;
 				damage = Modify_BulletDamage(damage, ent->client->ps.weapon, ent->r.currentOrigin, tr.endpos);
+				CheckBulletDamage(ent,traceEnt,damage);
 
-				if ( damage < 1.0f ) {
+				if ( damage < 0.5f ) {
+					CheckBulletDamage(ent,traceEnt,-1); // Look to alert attacker to come closer
 					// Tequila comment: Stop when no damage can be applied
 					return qfalse;
 				}
@@ -990,6 +1095,7 @@ shotgunfire:
 			ent->s.eFlags |= EF_HIT_MESSAGE;
 
 			G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, 0, ent->client->ps.weapon);
+			CheckBulletDamage(ent,traceEnt,-1); // Look to alert attacker to come closer
 			return qtrue;
 		}
 
@@ -1104,13 +1210,13 @@ int ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, qbo
 	for( i=0; i<3; i++){
 		ent->s.angles2[i] = -1;
 	}
-	
+
 	if ( g_newShotgunPattern.integer ) {
-		
+
 		// Joe Kari: new experimental shotgun pattern //
-		
+
 		// generate the "random" spread pattern
-		
+
 		switch ( count )  {
 			case 14 :
 			case 28 :
@@ -1132,9 +1238,9 @@ int ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, qbo
 			extra_circle = (float)extra_center_pellet / (float)pellet_per_circle ;
 			max_spread_circle += extra_circle ;
 		}
-		
+
 		for ( i = - extra_center_pellet ; i < count - extra_center_pellet ; i++ ) {
-			
+
 			if ( extra_center_pellet > 0 )  {
 				if ( i < 0 )  {
 					current_spread_circle = 0 ;
@@ -1152,16 +1258,16 @@ int ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, qbo
 				current_spread_cell = i - current_spread_circle * current_pellet_per_circle ;
 			}
 			current_angle_shift = angle_shift + current_spread_circle * M_PI / (float)current_pellet_per_circle ;
-			
+
 			spread_dist = ( current_spread_circle + Q_random( &seed ) ) / max_spread_circle * bg_weaponlist[ent->client->ps.weapon].spread * 16 ;
 			// spread adjustement to keep the same spread feeling:
 			spread_dist *= 1.4f ;
-			
+
 			spread_angle = current_angle_shift + ( (float)current_spread_cell + Q_random( &seed ) ) * M_PI * 2.0f / (float)current_pellet_per_circle ;
-			
+
 			r = sin( spread_angle ) * spread_dist ;
 			u = cos( spread_angle ) * spread_dist ;
-			
+
 			VectorMA( origin, 8192 * 16, forward, end);
 			VectorMA (end, r, right, end);
 			VectorMA (end, u, up, end);
@@ -1175,9 +1281,9 @@ int ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, qbo
 			}
 
 		}
-		
+
 		// End (Joe Kari) //
-		
+
 	} else {
 		// generate the "random" spread pattern
 		for ( i = 0 ; i < count ; i++ ) {
@@ -1187,12 +1293,12 @@ int ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, qbo
 			VectorMA( origin, 8192 * 16, forward, end);
 			VectorMA (end, r, right, end);
 			VectorMA (end, u, up, end);
-			
+
 			if( ShotgunPellet( origin, end, ent)){
 				if((i+1) < 16)
 					playerhitcount |= (1 << (i+1));
 			}
-		
+
 		}
 	}
 

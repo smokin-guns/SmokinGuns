@@ -843,6 +843,7 @@ typedef enum {
 	EV_STOPLOOPINGSOUND,	// 115
 	EV_TAUNT,
 	EV_DEBUG_BULLET,
+	EV_HIT_FAR,
 	EV_NOTHING
 #endif
 
