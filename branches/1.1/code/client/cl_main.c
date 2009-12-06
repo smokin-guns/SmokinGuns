@@ -45,6 +45,7 @@ cvar_t	*cl_voipShowMeter;
 #ifdef SMOKINGUNS
 cvar_t  *cl_voipShowSender;
 cvar_t	*cl_voipSenderPos;
+cvar_t	*cl_voipDefaultGain;
 #endif
 cvar_t	*cl_voip;
 #endif
@@ -3266,6 +3267,7 @@ void CL_Init( void ) {
 #ifdef SMOKINGUNS
 	cl_voipShowSender = Cvar_Get ("cl_voipShowSender", "1", CVAR_ARCHIVE);
 	cl_voipSenderPos = Cvar_Get ("cl_voipSenderPos", "0", CVAR_ARCHIVE);
+	cl_voipDefaultGain = Cvar_Get ("cl_voipDefaultGain", "0", CVAR_ARCHIVE);
 #endif
 
 	// This is a protocol version number.
