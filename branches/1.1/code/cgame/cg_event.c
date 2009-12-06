@@ -101,6 +101,16 @@ const char	*CG_PlaceString( int rank ) {
 }
 
 #ifdef SMOKINGUNS
+static void CG_Hit_Far_Message( float ratio, int otherEntityNum ) {
+	if ( otherEntityNum < 0 || otherEntityNum >= MAX_CLIENTS )
+		return;
+
+	if(!cg_hitmsg.value || ratio<cg_hitmsg.value)
+		return;
+
+	CG_Printf("^xAt this range, your weapon's damage was reduced to %.1f%%\n", 100-ratio);
+}
+
 static void CG_Hit_Message( entityState_t *ent ){
 	const char		*info;
 	char			name[32];
@@ -1958,6 +1968,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_DEBUG_BULLET:
 		DEBUGNAME("EV_DEBUG_BULLET");
 		CG_BulletTracer( es->pos.trBase, es->origin2, es->eventParm, es->otherEntityNum );
+		break;
+
+	case EV_HIT_FAR:
+		DEBUGNAME("EV_HIT_FAR");
+		CG_Hit_Far_Message( es->angles2[0], es->otherEntityNum );
 		break;
 
 	case EV_NOTHING:

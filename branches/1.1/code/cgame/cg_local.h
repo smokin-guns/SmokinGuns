@@ -1789,6 +1789,7 @@ extern	vmCvar_t		cg_impactparticles;
 extern	vmCvar_t		cg_gunsmoke;
 extern	vmCvar_t		cg_addguns;
 extern	vmCvar_t		cg_hitmsg;
+extern	vmCvar_t		cg_hitfarmsg;
 extern	vmCvar_t		cg_ownhitmsg;
 extern	vmCvar_t		cg_playownflysound;
 extern	vmCvar_t		cg_showescape;
