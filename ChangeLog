@@ -44,11 +44,12 @@ Changes since SG 1.0-20081231
 - callvote string is logged in server log
 - new "cancelvote" server side command, can only be used by admins
 - support for more crosshair
-- support for showing who is the VoIP speaker, thanks to tremfusion team:
+- support for showing who is the VoIP speaker and default voip gain, thanks to tremfusion team:
   - Thanks Mercury and Amanieu
   - Added cl_voipShowSender and cl_voipSenderPos cvar:
     - cl_voipShowSender must be set
-	- cl_voipSenderPos can be set from 0 to 5 to choose where the sender will be shown on the screen
+    - cl_voipSenderPos can be set from 0 to 5 to choose where the sender will be shown on the screen
+  - Added cl_voipDefaultGain to help tuning voip
 - support for shooter_dynamite and shooter_molotov map entities
 - Doors won't try to move players now
 - support UI item to select OpenAL device from available OpenAL devices

@@ -390,7 +390,7 @@ void CL_SystemInfoChanged( void ) {
 	s = systemInfo;
 	while ( s ) {
 		int cvar_flags;
-		
+
 		Info_NextPair( &s, key, value );
 		if ( !key[0] ) {
 			break;
@@ -404,7 +404,7 @@ void CL_SystemInfoChanged( void ) {
 				Com_Printf(S_COLOR_YELLOW "WARNING: Server sent invalid fs_game value %s\n", value);
 				continue;
 			}
-				
+
 			gameSet = qtrue;
 		}
 
@@ -769,7 +769,11 @@ void CL_ParseVoip ( msg_t *msg ) {
 			Com_DPrintf("VoIP: playback %d bytes, %d samples, %d frames\n",
 			            written * 2, written, i);
 			S_RawSamples(sender + 1, written, clc.speexSampleRate, 2, 1,
+#ifndef SMOKINGUNS
 			             (const byte *) decoded, clc.voipGain[sender]);
+#else
+			             (const byte *) decoded, ( clc.voipGain[sender] + cl_voipDefaultGain->value ) );
+#endif
 			written = 0;
 		}
 
@@ -794,7 +798,11 @@ void CL_ParseVoip ( msg_t *msg ) {
 
 	if (written > 0) {
 		S_RawSamples(sender + 1, written, clc.speexSampleRate, 2, 1,
+#ifndef SMOKINGUNS
 		             (const byte *) decoded, clc.voipGain[sender]);
+#else
+		             (const byte *) decoded, ( clc.voipGain[sender] + cl_voipDefaultGain->value ) );
+#endif
 	}
 
 	clc.voipIncomingSequence[sender] = sequence + frames;
