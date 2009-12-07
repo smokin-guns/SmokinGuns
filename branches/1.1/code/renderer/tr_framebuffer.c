@@ -84,6 +84,7 @@ struct r_fbuffer {
 
 qboolean needBlur = qfalse;			//is set if effects need a blur
 qboolean rendered = qfalse;			//is set when FBO has been rendered
+qboolean useFrameBuffer = qfalse;	//is set after FBO is safely initialized
 
 struct r_fbuffer screenBuffer;
 struct r_fbuffer gaussblurBuffer;
@@ -137,23 +138,15 @@ qboolean R_CheckFramebufferStatus( const char* tag )
 //two functions to bind and unbind the main framebuffer, generally just to be
 //called externaly
 void R_FrameBufferBind(void) {
-	if (!framebufferSupported) {
+	if (!useFrameBuffer)
 		return;
-	}
-	if (r_ext_framebuffer->integer != 1) {
-		return;
-	}
 
 	qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, screenBuffer.fbo);
 }
 
 void R_FrameBufferUnBind(void) {
-	if (!framebufferSupported) {
+	if (!useFrameBuffer)
 		return;
-	}
-	if (r_ext_framebuffer->integer != 1) {
-		return;
-	}
 
 	qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }
@@ -163,10 +156,10 @@ void R_SetGL2DSize (int width, int height) {
 	qglViewport( 0, 0, width, height );
 	qglScissor( 0, 0, width, height );
 	qglMatrixMode(GL_PROJECTION);
-    qglLoadIdentity ();
+	qglLoadIdentity ();
 	qglOrtho (0, width, height, 0, 0, 1);
 	qglMatrixMode(GL_MODELVIEW);
-    qglLoadIdentity ();
+	qglLoadIdentity ();
 
 	GL_State( GLS_DEPTHTEST_DISABLE );
 	qglDisable( GL_BLEND );
@@ -587,38 +580,38 @@ qboolean R_TestFbuffer_texD( void ) {
 // for shader debugging
 void printShaderInfoLog(GLuint obj)
 {
-    int infologLength = 0;
-    int charsWritten  = 0;
-    char *infoLog;
+	int infologLength = 0;
+	int charsWritten  = 0;
+	char *infoLog;
 
 	qglGetShaderiv(obj, GL_INFO_LOG_LENGTH,&infologLength);
 
-    if (infologLength > 1)
-    {
-        infoLog = (char *)ri.Malloc(infologLength);
-        qglGetShaderInfoLog(obj, infologLength, &charsWritten, infoLog);
+	if (infologLength > 1)
+	{
+		infoLog = (char *)ri.Malloc(infologLength);
+		qglGetShaderInfoLog(obj, infologLength, &charsWritten, infoLog);
 		ri.Printf( PRINT_ALL, "----- Shader InfoLog -----\n" );;
 		ri.Printf( PRINT_ALL, infoLog );
-        ri.Free(infoLog);
-    }
+		ri.Free(infoLog);
+	}
 }
 
 void printProgramInfoLog(GLuint obj)
 {
-    int infologLength = 0;
-    int charsWritten  = 0;
-    char *infoLog;
+	int infologLength = 0;
+	int charsWritten  = 0;
+	char *infoLog;
 
 	qglGetProgramiv(obj, GL_INFO_LOG_LENGTH,&infologLength);
 
-    if (infologLength > 1)
-    {
-        infoLog = (char *)ri.Malloc(infologLength);
-        qglGetProgramInfoLog(obj, infologLength, &charsWritten, infoLog);
+	if (infologLength > 1)
+	{
+		infoLog = (char *)ri.Malloc(infologLength);
+		qglGetProgramInfoLog(obj, infologLength, &charsWritten, infoLog);
 		ri.Printf( PRINT_ALL, "----- Program InfoLog -----\n" );;
 		ri.Printf( PRINT_ALL, infoLog );
-        ri.Free(infoLog);
-    }
+		ri.Free(infoLog);
+	}
 }
 
 void R_Build_glsl(struct glslobj *obj) {
@@ -874,6 +867,9 @@ void R_FrameBuffer_Init( void ) {
 	int screenbuff_flags = 0x00;
 	int status;
 
+	// Framebuffer will only be used if safely initialized
+	useFrameBuffer = qfalse;
+
 	needBlur = qfalse;
 	if (!framebufferSupported || !glslSupported) {
 		ri.Printf( PRINT_WARNING, "WARNING: Framebuffer rendering path disabled\n");
@@ -948,7 +944,7 @@ void R_FrameBuffer_Init( void ) {
 		Cbuf_AddText( "vid_restart\n" ); // Reset the video without FBO
 		return;
 	}
-	
+
 	// Load GLSL programs
 	R_GLSLProgs_Init();
 
@@ -965,15 +961,14 @@ void R_FrameBuffer_Init( void ) {
 	R_FrameBuffer_BlurInit();
 
 	qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, *screenBuffer.front);
+
+	// Now framebuffer is initialized, we can safely use it
+	useFrameBuffer = qtrue;
 }
 
 void R_FrameBuffer_BeginFrame( void ) {
-	if (!framebufferSupported || !glslSupported) {
+	if (!useFrameBuffer)
 		return;
-	}
-	if (r_ext_framebuffer->integer != 1) {
-		return;
-	}
 
 	// Be sure to reset the frame buffer
 	if (rendered)
@@ -987,12 +982,9 @@ void R_FrameBuffer_EndFrame( void ) {
 	qboolean screenDrawDone = 0;
 	GLuint *srcBuffer ;
 
-	if (!framebufferSupported || !glslSupported) {
+	if (!useFrameBuffer)
 		return;
-	}
-	if (r_ext_framebuffer->integer != 1) {
-		return;
-	}
+
 	if (rendered) {
 		return;
 	}
@@ -1044,12 +1036,9 @@ void R_FrameBuffer_EndFrame( void ) {
 }
 
 void R_FrameBuffer_ResetDraw( void ) {
-	if (!framebufferSupported || !glslSupported) {
+	if (!useFrameBuffer)
 		return;
-	}
-	if (r_ext_framebuffer->integer != 1) {
-		return;
-	}
+
 	//We re-bind our framebuffer so everything gets rendered into it.
 	qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, screenBuffer.fbo);
 	glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
@@ -1060,12 +1049,9 @@ void R_FrameBuffer_ResetDraw( void ) {
 
 void R_FrameBuffer_Shutdown( void ) {
 	//cleanup
-	if (!framebufferSupported || !glslSupported) {
+	if (!useFrameBuffer)
 		return;
-	}
-	if (r_ext_framebuffer->integer != 1) {
-		return;
-	}
+
 	qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
 	if (r_ext_framebuffer_bloom->integer == 1) {
@@ -1077,7 +1063,7 @@ void R_FrameBuffer_Shutdown( void ) {
 	if ( r_ext_framebuffer_rotoscope->integer == 1) {
 		R_FrameBuffer_RotoDelete();
 	}
-	
+
 	//unload GLSL Programs
 	R_GLSLProgs_Delete();
 
