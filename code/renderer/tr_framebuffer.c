@@ -85,6 +85,9 @@ struct r_fbuffer {
 qboolean needBlur = qfalse;			//is set if effects need a blur
 qboolean rendered = qfalse;			//is set when FBO has been rendered
 qboolean useFrameBuffer = qfalse;	//is set after FBO is safely initialized
+qboolean useBloomEffect = qfalse;	//is set after bloom effect is initialized
+qboolean useRotoscopeEffect = qfalse;//is set after rotoscope effect is initialized
+qboolean useRotoZEdgeEffect = qfalse;//is set after rotoscope zedge effect is selected
 
 struct r_fbuffer screenBuffer;
 struct r_fbuffer gaussblurBuffer;
@@ -765,7 +768,7 @@ void R_FrameBuffer_RotoInit( struct r_fbuffer *src ) {
 	glslRoto.fragment_glsl = ri.Malloc(sizeof(char *) * glslRoto.frag_numSources);
 	glslRoto.fragment_glsl[0] = R_GLSLGetProgByName("glslToonColour");
 
-	if ((r_ext_framebuffer_rotoscope_zedge->integer) && (src->modeFlags & FB_ZTEXTURE)) {
+	if (useRotoZEdgeEffect) {
 		glslRoto.fragment_glsl[1] = R_GLSLGetProgByName("glslSobelZ");
 		glslRoto.fragment_glsl[2] = R_GLSLGetProgByName("glslRotoscopeZ");
 	} else {
@@ -793,7 +796,7 @@ void R_FrameBuffer_RotoDraw( struct r_fbuffer *src, GLuint *srcTex ) {
 	loc = qglGetUniformLocation(program, "texelSize");
 	qglUniform2f(loc, 1.0 / glConfig.vidWidth, 1.0 / glConfig.vidHeight);
 
-	if ((r_ext_framebuffer_rotoscope_zedge->integer) && (src->modeFlags & FB_ZTEXTURE)) {
+	if (useRotoZEdgeEffect) {
 		R_DrawQuadMT(	*srcTex, *src->depth,
 						glConfig.vidWidth, glConfig.vidHeight);
 	} else {
@@ -869,6 +872,9 @@ void R_FrameBuffer_Init( void ) {
 
 	// Framebuffer will only be used if safely initialized
 	useFrameBuffer = qfalse;
+	useBloomEffect = qfalse;
+	useRotoscopeEffect = qfalse;
+	useRotoZEdgeEffect = qfalse;
 
 	needBlur = qfalse;
 	if (!framebufferSupported || !glslSupported) {
@@ -926,13 +932,14 @@ void R_FrameBuffer_Init( void ) {
 
 	if ((depthTextureSupported) && (r_ext_framebuffer_rotoscope_zedge->integer)) {
 		screenbuff_flags |= FB_ZTEXTURE;
+		useRotoZEdgeEffect = qtrue;
 	}
 	screenbuff_flags |= FB_BACKBUFFER;
 
 	screenbuff_flags |= FB_ZBUFFER;
 
 	//create our main frame buffer
-	status = R_CreateFBuffer( 	&screenBuffer, glConfig.vidWidth,
+	status = R_CreateFBuffer(	&screenBuffer, glConfig.vidWidth,
 								glConfig.vidHeight, screenbuff_flags);
 
 	if (status) {
@@ -951,10 +958,12 @@ void R_FrameBuffer_Init( void ) {
 	//init our effects
 	if (r_ext_framebuffer_rotoscope->integer == 1) {
 		R_FrameBuffer_RotoInit(&screenBuffer);
+		useRotoscopeEffect = qtrue;
 	}
 
 	if (r_ext_framebuffer_bloom->integer == 1) {
 		R_FrameBuffer_BloomInit();
+		useBloomEffect = qtrue;
 	}
 	//we don't need an if here, if any effects before need a blur then this
 	//auto detects that its needed
@@ -1001,8 +1010,8 @@ void R_FrameBuffer_EndFrame( void ) {
 
 	srcBuffer = screenBuffer.front;
 
-	if (r_ext_framebuffer_rotoscope->integer == 1) {
-		if (r_ext_framebuffer_bloom->integer == 1) {
+	if (useRotoscopeEffect) {
+		if (useBloomEffect) {
 			//we need to draw to the back buffer
 			glDrawBuffer(GL_COLOR_ATTACHMENT1_EXT);
 			R_FrameBuffer_RotoDraw(&screenBuffer, srcBuffer);
@@ -1020,7 +1029,7 @@ void R_FrameBuffer_EndFrame( void ) {
 	//call the blur code, it auto detects weather its needed :)
 	R_FrameBuffer_BlurDraw(srcBuffer);
 
-	if (r_ext_framebuffer_bloom->integer == 1) {
+	if (useBloomEffect) {
 		qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		R_FrameBuffer_BloomDraw(srcBuffer);
 		screenDrawDone = 1;
@@ -1054,13 +1063,13 @@ void R_FrameBuffer_Shutdown( void ) {
 
 	qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
-	if (r_ext_framebuffer_bloom->integer == 1) {
+	if (useBloomEffect) {
 		R_FrameBuffer_BloomDelete();
 	}
 	if (needBlur) {
 		R_FrameBuffer_BlurDelete();
 	}
-	if ( r_ext_framebuffer_rotoscope->integer == 1) {
+	if (useRotoscopeEffect) {
 		R_FrameBuffer_RotoDelete();
 	}
 
