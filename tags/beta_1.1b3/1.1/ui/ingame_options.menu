@@ -1,0 +1,373 @@
+#include "ui/menudef.h"
+
+{
+\\ SETUP MENU \\
+#define ROW1 70
+#define ROW2 300
+#define ROW2B 428
+
+menuDef {
+    	name "ingame_options"
+    	visible 0
+    	fullscreen 0
+	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+    	rect 128 0 500 300
+    	focusColor 1 .75 0 1
+    	style 1
+	disableColor .5 .5 .5 0
+
+itemDef {
+	name window
+	rect 0 0 500 300
+	ownerdraw UI_INGAME_RECT
+	visible 1
+	decoration
+	}
+
+// FRAME	//
+
+	itemDef {
+      	name other			
+      	style 1
+	text "Game"
+	rect 100 30 128 20
+      	textalign ITEM_ALIGN_CENTER
+      	textalignx 64 
+      	textaligny 20
+	textscale .3
+      	forecolor 1 .75 0 1
+      	visible 1
+	decoration
+    	}
+
+	itemDef {
+      		name options
+		group grpOptions
+      		type ITEM_TYPE_YESNO
+		text "Identify Target:"
+		cvar "cg_drawCrosshairNames"
+		rect ROW1 50 192 18
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .28
+      		forecolor 1 1 1 1
+      		visible 1 
+    		}
+
+	itemDef {
+      		name options
+		group grpOptions
+      		type ITEM_TYPE_YESNO
+		text "Auto Download:"
+		cvar "cl_allowDownload"
+		rect ROW1 70 192 18
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .28
+      		forecolor 1 1 1 1
+      		visible 1 
+    		}
+	itemDef {
+      		name options
+		group grpOptions
+      		type ITEM_TYPE_YESNO
+		text "Show FPS:"
+		cvar "cg_drawfps"
+		rect ROW1 90 192 18
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .28
+      		forecolor 1 1 1 1
+      		visible 1 
+    		}
+	itemDef {
+      		name options
+		group grpOptions
+      		type ITEM_TYPE_YESNO
+		text "Show Time:"
+		cvar "cg_drawTimer"
+		rect ROW1 110 192 18
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .28
+      		forecolor 1 1 1 1
+      		visible 1 
+    		}
+
+	itemDef {
+      		name options
+		group grpOptions
+      		type ITEM_TYPE_YESNO
+		text "Taunts Off:"
+		cvar "cg_noTaunt"
+		rect ROW1 130 192 18
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .28      
+      		forecolor 1 1 1 1
+      		visible 1 
+    		}
+	itemDef {
+      		name options
+		group grpOptions
+      		type ITEM_TYPE_YESNO
+		text "Team Chats Only:"
+		cvar "cg_teamChatsOnly"
+		rect ROW1 150 192 18
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .28      
+      		forecolor 1 1 1 1
+      		visible 1 
+    		}
+
+	itemDef {
+      		name options
+		group grpOptions
+      		type ITEM_TYPE_YESNO
+		text "In Game Video:"
+		cvar "r_inGameVideo"
+		rect ROW1 170 192 18
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .28     
+      		forecolor 1 1 1 1
+      		visible 1 
+    		}
+	itemDef {
+      		name options
+		group grpOptions
+      		type ITEM_TYPE_YESNO
+		text "Show Hit Message(Target):"
+		cvar "cg_hitmsg"
+		rect ROW1 190 192 18
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .28     
+      		forecolor 1 1 1 1
+      		visible 1 
+    		}
+	itemDef {
+      		name options
+		group grpOptions
+      		type ITEM_TYPE_YESNO
+		text "Show Hit Message(Myself):"
+		cvar "cg_ownhitmsg"
+		rect ROW1 210 192 18
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .28     
+      		forecolor 1 1 1 1
+      		visible 1 
+    		}
+	itemDef {
+      		name options
+		group grpOptions
+      		type ITEM_TYPE_YESNO
+		text "Play Own Flysound:"
+		cvar "cg_flysound"
+		rect ROW1 230 192 18
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .28     
+      		forecolor 1 1 1 1
+      		visible 1 
+    		}
+
+	itemDef {
+      		name options
+		group grpOptions
+      		type ITEM_TYPE_YESNO
+		text "Indicate BR-Escape:"
+		cvar "cg_showescape"
+		rect ROW1 250 192 18
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .28     
+      		forecolor 1 1 1 1
+      		visible 1 
+    		}
+	
+
+// PERFORMANCE
+	
+	itemDef {
+      	name other			
+      	style 1
+	text "Performance"
+	rect 330 35 128 20
+      	textalign ITEM_ALIGN_CENTER
+      	textalignx 64 
+      	textaligny 20
+	textscale .3
+      	forecolor 1 .75 0 1
+      	visible 1
+	decoration
+    	}
+
+	itemDef {
+      		name options
+		group grpOptions
+      		type ITEM_TYPE_YESNO
+		text "Simple Items:"
+		cvar "cg_simpleItems"
+		rect ROW2 55 192 18
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .28
+      		forecolor 1 1 1 1
+      		visible 1 
+    		}
+
+	itemDef {
+      		name options
+		group grpOptions
+      		type ITEM_TYPE_YESNO
+		text "Marks On Walls:"
+		cvar "cg_marks"
+		rect ROW2 75 192 18
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .28
+      		forecolor 1 1 1 1
+      		visible 1 
+    		}
+
+	itemDef {
+      		name options
+		group grpOptions
+      		type ITEM_TYPE_YESNO
+		text "Dynamic Lights:"
+		cvar "r_dynamiclight"
+		rect ROW2 95 192 18
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .28
+      		forecolor 1 1 1 1
+      		visible 1 
+    		}
+
+itemDef {
+      		name options
+		group grpOptions
+      		type ITEM_TYPE_YESNO	
+		text "Additional Guns:"
+		cvar "cg_addguns"
+		rect ROW2 115 192 18
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .28    
+      		forecolor 1 1 1 1
+      		visible 1  
+	}
+
+itemDef {
+      		name options
+		group grpOptions
+      		type ITEM_TYPE_YESNO	
+		text "Detailed Gunsmoke:"
+		cvar "cg_gunsmoke"
+		rect ROW2 135 192 18
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .28    
+      		forecolor 1 1 1 1
+      		visible 1  
+	}
+
+itemDef {
+      		name options
+		group grpOptions
+      		type ITEM_TYPE_MULTI	
+		text "Particles:"
+		cvar "cg_impactparticles"
+		cvarFloatList { "None" 0 "Few" 1 "Normal" 2 }
+		rect ROW2 155 192 18
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .28    
+      		forecolor 1 1 1 1
+      		visible 1  
+	}
+
+itemDef {
+      		name options
+		group grpOptions
+      		type ITEM_TYPE_YESNO
+		text "Low Quality Sky:"
+		cvar "r_fastsky"
+		rect ROW2 175 192 18
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .28
+      		forecolor 1 1 1 1
+      		visible 1 
+    		}
+
+	itemDef {
+      		name options
+		group grpOptions
+      		type ITEM_TYPE_YESNO
+		text "Sync Every Frame:"
+		cvar "weapon 5"
+		rect ROW2 195 192 18
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .28
+      		forecolor 1 1 1 1
+      		visible 1 
+    		}
+	
+	itemDef {
+      		name options
+		group grpOptions
+      		type ITEM_TYPE_YESNO
+		text "Force Player Models:"
+		cvar "cg_forceModel"
+		rect ROW2 215 192 18
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .28
+      		forecolor 1 1 1 1
+      		visible 1 
+    		}
+
+	itemDef {
+      		name options
+		group grpOptions
+      		type ITEM_TYPE_YESNO
+		text "Glowing Flares:"
+		cvar "cg_glowflares"
+		rect ROW2 235 192 18
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .28
+      		forecolor 1 1 1 1
+      		visible 1 
+    		}
+
+}
+
+
+}
