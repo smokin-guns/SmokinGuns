@@ -1131,7 +1131,7 @@ extern	cvar_t	*r_GLlibCoolDownMsec;
 extern cvar_t *r_ext_framebuffer;
 extern cvar_t *r_ext_framebuffer_bloom;
 extern cvar_t *r_ext_framebuffer_blur_size;
-extern cvar_t *r_ext_framebuffer_blur_ammount;
+extern cvar_t *r_ext_framebuffer_blur_amount;
 extern cvar_t *r_ext_framebuffer_blur_samples;
 
 extern cvar_t *r_ext_framebuffer_bloom_sharpness;
