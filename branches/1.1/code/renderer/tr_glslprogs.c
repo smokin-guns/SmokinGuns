@@ -328,29 +328,44 @@ const int max_progs = sizeof(glsl_progs)/sizeof(glsl_progs[0]);
 void R_GLSLProgs_Init( void ) {
 	int i = max_progs;
 	int len ;
-	fileHandle_t fh;
+	void *buffer;
 
 	if (!glslSupported) {
 		return;
 	}
 
 	while (i--) {
-		len = FS_FOpenFileRead(va("%s.cfg",glsl_progs[i].name),&fh,qtrue) + 1;
+
+		if (com_developer && com_developer->integer) {
+			len = ri.FS_ReadFile( va("%s.cfg",glsl_progs[i].name), &buffer );
+		}
+
+		if (len<0) {
+			len = ri.FS_ReadFile( va("scripts/%s.glsl",glsl_progs[i].name), &buffer );
+			if (len>0)
+				ri.Printf( PRINT_DEVELOPER, "Loading scripts/%s.glsl GLSL program file (%i bytes)\n", glsl_progs[i].name, len );
+		} else {
+			ri.Printf( PRINT_DEVELOPER, "Loading %s.cfg GLSL program file (%i bytes)\n", glsl_progs[i].name, len );
+		}
+
 		if (len>0) {
-			int *buffer ;
-			buffer = ri.Malloc(len);
-			ri.Printf( PRINT_ALL, "Loading %s GLSL program from file (%i bytes)\n", glsl_progs[i].name, len );
-			if ( FS_Read( buffer, len, fh ) != len ) {
-				ri.Free(buffer);
+			if ( strlen( buffer ) != len ) {
+				ri.FS_FreeFile(buffer);
 				glsl_progs[i].program = glsl_progs[i].default_program ;
-				// TODO Output error message
+				ri.Printf( PRINT_WARNING, "Can't load %s GLSL program from file\n", glsl_progs[i].name );
 			} else {
-				buffer[len-1] = 0 ;
 				glsl_progs[i].program = (char *)buffer;
-				ri.Printf( PRINT_ALL, "%s\n", buffer );
+				ri.Printf( PRINT_ALL, "Loaded %s GLSL program (%i bytes)\n", glsl_progs[i].name, len );
+				if (com_developer && com_developer->integer) {
+					ri.Printf( PRINT_DEVELOPER, "==== %s GLSL source ====\n%s\n", glsl_progs[i].name, glsl_progs[i].program );
+				}
 			}
 		} else {
+			if (buffer && !len)
+				ri.FS_FreeFile(buffer);
 			glsl_progs[i].program = glsl_progs[i].default_program ;
+			ri.Printf( PRINT_ALL, "Using default %s GLSL program (%i bytes)\n",
+				glsl_progs[i].name, strlen(glsl_progs[i].program) );
 		}
 	}
 }
@@ -365,7 +380,7 @@ void R_GLSLProgs_Delete( void ) {
 	while (i--) {
 		if (glsl_progs[i].program == glsl_progs[i].default_program)
 			continue ;
-		ri.Free((void *)glsl_progs[i].program);
+		ri.FS_FreeFile((void *)glsl_progs[i].program);
 	}
 }
 
@@ -382,6 +397,6 @@ const char *R_GLSLGetProgByName( const char *name ) {
 		}
 	}
 
-	// TODO Put error message for developer here
+	ri.Printf( PRINT_DEVELOPER, "Bug!!! You're asking for unknown '%s' GLSL program\n", name );
 	return NULL ;
 }
