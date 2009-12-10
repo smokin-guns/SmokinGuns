@@ -1,22 +1,22 @@
 /*
- *      tr_glslprogs.c
+ *  tr_glslprogs.c
  *
- *      Copyright 2007 Gord Allott <gordallott@gmail.com>
+ *  Copyright 2007 Gord Allott <gordallott@gmail.com>
  *
- *      This program is free software; you can redistribute it and/or modify
- *      it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation; either version 2 of the License, or
- *      (at your option) any later version.
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- *      This program is distributed in the hope that it will be useful,
- *      but WITHOUT ANY WARRANTY; without even the implied warranty of
- *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *      GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *      You should have received a copy of the GNU General Public License
- *      along with this program; if not, write to the Free Software
- *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- *      MA 02110-1301, USA.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ *  MA 02110-1301, USA.
  */
 
 #include "tr_local.h"
@@ -38,16 +38,16 @@
 
 gslsProg_t glsl_progs[] =
 {
-    {
-        "glslBase_vert", NULL, "\n\
+	{
+		"glslBase_vert", NULL, "\n\
 void main() {\n\
   gl_TexCoord[0] = gl_MultiTexCoord0;\n\
   gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n\
 }\
 "
-    },
-    {
-        "glslGauss9", NULL, "\n\
+	},
+	{
+		"glslGauss9", NULL, "\n\
 #define NK9_0 0.17857142857142855\n\
 #define NK9_1 0.1607142857142857\n\
 #define NK9_2 0.14285714285714285\n\
@@ -76,9 +76,9 @@ vec4 GaussPass(sampler2D src, vec2 coord, vec2 blrsize) {\n\
 \n\
 }\n\
 "
-    },
-    {
-        "glslGauss7", NULL, "\n\
+	},
+	{
+		"glslGauss7", NULL, "\n\
 #define NK7_0 0.19230769230769229\n\
 #define NK7_1 0.18269230769230768\n\
 #define NK7_2 0.15384615384615385\n\
@@ -104,9 +104,9 @@ vec4 GaussPass(sampler2D src, vec2 coord, vec2 blrsize) {\n\
 \n\
 }\n\
 "
-    },
-    {
-        "glslGauss5", NULL, "\n\
+	},
+	{
+		"glslGauss5", NULL, "\n\
 #define NK5_0 0.33333333\n\
 #define NK5_1 0.26666666\n\
 #define NK5_2 0.06666666\n\
@@ -129,9 +129,9 @@ vec4 GaussPass(sampler2D src, vec2 coord, vec2 blrsize) {\n\
   \n\
 }\n\
 "
-    },
-    {
-        "glslBlurMain", NULL, "\n\
+	},
+	{
+		"glslBlurMain", NULL, "\n\
 uniform sampler2D srcSampler;\n\
 uniform vec2 blurSize;\n\
 void main()\n\
@@ -139,21 +139,21 @@ void main()\n\
   gl_FragColor = GaussPass(srcSampler, gl_TexCoord[0].xy, blurSize);\n\
 }\n\
 "
-    },
-    {
-        "glslSigScreen", NULL, "\n\
+	},
+	{
+		"glslSigScreen", NULL, "\n\
 uniform sampler2D srcSampler;\n\
 uniform sampler2D blurSampler;\n\
 //#define sharpness 0.75 \n\
-uniform float     sharpness;\n\
+uniform float	 sharpness;\n\
 //#define brightness 0.85\n\
-uniform float     brightness;\n\
-#define SIGMOIDAL_BASE          2.0\n\
-#define SIGMOIDAL_RANGE         20.0\n\
+uniform float	 brightness;\n\
+#define SIGMOIDAL_BASE        2.0\n\
+#define SIGMOIDAL_RANGE      20.0\n\
 \n\
 void main()\n\
 {\n\
-	\n\
+    \n\
   vec4 blurcolor 	= texture( blurSampler, gl_TexCoord[0].xy);\n\
   vec4 basecolor 	= texture( srcSampler, gl_TexCoord[0].xy);\n\
   \n\
@@ -167,9 +167,9 @@ void main()\n\
   gl_FragColor = 1.0 - ((1.0 - basecolor) * (1.0 - val));\n\
 }\n\
 "
-    },
-    {
-        "glslSobel", NULL, "\n\
+	},
+	{
+		"glslSobel", NULL, "\n\
 float sobel(sampler2D tex, vec2 basecoord, vec2 texel_size) {\n\
   /* computes a sobel value from the surrounding pixels */\n\
   vec4 hori, vert;\n\
@@ -199,9 +199,9 @@ float sobel(sampler2D tex, vec2 basecoord, vec2 texel_size) {\n\
   \n\
 }\n\
 "
-    },
-    {
-        "glslSobelZ", NULL, "\n\
+	},
+	{
+		"glslSobelZ", NULL, "\n\
 float sobel(sampler2D tex, vec2 basecoord, vec2 texel_size) {\n\
   /* computes a sobel value from the surrounding pixels */\n\
   vec4 hori, vert;\n\
@@ -236,9 +236,9 @@ float sobel(sampler2D tex, vec2 basecoord, vec2 texel_size) {\n\
   \n\
 }\n\
 "
-    },
-    {
-        "glslToonColour", NULL, "\n\
+	},
+	{
+		"glslToonColour", NULL, "\n\
 vec4 ToonColour(vec4 incolour) {\n\
 \n\
   vec3 huetemp;\n\
@@ -284,9 +284,9 @@ vec4 ToonColour(vec4 incolour) {\n\
   return vec4(incolour);\n\
 }\n\
 "
-    },
-    {
-        "glslRotoscope", NULL, "\n\
+	},
+	{
+		"glslRotoscope", NULL, "\n\
 uniform vec2 texelSize;\n\
 uniform sampler2D srcSampler;\n\
 void main()\n\
@@ -300,9 +300,9 @@ void main()\n\
 \n\
 }\n\
 "
-    },
-    {
-        "glslRotoscopeZ", NULL, "\n\
+	},
+	{
+		"glslRotoscopeZ", NULL, "\n\
 uniform vec2 texelSize;\n\
 uniform sampler2D srcSampler;\n\
 uniform sampler2D depthSampler;\n\
@@ -320,68 +320,68 @@ void main()\n\
 \n\
 }\n\
 "
-    }
+	}
 };
 
 const int max_progs = sizeof(glsl_progs)/sizeof(glsl_progs[0]);
 
 void R_GLSLProgs_Init( void ) {
-    int i = max_progs;
-    int len ;
-    fileHandle_t fh;
+	int i = max_progs;
+	int len ;
+	fileHandle_t fh;
 
-    if (!glslSupported) {
-        return;
-    }
+	if (!glslSupported) {
+		return;
+	}
 
-    while (i--) {
-        len = FS_FOpenFileRead(va("%s.cfg",glsl_progs[i].name),&fh,qtrue) + 1;
-        if (len>0) {
-            int *buffer ;
-            buffer = ri.Malloc(len);
-            ri.Printf( PRINT_ALL, "Loading %s GLSL program from file (%i bytes)\n", glsl_progs[i].name, len );
-            if ( FS_Read( buffer, len, fh ) != len ) {
-                ri.Free(buffer);
-                glsl_progs[i].program = glsl_progs[i].default_program ;
-                // TODO Output error message
-            } else {
-                buffer[len-1] = 0 ;
-                glsl_progs[i].program = (char *)buffer;
-                ri.Printf( PRINT_ALL, "%s\n", buffer );
-            }
-        } else {
-            glsl_progs[i].program = glsl_progs[i].default_program ;
-        }
-    }
+	while (i--) {
+		len = FS_FOpenFileRead(va("%s.cfg",glsl_progs[i].name),&fh,qtrue) + 1;
+		if (len>0) {
+			int *buffer ;
+			buffer = ri.Malloc(len);
+			ri.Printf( PRINT_ALL, "Loading %s GLSL program from file (%i bytes)\n", glsl_progs[i].name, len );
+			if ( FS_Read( buffer, len, fh ) != len ) {
+				ri.Free(buffer);
+				glsl_progs[i].program = glsl_progs[i].default_program ;
+				// TODO Output error message
+			} else {
+				buffer[len-1] = 0 ;
+				glsl_progs[i].program = (char *)buffer;
+				ri.Printf( PRINT_ALL, "%s\n", buffer );
+			}
+		} else {
+			glsl_progs[i].program = glsl_progs[i].default_program ;
+		}
+	}
 }
 
 void R_GLSLProgs_Delete( void ) {
-    int i = max_progs;
+	int i = max_progs;
 
-    if (!glslSupported) {
-        return;
-    }
+	if (!glslSupported) {
+		return;
+	}
 
-    while (i--) {
-        if (glsl_progs[i].program == glsl_progs[i].default_program)
-            continue ;
-        ri.Free((void *)glsl_progs[i].program);
-    }
+	while (i--) {
+		if (glsl_progs[i].program == glsl_progs[i].default_program)
+			continue ;
+		ri.Free((void *)glsl_progs[i].program);
+	}
 }
 
 const char *R_GLSLGetProgByName( const char *name ) {
-    int i = max_progs;
+	int i = max_progs;
 
-    if (!glslSupported) {
-        return NULL;
-    }
+	if (!glslSupported) {
+		return NULL;
+	}
 
-    while (i--) {
-        if (!Q_stricmp(name,glsl_progs[i].name)) {
-            return glsl_progs[i].program ;
-        }
-    }
+	while (i--) {
+		if (!Q_stricmp(name,glsl_progs[i].name)) {
+			return glsl_progs[i].program ;
+		}
+	}
 
-    // TODO Put error message for developer here
-    return NULL ;
+	// TODO Put error message for developer here
+	return NULL ;
 }
