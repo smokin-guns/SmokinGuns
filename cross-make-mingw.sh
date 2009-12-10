@@ -18,6 +18,10 @@ elif [ "$(</etc/system-release)" == "Fedora release 10 (Cambridge)" ]; then
 	export CC=i686-pc-mingw32-gcc
 	export WINDRES=i686-pc-mingw32-windres
 
+elif [ "$(</etc/system-release)" == "Fedora release 11 (Leonidas)" ]; then
+	export CC=i686-pc-mingw32-gcc
+	export WINDRES=i686-pc-mingw32-windres
+
 else
 	export CC=i586-mingw32msvc-gcc
 	export WINDRES=i586-mingw32msvc-windres
