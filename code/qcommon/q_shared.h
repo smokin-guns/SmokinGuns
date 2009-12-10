@@ -80,7 +80,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
     #define PRODUCT_VERSION	1.1b3
   #endif
   #ifndef SG_RELEASE
-    #define SG_RELEASE	20091206
+    #define SG_RELEASE	20091210
   #endif
 
   #ifndef XSTRING
