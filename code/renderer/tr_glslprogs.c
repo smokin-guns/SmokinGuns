@@ -327,7 +327,7 @@ const int max_progs = sizeof(glsl_progs)/sizeof(glsl_progs[0]);
 
 void R_GLSLProgs_Init( void ) {
 	int i = max_progs;
-	int len ;
+	int len = -1;
 	void *buffer;
 
 	if (!glslSupported) {
