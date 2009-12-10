@@ -88,6 +88,7 @@ qboolean useFrameBuffer = qfalse;	//is set after FBO is safely initialized
 qboolean useBloomEffect = qfalse;	//is set after bloom effect is initialized
 qboolean useRotoscopeEffect = qfalse;//is set after rotoscope effect is initialized
 qboolean useRotoZEdgeEffect = qfalse;//is set after rotoscope zedge effect is selected
+static int	blur_size = 256;		//is set after blur effect is initialized
 
 struct r_fbuffer screenBuffer;
 struct r_fbuffer gaussblurBuffer;
@@ -654,7 +655,6 @@ void R_Delete_glsl(struct glslobj *obj) {
 struct glslobj glslBlur;
 
 void R_FrameBuffer_BlurInit( void ) {
-	int blur_size ;
 	//inits our blur code;
 	if (!needBlur) {
 		return;
@@ -699,8 +699,8 @@ void R_FrameBuffer_BlurDraw( GLuint *srcTex ) {
 	if (!needBlur) {
 		return;
 	}
-	// Force fb_size to be at least 2 like blur_size
-	fb_size = ( r_ext_framebuffer_blur_size->integer < 2 ) ? 2 : r_ext_framebuffer_blur_size->integer;
+	// Force fb_size to be set like blur_size
+	fb_size = blur_size;
 
 	// first we draw the framebuffer into the blur buffer before any fragment
 	// programs are used is quicker, the rational behind this is that we want
@@ -726,14 +726,14 @@ void R_FrameBuffer_BlurDraw( GLuint *srcTex ) {
 	loc = qglGetUniformLocation(program, "srcSampler");
 	qglUniform1i(loc, 0);
 	loc = qglGetUniformLocation(program, "blurSize");
-	qglUniform2f(loc, r_ext_framebuffer_blur_ammount->value / 100.0, 0.0);
+	qglUniform2f(loc, r_ext_framebuffer_blur_amount->value / 100.0, 0.0);
 
 	R_DrawQuad(	*gaussblurBuffer.front, fb_size, fb_size);
 
 	//we do the second pass of the blur here
 	glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
 	loc = qglGetUniformLocation(program, "blurSize");
-	qglUniform2f(loc, 0.0, r_ext_framebuffer_blur_ammount->value / 100.0);
+	qglUniform2f(loc, 0.0, r_ext_framebuffer_blur_amount->value / 100.0);
 
 	R_SetGL2DSize(fb_size, fb_size);
 	R_DrawQuad(	*gaussblurBuffer.back, fb_size, fb_size);

@@ -168,7 +168,7 @@ int		max_polyverts;
 cvar_t *r_ext_framebuffer;
 cvar_t *r_ext_framebuffer_bloom;
 cvar_t *r_ext_framebuffer_blur_size;
-cvar_t *r_ext_framebuffer_blur_ammount;
+cvar_t *r_ext_framebuffer_blur_amount;
 cvar_t *r_ext_framebuffer_blur_samples;
 
 cvar_t *r_ext_framebuffer_bloom_sharpness;
@@ -1050,7 +1050,7 @@ void R_Register( void )
 	r_ext_framebuffer = ri.Cvar_Get( "r_ext_framebuffer", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_framebuffer_bloom = ri.Cvar_Get( "r_ext_framebuffer_bloom", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_framebuffer_blur_size = ri.Cvar_Get( "r_ext_framebuffer_blur_size", "256", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_framebuffer_blur_ammount = ri.Cvar_Get( "r_ext_framebuffer_blur_amount", "7", CVAR_ARCHIVE);
+	r_ext_framebuffer_blur_amount = ri.Cvar_Get( "r_ext_framebuffer_blur_amount", "7", CVAR_ARCHIVE);
 	r_ext_framebuffer_blur_samples = ri.Cvar_Get( "r_ext_framebuffer_blur_samples", "9", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_framebuffer_bloom_sharpness = ri.Cvar_Get( "r_ext_framebuffer_bloom_sharpness", "0.75", CVAR_ARCHIVE );
 	r_ext_framebuffer_bloom_brightness = ri.Cvar_Get( "r_ext_framebuffer_bloom_brightness", "0.85", CVAR_ARCHIVE );
