@@ -1,4 +1,48 @@
-Changes since SG 1.0-20081231
+Changes in SG 1.1b3-20091210
+******************
+*** CHANGES ***
+- Added a custom resolution
+ - Mode 19: 1280x720 (16:9 HD), suitable to provide youtube HD format video
+- support UI item to select OpenAL device from available OpenAL devices
+- support new console aspects, thanks to Conq idea. Added 5 cvars to control it:
+  - cl_consoleType: "0" classic wooden wall texture, "1" color
+  - cl_consoleRed: from 0.0 to 1.0, the red component for the color console
+  - cl_consoleGreen: from 0.0 to 1.0, the green conponent for the color console
+  - cl_consoleBlue: from 0.0 to 1.0, the blue component for the color console
+  - cl_consoleTransparency: from 0.0 to 1.0, the alpha component or transparency for any kind of console
+- support new server cvars:
+  - g_startingWeapon to set which weapon player will own at startup (default "2" for remington pistol)
+  - g_startingMoney to set how much money player will get during startup (default "20")
+  - g_bulletDamageMode to change between bullet damage mode, support values:
+    - 0: same formula than Smokin'Guns 1.0, the default
+    - 1: new advanced linear formula proposed by tequila tuable with following cvars:
+         - g_bulletDamageALDRmidrangefactor: must be between 1 and 10, default 2
+         - g_bulletDamageALDRmidpointfactor: must be between 0 and 1, default 0.66
+         - g_bulletDamageALDRminifactor: must be between 0 and 1, default 0.5
+  - g_bulletDamageAlert: the percentage from which clients will receive warning
+    because their damage was reduced. Default is "25" %. Useful with g_bulletDamageMode set to 1
+- support new values with client game cg_hitmsg cvar:
+  - cg_hitmsg can be set to the minimum percentage you want to see when being alerted
+    by server with reduced damage due to high range hit. Default is still 1, but
+    you won't receive alert lower than the server limit (see g_bulletDamageAlert)
+    And you may want to set it to 100 to disable damage reduction alerts.
+
+Changes in SG 1.1b2-20091103
+******************
+*** CHANGES ***
+- renaming can be discarded to players trying to rename themselves too often
+  if g_splitChat is activated and g_delayedRenaming is set to a delay in seconds (default=20)
+- support for showing who is the VoIP speaker and default voip gain, thanks to tremfusion team:
+  - Thanks Mercury and Amanieu
+  - Added cl_voipShowSender and cl_voipSenderPos cvar:
+    - cl_voipShowSender must be set
+    - cl_voipSenderPos can be set from 0 to 5 to choose where the sender will be shown on the screen
+  - Added cl_voipDefaultGain to help tuning voip
+- support for shooter_dynamite and shooter_molotov map entities
+- Doors won't try to move players now
+- Fix rotating door comportement when blocked
+
+Changes in SG 1.1b1-20091019
 ******************
 *** NEW ***
 - Added more custom resolution, to be set using +set r_mode mode_number
@@ -9,7 +53,6 @@ Changes since SG 1.0-20081231
  - Mode 16: 1920x1080 (wide)
  - Mode 17: 1920x1200 (wide)
  - Mode 18: 2560x1600 (wide)
- - Mode 19: 1280x720 (16:9 HD), suitable for youtube HD format
 - Add DEFAULT_BASEDIR support for packagers:
  - you have to export DEFAULT_BASEDIR from the shell before to do a make
 - Use SMOKINGUNS and SMOKINGUNS_SO define
@@ -35,8 +78,7 @@ Changes since SG 1.0-20081231
 - show colorized players name in players list
 - new "sendaway" command as replacement of "kick" command, it is now used for "callvote kick"
 - renaming to empty name, to 'all' or to 'allbots' is not allowed
-- renaming can be discarded to players trying to rename themselves too often
-  if g_splitChat is activated and g_delayedRenaming is set to a delay in seconds (default=20)
+- renaming is now allowed only one time by minute
 - New cvars from ioQ3 updates:
   - s_muteWhenUnfocused to mute sound when unfocused (default=0)
   - r_allowResize to allow window resizing in windowed rendering mode (default=0), only with SDL support
@@ -44,32 +86,6 @@ Changes since SG 1.0-20081231
 - callvote string is logged in server log
 - new "cancelvote" server side command, can only be used by admins
 - support for more crosshair
-- support for showing who is the VoIP speaker and default voip gain, thanks to tremfusion team:
-  - Thanks Mercury and Amanieu
-  - Added cl_voipShowSender and cl_voipSenderPos cvar:
-    - cl_voipShowSender must be set
-    - cl_voipSenderPos can be set from 0 to 5 to choose where the sender will be shown on the screen
-  - Added cl_voipDefaultGain to help tuning voip
-- support for shooter_dynamite and shooter_molotov map entities
-- Doors won't try to move players now
-- support UI item to select OpenAL device from available OpenAL devices
-- support new console aspects, thanks to Conq idea. Added 5 cvars to control it:
-  - cl_consoleType: "0" classic wooden wall texture, "1" color
-  - cl_consoleRed: from 0.0 to 1.0, the red component for the color console
-  - cl_consoleGreen: from 0.0 to 1.0, the green conponent for the color console
-  - cl_consoleBlue: from 0.0 to 1.0, the blue component for the color console
-  - cl_consoleTransparency: from 0.0 to 1.0, the alpha component or transparency for any kind of console
-- support new server cvars:
-  - g_startingWeapon to set which weapon player will own at startup (default "2" for remington pistol)
-  - g_startingMoney to set how much money player will get during startup (default "20")
-  - g_bulletDamageMode to change between bullet damage mode, support values:
-    - 0: same formula than Smokin'Guns 1.0, the default
-    - 1: new advanced linear formula proposed by tequila tuable with following cvars:
-         - g_bulletDamageALDRmidrangefactor: must be between 1 and 10, default 2
-         - g_bulletDamageALDRmidpointfactor: must be between 0 and 1, default 0.66
-         - g_bulletDamageALDRminifactor: must be between 0 and 1, default 0.5
-  - g_bulletDamageAlert: the percentage from which clients will receive warning
-    because their damage was reduced. Default is "25" %. Useful with g_bulletDamageMode set to 1
 *** CHANGES ***
 - Reloading bug fixed by Joe Kari
 - Fix game crash during game load when using cgame binary library
@@ -81,12 +97,6 @@ Changes since SG 1.0-20081231
 - g_allowVote can be set to the number of seconds before a player can call again a vote
 - players name can be tagged to make sure they are unique in game
 - settings are now stored in a per-user location, instead of in the game's installation directory
-- Fix rotating door comportement when blocked
-- support new values with client game cg_hitmsg cvar:
-  - cg_hitmsg can be set to the minimum percentage you want to see when being alerted
-    by server with reduced damage due to high range hit. Default is still 1, but
-    you won't receive alert lower than the server limit (see g_bulletDamageAlert)
-    And you may want to set it to 100 to disable damage reduction alerts.
 
 Changes in SG 1.0-20081231
 ******************
