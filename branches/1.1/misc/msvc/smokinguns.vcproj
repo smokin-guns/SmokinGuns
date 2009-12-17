@@ -99,6 +99,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				EmbedManifest="false"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -199,6 +200,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				EmbedManifest="false"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -298,6 +300,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				EmbedManifest="false"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -1271,6 +1274,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\code\renderer\tr_framebuffer.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\code\renderer\tr_glslprogs.c"
+					>
+				</File>
+				<File
 					RelativePath="..\..\code\renderer\tr_image.c"
 					>
 				</File>
@@ -1352,14 +1363,6 @@
 				</File>
 				<File
 					RelativePath="..\..\code\renderer\tr_world.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\code\renderer\tr_framebuffer.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\code\renderer\tr_glslprogs.c"
 					>
 				</File>
 			</Filter>
