@@ -747,7 +747,7 @@ ifeq ($(PLATFORM),sunos)
 
   CC=gcc
   INSTALL=ginstall
-  MKDIR=gmkdir
+  MKDIR=mkdir
   COPYDIR="/usr/local/share/games/quake3"
 
   ifneq (,$(findstring i86pc,$(shell uname -m)))
@@ -801,7 +801,7 @@ ifeq ($(PLATFORM),sunos)
 
   BOTCFLAGS=-O0
 
-  CLIENT_LIBS +=$(SDL_LIBS) -lGL -lX11 -lXext -liconv -lm
+  CLIENT_LIBS +=$(SDL_LIBS) -lGL -lX11 -lXext -lm
 
 else # ifeq sunos
 
