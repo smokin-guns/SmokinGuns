@@ -301,7 +301,7 @@ static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder)
 	else
 		depthbits = r_depthbits->value;
 	stencilbits = r_stencilbits->value;
-#ifndef SMOKINGUNS
+#if !defined(SMOKINGUNS) || !defined(FRAMEBUFFER_AND_GLSL_SUPPORT)
 	samples = r_ext_multisample->value;
 #else
 	// Tequila: Currently, multisample is not supported when frambuffer is used
