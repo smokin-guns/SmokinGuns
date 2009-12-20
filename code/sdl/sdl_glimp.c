@@ -304,7 +304,7 @@ static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder)
 #if !defined(SMOKINGUNS) || !defined(FRAMEBUFFER_AND_GLSL_SUPPORT)
 	samples = r_ext_multisample->value;
 #else
-	// Tequila: Currently, multisample is not supported when frambuffer is used
+	// Tequila: Currently, multisample is not supported when framebuffer is used
 	samples = r_ext_framebuffer->integer != 1 ? r_ext_multisample->value : 0 ;
 #endif
 
