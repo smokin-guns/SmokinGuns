@@ -62,7 +62,16 @@ endif
 
 # Tequila: Fixed svn support for file using Q3_VERSION define
 SDK_OBJ_USING_SVN = \
+	$(B)/ded/common.o \
 	$(B)/ded/sys_main.o \
+	$(B)/ded/sys_unix.o \
+	$(B)/ded/sys_win32.o \
+	$(B)/client/common.o \
+	$(B)/client/cl_console.o \
+	$(B)/client/cl_curl.o \
+	$(B)/client/sys_main.o \
+	$(B)/client/sys_unix.o \
+	$(B)/client/sys_win32.o \
 	$(B)/$(SDK_GAMENAME)/game/g_main.o \
 	$(B)/$(SDK_GAMENAME)/game/g_main.asm \
 	$(B)/$(SDK_GAMENAME)/cgame/cg_main.o \
@@ -124,7 +133,6 @@ SDK_Q3GOBJ = \
   $(B)/$(SDK_GAMENAME)/game/bg_slidemove.o \
   $(B)/$(SDK_GAMENAME)/game/bg_lib.o \
   $(B)/$(SDK_GAMENAME)/game/g_active.o \
-  $(B)/$(SDK_GAMENAME)/game/g_arenas.o \
   $(B)/$(SDK_GAMENAME)/game/g_bot.o \
   $(B)/$(SDK_GAMENAME)/game/g_client.o \
   $(B)/$(SDK_GAMENAME)/game/g_cmds.o \

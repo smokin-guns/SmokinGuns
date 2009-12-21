@@ -969,9 +969,11 @@ void G_WriteSessionData( void );
 //
 // g_arenas.c
 //
+#ifndef SMOKINGUNS
 void UpdateTournamentInfo( void );
 void SpawnModelsOnVictoryPads( void );
 void Svcmd_AbortPodium_f( void );
+#endif
 
 //
 // g_bot.c
@@ -1046,7 +1048,9 @@ extern	vmCvar_t	g_needpass;
 extern	vmCvar_t	g_gravity;
 extern	vmCvar_t	g_speed;
 extern	vmCvar_t	g_knockback;
+#ifndef SMOKINGUNS
 extern	vmCvar_t	g_quadfactor;
+#endif
 extern	vmCvar_t	g_forcerespawn;
 extern	vmCvar_t	g_inactivity;
 extern	vmCvar_t	g_debugMove;
@@ -1071,22 +1075,25 @@ extern	vmCvar_t	g_teamAutoJoin;
 extern	vmCvar_t	g_teamForceBalance;
 extern	vmCvar_t	g_banIPs;
 extern	vmCvar_t	g_filterBan;
+#ifndef SMOKINGUNS
 extern	vmCvar_t	g_obeliskHealth;
 extern	vmCvar_t	g_obeliskRegenPeriod;
 extern	vmCvar_t	g_obeliskRegenAmount;
 extern	vmCvar_t	g_obeliskRespawnDelay;
 extern	vmCvar_t	g_cubeTimeout;
+#endif
 extern	vmCvar_t	g_redteam;
 extern	vmCvar_t	g_blueteam;
 extern	vmCvar_t	g_smoothClients;
 extern	vmCvar_t	pmove_fixed;
 extern	vmCvar_t	pmove_msec;
+#ifndef SMOKINGUNS
 extern	vmCvar_t	g_rankings;
 extern	vmCvar_t	g_enableDust;
 extern	vmCvar_t	g_enableBreath;
 extern	vmCvar_t	g_singlePlayer;
 extern	vmCvar_t	g_proxMineTimeout;
-#ifdef SMOKINGUNS
+#else
 //unlagged - server options
 // some new server-side variables
 extern	vmCvar_t	g_delagHitscan;

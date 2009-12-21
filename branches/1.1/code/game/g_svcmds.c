@@ -651,10 +651,12 @@ qboolean	ConsoleCommand( void ) {
 		return qtrue;
 	}
 
+#ifndef SMOKINGUNS
 	if (Q_stricmp (cmd, "abort_podium") == 0) {
 		Svcmd_AbortPodium_f();
 		return qtrue;
 	}
+#endif
 
 	if (Q_stricmp (cmd, "addip") == 0) {
 		Svcmd_AddIP_f();

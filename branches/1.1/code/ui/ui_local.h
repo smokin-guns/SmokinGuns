@@ -53,11 +53,13 @@ extern vmCvar_t	ui_team_fraglimit;
 extern vmCvar_t	ui_team_timelimit;
 extern vmCvar_t	ui_team_friendly;
 
+#ifndef SMOKINGUNS
 extern vmCvar_t	ui_ctf_capturelimit;
 extern vmCvar_t	ui_ctf_timelimit;
 extern vmCvar_t	ui_ctf_friendly;
 
 extern vmCvar_t	ui_arenasFile;
+#endif
 extern vmCvar_t	ui_botsFile;
 extern vmCvar_t	ui_spScores1;
 extern vmCvar_t	ui_spScores2;
@@ -1039,9 +1041,9 @@ void			trap_CIN_DrawCinematic (int handle);
 void			trap_CIN_SetExtents (int handle, int x, int y, int w, int h);
 int				trap_RealTime(qtime_t *qtime);
 void			trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
+#ifndef SMOKINGUNS
 qboolean		trap_VerifyCDKey( const char *key, const char *chksum);
 
-#ifndef SMOKINGUNS
 void			trap_SetPbClStatus( int status );
 #endif
 
