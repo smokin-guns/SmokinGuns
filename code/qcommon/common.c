@@ -162,7 +162,7 @@ A raw string should NEVER be passed as fmt, because of "%f" type crashers.
 void QDECL Com_Printf( const char *fmt, ... ) {
 	va_list		argptr;
 	char		msg[MAXPRINTMSG];
-  static qboolean opening_qconsole = qfalse;
+	static qboolean opening_qconsole = qfalse;
 
 
 	va_start (argptr,fmt);
@@ -175,7 +175,7 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 			*rd_buffer = 0;
 		}
 		Q_strcat(rd_buffer, rd_buffersize, msg);
-    // TTimo nooo .. that would defeat the purpose
+		// TTimo nooo .. that would defeat the purpose
 		//rd_flush(rd_buffer);
 		//*rd_buffer = 0;
 		return;
@@ -190,13 +190,13 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 
 	// logfile
 	if ( com_logfile && com_logfile->integer ) {
-    // TTimo: only open the qconsole.log if the filesystem is in an initialized state
-    //   also, avoid recursing in the qconsole.log opening (i.e. if fs_debug is on)
+	// TTimo: only open the qconsole.log if the filesystem is in an initialized state
+	//   also, avoid recursing in the qconsole.log opening (i.e. if fs_debug is on)
 		if ( !logfile && FS_Initialized() && !opening_qconsole) {
 			struct tm *newtime;
 			time_t aclock;
 
-      opening_qconsole = qtrue;
+			opening_qconsole = qtrue;
 
 			time( &aclock );
 			newtime = localtime( &aclock );
@@ -220,7 +220,7 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 				Cvar_SetValue("logfile", 0);
 			}
 
-      opening_qconsole = qfalse;
+			opening_qconsole = qfalse;
 		}
 		if ( logfile && FS_Initialized()) {
 			FS_Write(msg, strlen(msg), logfile);
@@ -403,26 +403,26 @@ Break it up into multiple console lines
 ==================
 */
 void Com_ParseCommandLine( char *commandLine ) {
-    int inq = 0;
-    com_consoleLines[0] = commandLine;
-    com_numConsoleLines = 1;
+	int inq = 0;
+	com_consoleLines[0] = commandLine;
+	com_numConsoleLines = 1;
 
-    while ( *commandLine ) {
-        if (*commandLine == '"') {
-            inq = !inq;
-        }
-        // look for a + seperating character
-        // if commandLine came from a file, we might have real line seperators
-        if ( (*commandLine == '+' && !inq) || *commandLine == '\n'  || *commandLine == '\r' ) {
-            if ( com_numConsoleLines == MAX_CONSOLE_LINES ) {
-                return;
-            }
-            com_consoleLines[com_numConsoleLines] = commandLine + 1;
-            com_numConsoleLines++;
-            *commandLine = 0;
-        }
-        commandLine++;
-    }
+	while ( *commandLine ) {
+		if (*commandLine == '"') {
+			inq = !inq;
+		}
+		// look for a + seperating character
+		// if commandLine came from a file, we might have real line seperators
+		if ( (*commandLine == '+' && !inq) || *commandLine == '\n'  || *commandLine == '\r' ) {
+			if ( com_numConsoleLines == MAX_CONSOLE_LINES ) {
+				return;
+			}
+			com_consoleLines[com_numConsoleLines] = commandLine + 1;
+			com_numConsoleLines++;
+			*commandLine = 0;
+		}
+		commandLine++;
+	}
 }
 
 
@@ -2118,13 +2118,13 @@ Com_InitPushEvent
 =================
 */
 void Com_InitPushEvent( void ) {
-  // clear the static buffer array
-  // this requires SE_NONE to be accepted as a valid but NOP event
-  memset( com_pushedEvents, 0, sizeof(com_pushedEvents) );
-  // reset counters while we are at it
-  // beware: GetEvent might still return an SE_NONE from the buffer
-  com_pushedEventsHead = 0;
-  com_pushedEventsTail = 0;
+	// clear the static buffer array
+	// this requires SE_NONE to be accepted as a valid but NOP event
+	memset( com_pushedEvents, 0, sizeof(com_pushedEvents) );
+	// reset counters while we are at it
+	// beware: GetEvent might still return an SE_NONE from the buffer
+	com_pushedEventsHead = 0;
+	com_pushedEventsTail = 0;
 }
 
 
@@ -2966,10 +2966,10 @@ void Com_Frame( void ) {
 	int key;
 
 	int		timeBeforeFirstEvents;
-	int           timeBeforeServer;
-	int           timeBeforeEvents;
-	int           timeBeforeClient;
-	int           timeAfter;
+	int		timeBeforeServer;
+	int		timeBeforeEvents;
+	int		timeBeforeClient;
+	int		timeAfter;
 
 
 
@@ -3208,7 +3208,7 @@ Field_Clear
 ==================
 */
 void Field_Clear( field_t *edit ) {
-  memset(edit->buffer, 0, MAX_EDIT_LINE);
+	memset(edit->buffer, 0, MAX_EDIT_LINE);
 	edit->cursor = 0;
 	edit->scroll = 0;
 }
