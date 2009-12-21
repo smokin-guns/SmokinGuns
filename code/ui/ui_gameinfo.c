@@ -187,7 +187,9 @@ UI_LoadArenas
 */
 void UI_LoadArenas( void ) {
 	int			numdirs;
+#ifndef SMOKINGUNS
 	vmCvar_t	arenasFile;
+#endif
 	char		filename[128];
 	char		dirlist[1024];
 	char*		dirptr;
@@ -198,8 +200,8 @@ void UI_LoadArenas( void ) {
 	ui_numArenas = 0;
 	uiInfo.mapCount = 0;
 
-	trap_Cvar_Register( &arenasFile, "g_arenasFile", "", CVAR_INIT|CVAR_ROM );
 #ifndef SMOKINGUNS
+	trap_Cvar_Register( &arenasFile, "g_arenasFile", "", CVAR_INIT|CVAR_ROM );
 	if( *arenasFile.string ) {
 		UI_LoadArenasFromFile(arenasFile.string);
 	}
