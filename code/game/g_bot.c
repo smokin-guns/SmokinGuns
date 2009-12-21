@@ -54,9 +54,11 @@ vmCvar_t bot_noBR; // no bots in BR
 vmCvar_t bot_noDuel; // no bots in duel
 #endif
 
+#ifndef SMOKINGUNS
 extern gentity_t	*podium1;
 extern gentity_t	*podium2;
 extern gentity_t	*podium3;
+#endif
 
 float trap_Cvar_VariableValue( const char *var_name ) {
 	char buf[128];
@@ -897,9 +899,11 @@ static void G_SpawnBots( char *botList, int baseDelay ) {
 	int			delay;
 	char		bots[MAX_INFO_VALUE];
 
+#ifndef SMOKINGUNS
 	podium1 = NULL;
 	podium2 = NULL;
 	podium3 = NULL;
+#endif
 
 	skill = trap_Cvar_VariableValue( "g_spSkill" );
 	if( skill < 1 ) {

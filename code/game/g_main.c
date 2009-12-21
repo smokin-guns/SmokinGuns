@@ -119,7 +119,9 @@ vmCvar_t	g_speed;
 vmCvar_t	g_gravity;
 vmCvar_t	g_cheats;
 vmCvar_t	g_knockback;
+#ifndef SMOKINGUNS
 vmCvar_t	g_quadfactor;
+#endif
 vmCvar_t	g_forcerespawn;
 vmCvar_t	g_inactivity;
 vmCvar_t	g_debugMove;
@@ -138,8 +140,10 @@ vmCvar_t	g_restarted;
 vmCvar_t	g_logfile;
 vmCvar_t	g_logfileSync;
 vmCvar_t	g_blood;
+#ifndef SMOKINGUNS
 vmCvar_t	g_podiumDist;
 vmCvar_t	g_podiumDrop;
+#endif
 vmCvar_t	g_allowVote;
 #ifdef SMOKINGUNS
 vmCvar_t	g_allowVoteKick;
@@ -152,7 +156,9 @@ vmCvar_t	g_filterBan;
 vmCvar_t	g_smoothClients;
 vmCvar_t	pmove_fixed;
 vmCvar_t	pmove_msec;
+#ifndef SMOKINGUNS
 vmCvar_t	g_rankings;
+#endif
 vmCvar_t	g_listEntity;
 #ifndef SMOKINGUNS
 #ifdef MISSIONPACK
@@ -283,7 +289,9 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_gravity, "g_gravity", "900", 0, 0, qtrue  },
 #endif
 	{ &g_knockback, "g_knockback", "1000", 0, 0, qtrue  },
+#ifndef SMOKINGUNS
 	{ &g_quadfactor, "g_quadfactor", "3", 0, 0, qtrue  },
+#endif
 	{ &g_weaponRespawn, "g_weaponrespawn", "5", 0, 0, qtrue  },
 	{ &g_weaponTeamRespawn, "g_weaponTeamRespawn", "30", 0, 0, qtrue },
 	{ &g_forcerespawn, "g_forcerespawn", "20", 0, 0, qtrue },
@@ -297,10 +305,10 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_motd, "g_motd", "", 0, 0, qfalse },
 	{ &g_blood, "com_blood", "1", 0, 0, qfalse },
 
+#ifndef SMOKINGUNS
 	{ &g_podiumDist, "g_podiumDist", "80", 0, 0, qfalse },
 	{ &g_podiumDrop, "g_podiumDrop", "70", 0, 0, qfalse },
 
-#ifndef SMOKINGUNS
 	{ &g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE, 0, qfalse },
 #else
 	{ &g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
