@@ -83,7 +83,7 @@ COM_StripExtension
 ============
 */
 void COM_StripExtension( const char *in, char *out, int destsize ) {
-	int             length;
+	int	length;
 
 	Q_strncpyz(out, in, destsize);
 
@@ -106,7 +106,7 @@ COM_DefaultExtension
 */
 void COM_DefaultExtension (char *path, int maxSize, const char *extension ) {
 	char	oldPath[MAX_QPATH];
-	char    *src;
+	char	*src;
 
 //
 // if path doesn't have a .EXT, append extension
@@ -154,9 +154,9 @@ float	BigFloat (const float *l) {return _BigFloat(l);}
 float	LittleFloat (const float *l) {return _LittleFloat(l);}
 */
 
-short   ShortSwap (short l)
+short ShortSwap (short l)
 {
-	byte    b1,b2;
+	byte	b1,b2;
 
 	b1 = l&255;
 	b2 = (l>>8)&255;
@@ -169,9 +169,9 @@ short	ShortNoSwap (short l)
 	return l;
 }
 
-int    LongSwap (int l)
+int LongSwap (int l)
 {
-	byte    b1,b2,b3,b4;
+	byte	b1,b2,b3,b4;
 
 	b1 = l&255;
 	b2 = (l>>8)&255;
@@ -736,9 +736,9 @@ Safe strncpy that ensures a trailing zero
 =============
 */
 void Q_strncpyz( char *dest, const char *src, int destsize ) {
-  if ( !dest ) {
-    Com_Error( ERR_FATAL, "Q_strncpyz: NULL dest" );
-  }
+	if ( !dest ) {
+		Com_Error( ERR_FATAL, "Q_strncpyz: NULL dest" );
+	}
 	if ( !src ) {
 		Com_Error( ERR_FATAL, "Q_strncpyz: NULL src" );
 	}
@@ -747,20 +747,20 @@ void Q_strncpyz( char *dest, const char *src, int destsize ) {
 	}
 
 	strncpy( dest, src, destsize-1 );
-    dest[destsize-1] = 0;
+	dest[destsize-1] = 0;
 }
 
 int Q_stricmpn (const char *s1, const char *s2, int n) {
 	int		c1, c2;
 
-        if ( s1 == NULL ) {
-           if ( s2 == NULL )
-             return 0;
-           else
-             return -1;
-        }
-        else if ( s2==NULL )
-          return 1;
+	if ( s1 == NULL ) {
+		if ( s2 == NULL )
+			return 0;
+		else
+			return -1;
+		}
+	else if ( s2==NULL )
+		return 1;
 
 
 
@@ -813,25 +813,25 @@ int Q_stricmp (const char *s1, const char *s2) {
 
 
 char *Q_strlwr( char *s1 ) {
-    char	*s;
+	char	*s;
 
-    s = s1;
+	s = s1;
 	while ( *s ) {
 		*s = tolower(*s);
 		s++;
 	}
-    return s1;
+	return s1;
 }
 
 char *Q_strupr( char *s1 ) {
-    char	*s;
+	char	*s;
 
-    s = s1;
+	s = s1;
 	while ( *s ) {
 		*s = toupper(*s);
 		s++;
 	}
-    return s1;
+	return s1;
 }
 
 
@@ -851,31 +851,31 @@ void Q_strcat( char *dest, int size, const char *src ) {
 */
 const char *Q_stristr( const char *s, const char *find)
 {
-  char c, sc;
-  size_t len;
+	char c, sc;
+	size_t len;
 
-  if ((c = *find++) != 0)
-  {
-    if (c >= 'a' && c <= 'z')
-    {
-      c -= ('a' - 'A');
-    }
-    len = strlen(find);
-    do
-    {
-      do
-      {
-        if ((sc = *s++) == 0)
-          return NULL;
-        if (sc >= 'a' && sc <= 'z')
-        {
-          sc -= ('a' - 'A');
-        }
-      } while (sc != c);
-    } while (Q_stricmpn(s, find, len) != 0);
-    s--;
-  }
-  return s;
+	if ((c = *find++) != 0)
+	{
+		if (c >= 'a' && c <= 'z')
+		{
+			c -= ('a' - 'A');
+		}
+		len = strlen(find);
+		do
+		{
+			do
+			{
+				if ((sc = *s++) == 0)
+					return NULL;
+				if (sc >= 'a' && sc <= 'z')
+				{
+					sc -= ('a' - 'A');
+				}
+			} while (sc != c);
+		} while (Q_stricmpn(s, find, len) != 0);
+		s--;
+	}
+	return s;
 }
 
 

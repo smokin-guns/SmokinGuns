@@ -34,8 +34,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <unistd.h>
 #endif
 
-#define	BASEDIRNAME	"quake"		// assumed to have a 2 or 3 following
-#define PATHSEPERATOR   '/'
+#define	BASEDIRNAME		"quake"		// assumed to have a 2 or 3 following
+#define PATHSEPERATOR	'/'
 
 // set these before calling CheckParm
 int myargc;
@@ -127,7 +127,7 @@ void Error( const char *error, ... )
 	va_end (argptr);
 
 	sprintf (text2, "%s\nGetLastError() = %i", text, err);
-    MessageBox(NULL, text2, "Error", 0 /* MB_OK */ );
+	MessageBox(NULL, text2, "Error", 0 /* MB_OK */ );
 
 	exit (1);
 }
@@ -177,28 +177,28 @@ UINT wm_BroadcastCommand = -1;
 
 void _printf( const char *format, ... ) {
 	va_list argptr;
-  char text[4096];
+	char text[4096];
 #ifdef WIN32
-  ATOM a;
+	ATOM a;
 #endif
 	va_start (argptr,format);
 	vsprintf (text, format, argptr);
 	va_end (argptr);
 
-  printf("%s", text);
+	printf("%s", text);
 
 #ifdef WIN32
-  if (!lookedForServer) {
-    lookedForServer = qtrue;
-    hwndOut = FindWindow(NULL, "Q3Map Process Server");
-    if (hwndOut) {
-      wm_BroadcastCommand = RegisterWindowMessage( "Q3MPS_BroadcastCommand" );
-    }
-  }
-  if (hwndOut) {
-    a = GlobalAddAtom(text);
-    PostMessage(hwndOut, wm_BroadcastCommand, 0, (LPARAM)a);
-  }
+	if (!lookedForServer) {
+		lookedForServer = qtrue;
+		hwndOut = FindWindow(NULL, "Q3Map Process Server");
+		if (hwndOut) {
+			wm_BroadcastCommand = RegisterWindowMessage( "Q3MPS_BroadcastCommand" );
+		}
+	}
+	if (hwndOut) {
+		a = GlobalAddAtom(text);
+		PostMessage(hwndOut, wm_BroadcastCommand, 0, (LPARAM)a);
+	}
 #endif
 }
 
@@ -212,7 +212,7 @@ qdir will hold the path up to the quake directory, including the slash
 
 gamedir will hold qdir + the game directory (id1, id2, etc)
 
-  */
+*/
 
 char		qdir[1024];
 char		gamedir[1024];
@@ -222,7 +222,7 @@ void SetQdirFromPath( const char *path )
 {
 	char	temp[1024];
 	const char	*c;
-  const char *sep;
+	const char *sep;
 	int		len, count;
 
 	if (!(path[0] == '/' || path[0] == '\\' || path[1] == ':'))
@@ -241,23 +241,23 @@ void SetQdirFromPath( const char *path )
 
 		if (!Q_strncasecmp (c, BASEDIRNAME, len))
 		{
-      //
+			//
 			//strncpy (qdir, path, c+len+2-path);
-      // the +2 assumes a 2 or 3 following quake which is not the
-      // case with a retail install
-      // so we need to add up how much to the next separator
-      sep = c + len;
-      count = 1;
-      while (*sep && *sep != '/' && *sep != '\\')
-      {
-        sep++;
-        count++;
-      }
+			// the +2 assumes a 2 or 3 following quake which is not the
+			// case with a retail install
+			// so we need to add up how much to the next separator
+			sep = c + len;
+			count = 1;
+			while (*sep && *sep != '/' && *sep != '\\')
+			{
+				sep++;
+				count++;
+			}
 			strncpy (qdir, path, c+len+count-path);
 			qprintf ("qdir: %s\n", qdir);
 			for ( i = 0; i < strlen( qdir ); i++ )
 			{
-				if ( qdir[i] == '\\' ) 
+				if ( qdir[i] == '\\' )
 					qdir[i] = '/';
 			}
 
@@ -270,7 +270,7 @@ void SetQdirFromPath( const char *path )
 
 					for ( i = 0; i < strlen( gamedir ); i++ )
 					{
-						if ( gamedir[i] == '\\' ) 
+						if ( gamedir[i] == '\\' )
 							gamedir[i] = '/';
 					}
 
@@ -369,9 +369,9 @@ I_FloatTime
 double I_FloatTime (void)
 {
 	time_t	t;
-	
+
 	time (&t);
-	
+
 	return t;
 #if 0
 // more precise, less portable
@@ -380,13 +380,13 @@ double I_FloatTime (void)
 	static int		secbase;
 
 	gettimeofday(&tp, &tzp);
-	
+
 	if (!secbase)
 	{
 		secbase = tp.tv_sec;
 		return tp.tv_usec/1000000.0;
 	}
-	
+
 	return (tp.tv_sec - secbase) + tp.tv_usec/1000000.0;
 #endif
 }
@@ -396,21 +396,21 @@ void Q_getwd (char *out)
 	int i = 0;
 
 #ifdef WIN32
-   if (_getcwd (out, 256) == NULL)
-     strcpy(out, ".");  /* shrug */
-   strcat (out, "\\");
+	if (_getcwd (out, 256) == NULL)
+		strcpy(out, ".");	/* shrug */
+	strcat (out, "\\");
 #else
-   if (getcwd (out, 256) == NULL)
-     strcpy(out, ".");  /* shrug */
-   strcat (out, "/");
+	if (getcwd (out, 256) == NULL)
+		strcpy(out, ".");	/* shrug */
+	strcat (out, "/");
 #endif
 
-   while ( out[i] != 0 )
-   {
-	   if ( out[i] == '\\' )
-		   out[i] = '/';
-	   i++;
-   }
+	while ( out[i] != 0 )
+	{
+		if ( out[i] == '\\' )
+			out[i] = '/';
+		i++;
+	}
 }
 
 
@@ -437,10 +437,10 @@ returns -1 if not present
 int	FileTime (const char *path)
 {
 	struct	stat	buf;
-	
+
 	if (stat (path,&buf) == -1)
 		return -1;
-	
+
 	return buf.st_mtime;
 }
 
@@ -457,13 +457,13 @@ char *COM_Parse (char *data)
 {
 	int		c;
 	int		len;
-	
+
 	len = 0;
 	com_token[0] = 0;
-	
+
 	if (!data)
 		return NULL;
-		
+
 // skip whitespace
 skipwhite:
 	while ( (c = *data) <= ' ')
@@ -475,7 +475,7 @@ skipwhite:
 		}
 		data++;
 	}
-	
+
 // skip // comments
 	if (c=='/' && data[1] == '/')
 	{
@@ -483,7 +483,7 @@ skipwhite:
 			data++;
 		goto skipwhite;
 	}
-	
+
 
 // handle quoted strings specially
 	if (c == '\"')
@@ -521,7 +521,7 @@ skipwhite:
 	if (c=='{' || c=='}'|| c==')'|| c=='(' || c=='\'' || c==':')
 			break;
 	} while (c>32);
-	
+
 	com_token[len] = 0;
 	return data;
 }
@@ -530,7 +530,7 @@ skipwhite:
 int Q_strncasecmp (const char *s1, const char *s2, int n)
 {
 	int		c1, c2;
-	
+
 	do
 	{
 		c1 = *s1++;
@@ -538,7 +538,7 @@ int Q_strncasecmp (const char *s1, const char *s2, int n)
 
 		if (!n--)
 			return 0;		// strings are equal until end point
-		
+
 		if (c1 != c2)
 		{
 			if (c1 >= 'a' && c1 <= 'z')
@@ -549,7 +549,7 @@ int Q_strncasecmp (const char *s1, const char *s2, int n)
 				return -1;		// strings not equal
 		}
 	} while (c1);
-	
+
 	return 0;		// strings are equal
 }
 
@@ -577,7 +577,7 @@ char *strlower (char *start)
 	in = start;
 	while (*in)
 	{
-		*in = tolower(*in); 
+		*in = tolower(*in);
 		in++;
 	}
 	return start;
@@ -603,7 +603,7 @@ Returns the argument number (1 to argc-1) or 0 if not present
 */
 int CheckParm (const char *check)
 {
-	int             i;
+	int	i;
 
 	for (i = 1;i<myargc;i++)
 	{
@@ -712,11 +712,11 @@ qboolean	FileExists (const char *filename)
 LoadFile
 ==============
 */
-int    LoadFile( const char *filename, void **bufferptr )
+int	LoadFile( const char *filename, void **bufferptr )
 {
 	FILE	*f;
-	int    length;
-	void    *buffer;
+	int		length;
+	void	*buffer;
 
 	f = SafeOpenRead (filename);
 	length = Q_filelength (f);
@@ -738,21 +738,21 @@ rounds up memory allocation to 4K boundry
 -
 ==============
 */
-int    LoadFileBlock( const char *filename, void **bufferptr )
+int	LoadFileBlock( const char *filename, void **bufferptr )
 {
 	FILE	*f;
-	int    length, nBlock, nAllocSize;
-	void    *buffer;
+	int		length, nBlock, nAllocSize;
+	void	*buffer;
 
 	f = SafeOpenRead (filename);
 	length = Q_filelength (f);
-  nAllocSize = length;
-  nBlock = nAllocSize % MEM_BLOCKSIZE;
-  if ( nBlock > 0) {
-    nAllocSize += MEM_BLOCKSIZE - nBlock;
-  }
+	nAllocSize = length;
+	nBlock = nAllocSize % MEM_BLOCKSIZE;
+	if ( nBlock > 0) {
+		nAllocSize += MEM_BLOCKSIZE - nBlock;
+	}
 	buffer = malloc (nAllocSize+1);
-  memset(buffer, 0, nAllocSize+1);
+	memset(buffer, 0, nAllocSize+1);
 	SafeRead (f, buffer, length);
 	fclose (f);
 
@@ -768,11 +768,11 @@ TryLoadFile
 Allows failure
 ==============
 */
-int    TryLoadFile (const char *filename, void **bufferptr)
+int	TryLoadFile (const char *filename, void **bufferptr)
 {
 	FILE	*f;
-	int    length;
-	void    *buffer;
+	int		length;
+	void	*buffer;
 
 	*bufferptr = NULL;
 
@@ -795,7 +795,7 @@ int    TryLoadFile (const char *filename, void **bufferptr)
 SaveFile
 ==============
 */
-void    SaveFile (const char *filename, const void *buffer, int count)
+void	SaveFile (const char *filename, const void *buffer, int count)
 {
 	FILE	*f;
 
@@ -808,7 +808,7 @@ void    SaveFile (const char *filename, const void *buffer, int count)
 
 void DefaultExtension (char *path, const char *extension)
 {
-	char    *src;
+	char	*src;
 //
 // if path doesnt have a .EXT, append extension
 // (extension should include the .)
@@ -818,7 +818,7 @@ void DefaultExtension (char *path, const char *extension)
 	while (*src != '/' && *src != '\\' && src != path)
 	{
 		if (*src == '.')
-			return;                 // it has an extension
+			return;					// it has an extension
 		src--;
 	}
 
@@ -828,19 +828,19 @@ void DefaultExtension (char *path, const char *extension)
 
 void DefaultPath (char *path, const char *basepath)
 {
-	char    temp[128];
+	char	temp[128];
 
 	if (path[0] == PATHSEPERATOR)
-		return;                   // absolute path location
+		return;						// absolute path location
 	strcpy (temp,path);
 	strcpy (path,basepath);
 	strcat (path,temp);
 }
 
 
-void    StripFilename (char *path)
+void	StripFilename (char *path)
 {
-	int             length;
+	int	length;
 
 	length = strlen(path)-1;
 	while (length > 0 && path[length] != PATHSEPERATOR)
@@ -848,9 +848,9 @@ void    StripFilename (char *path)
 	path[length] = 0;
 }
 
-void    StripExtension (char *path)
+void	StripExtension (char *path)
 {
-	int             length;
+	int	length;
 
 	length = strlen(path)-1;
 	while (length > 0 && path[length] != '.')
@@ -873,7 +873,7 @@ Extract file parts
 // backing to an empty path will be wrong when appending a slash
 void ExtractFilePath (const char *path, char *dest)
 {
-	const char    *src;
+	const char	*src;
 
 	src = path + strlen(path) - 1;
 
@@ -889,7 +889,7 @@ void ExtractFilePath (const char *path, char *dest)
 
 void ExtractFileBase (const char *path, char *dest)
 {
-	const char    *src;
+	const char	*src;
 
 	src = path + strlen(path) - 1;
 
@@ -908,7 +908,7 @@ void ExtractFileBase (const char *path, char *dest)
 
 void ExtractFileExtension (const char *path, char *dest)
 {
-	const char    *src;
+	const char	*src;
 
 	src = path + strlen(path) - 1;
 
@@ -934,8 +934,8 @@ ParseNum / ParseHex
 */
 int ParseHex (const char *hex)
 {
-	const char    *str;
-	int    num;
+	const char	*str;
+	int			num;
 
 	num = 0;
 	str = hex;
@@ -977,9 +977,9 @@ int ParseNum (const char *str)
 ============================================================================
 */
 
-short   ShortSwap (short l)
+short	ShortSwap (short l)
 {
-	byte    b1,b2;
+	byte	b1,b2;
 
 	b1 = l&255;
 	b2 = (l>>8)&255;
@@ -987,9 +987,9 @@ short   ShortSwap (short l)
 	return (b1<<8) + b2;
 }
 
-int    LongSwap (int l)
+int	LongSwap (int l)
 {
-	byte    b1,b2,b3,b4;
+	byte	b1,b2,b3,b4;
 
 	b1 = l&255;
 	b2 = (l>>8)&255;
@@ -1000,8 +1000,8 @@ int    LongSwap (int l)
 }
 
 typedef union {
-    float	f;
-    unsigned int i;
+	float	f;
+	unsigned int i;
 } _FloatByteUnion;
 
 float FloatSwap (const float *f) {
@@ -1009,7 +1009,7 @@ float FloatSwap (const float *f) {
 
 	out.f = *f;
 	out.i = LongSwap(out.i);
-	
+
 	return out.f;
 }
 

@@ -419,7 +419,7 @@ void WhiskeyThink( gentity_t *self){
 
 // pool doesnt die it just burns
 void WhiskeyDie ( gentity_t *self, gentity_t *inflictor,
-    gentity_t *attacker, int damage, int mod ) {
+	gentity_t *attacker, int damage, int mod ) {
 
 	if(mod != MOD_DYNAMITE || self->s.apos.trDelta[0]){
 		self->health = 1;
@@ -621,7 +621,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, int shaderNum ) {
 			}
 #ifndef SMOKINGUNS
 			G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity,
-				ent->s.origin, ent->damage, 
+				ent->s.origin, ent->damage,
 				0, ent->methodOfDeath);
 #else
 
@@ -987,7 +987,7 @@ gentity_t *fire_plasma (gentity_t *self, vec3_t start, vec3_t dir) {
 	VectorCopy (start, bolt->r.currentOrigin);
 
 	return bolt;
-}	
+}
 
 //=============================================================================
 
@@ -1351,7 +1351,7 @@ void G_Suck( gentity_t *self ) {
 	self->wait = wait;
 
 	if (level.time > self->wait && !Q_stricmp(self->classname, "grenade"))
-		G_ExplodeMissile( self);
+		G_ExplodeMissile( self );
 }
 
 /*
@@ -1362,11 +1362,11 @@ Spoon - Destroy the dynamite
 ================
 */
 void G_DynamiteDie( gentity_t *self, gentity_t *inflictor,
-    gentity_t *attacker, int damage, int mod ) {
+	gentity_t *attacker, int damage, int mod ) {
 
-    self->takedamage = qfalse;
-    self->think = G_ExplodeMissile;
-    self->nextthink = level.time + 50;
+	self->takedamage = qfalse;
+	self->think = G_ExplodeMissile;
+	self->nextthink = level.time + 50;
 	self->s.modelindex = 0;
 	self->touch = 0;
 	self->s.eType = ET_MISSILE;
