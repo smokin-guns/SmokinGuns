@@ -1223,6 +1223,7 @@ void ClientUserinfoChanged( int clientNum ) {
 #ifdef SMOKINGUNS
 	char	guid[MAX_INFO_STRING];
 	char	version[MAX_INFO_STRING];
+	char	md5[MAX_INFO_STRING];
 #endif
 
 	ent = g_entities + clientNum;
@@ -1522,6 +1523,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	strcpy(c2, Info_ValueForKey( userinfo, "color2" ));
 #else
 	strcpy(version, Info_ValueForKey( userinfo, "cl_version" ));
+	strcpy(md5, Info_ValueForKey( userinfo, "cl_md5" ));
 #endif
 	strcpy(redTeam, Info_ValueForKey( userinfo, "g_redteam" ));
 	strcpy(blueTeam, Info_ValueForKey( userinfo, "g_blueteam" ));
@@ -1554,10 +1556,10 @@ void ClientUserinfoChanged( int clientNum ) {
 			client->pers.netname, guid, client->sess.sessionTeam, model, headModel, redTeam, blueTeam, c1, c2,
 			client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader);
 #else
-		s = va("guid\\%s\\n\\%s\\t\\%i\\model\\%s\\g_redteam\\%s\\g_blueteam\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d\\v\\%s",
+		s = va("guid\\%s\\n\\%s\\t\\%i\\model\\%s\\g_redteam\\%s\\g_blueteam\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d\\v\\%s\\md5\\%s",
 			guid,
 			client->pers.netname, client->sess.sessionTeam, model, redTeam, blueTeam,
-			client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader, version);
+			client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader, version, md5);
 #endif
 	}
 

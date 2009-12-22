@@ -817,6 +817,10 @@ void		Com_GameRestart(int checksumFeed, qboolean clientRestart);
 int			Com_Milliseconds( void );	// will be journaled properly
 unsigned	Com_BlockChecksum( const void *buffer, int length );
 char		*Com_MD5File(const char *filename, int length, const char *prefix, int prefix_len);
+#ifdef SMOKINGUNS
+char		*Com_MD5Text(const char *text, int length, const char *prefix, int prefix_len);
+char		*Com_MD5TextArray(const char **array, int length, const char *prefix, int prefix_len);
+#endif
 int			Com_Filter(char *filter, char *name, int casesensitive);
 int			Com_FilterPath(char *filter, char *name, int casesensitive);
 int			Com_RealTime(qtime_t *qtime);
@@ -1112,6 +1116,10 @@ void	Sys_Sleep(int msec);
 qboolean Sys_LowPhysicalMemory( void );
 
 void Sys_SetEnv(const char *name, const char *value);
+
+#ifdef SMOKINGUNS
+void Sys_BinaryEngineComment( void );
+#endif
 
 /* This is based on the Adaptive Huffman algorithm described in Sayood's Data
  * Compression book.  The ranks are not actually stored, but implicitly defined
