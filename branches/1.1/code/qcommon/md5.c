@@ -308,3 +308,65 @@ char *Com_MD5File( const char *fn, int length, const char *prefix, int prefix_le
 	}
 	return final;
 }
+
+#ifdef SMOKINGUNS
+char *Com_MD5Text( const char *text, int length, const char *prefix, int prefix_len )
+{
+	static char final[33] = {""};
+	unsigned char digest[16] = {""}; 
+	MD5_CTX md5;
+	int i;
+
+	Q_strncpyz( final, "", sizeof( final ) );
+
+	if( !text ) {
+		return final;
+	}
+	if( length < 1 ) {
+		return final;
+	}
+
+	MD5Init(&md5);
+
+	if( prefix_len && *prefix )
+		MD5Update(&md5 , (unsigned char *)prefix, prefix_len);
+	MD5Update(&md5 , (unsigned char *)text, length);
+	MD5Final(&md5, digest);
+	final[0] = '\0';
+	for(i = 0; i < 16; i++) {
+		Q_strcat(final, sizeof(final), va("%02X", digest[i]));
+	}
+	return final;
+}
+
+char *Com_MD5TextArray( const char **array, int length, const char *prefix, int prefix_len )
+{
+	static char final[33] = {""};
+	unsigned char digest[16] = {""}; 
+	MD5_CTX md5;
+	int i;
+
+	Q_strncpyz( final, "", sizeof( final ) );
+
+	if( !array ) {
+		return final;
+	}
+	if( length < 1 ) {
+		return final;
+	}
+
+	MD5Init(&md5);
+
+	if( prefix_len && *prefix )
+		MD5Update(&md5 , (unsigned char *)prefix, prefix_len);
+	for(i = 0; i < length && array[i]; i++) {
+		MD5Update(&md5 , (unsigned char *)array[i], strlen(array[i]));
+	}
+	MD5Final(&md5, digest);
+	final[0] = '\0';
+	for(i = 0; i < 16; i++) {
+		Q_strcat(final, sizeof(final), va("%02X", digest[i]));
+	}
+	return final;
+}
+#endif

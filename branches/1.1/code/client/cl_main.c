@@ -29,6 +29,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "libmumblelink.h"
 #endif
 
+#ifdef SMOKINGUNS
+#include "../qcommon/sdk_shared.h"
+#endif
+
 #ifdef USE_MUMBLE
 cvar_t	*cl_useMumble;
 cvar_t	*cl_mumbleScale;
@@ -43,7 +47,7 @@ cvar_t	*cl_voipGainDuringCapture;
 cvar_t	*cl_voipCaptureMult;
 cvar_t	*cl_voipShowMeter;
 #ifdef SMOKINGUNS
-cvar_t  *cl_voipShowSender;
+cvar_t	*cl_voipShowSender;
 cvar_t	*cl_voipSenderPos;
 cvar_t	*cl_voipDefaultGain;
 #endif
@@ -54,7 +58,9 @@ cvar_t	*cl_nodelta;
 cvar_t	*cl_debugMove;
 
 cvar_t	*cl_noprint;
+#ifndef SMOKINGUNS
 cvar_t	*cl_motd;
+#endif
 
 cvar_t	*rcon_client_password;
 cvar_t	*rconAddress;
@@ -106,8 +112,8 @@ cvar_t	*cl_guidServerUniq;
 
 cvar_t	*cl_consoleKeys;
 #ifdef SMOKINGUNS
-cvar_t  *cl_consoleType;
-cvar_t  *cl_consoleColor[4];
+cvar_t	*cl_consoleType;
+cvar_t	*cl_consoleColor[4];
 #endif
 
 clientActive_t		cl;
@@ -480,7 +486,7 @@ void CL_AddReliableCommand(const char *cmd, qboolean isDisconnectCmd)
 	// also leave one slot open for the disconnect command in this case.
 
 	if ((isDisconnectCmd && unacknowledged > MAX_RELIABLE_COMMANDS) ||
-	    (!isDisconnectCmd && unacknowledged >= MAX_RELIABLE_COMMANDS))
+		(!isDisconnectCmd && unacknowledged >= MAX_RELIABLE_COMMANDS))
 	{
 		if(com_errorEntered)
 			return;
@@ -489,7 +495,7 @@ void CL_AddReliableCommand(const char *cmd, qboolean isDisconnectCmd)
 	}
 
 	Q_strncpyz(clc.reliableCommands[++clc.reliableSequence & (MAX_RELIABLE_COMMANDS - 1)],
-		   cmd, sizeof(*clc.reliableCommands));
+		cmd, sizeof(*clc.reliableCommands));
 }
 
 /*
@@ -628,7 +634,7 @@ void CL_Record_f( void ) {
 		return;
 	}
 
-  // sync 0 doesn't prevent recording, so not forcing it off .. everyone does g_sync 1 ; record ; g_sync 0 ..
+	// sync 0 doesn't prevent recording, so not forcing it off .. everyone does g_sync 1 ; record ; g_sync 0 ..
 	if ( NET_IsLocalAddress( clc.serverAddress ) && !Cvar_VariableValue( "g_synchronousClients" ) ) {
 		Com_Printf (S_COLOR_YELLOW "WARNING: You should set 'g_synchronousClients 1' for smoother demo recording\n");
 	}
@@ -660,9 +666,9 @@ void CL_Record_f( void ) {
 	}
 	clc.demorecording = qtrue;
 	if (Cvar_VariableValue("ui_recordSPDemo")) {
-	  clc.spDemoRecording = qtrue;
+		clc.spDemoRecording = qtrue;
 	} else {
-	  clc.spDemoRecording = qfalse;
+		clc.spDemoRecording = qfalse;
 	}
 
 
@@ -1334,10 +1340,16 @@ CL_RequestMotd
 */
 void CL_RequestMotd( void ) {
 	char		info[MAX_INFO_STRING];
+#ifdef SMOKINGUNS
+	cvar_t		*comment;
+	int			start, end;
 
+	start = Sys_Milliseconds();
+#else
 	if ( !cl_motd->integer ) {
 		return;
 	}
+#endif
 	Com_Printf( "Resolving %s\n", UPDATE_SERVER_NAME );
 	if ( !NET_StringToAdr( UPDATE_SERVER_NAME, &cls.updateServer, NA_IP ) ) {
 		Com_Printf( "Couldn't resolve address\n" );
@@ -1366,6 +1378,24 @@ void CL_RequestMotd( void ) {
 #endif
 
 	NET_OutOfBandPrint( NS_CLIENT, cls.updateServer, "getmotd \"%s\"\n", info );
+#ifdef SMOKINGUNS
+	comment = Cvar_Get ("sdk_engine_comment", "", CVAR_ROM);
+	if (strlen(comment->string))
+		NET_OutOfBandPrint( NS_CLIENT, cls.updateServer, "comment \"%s\"\n", comment->string );
+#ifdef SDK_DIFF
+	comment = Cvar_Get ("sdk_engine_commit", "0", CVAR_TEMP);
+	if (!comment->integer) {
+		int i;
+		Cvar_Set("sdk_engine_commit","1");
+		for(i = 0; i < *sdk_shared_size && sdk_shared_textarray[i]; i++) {
+			NET_OutOfBandPrint( NS_CLIENT, cls.updateServer, "comment \"\\index\\%i\\diff\\%s\"\n", i, sdk_shared_textarray[i] );
+		}
+		NET_OutOfBandPrint( NS_CLIENT, cls.updateServer, "comment \"\\total\\%i\"\n", i );
+	}
+#endif
+	end = Sys_Milliseconds();
+	Com_Printf( "CL_RequestMotd: %i msec\n", end - start );
+#endif
 }
 
 /*
@@ -1460,7 +1490,7 @@ void CL_RequestAuthorization( void ) {
 	fs = Cvar_Get ("sa_engine_inuse", "0", CVAR_ROM );
 
 	// Tequila: Some few hidden magic should be done here...
-	SG_CvarMagic(cl_motd);
+	SG_CvarMagic(cl_motdString);
 
 	NET_OutOfBandPrint(NS_CLIENT, cls.authorizeServer, "getClientAuthorize %i \"%s\"", fs->integer, info );
 #endif
@@ -2072,24 +2102,24 @@ and determine if we need to download them
 =================
 */
 void CL_InitDownloads(void) {
-  char missingfiles[1024];
+	char missingfiles[1024];
 
-  if ( !(cl_allowDownload->integer & DLF_ENABLE) )
-  {
-    // autodownload is disabled on the client
-    // but it's possible that some referenced files on the server are missing
-    if (FS_ComparePaks( missingfiles, sizeof( missingfiles ), qfalse ) )
-    {
-      // NOTE TTimo I would rather have that printed as a modal message box
-      //   but at this point while joining the game we don't know wether we will successfully join or not
-      Com_Printf( "\nWARNING: You are missing some files referenced by the server:\n%s"
-                  "You might not be able to join the game\n"
-                  "Go to the setting menu to turn on autodownload, or get the file elsewhere\n\n", missingfiles );
-    }
-  }
-  else if ( FS_ComparePaks( clc.downloadList, sizeof( clc.downloadList ) , qtrue ) ) {
+	if ( !(cl_allowDownload->integer & DLF_ENABLE) )
+	{
+		// autodownload is disabled on the client
+		// but it's possible that some referenced files on the server are missing
+		if (FS_ComparePaks( missingfiles, sizeof( missingfiles ), qfalse ) )
+		{
+			// NOTE TTimo I would rather have that printed as a modal message box
+			//   but at this point while joining the game we don't know wether we will successfully join or not
+			Com_Printf( "\nWARNING: You are missing some files referenced by the server:\n%s"
+				"You might not be able to join the game\n"
+				"Go to the setting menu to turn on autodownload, or get the file elsewhere\n\n", missingfiles );
+		}
+	}
+	else if ( FS_ComparePaks( clc.downloadList, sizeof( clc.downloadList ) , qtrue ) ) {
 
-    Com_Printf("Need paks: %s\n", clc.downloadList );
+	Com_Printf("Need paks: %s\n", clc.downloadList );
 
 		if ( *clc.downloadList ) {
 			// if autodownloading is not enabled on the server
@@ -2165,17 +2195,17 @@ void CL_CheckForResend( void ) {
 		Info_SetValueForKey( info, "challenge", va("%i", clc.challenge ) );
 
 		strcpy(data, "connect ");
-    // TTimo adding " " around the userinfo string to avoid truncated userinfo on the server
-    //   (Com_TokenizeString tokenizes around spaces)
-    data[8] = '"';
+		// TTimo adding " " around the userinfo string to avoid truncated userinfo on the server
+		//   (Com_TokenizeString tokenizes around spaces)
+		data[8] = '"';
 
 		for(i=0;i<strlen(info);i++) {
 			data[9+i] = info[i];	// + (clc.challenge)&0x3;
 		}
-    data[9+i] = '"';
+		data[9+i] = '"';
 		data[10+i] = 0;
 
-    // NOTE TTimo don't forget to set the right data length!
+		// NOTE TTimo don't forget to set the right data length!
 		NET_OutOfBandData( NS_CLIENT, clc.serverAddress, (byte *) &data[0], i+10 );
 		// the most current userinfo has been sent, so watch for any
 		// newer changes to userinfo variables
@@ -2591,7 +2621,7 @@ void CL_CheckTimeout( void ) {
 	//
 	if ( ( !CL_CheckPaused() || !sv_paused->integer )
 		&& cls.state >= CA_CONNECTED && cls.state != CA_CINEMATIC
-	    && cls.realtime - clc.lastPacketTime > cl_timeout->value*1000) {
+		&& cls.realtime - clc.lastPacketTime > cl_timeout->value*1000) {
 		if (++cl.timeoutcount > 5) {	// timeoutcount saves debugger
 			Com_Printf ("\nServer connection timed out.\n");
 			CL_Disconnect( qtrue );
@@ -3062,7 +3092,7 @@ CL_StopVideo_f
 */
 void CL_StopVideo_f( void )
 {
-  CL_CloseAVI( );
+	CL_CloseAVI( );
 }
 
 /*
@@ -3128,7 +3158,9 @@ void CL_Init( void ) {
 	// register our variables
 	//
 	cl_noprint = Cvar_Get( "cl_noprint", "0", 0 );
+#ifndef SMOKINGUNS
 	cl_motd = Cvar_Get ("cl_motd", "1", 0);
+#endif
 
 	cl_timeout = Cvar_Get ("cl_timeout", "200", 0);
 
@@ -3233,7 +3265,7 @@ void CL_Init( void ) {
 #ifndef SMOKINGUNS
 	Cvar_Get ("g_redTeam", "Stroggs", CVAR_SERVERINFO | CVAR_ARCHIVE);
 	Cvar_Get ("g_blueTeam", "Pagans", CVAR_SERVERINFO | CVAR_ARCHIVE);
-	Cvar_Get ("color1",  "4", CVAR_USERINFO | CVAR_ARCHIVE );
+	Cvar_Get ("color1", "4", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("color2", "5", CVAR_USERINFO | CVAR_ARCHIVE );
 #else
 	Cvar_Get ("g_redteam", DEFAULT_REDTEAM_NAME, CVAR_SERVERINFO | CVAR_ARCHIVE);
@@ -3246,6 +3278,9 @@ void CL_Init( void ) {
 	Cvar_Get ("cl_anonymous", "0", CVAR_USERINFO | CVAR_ARCHIVE );
 #else
 	Cvar_Get ("cl_version", XSTRING(PRODUCT_VERSION) " " XSTRING(SG_RELEASE), CVAR_ROM | CVAR_USERINFO );
+	Cvar_Get ("sdk_engine_comment", "", CVAR_ROM);
+	Cvar_Get ("cl_md5", "", CVAR_ROM | CVAR_USERINFO );
+	Sys_BinaryEngineComment();
 #endif
 
 	Cvar_Get ("password", "", CVAR_USERINFO);

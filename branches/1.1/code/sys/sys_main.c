@@ -47,6 +47,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 
+#ifdef SMOKINGUNS
+#include "../qcommon/sdk_shared.h"
+#ifdef SDK_DIFF
+// Tool to keep trace of your modification in the code, so you, coder, may comment
+// your own modifications for our information. Then Smokin'Guns teal will be able
+// to keep trace and eventually get your graceful accepted comments in consideration
+// Blame Tequila if you don't like this tool :P
+  #include "../../build/sdk_diff.h"
+#endif
+#endif
+
 static char binaryPath[ MAX_OSPATH ] = { 0 };
 static char installPath[ MAX_OSPATH ] = { 0 };
 
@@ -462,7 +473,8 @@ void Sys_ParseArgs( int argc, char **argv )
 			fprintf( stdout, Q3_VERSION " client (%s, %s)\n", date, time );
 #endif
 			fprintf( stdout, "Release: " XSTRING(SG_RELEASE) "\n" );
-			fprintf( stdout, "Flavour: " OS_STRING " " ARCH_STRING "\n" );
+			fprintf( stdout, "Flavour: " OS_STRING " " ARCH_STRING "\n\n" );
+			Sys_BinaryEngineComment();
 #else
 #ifdef DEDICATED
 			fprintf( stdout, Q3_VERSION " dedicated server (%s)\n", date );
@@ -509,6 +521,47 @@ void Sys_SigHandler( int signal )
 
 	Sys_Exit( 0 ); // Exit with 0 to avoid recursive signals
 }
+
+/*
+==============
+Sys_BinaryEngineComment
+==============
+*/
+#ifdef SMOKINGUNS
+void Sys_BinaryEngineComment( void ) {
+	const char *version = Q3_VERSION;
+	const char *platform = PLATFORM_STRING;
+	const char *date = __DATE__;
+	const char *time = __TIME__;
+	const char *comment = SDK_COMMENT;
+	const char *contact = SDK_CONTACT;
+	char *sum;
+	char string[MAX_STRING_CHARS] = "";
+	Com_sprintf(string,sizeof(string),"%s, %s %s, %s", version, date, time, platform);
+	if (strlen(comment))
+		Q_strcat(string,sizeof(string),va("\ncomment: %s",comment));
+	if (strlen(contact))
+		Q_strcat(string,sizeof(string),va("\ncontact: %s",contact));
+	Com_Printf("engine: %s\n", string);
+#ifndef SDK_DIFF
+	sum = Com_MD5Text(string,strlen(string),NULL,0);
+#else
+	sum = Com_MD5TextArray(sdk_diff,sdk_diff_size,string,strlen(string));
+#endif
+	Com_Printf("md5sum: %s\n", sum);
+	// Avoid segfault if engine is called with --version argument
+	if (!com_version)
+		return;
+	Cvar_Set ("cl_md5", va("%s",sum));
+#ifndef SDK_DIFF
+	Cvar_Set("sdk_engine_comment",va("\\version\\%s\\platform\\%s\\date\\%s %s\\md5\\%s\\comment\\%s\\contact\\%s",
+		version, platform, date, time, sum, comment, contact));
+#else
+	Cvar_Set("sdk_engine_comment",va("\\version\\%s\\platform\\%s\\date\\%s %s\\md5\\%s\\diff\\%i\\comment\\%s\\contact\\%s",
+		version, platform, date, time, sum, sdk_diff_format, comment, contact));
+#endif
+}
+#endif
 
 /*
 =================
