@@ -1427,7 +1427,12 @@ static void CG_RegisterGraphics( void ) {
 	CG_LoadingStage(1);
 #endif
 	cgs.media.bloodTrailShader = trap_R_RegisterShader( "bloodTrail" );
-	cgs.media.lagometerShader = trap_R_RegisterShader("lagometer" );
+#ifdef SMOKINGUNS
+	if (cg_lagometer.integer==2)
+		cgs.media.lagometerShader = trap_R_RegisterShader("console" );
+	else
+#endif
+		cgs.media.lagometerShader = trap_R_RegisterShader("lagometer" );
 	cgs.media.connectionShader = trap_R_RegisterShader( "disconnected" );
 
 	cgs.media.waterBubbleShader = trap_R_RegisterShader( "waterBubble" );
