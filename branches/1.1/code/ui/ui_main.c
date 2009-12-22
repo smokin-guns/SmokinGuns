@@ -6541,13 +6541,17 @@ void UI_DrawConnectScreen( qboolean overlay ) {
 	}
 
 	// display global MOTD at bottom
+#ifndef SMOKINGUNS
 	Text_PaintCenter(centerPoint, 600, scale, colorWhite, Info_ValueForKey( cstate.updateInfoString, "motd" ), 0);
+#else
+	Text_PaintCenter_AutoWrapped(centerPoint, yStart + 276, 630, 25, scale, colorYellow, Info_ValueForKey( cstate.updateInfoString, "motd" ), 0);
+#endif
 	// print any server info (server full, bad version, etc)
 	if ( cstate.connState < CA_CONNECTED ) {
-#ifdef SMOKINGUNS
-		Text_PaintCenter_AutoWrapped(centerPoint, yStart + 176, 630, 20, scale, colorWhite, cstate.messageString, 0);
-#else
+#ifndef SMOKINGUNS
 		Text_PaintCenter_AutoWrapped(centerPoint, yStart + 176, 600, 15, scale/1.5f, colorWhite, cstate.messageString, 0);
+#else
+		Text_PaintCenter_AutoWrapped(centerPoint, yStart + 176, 630, 20, scale, colorWhite, cstate.messageString, 0);
 #endif
 	}
 
