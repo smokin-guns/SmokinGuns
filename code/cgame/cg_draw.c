@@ -2323,7 +2323,7 @@ static void CG_DrawLagometer( void ) {
 	}
 
 #ifdef SMOKINGUNS
-	if(!cg.scoreBoardShowing)
+	if(!cg.scoreBoardShowing && cg_lagometer.integer != 2)
 		return;
 #endif
 
@@ -2334,11 +2334,22 @@ static void CG_DrawLagometer( void ) {
 	x = 640 - 48;
 	y = 480 - 144;
 #else
-	x = 640 - 48;
-	y = 480 - 48;
+	if (cg_lagometer.integer == 2) {
+		x = 640 - 162;
+		y = 480 - 48;
+	} else {
+		x = 640 - 48;
+		y = 480 - 48;
+	}
 #endif
 
 	trap_R_SetColor( NULL );
+#ifdef SMOKINGUNS
+	if (cg_lagometer.integer == 2) {
+		vec4_t lagocolor = { 1.0f, 1.0f, 1.0f, 0.33f };
+		trap_R_SetColor( lagocolor );
+	}
+#endif
 	CG_DrawPic( x, y, 48, 48, cgs.media.lagometerShader );
 
 	ax = x;
