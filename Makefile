@@ -160,6 +160,10 @@ ifndef FRAMEBUFFER_AND_GLSL_SUPPORT
 FRAMEBUFFER_AND_GLSL_SUPPORT=0
 endif
 
+ifndef BUILD_SDK_DIFF
+SDK_DIFF=0
+endif
+
 #############################################################################
 
 BD=$(BUILD_DIR)/debug-$(PLATFORM)-$(ARCH)
@@ -903,6 +907,16 @@ else
         $(B)/$(SDK_GAMENAME)/vm/cgame.qvm \
         $(B)/$(SDK_GAMENAME)/vm/qagame.qvm \
         $(B)/$(SDK_GAMENAME)/vm/ui.qvm
+    endif
+  endif
+endif
+
+ifneq ($(BUILD_SDK_DIFF),0)
+  ifndef SDK_DIFF
+    SDK_DIFF = $(shell misc/sdk/sdk_diff.sh build/sdk_diff.h 2>/dev/null)
+    ifneq ($(SDK_DIFF),0)
+      CLIENT_CFLAGS += -DSDK_DIFF=\\\"$(SDK_DIFF)\\\"
+      SERVER_CFLAGS += -DSDK_DIFF=\\\"$(SDK_DIFF)\\\"
     endif
   endif
 endif
@@ -1856,6 +1870,8 @@ $(B)/ioq3ded$(FULLBINEXT): $(Q3DOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(Q3DOBJ) $(LIBS)
 else
+  Q3DOBJ += $(B)/ded/md5.o
+
 $(B)/$(SDK_GAMENAME)_dedicated$(FULLBINEXT): $(Q3DOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(Q3DOBJ) $(LIBS)

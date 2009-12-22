@@ -26,6 +26,9 @@ ifeq ($(FRAMEBUFFER_AND_GLSL_SUPPORT),)
   # Build rendere with frambuffer and GLSL support by default
   FRAMEBUFFER_AND_GLSL_SUPPORT = 1
 endif
+ifeq ($(BUILD_SDK_DIFF),)
+  BUILD_SDK_DIFF   = 1
+endif
 ########################################################################
 # Don't modify the following or the build will just be broken
 BUILD_STANDALONE  = 1
