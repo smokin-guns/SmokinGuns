@@ -37,6 +37,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <libgen.h>
 #include <fcntl.h>
 
+qboolean stdinIsATTY;
+
 // Used to determine where to store user-specific files
 static char homePath[ MAX_OSPATH ] = { 0 };
 
@@ -594,37 +596,35 @@ Block execution for msec or until input is recieved.
 */
 void Sys_Sleep( int msec )
 {
-	fd_set fdset;
-
 	if( msec == 0 )
 		return;
 
-	FD_ZERO(&fdset);
-	FD_SET(fileno(stdin), &fdset);
-	if( msec < 0 )
+	if( stdinIsATTY )
 	{
-		select((fileno(stdin) + 1), &fdset, NULL, NULL, NULL);
+		fd_set fdset;
+
+		FD_ZERO(&fdset);
+		FD_SET(STDIN_FILENO, &fdset);
+		if( msec < 0 )
+		{
+			select(STDIN_FILENO + 1, &fdset, NULL, NULL, NULL);
+		}
+		else
+		{
+			struct timeval timeout;
+
+			timeout.tv_sec = msec/1000;
+			timeout.tv_usec = (msec%1000)*1000;
+			select(STDIN_FILENO + 1, &fdset, NULL, NULL, &timeout);
+		}
 	}
 	else
 	{
-#if defined(SMOKINGUNS) && DEDICATED
-		// Tequila: If process is daemonized or stdin is set to /dev/null, we
-		// won't be able to use select syscall with a timeout, so we should use
-		// nanosleep syscall. Tested on linux.
-		if (!stdin_active) {
-			struct timespec sleep;
-			struct timespec remain;
-			sleep.tv_sec = msec/1000;
-			sleep.tv_nsec = (msec%1000)*1000000;
-			nanosleep(&sleep,&remain);
-			return;
-		}
-#endif
-		struct timeval timeout;
+		// With nothing to select() on, we can't wait indefinitely
+		if( msec < 0 )
+			msec = 10;
 
-		timeout.tv_sec = msec/1000;
-		timeout.tv_usec = (msec%1000)*1000;
-		select((fileno(stdin) + 1), &fdset, NULL, NULL, &timeout);
+		usleep( msec * 1000 );
 	}
 }
 
@@ -714,11 +714,16 @@ Unix specific initialisation
 */
 void Sys_PlatformInit( void )
 {
+	const char* term = getenv( "TERM" );
+
 	signal( SIGHUP, Sys_SigHandler );
 	signal( SIGQUIT, Sys_SigHandler );
 	signal( SIGTRAP, Sys_SigHandler );
 	signal( SIGIOT, Sys_SigHandler );
 	signal( SIGBUS, Sys_SigHandler );
+
+	stdinIsATTY = isatty( STDIN_FILENO ) &&
+		!( term && ( !strcmp( term, "raw" ) || !strcmp( term, "dumb" ) ) );
 }
 
 /*
@@ -883,6 +888,8 @@ void Sys_Daemonize( void )
 				close(STDIN_FILENO);
 				close(STDOUT_FILENO);
 				close(STDERR_FILENO);
+				// Tequila: Disable sleeping with a select timeout on STDIN
+				stdinIsATTY = qfalse;
 			}
 			break;
 		default:
