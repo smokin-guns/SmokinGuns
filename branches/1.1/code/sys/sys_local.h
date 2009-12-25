@@ -39,9 +39,6 @@ void CON_Shutdown( void );
 void CON_Init( void );
 char *CON_Input( void );
 void CON_Print( const char *message );
-#if defined(SMOKINGUNS) && DEDICATED
-extern qboolean stdin_active;
-#endif
 
 unsigned int CON_LogSize( void );
 unsigned int CON_LogWrite( const char *in );
