@@ -40,11 +40,8 @@ called before and after a stdout or stderr output
 =============================================================
 */
 
-#if defined(SMOKINGUNS) && DEDICATED
-qboolean stdin_active;
-#else
+extern qboolean stdinIsATTY;
 static qboolean stdin_active;
-#endif
 // general flag to tell about tty console mode
 static qboolean ttycon_on = qfalse;
 static int ttycon_hide = 0;
@@ -272,7 +269,6 @@ Initialize the console input (tty mode if possible)
 void CON_Init( void )
 {
 	struct termios tc;
-	const char* term = getenv("TERM");
 
 	// If the process is backgrounded (running non interactively)
 	// then SIGTTIN or SIGTOU is emitted, if not caught, turns into a SIGSTP
@@ -285,8 +281,7 @@ void CON_Init( void )
 	// Make stdin reads non-blocking
 	fcntl(STDIN_FILENO, F_SETFL, fcntl(STDIN_FILENO, F_GETFL, 0) | O_NONBLOCK );
 
-	if (isatty(STDIN_FILENO) != 1
-	|| (term && (!strcmp(term, "raw") || !strcmp(term, "dumb"))))
+	if (!stdinIsATTY)
 	{
 		Com_Printf("tty console mode disabled\n");
 		ttycon_on = qfalse;
