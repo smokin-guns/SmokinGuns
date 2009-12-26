@@ -231,6 +231,7 @@ Far clipping form definition
 #ifdef SMOKINGUNS
 typedef enum {
         FARCLIP_NONE ,			// no clipping
+        FARCLIP_ALWAYS ,		// always clip
 	FARCLIP_SPHERE ,		// Standard default spherical clipping
         FARCLIP_ELLIPSE_X ,		// X-axis rescaled sphere
         FARCLIP_ELLIPSE_Y ,		// Y-axis rescaled
@@ -255,6 +256,8 @@ typedef enum {
         FARCLIP_SQUARE_INFINITE_Y ,
         FARCLIP_SQUARE_INFINITE_Z
 } farclip_t ;
+
+#define CLOSECLIP_BINARY_MASK	0x80		// bit on => LOD definition, bit off => no LOD definition: always displayed
 
 /*
 -----------------------

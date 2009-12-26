@@ -914,13 +914,14 @@ CG_Mover
 ===============
 */
 static void CG_Mover( centity_t *cent ) {
-	refEntity_t			ent;
+	refEntity_t		ent;
 	entityState_t		*s1;
 	
 #ifdef SMOKINGUNS
 	// Joe Kari: farclip_type and farclip_dist :
 	
-	int farclip_type = cent->currentState.powerups & 255 ;	// only 8 lower bits of powerups is used for farclipping
+	int farclip_type = cent->currentState.powerups & 127 ;	// only 7 lower bits of powerups is used for farclipping
+	int invert_clip = cent->currentState.powerups & 128 ;	// if it's a close clipping
 	// fast multiply by 64:
 	float farclip_dist = (float)( cent->currentState.legsAnim << 6 ) ;
 	float farclip_alt_dist = (float)( cent->currentState.torsoAnim << 6 ) ;
@@ -963,7 +964,12 @@ static void CG_Mover( centity_t *cent ) {
 	
 	// Joe Kari: for func_static
 	// if a farclip is specified for this entity, then try to clip it !!!
-	if ( ( farclip_type > FARCLIP_NONE ) && ( farclip_type < CG_Farclip_Tester_Table_Size ) && ( CG_Farclip_Tester[farclip_type]( s1->origin , cg.refdef.vieworg , farclip_dist , farclip_alt_dist ) ) )  return;
+	
+	if ( ( farclip_type + invert_clip > FARCLIP_NONE ) && ( farclip_type < CG_Farclip_Tester_Table_Size ) )
+	{
+		if ( !invert_clip && CG_Farclip_Tester[farclip_type]( s1->origin , cg.refdef.vieworg , farclip_dist , farclip_alt_dist ) )  return;
+		else if ( invert_clip && !CG_Farclip_Tester[farclip_type]( s1->origin , cg.refdef.vieworg , farclip_dist , farclip_alt_dist ) )  return;
+	}
 #endif
 	
 	// flicker between two skins (FIXME?)

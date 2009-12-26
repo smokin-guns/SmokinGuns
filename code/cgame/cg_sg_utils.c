@@ -1986,6 +1986,10 @@ qboolean CG_Farclip_None( vec3_t entite_vec3 , vec3_t camera_vec3 , float farcli
 	return qfalse ;
 }
 
+qboolean CG_Farclip_Always( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist ) {
+	return qtrue ;
+}
+
 qboolean CG_Farclip_Sphere( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
 {
 	float dx , dy , dz ;
@@ -2199,6 +2203,7 @@ qboolean CG_Farclip_Pyramid_Y( vec3_t entite_vec3 , vec3_t camera_vec3 , float f
 
 qboolean ( * CG_Farclip_Tester[] )( vec3_t , vec3_t , float , float ) = {
         CG_Farclip_None ,
+        CG_Farclip_Always ,
         CG_Farclip_Sphere ,
         CG_Farclip_Ellipse_X ,
         CG_Farclip_Ellipse_Y ,
