@@ -23,7 +23,9 @@ elif [ -n "$BASE64CMD" ]; then
 	FORMAT=1
 	svn diff -x -w | gzip -c9nq | base64 -w$((CHUNK*57*4/3)) | while read buffer
 	do
-		echo -e "\t\"$buffer\"," >>$FILE
+		echo -n '"' >>$FILE
+		echo -n $buffer >>$FILE
+		echo '",' >>$FILE
 	done
 elif [ -n "$PERLCMD" ]; then
 	FORMAT=2
@@ -34,15 +36,16 @@ else
 	svn diff -x -w | while read line
 	do
 		line="${line//\\/\\\\}"
-		echo -en "\t\"" >>$FILE
-		echo "${line//\"/\\\"}\"," >>$FILE
+		echo -n '"' >>$FILE
+		echo -n ${line//\"/\\\"} >>$FILE
+		echo '",' >>$FILE
 	done
 fi
 
 # Output C footer
 cat >>$FILE <<HEADER
-	NULL
-	};
+NULL
+};
 
 const int sdk_diff_format = $FORMAT;
 const int sdk_diff_size = sizeof(sdk_diff)/sizeof(sdk_diff[0]);
