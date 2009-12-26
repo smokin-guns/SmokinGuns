@@ -2218,12 +2218,16 @@ void SP_func_static( gentity_t *ent )
 	// for drawing, but clip against the brushes
 	if ( ent->model2 )  ent->s.modelindex2 = G_ModelIndex( ent->model2 ) ;
 
-	// get the value for the key "farclip" and copy it to powerups (8 lower bits), legsAnim and torsoAnim field
+	
+	// get the value for the key "farclip" and copy it to powerups (7 lower bits), legsAnim and torsoAnim field
 	
 	G_SpawnString( "farclip" , "none" , &value ) ;
 	sscanf( value , "%31s %i %i" , tmp_char , &ent->s.legsAnim , &ent->s.torsoAnim ) ;
 	
+	ent->s.powerups = FARCLIP_NONE ;
+	
 	if ( !Q_stricmp( "none" , tmp_char ) )  ent->s.powerups = FARCLIP_NONE ;
+	else if ( !Q_stricmp( "always" , tmp_char ) )  ent->s.powerups = FARCLIP_ALWAYS ;
 	else if ( !Q_stricmp( "sphere" , tmp_char ) )  ent->s.powerups = FARCLIP_SPHERE ;
 	else if ( !Q_stricmp( "cube" , tmp_char ) )  ent->s.powerups = FARCLIP_CUBE ;
 	else if ( !Q_stricmp( "ellipse_z" , tmp_char ) )  ent->s.powerups = FARCLIP_ELLIPSE_Z ;
@@ -2247,7 +2251,45 @@ void SP_func_static( gentity_t *ent )
 	else if ( !Q_stricmp( "pyramid_y" , tmp_char ) )  ent->s.powerups = FARCLIP_PYRAMID_Y ;
 	else if ( !Q_stricmp( "circle_infinite_y" , tmp_char ) )  ent->s.powerups = FARCLIP_CIRCLE_INFINITE_Y ;
 	else if ( !Q_stricmp( "square_infinite_y" , tmp_char ) )  ent->s.powerups = FARCLIP_SQUARE_INFINITE_Y ;
-	else  ent->s.powerups = FARCLIP_NONE ;
+	
+	
+	// get the value for the key "closeclip" and copy it to powerups (7 lower bits), legsAnim and torsoAnim field
+	// farclip has priority over closeclip, we only try it if there is no farclip
+	
+	if ( ent->s.powerups == FARCLIP_NONE )
+	{
+		G_SpawnString( "closeclip" , "none" , &value ) ;
+		sscanf( value , "%31s %i %i" , tmp_char , &ent->s.legsAnim , &ent->s.torsoAnim ) ;
+		
+		if ( !Q_stricmp( "none" , tmp_char ) )  ent->s.powerups = FARCLIP_NONE ;
+		else if ( !Q_stricmp( "always" , tmp_char ) )  ent->s.powerups = FARCLIP_ALWAYS ;
+		else if ( !Q_stricmp( "sphere" , tmp_char ) )  ent->s.powerups = FARCLIP_SPHERE ;
+		else if ( !Q_stricmp( "cube" , tmp_char ) )  ent->s.powerups = FARCLIP_CUBE ;
+		else if ( !Q_stricmp( "ellipse_z" , tmp_char ) )  ent->s.powerups = FARCLIP_ELLIPSE_Z ;
+		else if ( !Q_stricmp( "cylinder_z" , tmp_char ) )  ent->s.powerups = FARCLIP_CYLINDER_Z ;
+		else if ( !Q_stricmp( "box_z" , tmp_char ) )  ent->s.powerups = FARCLIP_BOX_Z ;
+		else if ( !Q_stricmp( "cone_z" , tmp_char ) )  ent->s.powerups = FARCLIP_CONE_Z ;
+		else if ( !Q_stricmp( "pyramid_z" , tmp_char ) )  ent->s.powerups = FARCLIP_PYRAMID_Z ;
+		else if ( !Q_stricmp( "circle_infinite_z" , tmp_char ) )  ent->s.powerups = FARCLIP_CIRCLE_INFINITE_Z ;
+		else if ( !Q_stricmp( "square_infinite_z" , tmp_char ) )  ent->s.powerups = FARCLIP_SQUARE_INFINITE_Z ;
+		else if ( !Q_stricmp( "ellipse_x" , tmp_char ) )  ent->s.powerups = FARCLIP_ELLIPSE_X ;
+		else if ( !Q_stricmp( "cylinder_x" , tmp_char ) )  ent->s.powerups = FARCLIP_CYLINDER_X ;
+		else if ( !Q_stricmp( "box_x" , tmp_char ) )  ent->s.powerups = FARCLIP_BOX_X ;
+		else if ( !Q_stricmp( "cone_x" , tmp_char ) )  ent->s.powerups = FARCLIP_CONE_X ;
+		else if ( !Q_stricmp( "pyramid_x" , tmp_char ) )  ent->s.powerups = FARCLIP_PYRAMID_X ;
+		else if ( !Q_stricmp( "circle_infinite_x" , tmp_char ) )  ent->s.powerups = FARCLIP_CIRCLE_INFINITE_X ;
+		else if ( !Q_stricmp( "square_infinite_x" , tmp_char ) )  ent->s.powerups = FARCLIP_SQUARE_INFINITE_X ;
+		else if ( !Q_stricmp( "ellipse_y" , tmp_char ) )  ent->s.powerups = FARCLIP_ELLIPSE_Y ;
+		else if ( !Q_stricmp( "cylinder_y" , tmp_char ) )  ent->s.powerups = FARCLIP_CYLINDER_Y ;
+		else if ( !Q_stricmp( "box_y" , tmp_char ) )  ent->s.powerups = FARCLIP_BOX_Y ;
+		else if ( !Q_stricmp( "cone_y" , tmp_char ) )  ent->s.powerups = FARCLIP_CONE_Y ;
+		else if ( !Q_stricmp( "pyramid_y" , tmp_char ) )  ent->s.powerups = FARCLIP_PYRAMID_Y ;
+		else if ( !Q_stricmp( "circle_infinite_y" , tmp_char ) )  ent->s.powerups = FARCLIP_CIRCLE_INFINITE_Y ;
+		else if ( !Q_stricmp( "square_infinite_y" , tmp_char ) )  ent->s.powerups = FARCLIP_SQUARE_INFINITE_Y ;
+		
+		if ( ent->s.powerups )  ent->s.powerups |= CLOSECLIP_BINARY_MASK ;
+		
+	}
 	
 	if ( ent->s.powerups )
 	{
