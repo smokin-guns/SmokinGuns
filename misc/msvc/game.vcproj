@@ -525,10 +525,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\code\game\g_arenas.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\code\game\g_bot.c"
 				>
 			</File>
