@@ -2045,13 +2045,14 @@ void FireWeapon( gentity_t *ent, qboolean altfire, int weapon ) {
 		break;
 	case WP_WINCHESTER66:
 	case WP_LIGHTNING:
-	case WP_SHARPS:
 	case WP_GATLING:
+		Bullet_Fire( ent, spread, damage, weapon );
+		break;
+	case WP_SHARPS:
 		if(ent->client->ps.powerups[PW_SCOPE] == 2 && ent->client->ps.stats[STAT_WP_MODE] != 1)
-			spread *= 2;
+			spread *= 2;  // when scope is attached, aiming without looking through it is hard
 		else if(ent->client->ps.powerups[PW_SCOPE] == 2 && ent->client->ps.stats[STAT_WP_MODE] == 1)
 			spread /= 2;
-
 		Bullet_Fire( ent, spread, damage, weapon );
 		break;
 	case WP_PEACEMAKER:
