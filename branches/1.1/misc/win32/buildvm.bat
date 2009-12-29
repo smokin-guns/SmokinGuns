@@ -70,7 +70,6 @@ ECHO Building game ...
     CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\ai_cmd.asm %PATH_GAME%/ai_cmd.c
     CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\ai_team.asm %PATH_GAME%/ai_team.c
     CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_active.asm %PATH_GAME%/g_active.c
-    CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_arenas.asm %PATH_GAME%/g_arenas.c
     CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_bot.asm %PATH_GAME%/g_bot.c
     CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_client.asm %PATH_GAME%/g_client.c
     CALL :compile_it %CC_GAME% %PATH_GAME_BUILT%\g_cmds.asm %PATH_GAME%/g_cmds.c
@@ -109,7 +108,6 @@ ECHO Linking game ...
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\ai_chat
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\ai_cmd
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_active
-    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_arenas
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_bot
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_client
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_GAME_BUILT%\g_cmds
