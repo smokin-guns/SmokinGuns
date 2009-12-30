@@ -24,10 +24,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_local.h"
 
-glconfig_t  glConfig;
-qboolean    textureFilterAnisotropic = qfalse;
-int         maxAnisotropy = 0;
-float       displayAspect = 0.0f;
+glconfig_t	glConfig;
+qboolean	textureFilterAnisotropic = qfalse;
+int			maxAnisotropy = 0;
+float		displayAspect = 0.0f;
 
 glstate_t	glState;
 
@@ -101,7 +101,7 @@ cvar_t	*r_depthbits;
 cvar_t	*r_colorbits;
 cvar_t	*r_primitives;
 cvar_t	*r_texturebits;
-cvar_t  *r_ext_multisample;
+cvar_t	*r_ext_multisample;
 
 cvar_t	*r_drawBuffer;
 cvar_t	*r_lightmap;
@@ -134,7 +134,7 @@ cvar_t	*r_subdivisions;
 cvar_t	*r_lodCurveError;
 
 cvar_t	*r_fullscreen;
-cvar_t  *r_noborder;
+cvar_t	*r_noborder;
 
 cvar_t	*r_customwidth;
 cvar_t	*r_customheight;
@@ -299,15 +299,15 @@ vidmode_t r_vidModes[] =
 #ifndef SMOKINGUNS
 	{ "Mode 11: 856x480 (wide)",856,	480,	1 }
 #else
-    { "Mode 11: 856x480 (wide)",856,	480,	1 },
-    { "Mode 12: 1280x800 (wide)",1280,	800,	1 },
-    { "Mode 13: 1366x768 (wide)",1366,	768,	1 },
-    { "Mode 14: 1440x900 (wide)",1440,	900,	1 },
-    { "Mode 15: 1680x1050 (wide)",1680,	1050,	1 },
-    { "Mode 16: 1920x1080 (wide)",1920,	1080,	1 },
-    { "Mode 17: 1920x1200 (wide)",1920,	1200,	1 },
-    { "Mode 18: 2560x1600 (wide)",2560,	1600,	1 },
-    { "Mode 19: 1280x720 (16:9 HD)",1280,720,	1 }
+	{ "Mode 11: 856x480 (wide)",856,	480,	1 },
+	{ "Mode 12: 1280x800 (wide)",1280,	800,	1 },
+	{ "Mode 13: 1366x768 (wide)",1366,	768,	1 },
+	{ "Mode 14: 1440x900 (wide)",1440,	900,	1 },
+	{ "Mode 15: 1680x1050 (wide)",1680,	1050,	1 },
+	{ "Mode 16: 1920x1080 (wide)",1920,	1080,	1 },
+	{ "Mode 17: 1920x1200 (wide)",1920,	1200,	1 },
+	{ "Mode 18: 2560x1600 (wide)",2560,	1600,	1 },
+	{ "Mode 19: 1280x720 (16:9 HD)",1280,720,	1 }
 #endif
 };
 static int	s_numVidModes = ( sizeof( r_vidModes ) / sizeof( r_vidModes[0] ) );
@@ -638,10 +638,10 @@ void R_ScreenShot_f (void) {
 		for ( ; lastNumber <= 9999 ; lastNumber++ ) {
 			R_ScreenshotFilename( lastNumber, checkname );
 
-      if (!ri.FS_FileExists( checkname ))
-      {
-        break; // file doesn't exist
-      }
+			if (!ri.FS_FileExists( checkname ))
+			{
+				break; // file doesn't exist
+			}
 		}
 
 		if ( lastNumber >= 9999 ) {
@@ -691,10 +691,10 @@ void R_ScreenShotJPEG_f (void) {
 		for ( ; lastNumber <= 9999 ; lastNumber++ ) {
 			R_ScreenshotFilenameJPEG( lastNumber, checkname );
 
-      if (!ri.FS_FileExists( checkname ))
-      {
-        break; // file doesn't exist
-      }
+			if (!ri.FS_FileExists( checkname ))
+			{
+				break; // file doesn't exist
+			}
 		}
 
 		if ( lastNumber == 10000 ) {
