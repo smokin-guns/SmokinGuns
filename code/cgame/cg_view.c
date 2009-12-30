@@ -221,8 +221,8 @@ CG_DeathCamView
 #ifdef SMOKINGUNS
 static void CG_DeathCamView(void) {
 	vec3_t			focusAngles;
-	static vec3_t   prevorigin, prevangles, diffangles, difforigin;
-	static int      prevclientframe;
+	static vec3_t	prevorigin, prevangles, diffangles, difforigin;
+	static int		prevclientframe;
 	static float	diff;
 	trace_t			trace;
 	static vec3_t	mins = { -4, -4, -4 };
@@ -295,9 +295,9 @@ static void CG_OffsetThirdPersonView( void ) {
 	float		thirdPersonAngle, thirdPersonRange;
 
  	if(cgs.deathcam && (cg.snap->ps.stats[STAT_HEALTH] <= 0) && (cgs.gametype != GT_DUEL)
-		    && !(cg.snap->ps.pm_flags & PMF_SUICIDE) && !(cg.snap->ps.pm_flags & PMF_FOLLOW)
-		    && (cg.snap->ps.pm_type != PM_SPECTATOR)) {
-	  //if dead & player didnt commit suicide & not specting sy, cs-style deathcam.
+			&& !(cg.snap->ps.pm_flags & PMF_SUICIDE) && !(cg.snap->ps.pm_flags & PMF_FOLLOW)
+			&& (cg.snap->ps.pm_type != PM_SPECTATOR)) {
+		//if dead & player didnt commit suicide & not specting sy, cs-style deathcam.
 		CG_DeathCamView();
 		return;
 	}
@@ -603,7 +603,7 @@ static void CG_OffsetFirstPersonView( void ) {
 
 	// add shoot height
 	delta = cg.time - cg.shootTime;
-	if ( delta < shoot_deflect_time   ) {
+	if ( delta < shoot_deflect_time ) {
 		f = delta / shoot_deflect_time;
 		cg.refdef.vieworg[2] += cg.shootChange * f;
 		//anglechange
@@ -878,9 +878,9 @@ static int CG_CalcViewValues( void ) {
 	//or specting someone else
 #ifdef SMOKINGUNS
 	if ((((ps->pm_flags & PMF_SUICIDE) || !cgs.deathcam || cgs.gametype == GT_DUEL)
-		    && (ps->pm_type == PM_DEAD) && (!cg.renderingThirdPerson))
-	        || ((cg.snap->ps.pm_flags & PMF_FOLLOW) && (cg.snap->ps.pm_type != PM_CHASECAM)
-	        && (ps->stats[STAT_HEALTH] <= 0))) {
+			 && (ps->pm_type == PM_DEAD) && (!cg.renderingThirdPerson))
+			|| ((cg.snap->ps.pm_flags & PMF_FOLLOW) && (cg.snap->ps.pm_type != PM_CHASECAM)
+			&& (ps->stats[STAT_HEALTH] <= 0))) {
 		VectorCopy(cg.anim_viewangles, cg.refdefViewAngles);
 		VectorCopy(cg.anim_vieworigin, cg.refdef.vieworg);
 	}
@@ -918,7 +918,7 @@ static int CG_CalcViewValues( void ) {
 		CG_DuelIntroView();
 
 	} else if ((cg.renderingThirdPerson ||(cg.snap->ps.pm_flags & PMF_FOLLOW &&
-	                     cg.snap->ps.pm_type == PM_CHASECAM)) && !cg.introstart) {
+			cg.snap->ps.pm_type == PM_CHASECAM)) && !cg.introstart) {
 #endif
 		// back away from character
 		CG_OffsetThirdPersonView();
@@ -1090,8 +1090,8 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	cg.renderingThirdPerson = cg_thirdPerson.integer || (cg.snap->ps.stats[STAT_HEALTH] <= 0);
 #else
 	cg.renderingThirdPerson = cg_thirdPerson.integer || cg.introstart || (cgs.deathcam && (cg.snap->ps.stats[STAT_HEALTH] <= 0)
-		                      && !(cg.snap->ps.pm_flags & PMF_SUICIDE) && !(cg.snap->ps.pm_flags & PMF_FOLLOW)
-							  && (cg.snap->ps.pm_type != PM_CHASECAM) && (cgs.gametype != GT_DUEL));
+							&& !(cg.snap->ps.pm_flags & PMF_SUICIDE) && !(cg.snap->ps.pm_flags & PMF_FOLLOW)
+							&& (cg.snap->ps.pm_type != PM_CHASECAM) && (cgs.gametype != GT_DUEL));
 #endif
 
 	// build cg.refdef
