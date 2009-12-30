@@ -232,7 +232,7 @@ static void CG_SetNextSnap( snapshot_t *snap ) {
 
 		// if this frame is a teleport, or the entity wasn't in the
 		// previous frame, don't interpolate
-		if ( !cent->currentValid || ( ( cent->currentState.eFlags ^ es->eFlags ) & EF_TELEPORT_BIT )  ) {
+		if ( !cent->currentValid || ( ( cent->currentState.eFlags ^ es->eFlags ) & EF_TELEPORT_BIT ) ) {
 			cent->interpolate = qfalse;
 		} else {
 			cent->interpolate = qtrue;
@@ -384,8 +384,8 @@ void CG_ProcessSnapshots( void ) {
 				CG_Printf( "WARNING: CG_ProcessSnapshots: n < cg.latestSnapshotNum\n" );
 			}
 			else {
-			CG_Error( "CG_ProcessSnapshots: n < cg.latestSnapshotNum" );
-		}
+				CG_Error( "CG_ProcessSnapshots: n < cg.latestSnapshotNum" );
+			}
 //unlagged - lag simulation #1
 #endif
 		}

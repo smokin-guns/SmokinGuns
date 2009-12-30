@@ -651,15 +651,15 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		return 0;
 	case CG_MEMORY_REMAINING:
 		return Hunk_MemoryRemaining();
-  case CG_KEY_ISDOWN:
+	case CG_KEY_ISDOWN:
 		return Key_IsDown( args[1] );
-  case CG_KEY_GETCATCHER:
+	case CG_KEY_GETCATCHER:
 		return Key_GetCatcher();
-  case CG_KEY_SETCATCHER:
+	case CG_KEY_SETCATCHER:
 		// Don't allow the cgame module to close the console
 		Key_SetCatcher( args[1] | ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) );
-    return 0;
-  case CG_KEY_GETKEY:
+		return 0;
+	case CG_KEY_GETKEY:
 		return Key_GetKey( VMA(1) );
 
 
@@ -710,21 +710,21 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		return 0;
 
 	case CG_CIN_PLAYCINEMATIC:
-	  return CIN_PlayCinematic(VMA(1), args[2], args[3], args[4], args[5], args[6]);
+		return CIN_PlayCinematic(VMA(1), args[2], args[3], args[4], args[5], args[6]);
 
 	case CG_CIN_STOPCINEMATIC:
-	  return CIN_StopCinematic(args[1]);
+		return CIN_StopCinematic(args[1]);
 
 	case CG_CIN_RUNCINEMATIC:
-	  return CIN_RunCinematic(args[1]);
+		return CIN_RunCinematic(args[1]);
 
 	case CG_CIN_DRAWCINEMATIC:
-	  CIN_DrawCinematic(args[1]);
-	  return 0;
+		CIN_DrawCinematic(args[1]);
+		return 0;
 
 	case CG_CIN_SETEXTENTS:
-	  CIN_SetExtents(args[1], args[2], args[3], args[4], args[5]);
-	  return 0;
+		CIN_SetExtents(args[1], args[2], args[3], args[4], args[5]);
+		return 0;
 
 	case CG_R_REMAP_SHADER:
 		re.RemapShader( VMA(1), VMA(2), VMA(3) );
@@ -756,7 +756,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		return re.inPVS( VMA(1), VMA(2) );
 
 	default:
-	        assert(0);
+		assert(0);
 		Com_Error( ERR_DROP, "Bad cgame system trap: %ld", (long int) args[0] );
 	}
 	return 0;
