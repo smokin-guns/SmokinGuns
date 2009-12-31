@@ -631,6 +631,105 @@ qboolean G_ParseSpawnVars( void ) {
 	return qtrue;
 }
 
+#ifdef SMOKINGUNS
+qboolean G_ParseSpawnString( char *string ) {
+	char	keyname[MAX_TOKEN_CHARS];
+	char	*token;
+	int		developer = trap_Cvar_VariableIntegerValue("developer");
+
+	level.numSpawnVars = 0;
+	level.numSpawnVarChars = 0;
+
+	token = COM_Parse( &string );
+
+	// parse the opening brace
+	if (!strlen(token)) {
+		// end of spawn string
+		return qfalse;
+	}
+	if ( token[0] != '{' ) {
+		G_Printf( "Error: found %s when expecting {\n",token );
+		return qfalse;
+	}
+
+	// go through all the key / value pairs
+	while ( 1 ) {
+		// parse key
+		token = COM_Parse( &string );
+		if (!strlen(token)) {
+			G_Printf( "Error: EOF without closing brace\n" );
+			return qfalse;
+		}
+
+		if ( token[0] == '}' ) {
+			break;
+		}
+		Q_strncpyz(keyname,token,sizeof(keyname));
+		if (developer)
+			G_Printf( S_COLOR_CYAN "G_ParseSpawnString: keyname = '%s'\n", keyname );
+
+		// parse value
+		token = COM_Parse( &string );
+		if (!strlen(token)) {
+			G_Printf( "Error: EOF without closing brace\n" );
+			return qfalse;
+		}
+		if (developer)
+			G_Printf( S_COLOR_CYAN "G_ParseSpawnString: value = '%s'\n", token );
+
+		if ( token[0] == '}' ) {
+			G_Printf( "Error: closing brace without data\n" );
+			return qfalse;
+		}
+		if ( level.numSpawnVars == MAX_SPAWN_VARS ) {
+			G_Printf( "Error: MAX_SPAWN_VARS\n" );
+			return qfalse;
+		}
+		level.spawnVars[ level.numSpawnVars ][0] = G_AddSpawnVarToken( keyname );
+		level.spawnVars[ level.numSpawnVars ][1] = G_AddSpawnVarToken( token );
+		level.numSpawnVars++;
+	}
+
+	return qtrue;
+}
+
+void Svcmd_AddEntity_f( void ) {
+	int				len;
+	fileHandle_t	f;
+	char			entity[MAX_TOKEN_CHARS];
+
+	// resource
+	trap_Argv( 1, entity, sizeof( entity ) );
+	if ( !entity[0] ) {
+		G_Printf( S_COLOR_YELLOW "Usage: Addentity <entity>\n" );
+		return;
+	}
+
+	G_Printf( S_COLOR_CYAN "Adding entity %s\n", entity );
+
+	len = trap_FS_FOpenFile( entity, &f, FS_READ );
+	if (!len) {
+		G_Printf( S_COLOR_RED "Error: empty entity\n" );
+		trap_FS_FCloseFile(f);
+		return;
+	} else if (len>=sizeof(entity)) {
+		G_Printf( S_COLOR_RED "Error: too big entity\n" );
+		trap_FS_FCloseFile(f);
+		return;
+	}
+
+	trap_FS_Read( entity, len, f );
+	entity[len]=0;
+	trap_FS_FCloseFile(f);
+
+	if ( !G_ParseSpawnString( entity ) ) {
+		G_Printf( S_COLOR_RED "Error: no entity found\n" );
+	} else {
+		G_SpawnGEntityFromSpawnVars();
+	}
+}
+#endif
+
 
 
 /*QUAKED worldspawn (0 0 0) ?

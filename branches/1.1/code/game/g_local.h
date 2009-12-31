@@ -646,6 +646,9 @@ qboolean	G_SpawnInt( const char *key, const char *defaultString, int *out );
 qboolean	G_SpawnVector( const char *key, const char *defaultString, float *out );
 void		G_SpawnEntitiesFromString( void );
 char *G_NewString( const char *string );
+#ifdef SMOKINGUNS
+void Svcmd_AddEntity_f( void );
+#endif
 
 //
 // g_cmds.c
