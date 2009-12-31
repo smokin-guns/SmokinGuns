@@ -165,6 +165,47 @@ void SP_misc_teleporter_dest( gentity_t *ent ) {
 }
 
 
+#ifdef SMOKINGUNS
+// Imported from WoP OpenSource project
+//===========================================================
+
+/*QUAKED misc_externalmodel (1 0 0) (-16 -16 -16) (16 16 16)
+"model"		arbitrary .md3 file to display
+"wait"		time in seconds before the animation begins
+*/
+#define ANIMATION_THINKTIME	50
+
+static void Think_AnimationExternalmodel( gentity_t *ent ) {
+
+	if(ent->animationEnd>ent->animationStart) {
+		ent->s.frame = (int)((float)level.time*0.001f*ent->animationFPS)%(ent->animationEnd-ent->animationStart);
+		ent->s.frame += ent->animationStart;
+
+		ent->nextthink = level.time + ANIMATION_THINKTIME;
+	}
+}
+
+void SP_misc_externalmodel( gentity_t *ent )
+{
+	ent->s.modelindex = G_ModelIndex( ent->model );
+//	VectorSet (ent->mins, -16, -16, -16);
+//	VectorSet (ent->maxs, 16, 16, 16);
+	trap_LinkEntity (ent);
+
+	G_SetOrigin( ent, ent->s.origin );
+	VectorCopy( ent->s.angles, ent->s.apos.trBase );
+
+	if(ent->animationEnd>ent->animationStart && ent->animationFPS>0.0f) {
+		ent->think = Think_AnimationExternalmodel;
+
+		ent->nextthink = level.time + ANIMATION_THINKTIME;
+
+		// Tequila: Support for new entity features
+		if (ent->wait>0.0f)
+			ent->nextthink += (int)(ent->wait*1000);
+	}
+}
+#endif
 //===========================================================
 
 /*QUAKED misc_model (1 0 0) (-16 -16 -16) (16 16 16)
