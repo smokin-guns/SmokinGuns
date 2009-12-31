@@ -209,9 +209,12 @@ void SP_misc_portal_surface(gentity_t *ent);
 
 #ifndef SMOKINGUNS
 void SP_shooter_rocket( gentity_t *ent );
-#endif
 void SP_shooter_plasma( gentity_t *ent );
 void SP_shooter_grenade( gentity_t *ent );
+#else
+void SP_shooter_dynamite( gentity_t *ent );
+void SP_shooter_molotov( gentity_t *ent );
+#endif
 
 void SP_team_CTF_redplayer( gentity_t *ent );
 void SP_team_CTF_blueplayer( gentity_t *ent );
@@ -305,12 +308,14 @@ spawn_t	spawns[] = {
 
 #ifndef SMOKINGUNS
 	{"shooter_rocket", SP_shooter_rocket},
-#else
-	{"shooter_dynamite", SP_shooter_grenade},
-	{"shooter_molotov", SP_shooter_plasma},
-#endif
 	{"shooter_grenade", SP_shooter_grenade},
 	{"shooter_plasma", SP_shooter_plasma},
+#else
+	{"shooter_grenade", SP_shooter_dynamite},
+	{"shooter_plasma", SP_shooter_molotov},
+	{"shooter_dynamite", SP_shooter_dynamite},
+	{"shooter_molotov", SP_shooter_molotov},
+#endif
 
 	{"team_CTF_redplayer", SP_team_CTF_redplayer},
 	{"team_CTF_blueplayer", SP_team_CTF_blueplayer},
@@ -470,7 +475,7 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
 G_SpawnGEntityFromSpawnVars
 
 Spawn an entity and fill in all of the level fields from
-level.spawnVars[], then call the class specfic spawn function
+level.spawnVars[], then call the class specific spawn function
 ===================
 */
 void G_SpawnGEntityFromSpawnVars( void ) {
@@ -767,17 +772,13 @@ void SP_worldspawn( void ) {
 #endif
 	trap_Cvar_Set( "g_gravity", s );
 
-	//Spoon for Round Teamplay points
-#ifdef SMOKINGUNS
-	//G_SpawnString( "startpoints", "4", &s );
-	//trap_Cvar_Set( "sg_rtppoints", s);
-#endif
-
+#ifndef SMOKINGUNS
 	G_SpawnString( "enableDust", "0", &s );
 	trap_Cvar_Set( "g_enableDust", s );
 
 	G_SpawnString( "enableBreath", "0", &s );
 	trap_Cvar_Set( "g_enableBreath", s );
+#endif
 
 	g_entities[ENTITYNUM_WORLD].s.number = ENTITYNUM_WORLD;
 	g_entities[ENTITYNUM_WORLD].classname = "worldspawn";

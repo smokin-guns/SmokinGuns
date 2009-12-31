@@ -423,19 +423,31 @@ Fires at either the target or the current direction.
 void SP_shooter_rocket( gentity_t *ent ) {
 	InitShooter( ent, WP_ROCKET_LAUNCHER );
 }
-#endif
 
 /*QUAKED shooter_plasma (1 0 0) (-16 -16 -16) (16 16 16)
 Fires at either the target or the current direction.
 "random" is the number of degrees of deviance from the taget. (1.0 default)
-"speed" is the speed of the thrown molotov (700 default)
 */
 void SP_shooter_plasma( gentity_t *ent ) {
-#ifndef SMOKINGUNS
 	InitShooter( ent, WP_PLASMAGUN);
+}
+
+/*QUAKED shooter_grenade (1 0 0) (-16 -16 -16) (16 16 16)
+Fires at either the target or the current direction.
+"random" is the number of degrees of deviance from the taget. (1.0 default)
+*/
+void SP_shooter_grenade( gentity_t *ent ) {
+	InitShooter( ent, WP_GRENADE_LAUNCHER);
+}
 #else
+/*QUAKED shooter_plasma (1 0 0) (-16 -16 -16) (16 16 16)
+Fires at either the target or the current direction.
+"random" is the number of degrees of deviance from the taget. (1.0 default)
+"speed" is the speed of the thrown molotov (700 default)
+"wait" is the number of seconds before molotov explodes (0.0 default for disabled)
+*/
+void SP_shooter_molotov( gentity_t *ent ) {
 	InitShooter( ent, WP_MOLOTOV);
-#endif
 }
 
 /*QUAKED shooter_grenade (1 0 0) (-16 -16 -16) (16 16 16)
@@ -445,13 +457,10 @@ Tequila: Smokin'Guns attribut:
 "speed" is the speed of the thrown dynamite (700 default)
 "wait" is the number of seconds before dynamite explodes (2.5 default)
 */
-void SP_shooter_grenade( gentity_t *ent ) {
-#ifndef SMOKINGUNS
-	InitShooter( ent, WP_GRENADE_LAUNCHER);
-#else
+void SP_shooter_dynamite( gentity_t *ent ) {
 	InitShooter( ent, WP_DYNAMITE);
-#endif
 }
+#endif
 
 
 #ifndef SMOKINGUNS
