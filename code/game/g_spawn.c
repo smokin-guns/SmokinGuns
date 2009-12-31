@@ -124,6 +124,10 @@ field_t fields[] = {
 	{"part", FOFS(mappart), F_INT},
 	{"trio", FOFS(trio), F_INT},
 	{"name", FOFS(mappartname), F_LSTRING},
+	//new properties imported from WoP
+	{"animationStart",FOFS(animationStart),F_INT},
+	{"animationEnd",  FOFS(animationEnd),F_INT},
+	{"animationFPS",  FOFS(animationFPS),F_FLOAT},
 #endif
 
 	{NULL}
@@ -197,6 +201,9 @@ void SP_path_corner (gentity_t *self);
 
 void SP_misc_teleporter_dest (gentity_t *self);
 void SP_misc_model(gentity_t *ent);
+#ifdef SMOKINGUNS
+void SP_misc_externalmodel(gentity_t *ent);
+#endif
 void SP_misc_portal_camera(gentity_t *ent);
 void SP_misc_portal_surface(gentity_t *ent);
 
@@ -289,6 +296,10 @@ spawn_t	spawns[] = {
 
 	{"misc_teleporter_dest", SP_misc_teleporter_dest},
 	{"misc_model", SP_misc_model},
+#ifdef SMOKINGUNS
+	//new entity class imported from WoP
+	{"misc_externalmodel",SP_misc_externalmodel},
+#endif
 	{"misc_portal_surface", SP_misc_portal_surface},
 	{"misc_portal_camera", SP_misc_portal_camera},
 

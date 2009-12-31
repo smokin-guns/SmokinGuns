@@ -235,6 +235,11 @@ struct gentity_s {
 	qboolean	farshot;
 	float		damage_ratio;
 	int			noalerttime;
+
+	// some infos for animation of SP_misc_externalmodel, imported from WoP
+	int			animationStart;
+	int			animationEnd;
+	float		animationFPS;
 #endif
 };
 
