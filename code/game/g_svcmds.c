@@ -701,6 +701,13 @@ qboolean	ConsoleCommand( void ) {
 		Svcmd_SendAway_f();
 		return qtrue;
 	}
+
+	// Tequila: New command to add a map entity for testing purpose
+	if (Q_stricmp (cmd, "addentity") == 0) {
+		Svcmd_AddEntity_f();
+		return qtrue;
+	}
+
 #endif
 
 	if (g_dedicated.integer) {
