@@ -352,7 +352,7 @@ static cvarTable_t		gameCvarTable[] = {
 //unlagged - server options
 		//Spoon
 	{ &g_roundtime, "g_roundtime", "4", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qtrue },
-	{ &sg_rtppoints, "sg_rtppoints", "4", CVAR_ARCHIVE|CVAR_ROM, 0, qtrue },
+	{ &sg_rtppoints, "sg_rtppoints", "4", CVAR_ROM, 0, qtrue },
 	{ &g_deathcam, "g_deathcam", "1", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qtrue },
 	{ &g_chaseonly, "g_chaseonly", "0", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qtrue  },
 	{ &g_specsareflies, "g_specsareflies", "1", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qtrue  },
