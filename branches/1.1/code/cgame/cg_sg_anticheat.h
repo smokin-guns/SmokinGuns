@@ -43,12 +43,6 @@ static ID_INLINE void SG_CheckRef(refexport_t *re) {
 			re->RegisterShaderNoMip, re->RegisterShader, re->RemapShader );
 		Com_Printf("check1: %s\n", check );
 		Cvar_Get ("sa_engine_check1", Com_MD5Text(check,strlen(check),PRODUCT_NAME,sizeof(PRODUCT_NAME)), CVAR_USERINFO|CVAR_ROM );
-		check = va("%p%p%p%p%p", re->ClearScene, (void*)((void*)re->RenderScene-(void*)re->ClearScene),
-			(void*)((void*)re->RegisterShaderNoMip-(void*)re->RenderScene),
-			(void*)((void*)re->RegisterShader-(void*)re->RegisterShaderNoMip),
-			(void*)((void*)re->RemapShader-(void*)re->RegisterShader) );
-		Com_Printf("check2: %s\n", check);
-		Cvar_Get ("sa_engine_check2", check, CVAR_USERINFO|CVAR_ROM );
 		Com_Printf(PRODUCT_NAME " checks on\n");
 	}
 }
