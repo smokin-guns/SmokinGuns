@@ -528,7 +528,7 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_button_attack[1], "cl_button_attack2", "0", CVAR_ROM },
 
 	{ &cg_button_altattack[0], "cl_button_altattack1", "0", CVAR_ROM },
-	{ &cg_button_altattack[1], "cl_button_altattack1", "0", CVAR_ROM },
+	{ &cg_button_altattack[1], "cl_button_altattack2", "0", CVAR_ROM },
 
 	/*{ &cg_button_forward[0], "cl_button_forward1", "0", CVAR_ROM },
 	{ &cg_button_forward[1], "cl_button_forward2", "0", CVAR_ROM },
