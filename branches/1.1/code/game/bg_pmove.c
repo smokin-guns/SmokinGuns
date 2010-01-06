@@ -116,18 +116,6 @@ void PM_ChangeWeapon( int weapon ) {
 	BG_AddPredictableEventToPlayerstate( EV_CHANGE_TO_WEAPON, weapon, pm->ps );
 }
 
-void PM_PlayReloadSound( int weapon ) {
-
-	//Com_Printf("g\n");
-	BG_AddPredictableEventToPlayerstate( EV_RELOAD, weapon, pm->ps );
-}
-
-void PM_PlayReloadSound2( int weapon ) {
-
-	//Com_Printf("g\n");
-	BG_AddPredictableEventToPlayerstate( EV_RELOAD2, weapon, pm->ps );
-}
-
 int PM_AnimLength( int anim, qboolean weapon2) {
 	int length;
 	int weapon = weapon2 ? pm->ps->weapon2 : pm->ps->weapon;
@@ -179,58 +167,36 @@ PM_StartWeaponAnim
 ===================
 */
 #ifdef SMOKINGUNS
-static void PM_StartWeapon2Anim( int anim , qboolean reload, qboolean sec) {
-
-	if(reload){
-		if(!sec)
-			PM_PlayReloadSound(pm->ps->weapon2);
-		else
-			PM_PlayReloadSound2(pm->ps->weapon2);
-	}
-	pm->ps->weapon2Anim = ( ( pm->ps->weapon2Anim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )
-		| anim;
-}
-
-
 static void PM_StartWeaponAnim( int anim, qboolean weapon2, qboolean reload, qboolean sec) {
+	int *weaponAnim;
+	int weaponNum;
 
 	// if weapon2 has to be animated
 	if(weapon2){
-		PM_StartWeapon2Anim(anim, reload, sec);
-		return;
+		weaponAnim = &pm->ps->weapon2Anim ;
+		weaponNum = pm->ps->weapon2 ;
+	} else {
+		weaponAnim = &pm->ps->weaponAnim ;
+		weaponNum = pm->ps->weapon ;
 	}
 
 	if(reload){
 		if(!sec)
-			PM_PlayReloadSound(pm->ps->weapon);
+			BG_AddPredictableEventToPlayerstate( EV_RELOAD, weaponNum, pm->ps );
 		else
-			PM_PlayReloadSound2(pm->ps->weapon);
+			BG_AddPredictableEventToPlayerstate( EV_RELOAD2, weaponNum, pm->ps );
 	}
-	pm->ps->weaponAnim = ( ( pm->ps->weaponAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )
-		| anim;
-}
 
-static void PM_ContinueWeapon2Anim( int anim) {
-
-	if((pm->ps->weapon2Anim &~ ANIM_TOGGLEBIT) == anim)
-		return;
-
-	pm->ps->weapon2Anim = ( ( pm->ps->weaponAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )
-		| anim;
+	*weaponAnim = ( ( *weaponAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | anim;
 }
 
 static void PM_ContinueWeaponAnim( int anim , qboolean weapon2) {
+	int *weaponAnim = weapon2 ? &pm->ps->weapon2Anim : &pm->ps->weaponAnim;
 
-	if(weapon2){
-		PM_ContinueWeapon2Anim(anim);
-		return;
-	}
-
-	if((pm->ps->weaponAnim &~ ANIM_TOGGLEBIT) == anim)
+	if((*weaponAnim &~ ANIM_TOGGLEBIT) == anim)
 		return;
 
-	pm->ps->weaponAnim = ( ( pm->ps->weaponAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )
-		| anim;
+	*weaponAnim = ( ( *weaponAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | anim;
 }
 #endif
 
@@ -2300,6 +2266,13 @@ static qboolean PM_ReloadStart( qboolean weapon2, int *weaponTime, int *weaponst
 		return qfalse;
 	}
 
+	// Tequila: In akimbo mode, we don't want to start second weapon reloading
+	// when the first is still being reloaded
+	if ((weapon2 && pm->ps->weaponstate == WEAPON_RELOADING) ||
+		(!weapon2 && pm->ps->weapon2state == WEAPON_RELOADING)) {
+		return qfalse;
+	}
+
 	if(pm->ps->ammo[clip] <= 0) return qfalse;
 
 	if(pm->ps->ammo[ammo] >= bg_weaponlist[weapon].clipAmmo) return qfalse;
@@ -2625,13 +2598,14 @@ static void PM_WeaponAction( int *weapon, int *weaponTime, int *weaponstate, qbo
 			delay = 16*bg_weaponlist[*weapon].animations[WP_ANIM_RELOAD].frameLerp;
 			break;
 		}
-	}
 
-	if (delay && (pm->ps->eFlags & reload) && (*weaponTime <= delay)
-		&& (pm->cmd.buttons & BUTTON_RELOAD)
-		&& pm->ps->ammo[ammo] != bg_weaponlist[*weapon].clipAmmo
-		&& pm->ps->ammo[bg_weaponlist[*weapon].clip]){
-		*weaponTime = 0;
+		if (delay && (*weaponTime <= delay)
+			&& (pm->cmd.buttons & BUTTON_RELOAD)
+			&& pm->ps->ammo[ammo] != bg_weaponlist[*weapon].clipAmmo
+			&& pm->ps->ammo[bg_weaponlist[*weapon].clip]){
+			*weaponTime = 0;
+		}
+
 	}
 
 	if ( *weaponTime > 0 ) {
@@ -2653,7 +2627,7 @@ static void PM_WeaponAction( int *weapon, int *weaponTime, int *weaponstate, qbo
 		PM_StartWeaponAnim(WP_ANIM_RELOAD, weapon2, qtrue, qfalse);
 		pm->ps->eFlags |= reload;
 
-		if ( weapon2)
+		if (weapon2)
 			pm->ps->weapon2Time = pm->ps->weaponTime;
 		else
 			pm->ps->weaponTime = pm->ps->weapon2Time;
