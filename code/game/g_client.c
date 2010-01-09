@@ -1329,6 +1329,14 @@ void ClientUserinfoChanged( int clientNum ) {
 			Q_CleanStr( client->pers.cleanname );
 		}
 
+		// Tequila: if there is a vote kick on the oldname, cancel renaming and
+		// consider this is a mandatory vote to be kicked
+		if ( level.voteTime && !strcmp(level.voteString,va("sendaway \"%s\"",oldname)) ) {
+			Q_strncpyz ( client->pers.netname, oldname, sizeof( client->pers.netname ) );
+			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " tried to rename\n\"", oldname) );
+			trap_SendConsoleCommand( EXEC_APPEND, va("%s;cancelvote\n", level.voteString ) );
+		}
+
 		if ( strcmp( oldname, client->pers.netname ) ) {
 			/* Tequila: Conditions to delay renaming
 			 * 1. Player still has renamed himself
