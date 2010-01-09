@@ -1616,6 +1616,22 @@ static void Cmd_VoiceTaunt_f( gentity_t *ent ) {
 	// just say something
 	G_Voice( ent, NULL, SAY_ALL, VOICECHAT_TAUNT, qfalse );
 }
+#else
+/*
+==================
+IsAvailableMap
+==================
+*/
+static qboolean IsAvailableMap(const char *mapname) {
+	char		expanded[MAX_QPATH];
+	fileHandle_t	f;
+
+	// make sure the map level file exists
+	Com_sprintf (expanded, sizeof(expanded), "maps/%s.bsp", mapname);
+	trap_FS_FOpenFile( expanded, &f, FS_READ );
+
+	return f ? qtrue : qfalse ;
+}
 #endif
 
 
@@ -1735,6 +1751,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		}
 	}
 
+#ifndef SMOKINGUNS
 	if ( !Q_stricmp( arg1, "map_restart" ) ) {
 	} else if ( !Q_stricmp( arg1, "nextmap" ) ) {
 	} else if ( !Q_stricmp( arg1, "map" ) ) {
@@ -1744,14 +1761,38 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else if ( !Q_stricmp( arg1, "g_doWarmup" ) ) {
 	} else if ( !Q_stricmp( arg1, "timelimit" ) ) {
 	} else if ( !Q_stricmp( arg1, "fraglimit" ) ) {
+	} else {
+		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
+		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>, g_doWarmup, timelimit <time>, fraglimit <frags>.\n\"" );
+		return;
+	}
+#else
+	// Validate argument, it can be an integer
+	if ( !Q_stricmp( arg1, "map_restart" ) && (!strlen(arg2) || !strcmp(arg2,va("%i",atoi(arg2)))) ) {
+	} else if ( !Q_stricmp( arg1, "nextmap" ) ) {
+	// Validate argument, it must be an available map
+	} else if ( !Q_stricmp( arg1, "map" ) && strlen(arg2) && IsAvailableMap(arg2) ) {
+	// Validate argument, it must be an integer
+	} else if ( !Q_stricmp( arg1, "g_gametype" ) && !strcmp(arg2,va("%i",atoi(arg2))) ) {
+	// Validate argument, it must be an existing player name or player number
+	} else if ( !Q_stricmp( arg1, "kick" ) && strlen(arg2) && ClientForString(ConcatArgs(2)) ) {
+	// Validate argument, it must be an integer
+	} else if ( !Q_stricmp( arg1, "clientkick" ) && !strcmp(arg2,va("%i",atoi(arg2))) ) {
+	// Validate argument, it must be an integer
+	} else if ( !Q_stricmp( arg1, "g_doWarmup" ) && !strcmp(arg2,va("%i",atoi(arg2))) ) {
+	// Validate argument, it must be an integer
+	} else if ( !Q_stricmp( arg1, "timelimit" ) && !strcmp(arg2,va("%i",atoi(arg2))) ) {
+	// Validate argument, it must be an integer
+	} else if ( !Q_stricmp( arg1, "fraglimit" ) && !strcmp(arg2,va("%i",atoi(arg2))) ) {
 	} else if ( !Q_stricmp( arg1, "mapcycle" ) ) {
 	} else {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
-		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>, g_doWarmup, timelimit <time>, fraglimit <frags>, mapcycle <mapcyclename>.\n\"" );
+		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>, g_doWarmup <integer>, timelimit <time>, fraglimit <frags>, mapcycle <mapcyclename>.\n\"" );
+		// Tequila: Log failed callvote
+		G_LogPrintf( "Invalid callvote: %s: %s %s\n", ent->client->pers.netname, arg1, ConcatArgs(2) );
 		return;
 	}
 
-#ifdef SMOKINGUNS
 	if ( ( !Q_stricmp( arg1, "kick" ) || !Q_stricmp( arg1, "clientkick" ) )
 	&& !g_allowVoteKick.integer ) {
 		trap_SendServerCommand( ent-g_entities, "print \"Not allowed to vote kick here.\n\"" );
