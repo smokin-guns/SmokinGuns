@@ -1498,7 +1498,13 @@ qboolean CG_IsEntityVisible(centity_t *cent, vec_t max_sight) {
 	if (max_sight > 0.0 && distance > max_sight)
 		return qfalse;	// The spot is too far away
 
-	if (hasBounds) {
+	if (cent->currentState.number == cg.predictedPlayerState.groundEntityNum)
+		// Keep current player ground entity visible to avoid player fall prediction
+		// even if it is not really visible as player ground entity can only be
+		// well predicted if it is visible (traces will only detect visible entities
+		// when cg_boostfps is set)
+		visible = qtrue;
+	else if (hasBounds) {
 		radius = Distance(box_vertex[5], box_vertex[3]) * 0.5f;
 		cent->radius = radius;	// Keep its radius
 
