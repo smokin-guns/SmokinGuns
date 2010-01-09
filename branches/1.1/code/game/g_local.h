@@ -882,6 +882,9 @@ qboolean SpotWouldTelefrag( gentity_t *spot );
 qboolean	ConsoleCommand( void );
 void G_ProcessIPBans(void);
 qboolean G_FilterPacket (char *from);
+#ifdef SMOKINGUNS
+gclient_t	*ClientForString( const char *s );
+#endif
 
 //
 // g_weapon.c
