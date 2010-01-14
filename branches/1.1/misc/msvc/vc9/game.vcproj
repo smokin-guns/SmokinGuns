@@ -226,8 +226,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release SSE2|Win32"
-			OutputDirectory="..\..\build\game_release_sse2"
-			IntermediateDirectory="..\..\build\game_release_sse2"
+			OutputDirectory="..\..\..\build\game_release_sse2"
+			IntermediateDirectory="..\..\..\build\game_release_sse2"
 			ConfigurationType="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
