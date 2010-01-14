@@ -756,15 +756,22 @@ ifeq ($(PLATFORM),sunos)
   MKDIR=mkdir
   COPYDIR="/usr/local/share/games/quake3"
 
-  ifneq (,$(findstring i86pc,$(shell uname -m)))
-    ARCH=i386
-  else #default to sparc
-    ARCH=sparc
+  ifneq (,$(findstring amd64,$(shell isainfo)))
+    ARCH=x86_64
+    LIB=amd64
+  else
+    ifneq (,$(findstring i86pc,$(shell uname -m)))
+      ARCH=i386
+    else #default to sparc
+      ARCH=sparc
+    endif
   endif
 
   ifneq ($(ARCH),i386)
     ifneq ($(ARCH),sparc)
-      $(error arch $(ARCH) is currently not supported)
+      ifneq ($(ARCH),x86_64)
+        $(error arch $(ARCH) is currently not supported)
+      endif
     endif
   endif
 
@@ -789,6 +796,16 @@ ifeq ($(PLATFORM),sunos)
     BASE_CFLAGS += -m32
     CLIENT_CFLAGS += -I/usr/X11/include/NVIDIA
     CLIENT_LDFLAGS += -L/usr/X11/lib/NVIDIA -R/usr/X11/lib/NVIDIA
+  else
+  ifeq ($(ARCH),x86_64)
+    OPTIMIZEVM += -march=athlon64 -fomit-frame-pointer \
+      -falign-loops=2 -falign-jumps=2 \
+      -falign-functions=2 -fstrength-reduce
+    HAVE_VM_COMPILED=true
+    BASE_CFLAGS += -m64
+    CLIENT_CFLAGS += -I/usr/X11/include/NVIDIA
+    CLIENT_LDFLAGS += -L/usr/X11/lib/NVIDIA/amd64 -R/usr/X11/lib/NVIDIA/amd64
+  endif
   endif
   endif
   
