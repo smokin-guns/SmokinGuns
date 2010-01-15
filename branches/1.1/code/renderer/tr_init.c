@@ -163,17 +163,21 @@ cvar_t	*r_maxpolyverts;
 int		max_polyverts;
 
 #ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
-cvar_t *r_ext_framebuffer;
-cvar_t *r_ext_framebuffer_bloom;
-cvar_t *r_ext_framebuffer_blur_size;
-cvar_t *r_ext_framebuffer_blur_amount;
-cvar_t *r_ext_framebuffer_blur_samples;
+cvar_t	*r_ext_framebuffer;
+cvar_t	*r_ext_framebuffer_bloom;
+cvar_t	*r_ext_framebuffer_blur_size;
+cvar_t	*r_ext_framebuffer_blur_amount;
+cvar_t	*r_ext_framebuffer_blur_samples;
 
-cvar_t *r_ext_framebuffer_bloom_sharpness;
-cvar_t *r_ext_framebuffer_bloom_brightness;
+cvar_t	*r_ext_framebuffer_bloom_sharpness;
+cvar_t	*r_ext_framebuffer_bloom_brightness;
 
-cvar_t *r_ext_framebuffer_rotoscope;
-cvar_t *r_ext_framebuffer_rotoscope_zedge;
+cvar_t	*r_ext_framebuffer_rotoscope;
+cvar_t	*r_ext_framebuffer_rotoscope_zedge;
+#endif
+
+#ifdef SMOKINGUNS
+cvar_t	*r_debugRenderer;
 #endif
 
 /*
@@ -1293,6 +1297,7 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 	re.CullBox = R_CullBox;
 	re.CullPointAndRadius = R_CullPointAndRadius;
 	re.GetFrustumPlane = R_GetFrustumPlane;
+	r_debugRenderer = ri.Cvar_Get( "r_debugRenderer", va("%p",&re), CVAR_ROM);
 #endif
 
 	return &re;
