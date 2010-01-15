@@ -3936,6 +3936,7 @@ void AAS_SetWeaponJumpAreaFlags(void)
 	{
 		if (!AAS_ValueForBSPEpairKey(ent, "classname", classname, MAX_EPAIRKEY)) continue;
 		if (
+#ifndef SMOKINGUNS
 			!strcmp(classname, "item_armor_body") ||
 			!strcmp(classname, "item_armor_combat") ||
 			!strcmp(classname, "item_health_mega") ||
@@ -3948,6 +3949,25 @@ void AAS_SetWeaponJumpAreaFlags(void)
 			!strcmp(classname, "item_quad") ||
 			!strcmp(classname, "item_regen") ||
 			!strcmp(classname, "item_invulnerability"))
+#else
+			!strcmp(classname, "item_boiler_plate") ||
+			!strcmp(classname, "item_money") ||
+			!strcmp(classname, "item_scope") ||
+			!strcmp(classname, "item_belt") ||
+			!strcmp(classname, "weapon_winch66") ||
+			!strcmp(classname, "weapon_sharps") ||
+			!strcmp(classname, "weapon_lightning") ||
+			!strcmp(classname, "weapon_gatling") ||
+			!strcmp(classname, "weapon_remington58") ||
+			!strcmp(classname, "weapon_schofield") ||
+			!strcmp(classname, "weapon_peacemaker") ||
+			!strcmp(classname, "weapon_dynamite") ||
+			!strcmp(classname, "weapon_molotov") ||
+			!strcmp(classname, "weapon_knife") ||
+			!strcmp(classname, "weapon_shotgun") ||
+			!strcmp(classname, "weapon_sawedoff") ||
+			!strcmp(classname, "weapon_winch97"))
+#endif
 		{
 			if (AAS_VectorForBSPEpairKey(ent, "origin", origin))
 			{
