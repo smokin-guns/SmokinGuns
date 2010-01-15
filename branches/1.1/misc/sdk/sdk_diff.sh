@@ -23,23 +23,18 @@ elif [ -n "$BASE64CMD" ]; then
 	FORMAT=1
 	svn diff -x -w | gzip -c9nq | base64 -w$((CHUNK*57*4/3)) | while read buffer
 	do
-		echo -n '"' >>$FILE
-		echo -n $buffer >>$FILE
-		echo '",' >>$FILE
-	done
+		echo "\"$buffer\","
+	done >>$FILE
 elif [ -n "$PERLCMD" ]; then
 	FORMAT=2
 	PERLSCRIPT="while (read(STDIN, \$buf, $CHUNK*57)) { print \"\t\\\"\",encode_base64(\$buf,\"\"),\"\\\",\n\"; }"
 	svn diff -x -w | gzip -c9nq | perl -MMIME::Base64 -e "$PERLSCRIPT" >>$FILE
 else
 	FORMAT=3
-	svn diff -x -w | while read line
+	svn diff -x -w | tr '"\\aeiouy123456AEIOUY7890@#=\-+rst(}' '^!654321YUOIEA7890@#yuoiearst=\-+}(' | while read line
 	do
-		line="${line//\\/\\\\}"
-		echo -n '"' >>$FILE
-		echo -n ${line//\"/\\\"} >>$FILE
-		echo '",' >>$FILE
-	done
+		echo "\"${line}\","
+	done >>$FILE
 fi
 
 # Output C footer
@@ -57,4 +52,4 @@ const int *sdk_shared_size = &sdk_diff_size;
 
 HEADER
 
-echo -n $FORMAT
+echo $FORMAT
