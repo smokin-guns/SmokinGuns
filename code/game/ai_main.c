@@ -868,12 +868,14 @@ void BotInputToUserCommand(bot_state_t *bs, bot_input_t *bi, usercmd_t *ucmd, in
 	if (bi->actionflags & ACTION_GESTURE) ucmd->buttons |= BUTTON_GESTURE;
 	if (bi->actionflags & ACTION_USE) ucmd->buttons |= BUTTON_USE_HOLDABLE;
 	if (bi->actionflags & ACTION_WALK) ucmd->buttons |= BUTTON_WALKING;
+#ifndef SMOKINGUNS
 	if (bi->actionflags & ACTION_AFFIRMATIVE) ucmd->buttons |= BUTTON_AFFIRMATIVE;
 	if (bi->actionflags & ACTION_NEGATIVE) ucmd->buttons |= BUTTON_NEGATIVE;
 	if (bi->actionflags & ACTION_GETFLAG) ucmd->buttons |= BUTTON_GETFLAG;
 	if (bi->actionflags & ACTION_GUARDBASE) ucmd->buttons |= BUTTON_GUARDBASE;
 	if (bi->actionflags & ACTION_PATROL) ucmd->buttons |= BUTTON_PATROL;
 	if (bi->actionflags & ACTION_FOLLOWME) ucmd->buttons |= BUTTON_FOLLOWME;
+#endif
 
 	// reloading
 #ifdef SMOKINGUNS
