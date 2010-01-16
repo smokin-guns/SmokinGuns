@@ -77,10 +77,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
   // PRODUCT_VERSION will be used for sg_version cvar
   #ifndef PRODUCT_VERSION
-    #define PRODUCT_VERSION	1.1b3
+    #define PRODUCT_VERSION	1.1b4
   #endif
   #ifndef SG_RELEASE
-    #define SG_RELEASE	20091225
+    #define SG_RELEASE	20100116
   #endif
 
   #ifndef XSTRING
@@ -1208,7 +1208,15 @@ typedef struct playerState_s {
 										// only generate a small move value for that frame
 										// walking will use different animations and
 										// won't generate footsteps
-#ifdef SMOKINGUNS
+#ifndef SMOKINGUNS
+#define BUTTON_AFFIRMATIVE	32
+#define	BUTTON_NEGATIVE		64
+
+#define BUTTON_GETFLAG		128
+#define BUTTON_GUARDBASE	256
+#define BUTTON_PATROL		512
+#define BUTTON_FOLLOWME		1024
+#else
 #define	BUTTON_RELOAD		32
 #define	BUTTON_ALT_ATTACK	64
 #define BUTTON_ACTIVATE		128
@@ -1218,13 +1226,6 @@ typedef struct playerState_s {
 #endif									// is in weapon choose mode, meaning that the
 										// next +attack press will be to select weapon,
 										// not to fire the gun
-#define BUTTON_AFFIRMATIVE	32
-#define	BUTTON_NEGATIVE		64
-
-#define BUTTON_GETFLAG		128
-#define BUTTON_GUARDBASE	256
-#define BUTTON_PATROL		512
-#define BUTTON_FOLLOWME		1024
 
 #define	BUTTON_ANY			2048			// any key whatsoever
 
