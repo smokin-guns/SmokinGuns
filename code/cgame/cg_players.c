@@ -45,43 +45,6 @@ char	*cg_customSoundNames[MAX_CUSTOM_SOUNDS] = {
 #endif
 };
 
-/*
-=================
-CG_LoadHitFiles
-by: Spoon
-18.8.2001
-=================
-*/
-#ifdef SMOKINGUNS
-qboolean CG_LoadHitFiles(const char *modelName, clientInfo_t *ci){
-#ifdef HIT_DATA
-	char filename[64];
-
-	//parse lower body
-	Com_sprintf(filename, sizeof(filename), "models/wq3_players/%s/lower.hit", modelName);
-	if(!CG_ParseHitFile(filename, &hit_data, ci, PART_LOWER)){
-		CG_Printf("%s could not be loaded\n", filename);
-		return qfalse;
-	}
-
-	//parse upper body
-	Com_sprintf(filename, sizeof(filename), "models/wq3_players/%s/upper.hit", modelName);
-	if(!CG_ParseHitFile(filename, &hit_data, ci, PART_UPPER)){
-		CG_Printf("%s could not be loaded\n", filename);
-		return qfalse;
-	}
-
-	//parse head
-	Com_sprintf(filename, sizeof(filename), "models/wq3_players/%s/head.hit", modelName);
-	if(!CG_ParseHitFile(filename, &hit_data, ci, PART_HEAD)){
-		CG_Printf("%s could not be loaded\n", filename);
-		return qfalse;
-	}
-#endif
-
-	return qtrue;
-}
-#endif
 
 
 /*
