@@ -248,7 +248,7 @@ typedef enum {
 
 //----------------------------------------------
 // hika comments: this part Spoon added is only for the mod
-#if defined SMOKINGUNS_MOD
+#ifdef SMOKINGUNS
 
 //mapinfo ny Spoon
 
@@ -264,14 +264,7 @@ typedef struct trackInfo_s {
 extern int trackInfoNum;
 extern trackInfo_t	trackInfo[MAX_TRACKS];
 
-typedef struct shaderInfo_s {
-	int			surfaceFlags;
-	vec4_t		color;
-} shaderInfo_t;
-
-extern	shaderInfo_t shaderInfo[MAX_BRUSHSIDES];
 extern	int	texInfoNum;
-extern	int	shaderInfoNum;
 
 qboolean CG_ParseTexFile(const char *filename);
 qboolean CG_ParseMusicFile(void);
