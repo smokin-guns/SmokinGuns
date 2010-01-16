@@ -403,18 +403,18 @@ ifeq ($(PLATFORM),darwin)
   endif
   ifeq ($(ARCH),x86_64)
     ARCH += i386
-    COMPILE_ARCH += i386
-    GCC += /usr/bin/gcc-4.0.1 -m32
+    ARCH_STRING += i386
     CC += /usr/bin/gcc-4.0.1 -m32
-    OPTIMIZEVM += -march=prescott -mfpmath=sse
-    BASE_CFLAGS += -mstackrealign -m32
+    GCC += /usr/bin/gcc-4.0.1 -m32
+    COMPILE_ARCH += i386
+    TOOLS_CFLAGS += -m32
     LDFLAGS += -m32
     MACOSX_DEPLOYMENT_TARGET += 10.4
     DARWIN_SDK += /Developer/SDKs/MacOSX10.4u.sdk
-    CROSS_COMPILING += 0
+    OPTIMIZEVM += -march=prescott -mfpmath=sse
   endif
 
-  BASE_CFLAGS += -fno-strict-aliasing -DMACOS_X -fno-common -m32 -pipe
+  BASE_CFLAGS += -m32 -fno-strict-aliasing -DMACOS_X -fno-common -pipe
 
   ifeq ($(USE_OPENAL),1)
     BASE_CFLAGS += -DUSE_OPENAL
@@ -851,7 +851,7 @@ else # ifeq sunos
   SHLIBLDFLAGS=-shared
 
 endif #Linux
-endif #darwin
+endif #Darwin
 endif #mingw32
 endif #FreeBSD
 endif #OpenBSD
