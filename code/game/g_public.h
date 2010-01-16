@@ -428,21 +428,3 @@ typedef enum {
 
 	BOTAI_START_FRAME				// ( int time );
 } gameExport_t;
-
-// hika comments: this part Spoon added is only for the mod
-#ifdef SMOKINGUNS_MOD
-typedef struct shaderInfo_s {
-	int			surfaceFlags;
-} shaderInfo_t;
-
-extern	shaderInfo_t shaderInfo[MAX_BRUSHSIDES];
-extern	int	shaderInfoNum;
-
-qboolean CG_ParseTexFile(const char *filename);
-extern	hit_data_t	hit_data;
-
-qboolean G_LoadHitFiles(hit_data_t *hit_data);
-
-#endif
-
-

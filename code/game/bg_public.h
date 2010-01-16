@@ -1593,4 +1593,15 @@ extern vec3_t gatling_mins;
 extern vec3_t gatling_maxs;
 extern vec3_t gatling_mins2;
 extern vec3_t gatling_maxs2;
+
+// Shared by game & cgame for surfaceFlags info decompression
+typedef struct shaderInfo_s {
+	int			surfaceFlags;
+#ifdef CGAME
+	vec4_t		color; // Only used on client side
+#endif
+} shaderInfo_t;
+
+extern	shaderInfo_t shaderInfo[MAX_BRUSHSIDES];
+extern	int	shaderInfoNum;
 #endif
