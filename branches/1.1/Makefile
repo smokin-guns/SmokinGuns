@@ -1,4 +1,4 @@
-#
+﻿#
 # Smokin' Guns Makefile based on
 # ioq3 Makefile
 #
@@ -401,8 +401,20 @@ ifeq ($(PLATFORM),darwin)
     # used no matter what and they corrupt the frame pointer in VM calls
     BASE_CFLAGS += -mstackrealign
   endif
+  ifeq ($(ARCH),x86_64)
+    ARCH += i386
+    COMPILE_ARCH += i386
+    GCC += /usr/bin/gcc-4.0.1 -m32
+    CC += /usr/bin/gcc-4.0.1 -m32
+    OPTIMIZEVM += -march=prescott -mfpmath=sse
+    BASE_CFLAGS += -mstackrealign -m32
+    LDFLAGS += -m32
+    MACOSX_DEPLOYMENT_TARGET += 10.4
+    DARWIN_SDK += /Developer/SDKs/MacOSX10.4u.sdk
+    CROSS_COMPILING += 0
+  endif
 
-  BASE_CFLAGS += -fno-strict-aliasing -DMACOS_X -fno-common -pipe
+  BASE_CFLAGS += -fno-strict-aliasing -DMACOS_X -fno-common -m32 -pipe
 
   ifeq ($(USE_OPENAL),1)
     BASE_CFLAGS += -DUSE_OPENAL
