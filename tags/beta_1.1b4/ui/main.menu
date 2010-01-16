@@ -1,0 +1,338 @@
+#include "ui/menudef.h"
+
+{
+assetGlobalDef {
+    	font "fonts/font" 16				// font
+    	smallFont "fonts/smallfont" 12			// font
+    	bigFont "fonts/bigfont" 20			// font
+	cursor "ui/wq3_assets/cursor.tga"		// cursor	
+	itemFocusSound "sound/misc/menu2.wav"		// sound for item getting focus (via keyboard or mouse )
+	
+    	fadeClamp 1.0					// sets the fadeup alpha
+	fadeCycle 1					// how often fade happens in milliseconds
+	fadeAmount 0.1					// amount to adjust alpha per cycle
+
+	shadowColor 0.1 0.1 0.1 0.0			// shadow color
+
+	playlooped "music/menu.wav"
+  	}
+
+menuDef {
+    	name "main"
+	background "ui/bg/main.tga"
+  	fullScreen 1	
+	rect 0 0 640 480				// Size and position of the menu
+    	visible 1				// Visible on open
+	focusColor 1 1 1 1				// Menu focus color for text and items
+
+						
+	onOpen { uiScript stopRefresh }
+	onESC { open quit_popmenu }
+	
+
+// FUNCTIONS
+
+// SINGLEPLAYER
+
+itemDef {
+      	name createserver_button
+	group grpStart_area
+      	rect 131 144 199 96
+	type ITEM_TYPE_BUTTON
+      	style 0
+	mouseEnter { show createserver_pic ; fadein text_createserver }
+	mouseExit { hide createserver_pic ; fadeout text_createserver }
+      	action { play "sound/misc/menu4.wav" ; 
+			close main ;
+			open skirmish }
+      	visible 1
+    	}
+
+itemDef {
+      	name createserver_pic
+      	rect 0 0 640 480
+	type ITEM_TYPE_BUTTON
+	style 3
+      	background "ui/bg/create_h.tga"
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 .5
+	decoration 
+      	visible 0 
+    	}
+
+itemDef {
+	name text_createserver
+      	rect 365 110 50 50
+	type ITEM_TYPE_BUTTON
+	style 0 
+	textalign 1
+	textstyle 4
+	textalignx 0
+	textaligny 25
+	textscale 0.3
+	text "Singleplayer"
+	forecolor 1 1 1 1
+	visible 0
+	decoration 
+	}
+
+// JOINSERVER
+
+itemDef {
+      	name joinserver_button
+	group grpStart_area
+      	rect 350 277 215 147
+	type ITEM_TYPE_BUTTON
+      	style 0
+	mouseEnter { show joinserver_pic ; fadein text_joinserver }
+	mouseExit { hide joinserver_pic ; fadeout text_joinserver }
+      	action { play "sound/misc/menu4.wav" ; 
+		open pop_multiplayer }
+      	visible 1
+    	}
+
+itemDef {
+      	name joinserver_button
+	group grpStart_area
+      	rect 412 186 106 92
+	type ITEM_TYPE_BUTTON
+      	style 0
+	mouseEnter { show joinserver_pic ; fadein text_joinserver }
+	mouseExit { hide joinserver_pic ; fadeout text_joinserver }
+      	action { play "sound/misc/menu4.wav" ; 
+		open pop_multiplayer }
+      	visible 1
+    	}
+
+itemDef {
+      	name joinserver_pic
+      	rect 0 0 640 480
+	type ITEM_TYPE_BUTTON
+	style 3
+      	background "ui/bg/join_h.tga"
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 .5
+	decoration 
+      	visible 0 
+    	}
+
+itemDef {
+	name text_joinserver
+      	rect 365 110 50 50
+	type ITEM_TYPE_BUTTON
+	style 0 
+	textalign 1
+	textstyle 4
+	textalignx 0
+	textaligny 25
+	textscale 0.3
+	text "Multiplayer"
+	forecolor 1 1 1 1
+	visible 0
+	decoration 
+	}
+
+// SETTINGS
+
+itemDef {
+      	name settings_button
+	group grpStart_area
+      	rect 479 78 158 102
+	type ITEM_TYPE_BUTTON
+      	style 0
+	mouseEnter { show settings_pic ; fadein text_settings }
+	mouseExit { hide settings_pic ; fadeout text_settings }
+      	action { play "sound/misc/menu4.wav" ; 
+			close main ;
+		open setup_menu;
+		open control_menu }
+      	visible 1
+    	}
+
+itemDef {
+      	name settings_pic
+      	rect 0 0 640 480
+	type ITEM_TYPE_BUTTON
+	style 3
+      	background "ui/bg/settings_h.tga"
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 .5
+	decoration 
+      	visible 0 
+    	}
+
+itemDef {
+	name text_settings
+      	rect 365 110 50 50
+	type ITEM_TYPE_BUTTON
+	style 0 
+	textalign 1
+	textstyle 4
+	textalignx 0
+	textaligny 25
+	textscale 0.3
+	text "Settings"
+	forecolor 1 1 1 1
+	visible 0
+	decoration 
+	}
+
+// DEMOS
+
+itemDef {
+      	name demos_button
+	group grpStart_area
+      	rect 64 405 241 75
+	type ITEM_TYPE_BUTTON
+      	style 0
+	mouseEnter { show demos_pic ; fadein text_demos }
+	mouseExit { hide demos_pic ; fadeout text_demos }
+      	action { play "sound/misc/menu4.wav" ;  
+			close main ;
+		open demo }
+      	visible 1
+    	}
+
+itemDef {
+      	name demos_button
+	group grpStart_area
+      	rect 144 353 87 53
+	type ITEM_TYPE_BUTTON
+      	style 0
+	mouseEnter { show demos_pic ; fadein text_demos }
+	mouseExit { hide demos_pic ; fadeout text_demos }
+      	action { play "sound/misc/menu4.wav" ;  
+			close main ;
+		open demo }
+      	visible 1
+    	}
+
+itemDef {
+      	name demos_pic
+      	rect 0 0 640 480
+	type ITEM_TYPE_BUTTON
+	style 3
+      	background "ui/bg/demos_h.tga"
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 .5
+	decoration 
+      	visible 0 
+    	}
+
+itemDef {
+	name text_demos
+      	rect 365 110 50 50
+	type ITEM_TYPE_BUTTON
+	style 0 
+	textalign 1
+	textstyle 4
+	textalignx 0
+	textaligny 25
+	textscale 0.3
+	text "Demos"
+	forecolor 1 1 1 1
+	visible 0
+	decoration 
+	}
+
+// QUIT
+
+itemDef {
+      	name quit_button
+	group grpStart_area
+      	rect 0 245 163 104
+	type ITEM_TYPE_BUTTON
+      	style 0
+	mouseEnter { show quit_pic ; fadein text_quit }
+	mouseExit { hide quit_pic ; fadeout text_quit }
+      	action { play "sound/misc/menu4.wav" ; 
+		open quit_popmenu }
+      	visible 1
+    	}
+
+itemDef {
+      	name quit_pic
+      	rect 0 0 640 480
+	type ITEM_TYPE_BUTTON
+	style 3
+      	background "ui/bg/exit_h.tga"
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 .5
+	decoration 
+      	visible 0 
+    	}
+
+itemDef {
+	name text_quit
+      	rect 365 110 50 50
+	type ITEM_TYPE_BUTTON
+	style 0 
+	textalign 1
+	textstyle 4
+	textalignx 0
+	textaligny 25
+	textscale 0.3
+	text "Quit Game"
+	forecolor 1 1 1 1
+	visible 0
+	decoration 
+	}
+
+// add the items at last because of the highlighting
+itemDef {
+ 	name menu_items
+	style WINDOW_STYLE_SHADER
+	background "ui/bg/items.tga"
+	rect 0 0 640 480
+	visible 1
+	decoration
+	}
+
+itemDef {
+ 	name sg_logo
+	style WINDOW_STYLE_SHADER
+	background "ui/wq3_assets/logo.tga"
+	//rect 180 5 280 100
+	rect 145 -1 350 138
+	visible 1
+	decoration
+	}
+
+itemDef {
+ 	name sg_sm_logo
+	style WINDOW_STYLE_SHADER
+	background "ui/wq3_assets/sg_logo2.tga"
+	rect 5 427 48 48
+	visible 1
+	decoration
+	}
+
+//    TEXT
+
+itemDef {
+      	name modtext
+      	text "Smokin' Guns Re-Loaded version 1.0 (c) 2005-2007 Smokin' Guns productions"
+      	style 0
+      	textscale .2
+      	rect 270 435 640 40
+//     	textalign 1	
+      	textaligny 32
+      	textalignx 10 
+      	visible 1
+      	decoration 
+	}
+
+itemDef {
+      	name copyright
+      	text "Quake 3 Arena (c) 2000-2007 id software, inc. all rights reserved"
+      	style 0
+      	textscale .2
+      	rect 270 445 640 40
+//     	textalign 1	
+      	textaligny 32
+      	textalignx 10 
+      	visible 1
+      	decoration 
+	}
+}
+}

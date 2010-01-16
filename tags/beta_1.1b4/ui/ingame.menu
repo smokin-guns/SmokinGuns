@@ -1,0 +1,458 @@
+#include "ui/menudef.h"
+{
+
+  assetGlobalDef {
+    	font "fonts/font" 16				// font
+    	smallFont "fonts/smallfont" 12				// font
+    	bigFont "fonts/bigfont" 20				// font
+	cursor "ui/wq3_assets/cursor"			// cursor	
+	gradientBar "ui/assets/gradientbar2.tga"	// gradient bar
+	itemFocusSound "sound/misc/menu2.wav"		// sound for item getting focus (via keyboard or mouse )
+	
+    	fadeClamp 1.0					// sets the fadeup alpha
+	fadeCycle 1					// how often fade happens in milliseconds
+	fadeAmount 0.1					// amount to adjust alpha per cycle
+
+	shadowColor 0.1 0.1 0.1 0.25			// shadow color
+  	}
+							   
+
+\\ INGAME MENU \\
+
+menuDef {
+    	name "ingame"
+    	visible 0
+    	fullScreen 0
+	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+    	rect 0 0 640 480
+	focusColor 1 .75 0 1
+	disableColor .5 .5 .5 1
+
+itemdef
+	{
+	name topframe
+	style 3
+	rect 0 0 128 28
+	background "ui/wq3_assets/menu_top.tga"	
+	visible 1
+	decoration
+	}
+
+ itemDef {
+      	name join
+      	text "Join"
+	type 1
+	style WINDOW_STYLE_FILLED
+	background "ui/wq3_assets/button.tga"
+      	rect 16 28 96 24  
+      	textalign 1	
+      	textalignx 48    
+      	textaligny 20       
+	textscale .3
+      	forecolor 1 1 1 1
+	backcolor 1 1 1 1 
+      	visible 1 
+      	action { open ingame_join }
+	mouseEnter {show join_alt }
+      	mouseExit { hide join_alt}
+    	}
+	itemDef {
+      		name join_alt
+		group grpControlbutton
+		style WINDOW_STYLE_SHADER
+		background "ui/wq3_assets/button_selected.tga"
+ 		rect 16 28 96 24
+      		visible 0
+		decoration	  
+    		}
+	itemdef
+		{
+		name about_tex
+		style 3
+		rect 0 28 128 24
+		background "ui/wq3_assets/menu_tex.tga"	
+		visible 1
+		decoration
+		}
+
+/*itemDef {
+      	name orders
+      	text "Orders"
+	type 1
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+      	rect 116 0 58 30
+      	textalign 1	
+      	textalignx 29      
+      	textaligny 22
+	textscale .25
+	cvarTest "g_gametype"
+	disableCvar { "0" ; "1" ; "2" ; "3" ; "8" }
+	visible 1
+      	forecolor 1 1 1 1
+	backcolor 1 1 1 1 
+	action { open ingame_orders }
+	mouseEnter {  }
+      	mouseExit {  }
+    	}
+	itemdef
+		{
+		name about_tex
+		style 3
+		rect 0 52 128 24
+		background "ui/wq3_assets/menu_tex.tga"	
+		visible 1
+		decoration
+		}*/
+
+
+ itemDef {
+      	name addBot
+      	text "Bots"
+	type 1
+	style WINDOW_STYLE_FILLED
+	background "ui/wq3_assets/button.tga"
+      	rect 16 52 96 24
+      	textalign 1	
+      	textalignx 48     
+      	textaligny 20
+	textscale .3
+      	forecolor 1 1 1 1
+	backcolor 1 1 1 1 
+      	visible 1 
+	action { open ingame_bots }
+	mouseEnter {show addbot_alt }
+      	mouseExit { hide addbot_alt}
+    	}
+	itemDef {
+      		name addbot_alt
+		group grpControlbutton
+		style WINDOW_STYLE_SHADER
+		background "ui/wq3_assets/button_selected.tga"
+ 		rect 16 52 96 24
+      		visible 0
+		decoration	  
+    		}
+	itemdef
+		{
+		name about_tex
+		style 3
+		rect 0 52 128 24
+		background "ui/wq3_assets/menu_tex.tga"	
+		visible 1
+		decoration
+		}
+
+itemDef {
+      	name player
+      	text "Player"
+	type 1
+	style WINDOW_STYLE_FILLED
+	background "ui/wq3_assets/button.tga"
+      	rect 16 76 96 24
+      	textalign 1	
+      	textalignx 48     
+      	textaligny 20
+	textscale .3
+      	forecolor 1 1 1 1
+	backcolor 1 1 1 1 
+      	visible 1
+	action { open ingame_player } 
+	mouseEnter {show player_alt }
+      	mouseExit { hide player_alt}
+	}
+	itemDef {
+      		name player_alt
+		group grpControlbutton
+		style WINDOW_STYLE_SHADER
+		background "ui/wq3_assets/button_selected.tga"
+ 		rect 16 76 96 24
+      		visible 0
+		decoration	  
+    		}
+	itemdef
+		{
+		name about_tex
+		style 3
+		rect 0 76 128 24
+		background "ui/wq3_assets/menu_tex.tga"	
+		visible 1
+		decoration
+		}
+
+itemDef {
+      	name controls
+      	text "Controls"
+	type 1
+	style WINDOW_STYLE_FILLED
+	background "ui/wq3_assets/button.tga"
+      	rect 16 100 96 24
+      	textalign 1	
+      	textalignx 48      
+      	textaligny 20
+	textscale .3
+      	forecolor 1 1 1 1
+	backcolor 1 1 1 1 
+      	visible 1 
+      	action { open ingame_controls }
+	mouseEnter {show controls_alt }
+      	mouseExit { hide controls_alt}
+	}
+	itemDef {
+      		name controls_alt
+		group grpControlbutton
+		style WINDOW_STYLE_SHADER
+		background "ui/wq3_assets/button_selected.tga"
+ 		rect 16 100 96 24
+      		visible 0
+		decoration	  
+    		}
+	itemdef
+		{
+		name about_tex
+		style 3
+		rect 0 100 128 24
+		background "ui/wq3_assets/menu_tex.tga"	
+		visible 1
+		decoration
+		}
+
+itemDef {
+      	name options
+      	text "Options"
+	type 1
+	style WINDOW_STYLE_FILLED
+	background "ui/wq3_assets/button.tga"
+      	rect 16 124 96 24
+      	textalign 1	
+      	textalignx 48      
+      	textaligny 20
+	textscale .3
+      	forecolor 1 1 1 1
+	backcolor 1 1 1 1 
+      	visible 1 
+	action { open ingame_options }
+	mouseEnter { show options_alt}
+      	mouseExit { hide options_alt}
+	}
+	itemDef {
+      		name options_alt
+		group grpControlbutton
+		style WINDOW_STYLE_SHADER
+		background "ui/wq3_assets/button_selected.tga"
+ 		rect 16 124 96 24
+      		visible 0
+		decoration	  
+    		}
+	itemdef
+		{
+		name about_tex
+		style 3
+		rect 0 124 128 24
+		background "ui/wq3_assets/menu_tex.tga"	
+		visible 1
+		decoration
+		}
+
+itemDef {
+      	name system
+      	text "System"
+	type 1
+	style WINDOW_STYLE_FILLED
+	background "ui/wq3_assets/button.tga"
+      	rect 16 148 96 24
+      	textalign 1	
+      	textalignx 48     
+      	textaligny 20
+	textscale .3
+      	forecolor 1 1 1 1
+	backcolor 1 1 1 1 
+      	visible 1 
+	action { open ingame_system }
+	mouseEnter {show system_alt }
+      	mouseExit { hide system_alt}
+	}
+	itemDef {
+      		name system_alt
+		group grpControlbutton
+		style WINDOW_STYLE_SHADER
+		background "ui/wq3_assets/button_selected.tga"
+ 		rect 16 148 96 24
+      		visible 0
+		decoration	  
+    		}
+	itemdef
+		{
+		name about_tex
+		style 3
+		rect 0 148 128 24
+		background "ui/wq3_assets/menu_tex.tga"	
+		visible 1
+		decoration
+		}
+
+itemDef {
+      	name vote
+      	text "Vote"
+	type 1
+	style WINDOW_STYLE_FILLED
+	background "ui/wq3_assets/button.tga"
+      	rect 16 172 96 24
+      	textalign 1	
+      	textalignx 48     
+      	textaligny 20
+	textscale .3
+      	forecolor 1 1 1 1
+	backcolor 1 1 1 1 
+      	visible 1 
+	action { open ingame_vote }
+	mouseEnter {show vote_alt }
+      	mouseExit { hide vote_alt}
+	}
+	itemDef {
+      		name vote_alt
+		group grpControlbutton
+		style WINDOW_STYLE_SHADER
+		background "ui/wq3_assets/button_selected.tga"
+ 		rect 16 172 96 24
+      		visible 0
+		decoration	  
+    		}
+	itemdef
+		{
+		name about_tex
+		style 3
+		rect 0 172 128 24
+		background "ui/wq3_assets/menu_tex.tga"	
+		visible 1
+		decoration
+		}
+
+itemDef {
+      	name callvote
+      	text "CallVote"
+	type 1
+	style WINDOW_STYLE_FILLED
+	background "ui/wq3_assets/button.tga"
+      	rect 16 196 96 24
+      	textalign 1	
+      	textalignx 48      
+      	textaligny 20
+	textscale .3
+      	forecolor 1 1 1 1
+	backcolor 1 1 1 1 
+      	visible 1 
+	action { open ingame_callvote }
+	mouseEnter {show callvote_alt }
+      	mouseExit { hide callvote_alt}
+	}
+	itemDef {
+      		name callvote_alt
+		group grpControlbutton
+		style WINDOW_STYLE_SHADER
+		background "ui/wq3_assets/button_selected.tga"
+ 		rect 16 196 96 24
+      		visible 0
+		decoration	  
+    		}
+	itemdef
+		{
+		name about_tex
+		style 3
+		rect 0 196 128 24
+		background "ui/wq3_assets/menu_tex.tga"	
+		visible 1
+		decoration
+		}
+
+itemdef
+	{
+	name about
+	text "Serverinfo"	
+	rect 16 220 96 24
+	type 1
+	style WINDOW_STYLE_FILLED
+	background "ui/wq3_assets/button.tga"
+	textalign 1
+	textalignx 48
+	textaligny 20
+	textscale .3
+	forecolor 1 1 1 1
+	backcolor 1 1 1 1 
+	visible 1
+	action { uiScript ServerInfo; open ingame_about }
+	mouseEnter { show about_alt }
+      	mouseExit { hide about_alt }
+	}
+	itemDef {
+      		name about_alt
+		group grpControlbutton
+		style WINDOW_STYLE_SHADER
+		background "ui/wq3_assets/button_selected.tga"
+ 		rect 16 220 96 24
+      		visible 0
+		decoration	  
+    		}	
+	itemdef
+		{
+		name about_tex
+		style 3
+		rect 0 220 128 24
+		background "ui/wq3_assets/menu_tex.tga"	
+		visible 1
+		decoration
+		}
+
+itemDef {
+      	name leave
+      	text "Exit"
+	type 1
+	style WINDOW_STYLE_FILLED
+	background "ui/wq3_assets/button.tga"
+      	rect 16 244 96 24
+      	textalign 1	
+      	textalignx 48      
+      	textaligny 20
+	textscale .3
+      	forecolor 1 1 1 1
+	backcolor 1 1 1 1 
+      	visible 1 
+      	action { open ingame_leave }
+	mouseEnter { show leave_alt}
+      	mouseExit { hide leave_alt}
+	}
+	itemDef {
+      		name leave_alt
+		group grpControlbutton
+		style WINDOW_STYLE_SHADER
+		background "ui/wq3_assets/button_selected.tga"
+ 		rect 16 244 96 24
+      		visible 0
+		decoration	  
+    		}
+	itemdef
+		{
+		name about_tex
+		style 3
+		rect 0 244 128 24
+		background "ui/wq3_assets/menu_tex.tga"	
+		visible 1
+		decoration
+		}
+
+itemdef
+	{
+	name endframe
+	style 3
+	rect 0 268 128 24
+      	textalign 1	
+	background "ui/wq3_assets/menu_end.tga"	
+	visible 1
+	decoration
+	}
+
+
+ 
+}
+
+}

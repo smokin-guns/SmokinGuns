@@ -1,0 +1,179 @@
+########################################################################
+# Based on ioQuake3 revision
+IOQ3_REVISION = 1771
+########################################################################
+ifeq ($(BUILD_CLIENT),)
+  # Build client by default
+  BUILD_CLIENT     = 1
+endif
+ifeq ($(BUILD_CLIENT_SMP),)
+  # Don't build SMP by default, it is still not supported by SDL
+  BUILD_CLIENT_SMP = 0
+endif
+ifeq ($(BUILD_SERVER),)
+  # Build server by default
+  BUILD_SERVER     = 1
+endif
+ifeq ($(BUILD_GAME_SO),)
+  # Don't build binary game by default
+  BUILD_GAME_SO    = 0
+endif
+ifeq ($(BUILD_GAME_QVM),)
+  # Build QVM game by default
+  BUILD_GAME_QVM   = 1
+endif
+ifeq ($(FRAMEBUFFER_AND_GLSL_SUPPORT),)
+  # Build renderer with frambuffer and GLSL support by default
+  FRAMEBUFFER_AND_GLSL_SUPPORT = 1
+endif
+ifeq ($(BUILD_SDK_DIFF),)
+  BUILD_SDK_DIFF   = 1
+endif
+########################################################################
+# Don't modify the following or the build will just be broken
+BUILD_STANDALONE  = 1
+BUILD_MISSIONPACK = 0
+SDK_GAME          = Smokin' Guns
+SDK_GAMENAME      = smokinguns
+SDK_GAMENAME_DED  = smokinguns_dedicated
+# Comment USE_MP_UIDIR to use old ui code from code/q3_ui folder
+USE_MP_UIDIR      = 1
+# STANDALONE_CFLAGS should only contain -D options dedicated to the game to keep
+# it not compiler dependant. It will be used by cc but also q3lcc in any build.
+STANDALONE_CFLAGS = -DSMOKINGUNS -DSG_RELEASE=$(shell date +%Y%m%d)
+########################################################################
+# Official release options
+VERSION           = 1.1b4
+USE_CODEC_VORBIS  = 0
+########################################################################
+# Here some convenient defaults
+ifndef COPYDIR
+  COPYDIR           = ./install
+endif
+ifndef BUILD_DIR
+  BUILD_DIR         = ./build
+endif
+
+# Packagers can uncomment and change DEFAULT_BASEDIR to define a system
+# installation path for the game. Otherwise, you can start the game with
+# a script setting SG_BASEPATH environment to the path you would prefer
+#DEFAULT_BASEDIR = /usr/share/games/smokinguns
+
+# Use -DFS_FOPENI if you are MODing under Unix (content out of PK3)
+#STANDALONE_CFLAGS += -DFS_FOPENI
+#STANDALONE_CFLAGS += -DFS_MISSING -DFS_FOPENI
+
+# Tequila: Fixed svn support for file using Q3_VERSION define
+SDK_OBJ_USING_SVN = \
+	$(B)/ded/common.o \
+	$(B)/ded/sys_main.o \
+	$(B)/ded/sys_unix.o \
+	$(B)/ded/sys_win32.o \
+	$(B)/client/common.o \
+	$(B)/client/cl_console.o \
+	$(B)/client/cl_curl.o \
+	$(B)/client/sys_main.o \
+	$(B)/client/sys_unix.o \
+	$(B)/client/sys_win32.o \
+	$(B)/$(SDK_GAMENAME)/game/g_main.o \
+	$(B)/$(SDK_GAMENAME)/game/g_main.asm \
+	$(B)/$(SDK_GAMENAME)/cgame/cg_main.o \
+	$(B)/$(SDK_GAMENAME)/cgame/cg_main.asm \
+	$(B)/$(SDK_GAMENAME)/ui/ui_main.o \
+	$(B)/$(SDK_GAMENAME)/ui/ui_main.asm
+
+#############################################################################
+## SMOKINGUNS CGAME
+#############################################################################
+
+SDK_Q3CGOBJ = \
+  $(B)/$(SDK_GAMENAME)/cgame/cg_main.o \
+  $(B)/$(SDK_GAMENAME)/cgame/bg_misc.o \
+  $(B)/$(SDK_GAMENAME)/cgame/bg_pmove.o \
+  $(B)/$(SDK_GAMENAME)/cgame/bg_slidemove.o \
+  $(B)/$(SDK_GAMENAME)/cgame/bg_lib.o \
+  $(B)/$(SDK_GAMENAME)/cgame/cg_consolecmds.o \
+  $(B)/$(SDK_GAMENAME)/cgame/cg_newdraw.o \
+  $(B)/$(SDK_GAMENAME)/cgame/cg_draw.o \
+  $(B)/$(SDK_GAMENAME)/cgame/cg_drawtools.o \
+  $(B)/$(SDK_GAMENAME)/cgame/cg_effects.o \
+  $(B)/$(SDK_GAMENAME)/cgame/cg_ents.o \
+  $(B)/$(SDK_GAMENAME)/cgame/cg_event.o \
+  $(B)/$(SDK_GAMENAME)/cgame/cg_info.o \
+  $(B)/$(SDK_GAMENAME)/cgame/cg_localents.o \
+  $(B)/$(SDK_GAMENAME)/cgame/cg_marks.o \
+  $(B)/$(SDK_GAMENAME)/cgame/cg_players.o \
+  $(B)/$(SDK_GAMENAME)/cgame/cg_playerstate.o \
+  $(B)/$(SDK_GAMENAME)/cgame/cg_predict.o \
+  $(B)/$(SDK_GAMENAME)/cgame/cg_scoreboard.o \
+  $(B)/$(SDK_GAMENAME)/cgame/cg_servercmds.o \
+  $(B)/$(SDK_GAMENAME)/cgame/cg_snapshot.o \
+  $(B)/$(SDK_GAMENAME)/cgame/cg_view.o \
+  $(B)/$(SDK_GAMENAME)/cgame/cg_weapons.o \
+  $(B)/$(SDK_GAMENAME)/ui/ui_shared.o \
+  \
+  $(B)/$(SDK_GAMENAME)/qcommon/q_math.o \
+  $(B)/$(SDK_GAMENAME)/qcommon/q_shared.o \
+  \
+  $(B)/$(SDK_GAMENAME)/cgame/cg_sg_utils.o \
+  $(B)/$(SDK_GAMENAME)/cgame/cg_unlagged.o
+
+#############################################################################
+## SMOKINGUNS GAME
+#############################################################################
+
+SDK_Q3GOBJ = \
+  $(B)/$(SDK_GAMENAME)/game/g_main.o \
+  $(B)/$(SDK_GAMENAME)/game/ai_chat.o \
+  $(B)/$(SDK_GAMENAME)/game/ai_cmd.o \
+  $(B)/$(SDK_GAMENAME)/game/ai_dmnet.o \
+  $(B)/$(SDK_GAMENAME)/game/ai_dmq3.o \
+  $(B)/$(SDK_GAMENAME)/game/ai_main.o \
+  $(B)/$(SDK_GAMENAME)/game/ai_team.o \
+  $(B)/$(SDK_GAMENAME)/game/ai_vcmd.o \
+  $(B)/$(SDK_GAMENAME)/game/bg_misc.o \
+  $(B)/$(SDK_GAMENAME)/game/bg_pmove.o \
+  $(B)/$(SDK_GAMENAME)/game/bg_slidemove.o \
+  $(B)/$(SDK_GAMENAME)/game/bg_lib.o \
+  $(B)/$(SDK_GAMENAME)/game/g_active.o \
+  $(B)/$(SDK_GAMENAME)/game/g_bot.o \
+  $(B)/$(SDK_GAMENAME)/game/g_client.o \
+  $(B)/$(SDK_GAMENAME)/game/g_cmds.o \
+  $(B)/$(SDK_GAMENAME)/game/g_combat.o \
+  $(B)/$(SDK_GAMENAME)/game/g_items.o \
+  $(B)/$(SDK_GAMENAME)/game/g_mem.o \
+  $(B)/$(SDK_GAMENAME)/game/g_misc.o \
+  $(B)/$(SDK_GAMENAME)/game/g_missile.o \
+  $(B)/$(SDK_GAMENAME)/game/g_mover.o \
+  $(B)/$(SDK_GAMENAME)/game/g_session.o \
+  $(B)/$(SDK_GAMENAME)/game/g_spawn.o \
+  $(B)/$(SDK_GAMENAME)/game/g_svcmds.o \
+  $(B)/$(SDK_GAMENAME)/game/g_target.o \
+  $(B)/$(SDK_GAMENAME)/game/g_team.o \
+  $(B)/$(SDK_GAMENAME)/game/g_trigger.o \
+  $(B)/$(SDK_GAMENAME)/game/g_utils.o \
+  $(B)/$(SDK_GAMENAME)/game/g_weapon.o \
+  \
+  $(B)/$(SDK_GAMENAME)/qcommon/q_math.o \
+  $(B)/$(SDK_GAMENAME)/qcommon/q_shared.o \
+  \
+  $(B)/$(SDK_GAMENAME)/game/g_sg_utils.o \
+  $(B)/$(SDK_GAMENAME)/game/g_hit.o \
+  $(B)/$(SDK_GAMENAME)/game/g_unlagged.o
+
+#############################################################################
+## SMOKINGUNS UI
+#############################################################################
+
+SDK_Q3UIOBJ = \
+  $(B)/$(SDK_GAMENAME)/ui/ui_main.o \
+  $(B)/$(SDK_GAMENAME)/ui/ui_atoms.o \
+  $(B)/$(SDK_GAMENAME)/ui/ui_gameinfo.o \
+  $(B)/$(SDK_GAMENAME)/ui/ui_players.o \
+  $(B)/$(SDK_GAMENAME)/ui/ui_shared.o \
+  \
+  $(B)/$(SDK_GAMENAME)/ui/bg_misc.o \
+  $(B)/$(SDK_GAMENAME)/ui/bg_lib.o \
+  \
+  $(B)/$(SDK_GAMENAME)/qcommon/q_math.o \
+  $(B)/$(SDK_GAMENAME)/qcommon/q_shared.o

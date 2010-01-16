@@ -1,0 +1,588 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release SSE2|Win32">
+      <Configuration>Release SSE2</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release SSE|Win32">
+      <Configuration>Release SSE</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{81CB51C4-B434-4E12-B69B-BAEE102F2852}</ProjectGuid>
+    <RootNamespace>smokinguns</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>Static</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release SSE2|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release SSE|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release SSE2|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release SSE|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.21006.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\..\build\sg_release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\..\build\sg_release\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</EmbedManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release SSE|Win32'">..\..\..\build\sg_release_sse\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release SSE|Win32'">..\..\..\build\sg_release_sse\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release SSE|Win32'">false</LinkIncremental>
+    <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Release SSE|Win32'">false</EmbedManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release SSE2|Win32'">..\..\..\build\sg_release_sse2\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release SSE2|Win32'">..\..\..\build\sg_release_sse2\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release SSE2|Win32'">false</LinkIncremental>
+    <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Release SSE2|Win32'">false</EmbedManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\..\build\sg_debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\..\build\sg_debug\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release SSE2|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release SSE2|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release SSE2|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release SSE|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release SSE|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release SSE|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>$(IntDir)quake3.tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\..\..\code\SDL12\include;..\..\..\code\libcurl;..\..\..\code\AL;..\..\..\code\libspeex\include;..\..\..\code\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;USE_CURL;USE_CURL_DLOPEN;USE_OPENAL;USE_OPENAL_DLOPEN;USE_VOIP;HAVE_CONFIG_H;STANDALONE;SMOKINGUNS;FRAMEBUFFER_AND_GLSL_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderOutputFile>$(IntDir)quake3.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>user32.lib;advapi32.lib;winmm.lib;wsock32.lib;ws2_32.lib;OpenAL32.lib;SDLmain.lib;SDL.lib;OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)smokinguns.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>..\..\..\code\libs\win32;C:\Program Files\OpenAL 1.1 SDK\libs\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <DelayLoadDLLs>
+      </DelayLoadDLLs>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AssemblyDebug>false</AssemblyDebug>
+      <ProgramDatabaseFile>$(IntDir)smokinguns.pdb</ProgramDatabaseFile>
+      <GenerateMapFile>false</GenerateMapFile>
+      <MapFileName>$(IntDir)smokinguns.map</MapFileName>
+      <SubSystem>Windows</SubSystem>
+      <StackReserveSize>8388608</StackReserveSize>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release SSE|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>$(IntDir)quake3.tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\..\..\code\SDL12\include; ..\..\..\code\libcurl; ..\..\..\code\AL; ..\..\..\code\libspeex\include; ..\..\..\code\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;USE_CURL;USE_CURL_DLOPEN;USE_OPENAL;USE_OPENAL_DLOPEN;USE_VOIP;HAVE_CONFIG_H;STANDALONE;SMOKINGUNS;FRAMEBUFFER_AND_GLSL_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderOutputFile>$(IntDir)quake3.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>user32.lib;advapi32.lib;winmm.lib;wsock32.lib;ws2_32.lib;SDLmain.lib;SDL.lib;OpenGL32.lib;msvcrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)smokinguns.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>..\..\..\code\libs\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>msvcrt.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <DelayLoadDLLs>
+      </DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)smokinguns.pdb</ProgramDatabaseFile>
+      <GenerateMapFile>false</GenerateMapFile>
+      <MapFileName>$(IntDir)smokinguns.map</MapFileName>
+      <SubSystem>Windows</SubSystem>
+      <StackReserveSize>8388608</StackReserveSize>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release SSE2|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>$(IntDir)quake3.tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\..\..\code\SDL12\include; ..\..\..\code\libcurl; ..\..\..\code\AL; ..\..\..\code\libspeex\include; ..\..\..\code\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;USE_CURL;USE_CURL_DLOPEN;USE_OPENAL;USE_OPENAL_DLOPEN;USE_VOIP;HAVE_CONFIG_H;STANDALONE;SMOKINGUNS;FRAMEBUFFER_AND_GLSL_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderOutputFile>$(IntDir)quake3.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>user32.lib;advapi32.lib;winmm.lib;wsock32.lib;ws2_32.lib;SDLmain.lib;SDL.lib;OpenGL32.lib;msvcrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)smokinguns.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>..\..\..\code\libs\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>msvcrt.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <DelayLoadDLLs>
+      </DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)smokinguns.pdb</ProgramDatabaseFile>
+      <GenerateMapFile>false</GenerateMapFile>
+      <MapFileName>$(IntDir)smokinguns.map</MapFileName>
+      <SubSystem>Windows</SubSystem>
+      <StackReserveSize>8388608</StackReserveSize>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>$(IntDir)quake3.tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <OmitFramePointers>false</OmitFramePointers>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\..\..\code\SDL12\include;..\..\..\code\libcurl;..\..\..\code\AL;..\..\..\code\libspeex\include;..\..\..\code\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;USE_CURL;USE_CURL_DLOPEN;USE_OPENAL;USE_OPENAL_DLOPEN;USE_VOIP;HAVE_CONFIG_H;STANDALONE;SMOKINGUNS;FRAMEBUFFER_AND_GLSL_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>false</StringPooling>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderOutputFile>$(IntDir)quake3.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <BrowseInformation>true</BrowseInformation>
+      <WarningLevel>Level1</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CompileAs>CompileAsC</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>user32.lib;advapi32.lib;winmm.lib;wsock32.lib;ws2_32.lib;OpenAL32.lib;SDLmain.lib;SDL.lib;OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)\smokinguns.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>..\..\..\code\libs\win32;C:\Program Files\OpenAL 1.1 SDK\libs\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <DelayLoadDLLs>
+      </DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)smokinguns.pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>$(IntDir)smokinguns.map</MapFileName>
+      <SubSystem>Windows</SubSystem>
+      <StackReserveSize>8388608</StackReserveSize>
+      <LinkTimeCodeGeneration>
+      </LinkTimeCodeGeneration>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\code\client\cl_avi.c" />
+    <ClCompile Include="..\..\..\code\client\cl_cgame.c" />
+    <ClCompile Include="..\..\..\code\client\cl_cin.c" />
+    <ClCompile Include="..\..\..\code\client\cl_console.c" />
+    <ClCompile Include="..\..\..\code\client\cl_curl.c" />
+    <ClCompile Include="..\..\..\code\client\cl_input.c" />
+    <ClCompile Include="..\..\..\code\client\cl_keys.c" />
+    <ClCompile Include="..\..\..\code\client\cl_main.c" />
+    <ClCompile Include="..\..\..\code\client\cl_net_chan.c" />
+    <ClCompile Include="..\..\..\code\client\cl_parse.c" />
+    <ClCompile Include="..\..\..\code\client\cl_scrn.c" />
+    <ClCompile Include="..\..\..\code\client\cl_ui.c" />
+    <ClCompile Include="..\..\..\code\qcommon\cm_load.c" />
+    <ClCompile Include="..\..\..\code\qcommon\cm_patch.c" />
+    <ClCompile Include="..\..\..\code\qcommon\cm_polylib.c" />
+    <ClCompile Include="..\..\..\code\qcommon\cm_test.c" />
+    <ClCompile Include="..\..\..\code\qcommon\cm_trace.c" />
+    <ClCompile Include="..\..\..\code\qcommon\cmd.c" />
+    <ClCompile Include="..\..\..\code\qcommon\common.c" />
+    <ClCompile Include="..\..\..\code\sys\con_log.c" />
+    <ClCompile Include="..\..\..\code\sys\con_passive.c" />
+    <ClCompile Include="..\..\..\code\qcommon\cvar.c" />
+    <ClCompile Include="..\..\..\code\qcommon\files.c" />
+    <ClCompile Include="..\..\..\code\qcommon\huffman.c" />
+    <ClCompile Include="..\..\..\code\qcommon\ioapi.c" />
+    <ClCompile Include="..\..\..\code\qcommon\md4.c" />
+    <ClCompile Include="..\..\..\code\qcommon\md5.c" />
+    <ClCompile Include="..\..\..\code\qcommon\msg.c" />
+    <ClCompile Include="..\..\..\code\qcommon\net_chan.c" />
+    <ClCompile Include="..\..\..\code\qcommon\net_ip.c" />
+    <ClCompile Include="..\..\..\code\qcommon\puff.c" />
+    <ClCompile Include="..\..\..\code\qcommon\q_math.c" />
+    <ClCompile Include="..\..\..\code\qcommon\q_shared.c" />
+    <ClCompile Include="..\..\..\code\client\qal.c" />
+    <ClCompile Include="..\..\..\code\sdl\sdl_gamma.c" />
+    <ClCompile Include="..\..\..\code\sdl\sdl_glimp.c" />
+    <ClCompile Include="..\..\..\code\sdl\sdl_input.c" />
+    <ClCompile Include="..\..\..\code\sdl\sdl_snd.c" />
+    <ClCompile Include="..\..\..\code\client\snd_adpcm.c" />
+    <ClCompile Include="..\..\..\code\client\snd_codec.c" />
+    <ClCompile Include="..\..\..\code\client\snd_codec_ogg.c" />
+    <ClCompile Include="..\..\..\code\client\snd_codec_wav.c" />
+    <ClCompile Include="..\..\..\code\client\snd_dma.c" />
+    <ClCompile Include="..\..\..\code\client\snd_main.c" />
+    <ClCompile Include="..\..\..\code\client\snd_mem.c" />
+    <ClCompile Include="..\..\..\code\client\snd_mix.c" />
+    <ClCompile Include="..\..\..\code\client\snd_openal.c" />
+    <ClCompile Include="..\..\..\code\client\snd_wavelet.c" />
+    <ClCompile Include="..\..\..\code\server\sv_bot.c" />
+    <ClCompile Include="..\..\..\code\server\sv_ccmds.c" />
+    <ClCompile Include="..\..\..\code\server\sv_client.c" />
+    <ClCompile Include="..\..\..\code\server\sv_game.c" />
+    <ClCompile Include="..\..\..\code\server\sv_init.c" />
+    <ClCompile Include="..\..\..\code\server\sv_main.c" />
+    <ClCompile Include="..\..\..\code\server\sv_net_chan.c" />
+    <ClCompile Include="..\..\..\code\server\sv_snapshot.c" />
+    <ClCompile Include="..\..\..\code\server\sv_world.c" />
+    <ClCompile Include="..\..\..\code\sys\sys_main.c" />
+    <ClCompile Include="..\..\..\code\sys\sys_win32.c" />
+    <ClCompile Include="..\..\..\code\qcommon\unzip.c" />
+    <ClCompile Include="..\..\..\code\qcommon\vm.c" />
+    <ClCompile Include="..\..\..\code\qcommon\vm_interpreted.c" />
+    <ClCompile Include="..\..\..\code\qcommon\vm_x86.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jcapimin.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jcapistd.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jccoefct.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jccolor.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jcdctmgr.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jchuff.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jcinit.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jcmainct.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jcmarker.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jcmaster.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jcomapi.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jcparam.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jcphuff.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jcprepct.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jcsample.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jdapimin.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jdapistd.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jdatasrc.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jdcoefct.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jdcolor.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jddctmgr.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jdhuff.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jdinput.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jdmainct.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jdmarker.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jdmaster.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jdpostct.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jdsample.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jdtrans.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jerror.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jfdctflt.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jidctflt.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jmemmgr.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jmemnobs.c" />
+    <ClCompile Include="..\..\..\code\jpeg-6b\jutils.c" />
+    <ClCompile Include="..\..\..\code\botlib\be_aas_bspq3.c" />
+    <ClCompile Include="..\..\..\code\botlib\be_aas_cluster.c" />
+    <ClCompile Include="..\..\..\code\botlib\be_aas_debug.c" />
+    <ClCompile Include="..\..\..\code\botlib\be_aas_entity.c" />
+    <ClCompile Include="..\..\..\code\botlib\be_aas_file.c" />
+    <ClCompile Include="..\..\..\code\botlib\be_aas_main.c" />
+    <ClCompile Include="..\..\..\code\botlib\be_aas_move.c" />
+    <ClCompile Include="..\..\..\code\botlib\be_aas_optimize.c" />
+    <ClCompile Include="..\..\..\code\botlib\be_aas_reach.c" />
+    <ClCompile Include="..\..\..\code\botlib\be_aas_route.c" />
+    <ClCompile Include="..\..\..\code\botlib\be_aas_routealt.c" />
+    <ClCompile Include="..\..\..\code\botlib\be_aas_sample.c" />
+    <ClCompile Include="..\..\..\code\botlib\be_ai_char.c" />
+    <ClCompile Include="..\..\..\code\botlib\be_ai_chat.c" />
+    <ClCompile Include="..\..\..\code\botlib\be_ai_gen.c" />
+    <ClCompile Include="..\..\..\code\botlib\be_ai_goal.c" />
+    <ClCompile Include="..\..\..\code\botlib\be_ai_move.c" />
+    <ClCompile Include="..\..\..\code\botlib\be_ai_weap.c" />
+    <ClCompile Include="..\..\..\code\botlib\be_ai_weight.c" />
+    <ClCompile Include="..\..\..\code\botlib\be_ea.c" />
+    <ClCompile Include="..\..\..\code\botlib\be_interface.c" />
+    <ClCompile Include="..\..\..\code\botlib\l_crc.c" />
+    <ClCompile Include="..\..\..\code\botlib\l_libvar.c" />
+    <ClCompile Include="..\..\..\code\botlib\l_log.c" />
+    <ClCompile Include="..\..\..\code\botlib\l_memory.c" />
+    <ClCompile Include="..\..\..\code\botlib\l_precomp.c" />
+    <ClCompile Include="..\..\..\code\botlib\l_script.c" />
+    <ClCompile Include="..\..\..\code\botlib\l_struct.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_animation.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_backend.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_bsp.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_cmds.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_curve.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_flares.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_font.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_framebuffer.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_glslprogs.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_image.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_image_bmp.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_image_jpg.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_image_pcx.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_image_png.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_image_tga.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_init.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_light.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_main.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_marks.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_mesh.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_model.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_noise.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_scene.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_shade.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_shade_calc.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_shader.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_shadows.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_sky.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_surface.c" />
+    <ClCompile Include="..\..\..\code\renderer\tr_world.c" />
+    <ClCompile Include="..\..\..\code\libspeex\bits.c" />
+    <ClCompile Include="..\..\..\code\libspeex\buffer.c" />
+    <ClCompile Include="..\..\..\code\libspeex\cb_search.c" />
+    <ClCompile Include="..\..\..\code\libspeex\exc_10_16_table.c" />
+    <ClCompile Include="..\..\..\code\libspeex\exc_10_32_table.c" />
+    <ClCompile Include="..\..\..\code\libspeex\exc_20_32_table.c" />
+    <ClCompile Include="..\..\..\code\libspeex\exc_5_256_table.c" />
+    <ClCompile Include="..\..\..\code\libspeex\exc_5_64_table.c" />
+    <ClCompile Include="..\..\..\code\libspeex\exc_8_128_table.c" />
+    <ClCompile Include="..\..\..\code\libspeex\fftwrap.c" />
+    <ClCompile Include="..\..\..\code\libspeex\filterbank.c" />
+    <ClCompile Include="..\..\..\code\libspeex\filters.c" />
+    <ClCompile Include="..\..\..\code\libspeex\gain_table.c" />
+    <ClCompile Include="..\..\..\code\libspeex\gain_table_lbr.c" />
+    <ClCompile Include="..\..\..\code\libspeex\hexc_10_32_table.c" />
+    <ClCompile Include="..\..\..\code\libspeex\hexc_table.c" />
+    <ClCompile Include="..\..\..\code\libspeex\high_lsp_tables.c" />
+    <ClCompile Include="..\..\..\code\libspeex\jitter.c" />
+    <ClCompile Include="..\..\..\code\libspeex\kiss_fft.c" />
+    <ClCompile Include="..\..\..\code\libspeex\kiss_fftr.c" />
+    <ClCompile Include="..\..\..\code\libspeex\lpc.c" />
+    <ClCompile Include="..\..\..\code\libspeex\lsp.c" />
+    <ClCompile Include="..\..\..\code\libspeex\lsp_tables_nb.c" />
+    <ClCompile Include="..\..\..\code\libspeex\ltp.c" />
+    <ClCompile Include="..\..\..\code\libspeex\mdf.c" />
+    <ClCompile Include="..\..\..\code\libspeex\modes.c" />
+    <ClCompile Include="..\..\..\code\libspeex\modes_wb.c" />
+    <ClCompile Include="..\..\..\code\libspeex\nb_celp.c" />
+    <ClCompile Include="..\..\..\code\libspeex\preprocess.c" />
+    <ClCompile Include="..\..\..\code\libspeex\quant_lsp.c" />
+    <ClCompile Include="..\..\..\code\libspeex\resample.c" />
+    <ClCompile Include="..\..\..\code\libspeex\sb_celp.c" />
+    <ClCompile Include="..\..\..\code\libspeex\smallft.c" />
+    <ClCompile Include="..\..\..\code\libspeex\speex.c" />
+    <ClCompile Include="..\..\..\code\libspeex\speex_callbacks.c" />
+    <ClCompile Include="..\..\..\code\libspeex\speex_header.c" />
+    <ClCompile Include="..\..\..\code\libspeex\stereo.c" />
+    <ClCompile Include="..\..\..\code\libspeex\vbr.c" />
+    <ClCompile Include="..\..\..\code\libspeex\vq.c" />
+    <ClCompile Include="..\..\..\code\libspeex\window.c" />
+    <ClCompile Include="..\..\..\code\zlib\adler32.c" />
+    <ClCompile Include="..\..\..\code\zlib\crc32.c" />
+    <ClCompile Include="..\..\..\code\zlib\inffast.c" />
+    <ClCompile Include="..\..\..\code\zlib\inflate.c" />
+    <ClCompile Include="..\..\..\code\zlib\inftrees.c" />
+    <ClCompile Include="..\..\..\code\zlib\zutil.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\code\game\bg_public.h" />
+    <ClInclude Include="..\..\..\code\cgame\cg_local.h" />
+    <ClInclude Include="..\..\..\code\cgame\cg_public.h" />
+    <ClInclude Include="..\..\..\code\client\cl_curl.h" />
+    <ClInclude Include="..\..\..\code\client\client.h" />
+    <ClInclude Include="..\..\..\code\qcommon\cm_local.h" />
+    <ClInclude Include="..\..\..\code\qcommon\cm_patch.h" />
+    <ClInclude Include="..\..\..\code\qcommon\cm_polylib.h" />
+    <ClInclude Include="..\..\..\code\qcommon\cm_public.h" />
+    <ClInclude Include="..\..\..\code\game\g_public.h" />
+    <ClInclude Include="..\..\..\code\client\keycodes.h" />
+    <ClInclude Include="..\..\..\code\client\keys.h" />
+    <ClInclude Include="..\..\..\code\qcommon\puff.h" />
+    <ClInclude Include="..\..\..\code\qcommon\q_shared.h" />
+    <ClInclude Include="..\..\..\code\client\qal.h" />
+    <ClInclude Include="..\..\..\code\qcommon\qcommon.h" />
+    <ClInclude Include="..\..\..\code\qcommon\qfiles.h" />
+    <ClInclude Include="..\..\..\code\renderer\qgl.h" />
+    <ClInclude Include="..\..\..\code\SDL12\include\SDL_opengl.h" />
+    <ClInclude Include="..\..\..\code\server\server.h" />
+    <ClInclude Include="..\..\..\code\client\snd_local.h" />
+    <ClInclude Include="..\..\..\code\client\snd_public.h" />
+    <ClInclude Include="..\..\..\code\qcommon\surfaceflags.h" />
+    <ClInclude Include="..\..\..\code\renderer\tr_local.h" />
+    <ClInclude Include="..\..\..\code\renderer\tr_public.h" />
+    <ClInclude Include="..\..\..\code\renderer\tr_types.h" />
+    <ClInclude Include="..\..\..\code\ui\ui_public.h" />
+    <ClInclude Include="..\..\..\code\qcommon\unzip.h" />
+    <ClInclude Include="..\..\..\code\qcommon\vm_local.h" />
+    <ClInclude Include="..\..\..\code\sys\win_resource.h" />
+    <ClInclude Include="..\..\..\code\jpeg-6b\jchuff.h" />
+    <ClInclude Include="..\..\..\code\jpeg-6b\jconfig.h" />
+    <ClInclude Include="..\..\..\code\jpeg-6b\jdct.h" />
+    <ClInclude Include="..\..\..\code\jpeg-6b\jdhuff.h" />
+    <ClInclude Include="..\..\..\code\jpeg-6b\jerror.h" />
+    <ClInclude Include="..\..\..\code\jpeg-6b\jinclude.h" />
+    <ClInclude Include="..\..\..\code\jpeg-6b\jmemsys.h" />
+    <ClInclude Include="..\..\..\code\jpeg-6b\jmorecfg.h" />
+    <ClInclude Include="..\..\..\code\jpeg-6b\jpegint.h" />
+    <ClInclude Include="..\..\..\code\jpeg-6b\jpeglib.h" />
+    <ClInclude Include="..\..\..\code\jpeg-6b\jversion.h" />
+    <ClInclude Include="..\..\..\code\botlib\aasfile.h" />
+    <ClInclude Include="..\..\..\code\botlib\be_aas_bsp.h" />
+    <ClInclude Include="..\..\..\code\botlib\be_aas_cluster.h" />
+    <ClInclude Include="..\..\..\code\botlib\be_aas_debug.h" />
+    <ClInclude Include="..\..\..\code\botlib\be_aas_def.h" />
+    <ClInclude Include="..\..\..\code\botlib\be_aas_entity.h" />
+    <ClInclude Include="..\..\..\code\botlib\be_aas_file.h" />
+    <ClInclude Include="..\..\..\code\botlib\be_aas_funcs.h" />
+    <ClInclude Include="..\..\..\code\botlib\be_aas_main.h" />
+    <ClInclude Include="..\..\..\code\botlib\be_aas_move.h" />
+    <ClInclude Include="..\..\..\code\botlib\be_aas_optimize.h" />
+    <ClInclude Include="..\..\..\code\botlib\be_aas_reach.h" />
+    <ClInclude Include="..\..\..\code\botlib\be_aas_route.h" />
+    <ClInclude Include="..\..\..\code\botlib\be_aas_routealt.h" />
+    <ClInclude Include="..\..\..\code\botlib\be_aas_sample.h" />
+    <ClInclude Include="..\..\..\code\botlib\be_ai_weight.h" />
+    <ClInclude Include="..\..\..\code\botlib\be_interface.h" />
+    <ClInclude Include="..\..\..\code\botlib\l_crc.h" />
+    <ClInclude Include="..\..\..\code\botlib\l_libvar.h" />
+    <ClInclude Include="..\..\..\code\botlib\l_log.h" />
+    <ClInclude Include="..\..\..\code\botlib\l_memory.h" />
+    <ClInclude Include="..\..\..\code\botlib\l_precomp.h" />
+    <ClInclude Include="..\..\..\code\botlib\l_script.h" />
+    <ClInclude Include="..\..\..\code\botlib\l_struct.h" />
+    <ClInclude Include="..\..\..\code\botlib\l_utils.h" />
+    <ClInclude Include="..\..\..\code\libspeex\config.h" />
+    <ClInclude Include="..\..\..\code\libspeex\include\speex\speex.h" />
+    <ClInclude Include="..\..\..\code\libspeex\include\speex\speex_types.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\..\code\sys\win_resource.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

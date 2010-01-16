@@ -1,0 +1,30 @@
+// menu defs
+// 
+{	
+	loadMenu { "ui/main.menu" }
+ 	loadMenu { "ui/joinserver.menu" }
+ 	loadMenu { "ui/skirmish.menu" }
+ 	loadMenu { "ui/createserver.menu" }
+
+	loadMenu { "ui/demo.menu" }
+	loadMenu { "ui/connect.menu" }
+	loadMenu { "ui/quitcredit.menu" }
+
+	loadMenu { "ui/settings.menu" }
+	loadMenu { "ui/settings_controls.menu" }
+	loadMenu { "ui/settings_system.menu" }
+	loadMenu { "ui/settings_options.menu" }
+	loadMenu { "ui/settings_player.menu" }
+	loadMenu { "ui/settings_default.menu" }
+	
+
+	loadMenu { "ui/pop_password.menu" }
+	loadMenu { "ui/pop_findplayer.menu" }
+	loadMenu { "ui/pop_serverinfo.menu" }
+	loadMenu { "ui/pop_createfavorite.menu" }
+	loadMenu { "ui/pop_specify.menu" }
+	loadMenu { "ui/pop_multiplayer.menu" }
+	loadMenu { "ui/pop_quit.menu" }
+	loadMenu { "ui/pop_error.menu" }
+	loadMenu { "ui/pop_vid_restart.menu" }
+}
