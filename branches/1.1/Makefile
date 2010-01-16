@@ -1,4 +1,4 @@
-﻿#
+#
 # Smokin' Guns Makefile based on
 # ioq3 Makefile
 #
