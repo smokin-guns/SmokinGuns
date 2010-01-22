@@ -96,6 +96,7 @@ void (APIENTRYP qglFramebufferTexture2DEXT )(GLenum, GLenum, GLenum, GLuint, GLi
 GLenum (APIENTRYP qglCheckFramebufferStatusEXT )(GLenum);
 void (APIENTRYP qglDeleteFramebuffersEXT )(GLsizei, const GLuint *);
 void (APIENTRYP qglDeleteRenderbuffersEXT )(GLsizei, const GLuint *);
+void (APIENTRYP qglBlitFramebufferEXT )(GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLenum, GLbitfield);
 
 //added fragment/vertex program extensions
 void (APIENTRYP qglAttachShader) (GLuint, GLuint);
@@ -706,7 +707,8 @@ static void GLimp_InitExtensions( void )
 	qglFramebufferTexture2DEXT = NULL;
 	qglCheckFramebufferStatusEXT = NULL;
 	qglDeleteFramebuffersEXT = NULL;
-	qglDeleteRenderbuffersEXT =NULL;
+	qglDeleteRenderbuffersEXT = NULL;
+	qglBlitFramebufferEXT = NULL;
 
 	//added fragment/vertex program extensions
 	qglAttachShader = NULL;
@@ -730,6 +732,7 @@ static void GLimp_InitExtensions( void )
 
 	framebufferSupported = qfalse;
 	glslSupported = qfalse;
+	multisampleSupported = qfalse;
 	if ( GLimp_HaveExtension( "GL_EXT_framebuffer_object" ) &&
 	     GLimp_HaveExtension( "GL_ARB_texture_non_power_of_two" ) )
 	{
@@ -741,11 +744,18 @@ static void GLimp_InitExtensions( void )
 		qglGenRenderbuffersEXT = ( void (APIENTRY *  )(GLsizei, GLuint *) ) SDL_GL_GetProcAddress( "glGenRenderbuffersEXT");
 		qglBindRenderbufferEXT = ( void (APIENTRY *  )(GLenum, GLuint) ) SDL_GL_GetProcAddress( "glBindRenderbufferEXT");
 		qglRenderbufferStorageEXT = ( void (APIENTRY *  )(GLenum, GLenum, GLsizei, GLsizei) ) SDL_GL_GetProcAddress( "glRenderbufferStorageEXT");
-		if ( GLimp_HaveExtension( "GL_EXT_framebuffer_multisample" ) ) {
+		if ( GLimp_HaveExtension( "GL_EXT_framebuffer_multisample" ) &&
+		     GLimp_HaveExtension( "GL_EXT_framebuffer_blit" ) ) {
 			ri.Printf( PRINT_ALL, "...using GL_EXT_framebuffer_multisample\n" );
+			ri.Printf( PRINT_ALL, "...using GL_EXT_framebuffer_blit\n" );
+			multisampleSupported = qtrue;
 			qglRenderbufferStorageMultisampleEXT = ( void (APIENTRY *  )(GLenum, GLsizei, GLenum, GLsizei, GLsizei) ) SDL_GL_GetProcAddress( "glRenderbufferStorageMultisampleEXT");
+			qglBlitFramebufferEXT = ( void (APIENTRY *  )(GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLenum, GLbitfield) ) SDL_GL_GetProcAddress( "glBlitFramebufferEXT");
 		} else {
-			ri.Printf( PRINT_WARNING, "WARNING: GL_EXT_framebuffer_multisample is missing\n");
+			if ( !strstr( glConfig.extensions_string, "GL_EXT_framebuffer_multisample" ) )
+				ri.Printf( PRINT_WARNING, "WARNING: GL_EXT_framebuffer_multisample is missing\n");
+			if ( !strstr( glConfig.extensions_string, "GL_EXT_framebuffer_blit" ) )
+				ri.Printf( PRINT_WARNING, "WARNING: GL_EXT_framebuffer_blit is missing\n");
 		}
 		qglFramebufferRenderbufferEXT = ( void (APIENTRY *  )(GLenum, GLenum, GLenum, GLuint) ) SDL_GL_GetProcAddress( "glFramebufferRenderbufferEXT");
 		qglFramebufferTexture2DEXT = ( void (APIENTRY *  )(GLenum, GLenum, GLenum, GLuint, GLint) ) SDL_GL_GetProcAddress( "glFramebufferTexture2DEXT");
