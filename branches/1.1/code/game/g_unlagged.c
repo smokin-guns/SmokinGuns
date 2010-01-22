@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Based on Unlagged 2.01 code by Neil "haste" Toronto.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
