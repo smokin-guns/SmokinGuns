@@ -542,13 +542,13 @@ void Sys_BinaryEngineComment( void ) {
 		Q_strcat(string,sizeof(string),va("\ncomment: %s",comment));
 	if (strlen(contact))
 		Q_strcat(string,sizeof(string),va("\ncontact: %s",contact));
-	Com_Printf("engine: %s\n", string);
+	fprintf( stdout, "engine: %s\n", string);
 #ifndef SDK_DIFF
 	sum = Com_MD5Text(string,strlen(string),NULL,0);
 #else
 	sum = Com_MD5TextArray(sdk_diff,sdk_diff_size,string,strlen(string));
 #endif
-	Com_Printf("md5sum: %s\n", sum);
+	fprintf( stdout, "md5sum: %s\n", sum);
 	// Avoid segfault if engine is called with --version argument
 	if (!com_version)
 		return;
