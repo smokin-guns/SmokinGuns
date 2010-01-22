@@ -82,7 +82,6 @@ struct r_fbuffer {
 	GLuint	*depth;					//depth buffer
 	GLuint	*stencil;				//stencil buffer
 	int		modeFlags;				//the modeflags
-	int		renderbuff;				//either FB_FRONT or FB_BACK
 } r_fbuffer;
 
 qboolean needBlur = qfalse;			//is set if effects need a blur
@@ -220,14 +219,14 @@ GLuint *R_CreateTexbuffer(	GLuint *store, int width, int height,
 		filter = GL_LINEAR;
 	}
 
-	glGenTextures( 1, store );
-	glBindTexture( GL_TEXTURE_2D, *store );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter );
+	qglGenTextures( 1, store );
+	qglBindTexture( GL_TEXTURE_2D, *store );
+	qglTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter );
+	qglTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter );
 
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-	glTexImage2D( GL_TEXTURE_2D, 0, bindType, width, height, 0,
+	qglTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+	qglTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+	qglTexImage2D( GL_TEXTURE_2D, 0, bindType, width, height, 0,
 					bindType, bindSize, 0 );
 	return store;
 }
@@ -261,9 +260,6 @@ GLuint *R_CreateRenderbuffer(	GLuint *store, int width, int height,
 #define FB_BACKBUFFER	0x10
 #define FB_SEPARATEZS	0x20
 #define FB_SMOOTH		0x40
-
-#define FB_FRONT		0x01
-#define FB_BACK			0x02
 
 int R_DeleteFBuffer( struct r_fbuffer *buffer) {
 	int flags = buffer->modeFlags;
@@ -462,8 +458,6 @@ int R_CreateFBuffer( struct r_fbuffer *buffer, int width, int height, int flags)
 
 	qglFramebufferTexture2DEXT(	GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
 								GL_TEXTURE_2D, *buffer->front, 0);
-
-	buffer->renderbuff = FB_FRONT;
 
 	return R_CheckFramebufferStatus("FBO creation") ? 0 : -1 ;
 }
@@ -710,14 +704,14 @@ void R_FrameBuffer_BlurDraw( GLuint *srcTex ) {
 	// as many texels to fit inside the texture cache as possible for the
 	// gaussian sampling
 	qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, gaussblurBuffer.fbo);
-	glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
+	qglDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
 	R_SetGL2DSize(fb_size, fb_size);
 	qglUseProgram(0);
 	R_DrawQuad(	*srcTex, fb_size, fb_size);
 
 	//now we do the first gaussian pass
 
-	glDrawBuffer(GL_COLOR_ATTACHMENT1_EXT);
+	qglDrawBuffer(GL_COLOR_ATTACHMENT1_EXT);
 	R_SetGL2DSize(fb_size, fb_size);
 
 	program = glslBlur.program;
@@ -734,7 +728,7 @@ void R_FrameBuffer_BlurDraw( GLuint *srcTex ) {
 	R_DrawQuad(	*gaussblurBuffer.front, fb_size, fb_size);
 
 	//we do the second pass of the blur here
-	glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
+	qglDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
 	loc = qglGetUniformLocation(program, "blurSize");
 	qglUniform2f(loc, 0.0, r_ext_framebuffer_blur_amount->value / 100.0);
 
@@ -991,7 +985,7 @@ void R_FrameBuffer_BeginFrame( void ) {
 }
 
 void R_FrameBuffer_EndFrame( void ) {
-	qboolean screenDrawDone = 0;
+	qboolean screenDrawDone = qfalse;
 	GLuint *srcBuffer ;
 
 	if (!useFrameBuffer)
@@ -1016,15 +1010,15 @@ void R_FrameBuffer_EndFrame( void ) {
 	if (useRotoscopeEffect) {
 		if (useBloomEffect) {
 			//we need to draw to the back buffer
-			glDrawBuffer(GL_COLOR_ATTACHMENT1_EXT);
+			qglDrawBuffer(GL_COLOR_ATTACHMENT1_EXT);
 			R_FrameBuffer_RotoDraw(&screenBuffer, srcBuffer);
 			srcBuffer = screenBuffer.back;
-			glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
+			qglDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
 		}
 		else {
-			qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+			R_FrameBufferUnBind();
 			R_FrameBuffer_RotoDraw(&screenBuffer, srcBuffer);
-			screenDrawDone = 1;
+			screenDrawDone = qtrue;
 		}
 	}
 	//everything before this point does not need blurred surfaces (or can do
@@ -1033,13 +1027,13 @@ void R_FrameBuffer_EndFrame( void ) {
 	R_FrameBuffer_BlurDraw(srcBuffer);
 
 	if (useBloomEffect) {
-		qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+		R_FrameBufferUnBind();
 		R_FrameBuffer_BloomDraw(srcBuffer);
-		screenDrawDone = 1;
+		screenDrawDone = qtrue;
 	}
 
-	if (screenDrawDone == 0) {
-		qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	if (!screenDrawDone) {
+		R_FrameBufferUnBind();
 		R_FrameBuffer_Draw();
 	}
 
@@ -1052,8 +1046,9 @@ void R_FrameBuffer_ResetDraw( void ) {
 		return;
 
 	//We re-bind our framebuffer so everything gets rendered into it.
-	qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, screenBuffer.fbo);
-	glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
+	R_FrameBufferBind();
+
+	qglDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
 
 	// Reset the rendered flag
 	rendered = qfalse;
