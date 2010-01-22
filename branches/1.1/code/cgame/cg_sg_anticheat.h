@@ -39,8 +39,9 @@ static ID_INLINE void SG_CvarMagic(cvar_t *cvar) {
 #define CHECK_PREFIX __VERSION__
 static ID_INLINE void SG_CheckRef(refexport_t *re) {
 	if ( re != NULL ) {
-		char *check = va("%p%p%p%p%p", re->ClearScene, re->RenderScene,
-			re->RegisterShaderNoMip, re->RegisterShader, re->RemapShader );
+		char *check = va("%08lX%08lX%08lX%08lX%08lX", (intptr_t)re->ClearScene,
+			(intptr_t)re->RenderScene,	(intptr_t)re->RegisterShaderNoMip,
+			(intptr_t)re->RegisterShader, (intptr_t)re->RemapShader );
 		Com_Printf("check1: %s\n", check );
 		Cvar_Get ("sa_engine_check1", Com_MD5Text(check,strlen(check),PRODUCT_NAME,sizeof(PRODUCT_NAME)), CVAR_USERINFO|CVAR_ROM );
 		Com_Printf(PRODUCT_NAME " checks on\n");

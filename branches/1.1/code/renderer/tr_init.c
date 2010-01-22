@@ -1297,7 +1297,7 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 	re.CullBox = R_CullBox;
 	re.CullPointAndRadius = R_CullPointAndRadius;
 	re.GetFrustumPlane = R_GetFrustumPlane;
-	r_debugRenderer = ri.Cvar_Get( "r_debugRenderer", va("%p",&re), CVAR_ROM);
+	r_debugRenderer = ri.Cvar_Get( "r_debugRenderer", va("%li",(intptr_t)&re), CVAR_ROM);
 #endif
 
 	return &re;
