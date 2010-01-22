@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2009 Smokin' Guns
+Copyright (C) 2009-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 

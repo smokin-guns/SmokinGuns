@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 #
 #  A Smokin'Guns Duel Log Fix for VSP stat.
-#  Copyright (c) 2007-2009 Gilbert Cao (hika)
+#  Copyright (c) 2007-2010 Gilbert Cao (hika)
 #  All rights reserved.
 #
 #  This program is free software; you can redistribute it and/or modify
