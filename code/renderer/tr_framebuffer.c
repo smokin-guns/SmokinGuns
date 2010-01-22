@@ -62,6 +62,10 @@ qboolean	glslSupported;
 qboolean	packedDepthStencilSupported;
 qboolean	depthTextureSupported;
 qboolean	separateDepthStencilSupported;
+qboolean	multisampleSupported;
+
+// Tequila: FBO Multisample support is still WIP
+#define DISABLE_FBO_MULTISAMPLE_SUPPORT
 
 struct glslobj {
 	const char **vertex_glsl;
@@ -87,17 +91,28 @@ struct r_fbuffer {
 qboolean needBlur = qfalse;			//is set if effects need a blur
 qboolean rendered = qfalse;			//is set when FBO has been rendered
 qboolean useFrameBuffer = qfalse;	//is set after FBO is safely initialized
+qboolean useMultisample = qfalse;	//is set after multisample support is initialized
 qboolean useBloomEffect = qfalse;	//is set after bloom effect is initialized
 qboolean useRotoscopeEffect = qfalse;//is set after rotoscope effect is initialized
 qboolean useRotoZEdgeEffect = qfalse;//is set after rotoscope zedge effect is selected
 static int	blur_size = 256;		//is set after blur effect is initialized
+static GLint	samples = 0;		//is set after multisample support is initialized
 
 struct r_fbuffer screenBuffer;
 struct r_fbuffer gaussblurBuffer;
 
-// define not available in SDL<1.3
+// defines not available in SDL<1.3
 #ifndef GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE_EXT
 #define GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE_EXT 0x8D56
+#endif
+#ifndef GL_MAX_SAMPLES_EXT
+#define GL_MAX_SAMPLES_EXT 0x8D57
+#endif
+#ifndef GL_READ_FRAMEBUFFER_EXT
+#define GL_READ_FRAMEBUFFER_EXT 0x8CA8
+#endif
+#ifndef GL_DRAW_FRAMEBUFFER_EXT
+#define GL_DRAW_FRAMEBUFFER_EXT 0x8CA9
 #endif
 
 // FBO error reporting inspired by http://www.opengl.org/wiki/GL_EXT_framebuffer_multisample
@@ -236,9 +251,10 @@ GLuint *R_CreateRenderbuffer(	GLuint *store, int width, int height,
 {
 	qglGenRenderbuffersEXT( 1, store );
 	qglBindRenderbufferEXT( GL_RENDERBUFFER_EXT, *store );
-	if (r_ext_multisample->integer) {
-		// Add support for GL_EXT_framebuffer_multisample
-		qglRenderbufferStorageMultisampleEXT( GL_RENDERBUFFER_EXT, r_ext_multisample->integer, bindType, width, height );
+
+	if (useMultisample) {
+		// Add GL_EXT_framebuffer_multisample support
+		qglRenderbufferStorageMultisampleEXT( GL_RENDERBUFFER_EXT, samples, bindType, width, height );
 	} else {
 		qglRenderbufferStorageEXT( GL_RENDERBUFFER_EXT, bindType, width, height );
 	}
@@ -466,6 +482,7 @@ qboolean R_TestFbuffer_SeparateDS( void ) {
 	int width = 512;
 	int height = 512;
 	qboolean status;
+	GLuint mbuffer;
 
 	//try and get a perfect separate stencil/zbuffer
 	//this does not work on any hardware i know, but might in the future.
@@ -489,6 +506,12 @@ qboolean R_TestFbuffer_SeparateDS( void ) {
 	R_CreateTexbuffer(	&buffers[0], width, height, qfalse,
 						GL_UNSIGNED_BYTE, GL_RGBA);
 
+	//handle multisampling case
+	if (useMultisample) {
+		qglGenFramebuffersEXT(1, &mbuffer);
+		qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mbuffer);
+	}
+
 	//shall we link our texture to the frame buffer? yes!
 	qglFramebufferTexture2DEXT(	GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
 								GL_TEXTURE_2D, buffers[0], 0);
@@ -499,6 +522,8 @@ qboolean R_TestFbuffer_SeparateDS( void ) {
 	qglDeleteTextures(1,  &buffers[0]);
 	qglDeleteRenderbuffersEXT(1, &buffers[1]);
 	qglDeleteRenderbuffersEXT(1, &buffers[2]);
+	if (useMultisample)
+		qglDeleteFramebuffersEXT(1, &mbuffer);
 
 	return status;
 }
@@ -508,6 +533,7 @@ qboolean R_TestFbuffer_PackedDS( void ) {
 	int height = 512;
 	qboolean status;
 	GLuint buffers[2];
+	GLuint mbuffer;
 
 	//try and get a packed separate stencil/zbuffer
 	qglGenFramebuffersEXT(2, buffers);
@@ -527,6 +553,12 @@ qboolean R_TestFbuffer_PackedDS( void ) {
 	R_CreateTexbuffer(	&buffers[0], width, height, qfalse,
 						GL_UNSIGNED_BYTE, GL_RGBA);
 
+	//handle multisampling case
+	if (useMultisample) {
+		qglGenFramebuffersEXT(1, &mbuffer);
+		qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mbuffer);
+	}
+
 	//shall we link our texture to the frame buffer? yes!
 	qglFramebufferTexture2DEXT(	GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
 								GL_TEXTURE_2D, buffers[0], 0);
@@ -536,6 +568,8 @@ qboolean R_TestFbuffer_PackedDS( void ) {
 	qglDeleteFramebuffersEXT(1, &buffers[0]);
 	qglDeleteTextures(1,  &buffers[0]);
 	qglDeleteRenderbuffersEXT(1, &buffers[1]);
+	if (useMultisample)
+		qglDeleteFramebuffersEXT(1, &mbuffer);
 
 	return status;
 }
@@ -545,6 +579,7 @@ qboolean R_TestFbuffer_texD( void ) {
 	int height = 512;
 	qboolean status;
 	GLuint buffers[2];
+	GLuint mbuffer;
 
 	//try and get a packed separate stencil/zbuffer
 	qglGenFramebuffersEXT(2, buffers);
@@ -563,6 +598,12 @@ qboolean R_TestFbuffer_texD( void ) {
 	R_CreateTexbuffer(	&buffers[0], width, height, qfalse,
 						GL_UNSIGNED_BYTE, GL_RGBA);
 
+	//handle multisampling case
+	if (useMultisample) {
+		qglGenFramebuffersEXT(1, &mbuffer);
+		qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mbuffer);
+	}
+
 	//shall we link our texture to the frame buffer? yes!
 	qglFramebufferTexture2DEXT(	GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
 								GL_TEXTURE_2D, buffers[0], 0);
@@ -573,6 +614,8 @@ qboolean R_TestFbuffer_texD( void ) {
 	qglDeleteTextures(1,  &buffers[0]);
 	qglDeleteFramebuffersEXT(1, &buffers[1]);
 	qglDeleteTextures(1,  &buffers[1]);
+	if (useMultisample)
+		qglDeleteFramebuffersEXT(1, &mbuffer);
 
 	return status;
 }
@@ -872,6 +915,7 @@ void R_FrameBuffer_Init( void ) {
 	useBloomEffect = qfalse;
 	useRotoscopeEffect = qfalse;
 	useRotoZEdgeEffect = qfalse;
+	useMultisample = qfalse;
 
 	needBlur = qfalse;
 	if (!framebufferSupported || !glslSupported) {
@@ -886,6 +930,22 @@ void R_FrameBuffer_Init( void ) {
 	ri.Printf( PRINT_ALL, "----- Enabling FrameBuffer Path -----\n" );
 
 	R_CheckFramebufferStatus("FBO current status");
+
+	// Framebuffer multisampling support
+	if (multisampleSupported) {
+		qglGetIntegerv(GL_MAX_SAMPLES_EXT, &samples);
+		ri.Printf(PRINT_ALL,"multisamples: supported with max %ix\n", samples );
+
+		if (r_ext_framebuffer_multisample->integer) {
+			useMultisample = qtrue;
+			if (r_ext_framebuffer_multisample->integer<samples)
+				samples = r_ext_framebuffer_multisample->integer;
+			ri.Printf(PRINT_ALL,"multisamples: enabled with %ix\n", samples );
+		} else {
+			useMultisample = qfalse;
+			ri.Printf(PRINT_ALL,"multisamples: disabled\n");
+		}
+	}
 
 	//lets see what works and what doesn't
 	packedDepthStencilSupported = qfalse;
@@ -907,6 +967,13 @@ void R_FrameBuffer_Init( void ) {
 	} else {
 		ri.Printf( PRINT_WARNING, "WARNING: depth texture failed\n");
 	}
+
+#ifdef DISABLE_FBO_MULTISAMPLE_SUPPORT
+	if (useMultisample) {
+		useMultisample = qfalse;
+		ri.Printf(PRINT_WARNING,"multisamples: disabled at compile time\n");
+	}
+#endif
 
 	qglGetIntegerv(GL_MAX_COLOR_ATTACHMENTS_EXT, &maxbuffers);
 	if (maxbuffers < 2) {

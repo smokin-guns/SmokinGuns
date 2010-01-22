@@ -53,6 +53,7 @@ extern void (APIENTRYP qglFramebufferTexture2DEXT )(GLenum, GLenum, GLenum, GLui
 extern GLenum (APIENTRYP qglCheckFramebufferStatusEXT )(GLenum);
 extern void (APIENTRYP qglDeleteFramebuffersEXT )(GLsizei, const GLuint *);
 extern void (APIENTRYP qglDeleteRenderbuffersEXT )(GLsizei, const GLuint *);
+extern void (APIENTRYP qglBlitFramebufferEXT )(GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLenum, GLbitfield);
 
 //added fragment/vertex program extensions
 extern  void (APIENTRYP qglAttachShader) (GLuint, GLuint);

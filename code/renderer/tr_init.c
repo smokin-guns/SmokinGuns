@@ -174,6 +174,8 @@ cvar_t	*r_ext_framebuffer_bloom_brightness;
 
 cvar_t	*r_ext_framebuffer_rotoscope;
 cvar_t	*r_ext_framebuffer_rotoscope_zedge;
+
+cvar_t	*r_ext_framebuffer_multisample;
 #endif
 
 #ifdef SMOKINGUNS
@@ -1056,6 +1058,7 @@ void R_Register( void )
 	r_ext_framebuffer_bloom_brightness = ri.Cvar_Get( "r_ext_framebuffer_bloom_brightness", "0.85", CVAR_ARCHIVE );
 	r_ext_framebuffer_rotoscope = ri.Cvar_Get( "r_ext_framebuffer_rotoscope", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_framebuffer_rotoscope_zedge = ri.Cvar_Get( "r_ext_framebuffer_rotoscope_zedge", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_framebuffer_multisample = ri.Cvar_Get( "r_ext_framebuffer_multisample", "0", CVAR_ARCHIVE | CVAR_LATCH);
 #endif
 
 	// make sure all the commands added here are also
