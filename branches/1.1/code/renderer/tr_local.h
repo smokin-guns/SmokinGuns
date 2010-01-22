@@ -987,6 +987,7 @@ extern float     displayAspect;
 //same as above
 extern qboolean	framebufferSupported;
 extern qboolean	glslSupported;
+extern qboolean	multisampleSupported;
 #endif
 
 //
@@ -1014,11 +1015,11 @@ extern cvar_t	*r_stencilbits;			// number of desired stencil bits
 extern cvar_t	*r_depthbits;			// number of desired depth bits
 extern cvar_t	*r_colorbits;			// number of desired color bits, only relevant for fullscreen
 extern cvar_t	*r_texturebits;			// number of desired texture bits
-extern cvar_t	*r_ext_multisample;
 										// 0 = use framebuffer depth
 										// 16 = use 16-bit textures
 										// 32 = use 32-bit textures
 										// all else = error
+extern cvar_t	*r_ext_multisample;
 
 extern cvar_t	*r_measureOverdraw;		// enables stencil buffer overdraw measurement
 
@@ -1070,7 +1071,7 @@ extern	cvar_t	*r_picmip;						// controls picmip values
 extern	cvar_t	*r_finish;
 extern	cvar_t	*r_drawBuffer;
 #ifndef SMOKINGUNS
-extern  cvar_t  *r_glDriver;
+extern  cvar_t	*r_glDriver;
 #endif
 extern	cvar_t	*r_swapInterval;
 extern	cvar_t	*r_textureMode;
@@ -1127,17 +1128,19 @@ extern cvar_t	*r_marksOnTriangleMeshes;
 extern	cvar_t	*r_GLlibCoolDownMsec;
 
 #ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
-extern cvar_t *r_ext_framebuffer;
-extern cvar_t *r_ext_framebuffer_bloom;
-extern cvar_t *r_ext_framebuffer_blur_size;
-extern cvar_t *r_ext_framebuffer_blur_amount;
-extern cvar_t *r_ext_framebuffer_blur_samples;
+extern cvar_t	*r_ext_framebuffer;
+extern cvar_t	*r_ext_framebuffer_bloom;
+extern cvar_t	*r_ext_framebuffer_blur_size;
+extern cvar_t	*r_ext_framebuffer_blur_amount;
+extern cvar_t	*r_ext_framebuffer_blur_samples;
 
-extern cvar_t *r_ext_framebuffer_bloom_sharpness;
-extern cvar_t *r_ext_framebuffer_bloom_brightness;
+extern cvar_t	*r_ext_framebuffer_bloom_sharpness;
+extern cvar_t	*r_ext_framebuffer_bloom_brightness;
 
-extern cvar_t *r_ext_framebuffer_rotoscope;
-extern cvar_t *r_ext_framebuffer_rotoscope_zedge;
+extern cvar_t	*r_ext_framebuffer_rotoscope;
+extern cvar_t	*r_ext_framebuffer_rotoscope_zedge;
+
+extern cvar_t	*r_ext_framebuffer_multisample;
 #endif
 
 //====================================================================
