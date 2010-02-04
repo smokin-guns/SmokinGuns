@@ -2256,15 +2256,6 @@ void Cmd_DropWeapon_f( gentity_t *ent, int weapon ) {
 	G_ThrowWeapon( weapon, ent );
 }
 
-/*
-=================
-Cmd_GatlingBuildUp_f
-=================
-*/
-void Cmd_GatlingBuildUp_f( gentity_t *ent ) {
-	G_GatlingBuildUp( ent );
-}
-
 void Cmd_DuGet_f ( gentity_t *ent){
 	char			arg1[MAX_STRING_TOKENS];
 	playerState_t	*ps= &ent->client->ps;
