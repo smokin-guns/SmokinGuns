@@ -501,6 +501,7 @@ void CL_AddReliableCommand(const char *cmd, qboolean isDisconnectCmd)
 CL_ChangeReliableCommand
 ======================
 */
+#ifndef SMOKINGUNS
 void CL_ChangeReliableCommand( void ) {
 	int r, index, l;
 
@@ -513,6 +514,7 @@ void CL_ChangeReliableCommand( void ) {
 	clc.reliableCommands[ index ][ l ] = '\n';
 	clc.reliableCommands[ index ][ l+1 ] = '\0';
 }
+#endif
 
 /*
 =======================================================================
