@@ -2804,6 +2804,10 @@ static void PM_WeaponAction( int *weapon, int *weaponTime, int *weaponstate, qbo
 		if(pm->ps->oldbuttons & BUTTON_ATTACK)
 			return;
 
+		// Tequila: Don't build a gatling if it is not in the inventory
+		if(!(pm->ps->stats[STAT_WEAPONS] & (1 << WP_GATLING)))
+			return;
+
 		if( PM_PlanarCheck() ) {
 			vec3_t	angles, origin;
 
