@@ -30,10 +30,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "snd_public.h"
 #include "../cgame/cg_public.h"
 #include "../game/bg_public.h"
-#ifdef SMOKINGUNS
-// Tequila comment: include our private functions to fight cheaters
-#include "../cgame/cg_sg_anticheat.h"
-#endif
 
 #ifdef USE_CURL
 #include "cl_curl.h"
@@ -409,7 +405,7 @@ extern	cvar_t	*cl_aviMotionJpeg;
 extern	cvar_t	*cl_activeAction;
 
 extern	cvar_t	*cl_allowDownload;
-extern  cvar_t  *cl_downloadMethod;
+extern	cvar_t	*cl_downloadMethod;
 extern	cvar_t	*cl_conXOffset;
 extern	cvar_t	*cl_inGameVideo;
 
@@ -418,8 +414,8 @@ extern	cvar_t	*cl_autoRecordDemo;
 
 extern	cvar_t	*cl_consoleKeys;
 #ifdef SMOKINGUNS
-extern cvar_t *cl_consoleType;
-extern cvar_t *cl_consoleColor[4];
+extern	cvar_t	*cl_consoleType;
+extern	cvar_t	*cl_consoleColor[4];
 #endif
 
 #ifdef USE_MUMBLE
