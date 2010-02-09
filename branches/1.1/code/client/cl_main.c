@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #ifdef SMOKINGUNS
+#include "../qcommon/q_check.h"
 #include "../qcommon/sdk_shared.h"
 #endif
 
@@ -1441,8 +1442,6 @@ void CL_RequestAuthorization( void ) {
 #ifndef SMOKINGUNS
 	char	nums[64];
 	int		i, j, l;
-#else
-	char		info[MAX_INFO_STRING];
 #endif
 	cvar_t	*fs;
 
@@ -1485,14 +1484,11 @@ void CL_RequestAuthorization( void ) {
 
 	NET_OutOfBandPrint(NS_CLIENT, cls.authorizeServer, "getKeyAuthorize %i %s", fs->integer, nums );
 #else
-	info[0] = 0;
-	Q_strncpyz( info, Cvar_InfoString( CVAR_USERINFO ), sizeof( info ) );
-	fs = Cvar_Get ("sa_engine_inuse", "0", CVAR_ROM );
+	Com_CheckCvar(Cvar_Get( "cl_guid", "", CVAR_USERINFO | CVAR_ROM ));
 
-	// Tequila: Some few hidden magic should be done here...
-	SG_CvarMagic(cl_motdString);
+	fs = Cvar_Get ("sa_engine_inuse", "1", CVAR_ROM );
 
-	NET_OutOfBandPrint(NS_CLIENT, cls.authorizeServer, "getClientAuthorize %i \"%s\"", fs->integer, info );
+	NET_OutOfBandPrint(NS_CLIENT, cls.authorizeServer, "getClientAuthorize %i \"%s\"", fs->integer, Cvar_InfoString(CVAR_USERINFO));
 #endif
 }
 #endif
@@ -2998,7 +2994,7 @@ void CL_InitRef( void ) {
 
 	re = *ret;
 #ifdef SMOKINGUNS
-	SG_CheckRef(&re);
+	Com_CheckReRef(&re);
 #endif
 
 	// unpause so the cgame definately gets a snapshot and renders a frame
