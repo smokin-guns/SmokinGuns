@@ -225,7 +225,11 @@ void CON_Init( void )
 	GetConsoleScreenBufferInfo( qconsole_hout, &info );
 	qconsole_attrib = info.wAttributes;
 
+#ifndef SMOKINGUNS
 	SetConsoleTitle("ioquake3 Dedicated Server Console");
+#else
+	SetConsoleTitle(CLIENT_WINDOW_TITLE " Dedicated Server Console");
+#endif
 
 	// make cursor invisible
 	GetConsoleCursorInfo( qconsole_hout, &qconsole_orig_cursorinfo );
