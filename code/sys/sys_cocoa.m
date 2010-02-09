@@ -31,7 +31,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 void Cocoa_MsgBox( const char *text )
 {
+#ifndef SMOKINGUNS
 	NSRunInformationalAlertPanel(@"ioquake3", 
+#else
+	NSRunInformationalAlertPanel(@"smokinguns",
+#endif
 	                             [NSString stringWithUTF8String:text],
 	                             @"OK", nil, nil);
 }
