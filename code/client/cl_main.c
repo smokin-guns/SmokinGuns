@@ -668,6 +668,12 @@ void CL_Record_f( void ) {
 	clc.demorecording = qtrue;
 	if (Cvar_VariableValue("ui_recordSPDemo")) {
 		clc.spDemoRecording = qtrue;
+#ifdef SMOKINGUNS
+	// Tequila: Handle case we don't want to see the demo filename over the screen
+	// when cl_autoRecordDemo is enabled
+	} else if ( cl_autoRecordDemo->integer == 2 ) {
+		clc.spDemoRecording = qtrue;
+#endif
 	} else {
 		clc.spDemoRecording = qfalse;
 	}
