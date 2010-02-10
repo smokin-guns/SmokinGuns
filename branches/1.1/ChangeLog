@@ -1,6 +1,37 @@
+Changes in SG 1.1
+******************
+***** CHANGES ****
+- engine source synchronized with ioQuake3 SDK rev1772
+- Added support to new autorecord demo mode where demo filename is not output to
+  the screen: set cl_autoRecordDemo to 2 to use it
+- Fixed a bug related to gatling, thanks to Barto for the reporting
+- Enhanced SDK portability
+
+Changes in SG 1.1b4-20100116
+******************
+***** CHANGES ****
+- engine source synchronized with ioQuake3 SDK rev1771
+- Enhanced SDK portability
+- Player will be kicked if he is trying to rename when he was proposed to be kicked
+- Enhanced callvote command security
+- Player names are now colorized in lists like "callvote kick" list to avoid name confusion
+- Fixed a bad prediction case when cg_boostfps is set, thanks to Joe Kari for the reporting
+- Fixed simultaneous reloading bug in akimbo mode
+- Added new command 'addentity', it can be used to test misc_externalentity or any map entity
+- Added support for misc_externalmodel map entity, thanks to World Of Padman project
+- Fixed bug where having a scoped Sharps in your inventory caused double spread for the other rifles, and the gatling.
+- Added close clipping feature for mappers, thanks to Joe Kari
+- Update & authorize servers are now served by smokin-guns.net domain, thanks to L3th4l
+- Added support to in-game lagometer setting cg_lagometer to 2
+- Enhanced Smokin'Guns motd support
+- Added SDK tool for modders
+- Fixed cvar type for cg_bob* cvars
+- Fix GLSL program loading for custom FBO effects when more than one program is loaded from files
+
 Changes in SG 1.1b3-20091210
 ******************
-*** CHANGES ***
+***** CHANGES ****
+- engine source synchronized with ioQuake3 SDK rev1754
 - Added a custom resolution
  - Mode 19: 1280x720 (16:9 HD), suitable to provide youtube HD format video
 - support UI item to select OpenAL device from available OpenAL devices
@@ -26,10 +57,15 @@ Changes in SG 1.1b3-20091210
     by server with reduced damage due to high range hit. Default is still 1, but
     you won't receive alert lower than the server limit (see g_bulletDamageAlert)
     And you may want to set it to 100 to disable damage reduction alerts.
+- Added FBO support with rotoscope and bloom effects, thanks to initial Gord Allott work
+  See https://bugzilla.icculus.org/show_bug.cgi?id=3422 for some details
+  Then enhanced GLSL program loading support for frambuffer (FBO) effects
+- Added support for cl_voipDefaultGain cvar, thanks to Tremfusion team
+- Fixed SDL window icon to Smokin'Guns one
 
 Changes in SG 1.1b2-20091103
 ******************
-*** CHANGES ***
+***** CHANGES ****
 - renaming can be discarded to players trying to rename themselves too often
   if g_splitChat is activated and g_delayedRenaming is set to a delay in seconds (default=20)
 - support for showing who is the VoIP speaker and default voip gain, thanks to tremfusion team:
@@ -44,7 +80,7 @@ Changes in SG 1.1b2-20091103
 
 Changes in SG 1.1b1-20091019
 ******************
-*** NEW ***
+******* NEW ******
 - Added more custom resolution, to be set using +set r_mode mode_number
  - Mode 12: 1280x800 (wide)
  - Mode 13: 1366x768 (wide)
@@ -100,7 +136,7 @@ Changes in SG 1.1b1-20091019
 
 Changes in SG 1.0-20081231
 ******************
-*** CHANGES ***
+***** CHANGES ****
 - Updated Unix building process to support more processor kind
 - Updated Makefile to produce binary libraries for unix
 - Updated Makefile to produce sse, sse2 and smp binaries for unix
