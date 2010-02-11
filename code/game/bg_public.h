@@ -93,6 +93,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define DU_WP_STEP			2
 
+#define DEFAULT_MODEL				"wq_male1"
+#define DEFAULT_TEAM_MODEL			"wq_male1"
+#define DEFAULT_TEAM_HEAD			"wq_male1"
 #define DEFAULT_REDTEAM_NAME		"Lawmen"
 #define DEFAULT_BLUETEAM_NAME		"Outlaws"
 
