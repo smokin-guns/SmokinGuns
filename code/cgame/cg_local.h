@@ -1826,9 +1826,6 @@ extern	int				ai_nodepointer;
 
 extern	qboolean		cg_cheats;
 
-extern	vmCvar_t		hit_origin_x;
-extern	vmCvar_t		hit_origin_y;
-extern	vmCvar_t		hit_origin_z;
 extern	vmCvar_t		hit_model;
 
 extern	vmCvar_t		cg_warmupmessage;

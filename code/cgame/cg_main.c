@@ -280,9 +280,6 @@ int				ai_nodepointer;
 
 qboolean		cg_cheats;
 
-vmCvar_t		hit_origin_x;
-vmCvar_t		hit_origin_y;
-vmCvar_t		hit_origin_z;
 vmCvar_t		hit_model;
 
 vmCvar_t		cg_warmupmessage;
@@ -515,10 +512,6 @@ static cvarTable_t		cvarTable[] = {
 
 	//talk sound
 	{ &cg_talksound, "cg_talksound", "1", CVAR_ARCHIVE },
-
-	{ &hit_origin_x, "hit_origin_x", "0.5", CVAR_ARCHIVE },
-	{ &hit_origin_y, "hit_origin_y", "0.5", CVAR_ARCHIVE },
-	{ &hit_origin_z, "hit_origin_z", "0.5", CVAR_ARCHIVE },
 
 	{ &hit_model, "hit_model", "0", CVAR_ARCHIVE|CVAR_CHEAT },
 	{ &cg_warmupmessage, "cg_warmupmessage", "1", CVAR_ARCHIVE|CVAR_CHEAT },
