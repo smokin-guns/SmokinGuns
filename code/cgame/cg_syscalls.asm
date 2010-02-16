@@ -108,3 +108,4 @@ equ acos						-112
 equ trap_R_CullBoundingBox				-151
 equ trap_R_CullPointAndRadius			-152
 equ trap_R_GetFrustumPlane				-153
+equ trap_GetEnv							-154

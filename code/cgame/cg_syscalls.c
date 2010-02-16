@@ -458,4 +458,8 @@ int trap_R_CullPointAndRadius( vec3_t pt, float radius ) {
 int trap_R_GetFrustumPlane( cplane_t frustum[4] ) {
 	return syscall( CG_R_FRUSTUM_PLANE, frustum );
 }
+
+void trap_GetEnv( const char *name, char *buffer, int bufsize ) {
+	syscall( CG_GETENV, name, buffer, bufsize );
+}
 #endif

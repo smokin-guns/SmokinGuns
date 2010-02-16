@@ -2450,6 +2450,8 @@ int			trap_R_CullBoundingBox( vec3_t box_vertex[8] );
 int			trap_R_CullPointAndRadius( vec3_t pt, float radius );
 int			trap_R_GetFrustumPlane( cplane_t frustum[4] );
 
+void	trap_GetEnv( const char *name, char *buffer, int bufsize );
+
 //anims
 void CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation, float speedScale, int weapon);
 void BG_CopyLerpFrame(lerpFrame_t *org, lerpFrame_t *targ);

@@ -751,6 +751,9 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 	case CG_R_FRUSTUM_PLANE:
 		re.GetFrustumPlane( VMA(1) );
 		return 0;
+	case CG_GETENV:
+		Q_strncpyz( VMA(2), Sys_GetEnv( VMA(1) ), args[3] );
+		return 0;
 #endif
 	case CG_R_INPVS:
 		return re.inPVS( VMA(1), VMA(2) );
