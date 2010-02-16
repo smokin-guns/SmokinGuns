@@ -55,6 +55,9 @@ void Sys_SigHandler( int signal );
 void Sys_ErrorDialog( const char *error );
 void Sys_AnsiColorPrint( const char *msg );
 
+int Sys_PID( void );
+qboolean Sys_PIDIsRunning( int pid );
+
 #ifdef SMOKINGUNS
 const char *Sys_GetSystemInstallPath(const char *path);
 void Sys_PlatformPostInit( char *progname );

@@ -99,6 +99,7 @@ cvar_t	*com_unfocused;
 cvar_t	*com_maxfpsUnfocused;
 cvar_t	*com_minimized;
 cvar_t	*com_maxfpsMinimized;
+cvar_t	*com_abnormalExit;
 #ifndef SMOKINGUNS
 cvar_t	*com_standalone;
 #endif
@@ -256,7 +257,7 @@ void QDECL Com_DPrintf( const char *fmt, ...) {
 Com_Error
 
 Both client and server can use this, and it will
-do the apropriate things.
+do the appropriate thing.
 =============
 */
 void QDECL Com_Error( int code, const char *fmt, ... ) {
@@ -341,7 +342,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 		com_errorEntered = qfalse;
 		longjmp (abortframe, -1);
 	} else {
-		CL_Shutdown ();
+		CL_Shutdown (va("Client fatal crashed: %s", com_errorMessage));
 		SV_Shutdown (va("Server fatal crashed: %s", com_errorMessage));
 	}
 
@@ -365,7 +366,7 @@ void Com_Quit_f( void ) {
 	char *p = Cmd_Args( );
 	if ( !com_errorEntered ) {
 		SV_Shutdown (p[0] ? p : "Server quit");
-		CL_Shutdown ();
+		CL_Shutdown (p[0] ? p : "Client quit");
 		Com_Shutdown ();
 		FS_Shutdown(qtrue);
 	}
@@ -2397,13 +2398,17 @@ void Com_Setenv_f(void)
 	}
 	else if(argc == 2)
 	{
+#ifndef SMOKINGUNS
 		char *env = getenv(arg1);
+#else
+		char *env = Sys_GetEnv(arg1);
+#endif
 
 		if(env)
 			Com_Printf("%s=%s\n", arg1, env);
 		else
 			Com_Printf("%s undefined\n", arg1);
-        }
+	}
 }
 
 /*
@@ -2740,7 +2745,7 @@ void Com_Init( char *commandLine ) {
 	com_showtrace = Cvar_Get ("com_showtrace", "0", CVAR_CHEAT);
 	com_dropsim = Cvar_Get ("com_dropsim", "0", CVAR_CHEAT);
 	com_speeds = Cvar_Get ("com_speeds", "0", 0);
-	com_timedemo = Cvar_Get ("timedemo", "0", CVAR_CHEAT);
+	com_timedemo = Cvar_Get ("timedemo", "0", CVAR_TEMP);
 	com_cameraMode = Cvar_Get ("com_cameraMode", "0", CVAR_CHEAT);
 
 	cl_paused = Cvar_Get ("cl_paused", "0", CVAR_ROM);
@@ -2756,6 +2761,7 @@ void Com_Init( char *commandLine ) {
 	com_maxfpsUnfocused = Cvar_Get( "com_maxfpsUnfocused", "0", CVAR_ARCHIVE );
 	com_minimized = Cvar_Get( "com_minimized", "0", CVAR_ROM );
 	com_maxfpsMinimized = Cvar_Get( "com_maxfpsMinimized", "0", CVAR_ARCHIVE );
+	com_abnormalExit = Cvar_Get( "com_abnormalExit", "0", CVAR_ROM );
 #ifndef SMOKINGUNS
 	com_standalone = Cvar_Get( "com_standalone", "0", CVAR_INIT );
 #endif
@@ -2770,6 +2776,18 @@ void Com_Init( char *commandLine ) {
 	com_version = Cvar_Get ("version", s, CVAR_ROM | CVAR_SERVERINFO );
 
 	Sys_Init();
+
+	if( Sys_WritePIDFile( ) ) {
+#ifndef DEDICATED
+		const char *message = "The last time " CLIENT_WINDOW_TITLE " ran, "
+			"it didn't exit properly. This may be due to inappropriate video "
+			"settings. Would you like to start with \"safe\" video settings?";
+
+		if( Sys_Dialog( DT_YES_NO, message, "Abnormal Exit" ) == DR_YES ) {
+			Cvar_Set( "com_abnormalExit", "1" );
+		}
+#endif
+	}
 
 	// Pick a random port value
 	Com_RandomBytes( (byte*)&qport, sizeof(int) );
