@@ -192,7 +192,8 @@ typedef enum {
 	/// Smokin' Guns specific syscalls
 	CG_R_CULL_BBOX = 150,
 	CG_R_CULL_SPHERE,
-	CG_R_FRUSTUM_PLANE
+	CG_R_FRUSTUM_PLANE,
+	CG_GETENV
 #endif
 } cgameImport_t;
 
