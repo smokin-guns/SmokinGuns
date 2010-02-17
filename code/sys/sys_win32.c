@@ -737,12 +737,10 @@ get environment variables
 ==============
 */
 #ifdef SMOKINGUNS
-#ifndef DEDICATED
 char *Sys_GetEnv(const char *name)
 {
 	return getenv(name);
 }
-#endif
 #endif
 
 /*
