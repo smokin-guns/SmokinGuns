@@ -598,7 +598,7 @@ Tequila: Admin tool to cancel a vote
 */
 void Svcmd_CancelVote_f( void ) {
 	if ( !level.voteTime && !level.voteExecuteTime ) {
-		trap_SendServerCommand( -1, "print \"server: No vote to cancel.\"" );
+		G_Printf( "No vote to cancel.\n" );
 	} else {
 		level.voteExecuteTime = 0;
 		level.voteTime = 0;
