@@ -380,7 +380,12 @@ All console printing must go through this in order to be logged to disk
 If no console is visible, the text will appear at the top of the game window
 ================
 */
+#ifndef SMOKINGUNS
 void CL_ConsolePrint( char *txt ) {
+#else
+char *CL_ConsolePrint( char *txt ) {
+	char *ret;
+#endif
 	int		y;
 	int		c, l;
 	int		color;
@@ -394,9 +399,18 @@ void CL_ConsolePrint( char *txt ) {
 		txt += 12;
 	}
 
+#ifdef SMOKINGUNS
+	// Keep now the pointer to the real text (remove [skipnotify] on the console)
+	ret = txt;
+#endif
+
 	// for some demos we don't want to ever show anything on the console
 	if ( cl_noprint && cl_noprint->integer ) {
+#ifndef SMOKINGUNS
 		return;
+#else
+		return txt;
+#endif
 	}
 
 	if (!con.initialized) {
@@ -468,6 +482,10 @@ void CL_ConsolePrint( char *txt ) {
 		// -NERVE - SMF
 			con.times[con.current % NUM_CON_TIMES] = cls.realtime;
 	}
+
+#ifdef SMOKINGUNS
+	return ret;
+#endif
 }
 
 
