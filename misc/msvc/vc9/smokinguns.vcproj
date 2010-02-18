@@ -74,7 +74,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib advapi32.lib winmm.lib wsock32.lib ws2_32.lib OpenAL32.lib SDLmain.lib SDL.lib OpenGL32.lib"
+				AdditionalDependencies="user32.lib advapi32.lib winmm.lib wsock32.lib ws2_32.lib OpenAL32.lib SDLmain.lib SDL.lib OpenGL32.lib psapi.lib"
 				OutputFile="$(OutDir)\smokinguns.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -177,7 +177,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib advapi32.lib winmm.lib wsock32.lib ws2_32.lib SDLmain.lib SDL.lib OpenGL32.lib msvcrt.lib"
+				AdditionalDependencies="user32.lib advapi32.lib winmm.lib wsock32.lib ws2_32.lib SDLmain.lib SDL.lib OpenGL32.lib msvcrt.lib psapi.lib"
 				OutputFile="$(OutDir)\smokinguns.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -278,7 +278,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib advapi32.lib winmm.lib wsock32.lib ws2_32.lib SDLmain.lib SDL.lib OpenGL32.lib msvcrt.lib"
+				AdditionalDependencies="user32.lib advapi32.lib winmm.lib wsock32.lib ws2_32.lib SDLmain.lib SDL.lib OpenGL32.lib msvcrt.lib psapi.lib"
 				OutputFile="$(OutDir)\smokinguns.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -384,7 +384,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib advapi32.lib winmm.lib wsock32.lib ws2_32.lib OpenAL32.lib SDLmain.lib SDL.lib OpenGL32.lib"
+				AdditionalDependencies="user32.lib advapi32.lib winmm.lib wsock32.lib ws2_32.lib OpenAL32.lib SDLmain.lib SDL.lib OpenGL32.lib psapi.lib"
 				OutputFile="$(OutDir)\smokinguns.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
