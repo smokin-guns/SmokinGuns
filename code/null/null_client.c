@@ -68,8 +68,14 @@ qboolean UI_GameCommand( void ) {
 void CL_ForwardCommandToServer( const char *string ) {
 }
 
+#ifndef SMOKINGUNS
 void CL_ConsolePrint( char *txt ) {
 }
+#else
+char *CL_ConsolePrint( char *txt ) {
+	return txt;
+}
+#endif
 
 void CL_JoystickEvent( int axis, int value, int time ) {
 }
