@@ -163,6 +163,9 @@ A raw string should NEVER be passed as fmt, because of "%f" type crashers.
 void QDECL Com_Printf( const char *fmt, ... ) {
 	va_list		argptr;
 	char		msg[MAXPRINTMSG];
+#ifdef SMOKINGUNS
+	char *msg_ptr = msg;
+#endif
 	static qboolean opening_qconsole = qfalse;
 
 
@@ -182,12 +185,21 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 		return;
 	}
 
+#ifndef SMOKINGUNS
 #ifndef DEDICATED
 	CL_ConsolePrint( msg );
 #endif
 
 	// echo to dedicated console and early console
 	Sys_Print( msg );
+#else
+#ifndef DEDICATED
+	msg_ptr = CL_ConsolePrint( msg );
+#endif
+
+	// echo to dedicated console and early console
+	Sys_Print( msg_ptr );
+#endif
 
 	// logfile
 	if ( com_logfile && com_logfile->integer ) {
@@ -224,7 +236,11 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 			opening_qconsole = qfalse;
 		}
 		if ( logfile && FS_Initialized()) {
+#ifndef SMOKINGUNS
 			FS_Write(msg, strlen(msg), logfile);
+#else
+			FS_Write(msg_ptr, strlen(msg_ptr), logfile);
+#endif
 		}
 	}
 }
