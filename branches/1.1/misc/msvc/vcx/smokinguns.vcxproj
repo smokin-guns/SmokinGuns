@@ -121,7 +121,7 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>user32.lib;advapi32.lib;winmm.lib;wsock32.lib;ws2_32.lib;OpenAL32.lib;SDLmain.lib;SDL.lib;OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>user32.lib;advapi32.lib;winmm.lib;wsock32.lib;ws2_32.lib;OpenAL32.lib;SDLmain.lib;SDL.lib;OpenGL32.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)smokinguns.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\..\code\libs\win32;C:\Program Files\OpenAL 1.1 SDK\libs\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -174,7 +174,7 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>user32.lib;advapi32.lib;winmm.lib;wsock32.lib;ws2_32.lib;SDLmain.lib;SDL.lib;OpenGL32.lib;msvcrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>user32.lib;advapi32.lib;winmm.lib;wsock32.lib;ws2_32.lib;SDLmain.lib;SDL.lib;OpenGL32.lib;msvcrt.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)smokinguns.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\..\code\libs\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -225,7 +225,7 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>user32.lib;advapi32.lib;winmm.lib;wsock32.lib;ws2_32.lib;SDLmain.lib;SDL.lib;OpenGL32.lib;msvcrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>user32.lib;advapi32.lib;winmm.lib;wsock32.lib;ws2_32.lib;SDLmain.lib;SDL.lib;OpenGL32.lib;msvcrt.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)smokinguns.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\..\code\libs\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -283,7 +283,7 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>user32.lib;advapi32.lib;winmm.lib;wsock32.lib;ws2_32.lib;OpenAL32.lib;SDLmain.lib;SDL.lib;OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>user32.lib;advapi32.lib;winmm.lib;wsock32.lib;ws2_32.lib;OpenAL32.lib;SDLmain.lib;SDL.lib;OpenGL32.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)\smokinguns.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\..\code\libs\win32;C:\Program Files\OpenAL 1.1 SDK\libs\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
