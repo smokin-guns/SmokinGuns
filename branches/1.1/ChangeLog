@@ -29,6 +29,7 @@ Changes in SG 1.1
 - Added 'tell' server side command to authorize admins to tell privately to player
   This command is based on the UrbanTerror 4.1 implementation, thanks guys.
   See http://www.urbanterror.net
+- Added ui_farclip cvar to be used as farclip management facility for UI part
 
 Changes in SG 1.1b4-20100116
 ******************
