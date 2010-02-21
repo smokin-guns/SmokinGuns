@@ -79,8 +79,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 #define	TEXT_ICON_SPACE		4
 
+#ifndef SMOKINGUNS
 #define	TEAMCHAT_WIDTH		80
-#define TEAMCHAT_HEIGHT		8
+#define	TEAMCHAT_HEIGHT		8
+#else
+#define	CHAT_WIDTH			79 // As chat messages are still shift by one position
+#define	CHAT_HEIGHT			8
+
+#define CHATCHAR_WIDTH		4
+#define CHATCHAT_HEIGHT		8
+#endif
 
 // very large characters
 #define	GIANT_WIDTH			32
@@ -1579,11 +1587,19 @@ typedef struct {
 
 	clientInfo_t	clientinfo[MAX_CLIENTS];
 
+#ifndef SMOKINGUNS
 	// teamchat width is *3 because of embedded color codes
 	char			teamChatMsgs[TEAMCHAT_HEIGHT][TEAMCHAT_WIDTH*3+1];
 	int				teamChatMsgTimes[TEAMCHAT_HEIGHT];
 	int				teamChatPos;
 	int				teamLastChatPos;
+#else
+	// chat width is *3 because of embedded color codes
+	char			ChatMsgs[CHAT_HEIGHT][CHAT_WIDTH*3+1];
+	int				ChatMsgTimes[CHAT_HEIGHT];
+	int				ChatPos;
+	int				LastChatPos;
+#endif
 
 	int cursorX;
 	int cursorY;
@@ -1695,8 +1711,17 @@ extern	vmCvar_t		cg_thirdPerson;
 extern	vmCvar_t		cg_lagometer;
 extern	vmCvar_t		cg_drawAttacker;
 extern	vmCvar_t		cg_synchronousClients;
+#ifndef SMOKINGUNS
 extern	vmCvar_t		cg_teamChatTime;
 extern	vmCvar_t		cg_teamChatHeight;
+#else
+extern	vmCvar_t		cg_chatTime;
+extern	vmCvar_t		cg_chatHeight;
+extern	vmCvar_t		cg_chatWidth;
+extern	vmCvar_t		cg_chatMode;
+extern	vmCvar_t		cg_chatPosition;
+extern	vmCvar_t		cg_chatBigText;
+#endif
 extern	vmCvar_t		cg_stats;
 extern	vmCvar_t 		cg_forceModel;
 extern	vmCvar_t 		cg_buildScript;
@@ -1708,16 +1733,16 @@ extern	vmCvar_t		cg_blood;
 extern	vmCvar_t		cg_predictItems;
 extern	vmCvar_t		cg_deferPlayers;
 extern	vmCvar_t		cg_drawFriend;
+#ifndef SMOKINGUNS
+extern  vmCvar_t		cg_scorePlum;
 extern	vmCvar_t		cg_teamChatsOnly;
 extern	vmCvar_t		cg_noVoiceChats;
 extern	vmCvar_t		cg_noVoiceText;
-#ifndef SMOKINGUNS
-extern  vmCvar_t		cg_scorePlum;
 //unlagged - smooth clients #2
 // this is done server-side now
 extern	vmCvar_t		cg_smoothClients;
-#endif
 //unlagged - smooth clients #2
+#endif
 extern	vmCvar_t		pmove_fixed;
 extern	vmCvar_t		pmove_msec;
 //extern	vmCvar_t		cg_pmove_fixed;
