@@ -440,6 +440,7 @@ CG_AddToTeamChat
 
 =======================
 */
+#ifndef SMOKINGUNS
 static void CG_AddToTeamChat( const char *str ) {
 	int len;
 	char *p, *ls;
@@ -506,6 +507,86 @@ static void CG_AddToTeamChat( const char *str ) {
 	if (cgs.teamChatPos - cgs.teamLastChatPos > chatHeight)
 		cgs.teamLastChatPos = cgs.teamChatPos - chatHeight;
 }
+#else
+/*
+=======================
+CG_AddToChat
+Based on vanilla CG_AddToTeamChat
+=======================
+*/
+static void CG_AddToChat( const char *str ) {
+	int len;
+	char *p, *ls;
+	int lastcolor;
+	int chatHeight, chatWidth;
+
+	if (cg_chatHeight.integer < CHAT_HEIGHT) {
+		chatHeight = cg_chatHeight.integer;
+	} else {
+		chatHeight = CHAT_HEIGHT;
+	}
+
+	if (chatHeight <= 0 || cg_chatTime.integer <= 0) {
+		// chat disabled, dump into normal chat
+		cgs.ChatPos = cgs.LastChatPos = 0;
+		return;
+	}
+
+	if (cg_chatWidth.integer < CHAT_WIDTH) {
+		chatWidth = cg_chatWidth.integer;
+	} else {
+		chatWidth = CHAT_WIDTH;
+	}
+
+	len = 0;
+
+	p = cgs.ChatMsgs[cgs.ChatPos % chatHeight];
+	*p = 0;
+
+	lastcolor = '7';
+
+	ls = NULL;
+	while (*str) {
+		if (len > chatWidth-1) {
+			if (ls) {
+				str -= (p - ls);
+				str++;
+				p -= (p - ls);
+			}
+			*p = 0;
+
+			cgs.ChatMsgTimes[cgs.ChatPos % chatHeight] = cg.time;
+
+			cgs.ChatPos++;
+			p = cgs.ChatMsgs[cgs.ChatPos % chatHeight];
+			*p = 0;
+			*p++ = Q_COLOR_ESCAPE;
+			*p++ = lastcolor;
+			len = 0;
+			ls = NULL;
+		}
+
+		if ( Q_IsColorString( str ) ) {
+			*p++ = *str++;
+			lastcolor = *str;
+			*p++ = *str++;
+			continue;
+		}
+		if (*str == ' ') {
+			ls = p;
+		}
+		*p++ = *str++;
+		len++;
+	}
+	*p = 0;
+
+	cgs.ChatMsgTimes[cgs.ChatPos % chatHeight] = cg.time;
+	cgs.ChatPos++;
+
+	if (cgs.ChatPos - cgs.LastChatPos > chatHeight)
+		cgs.LastChatPos = cgs.ChatPos - chatHeight;
+}
+#endif
 
 /*
 ===============
@@ -1120,29 +1201,47 @@ static void CG_ServerCommand( void ) {
 	}
 
 	if ( !strcmp( cmd, "chat" ) ) {
-		if ( !cg_teamChatsOnly.integer ) {
 #ifndef SMOKINGUNS
+		if ( !cg_teamChatsOnly.integer ) {
 			trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
-#else
-			CG_PlayTalkSound();
-#endif
 			Q_strncpyz( text, CG_Argv(1), MAX_SAY_TEXT );
 			CG_RemoveChatEscapeChar( text );
 			CG_Printf( "%s\n", text );
 		}
+#else
+		if ( cg_chatMode.integer < 2 ) {
+			CG_PlayTalkSound();
+			Q_strncpyz( text, CG_Argv(1), MAX_SAY_TEXT );
+			CG_RemoveChatEscapeChar( text );
+			if ( !cg_chatMode.integer ) {
+				CG_Printf( "%s\n", text );
+			} else {
+				CG_AddToChat( text );
+				CG_Printf( "[skipnotify]%s\n", text );
+			}
+		}
+#endif
 		return;
 	}
 
 	if ( !strcmp( cmd, "tchat" ) ) {
 #ifndef SMOKINGUNS
 		trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
-#else
-		CG_PlayTalkSound();
-#endif
 		Q_strncpyz( text, CG_Argv(1), MAX_SAY_TEXT );
 		CG_RemoveChatEscapeChar( text );
 		CG_AddToTeamChat( text );
 		CG_Printf( "%s\n", text );
+#else
+		CG_PlayTalkSound();
+		Q_strncpyz( text, CG_Argv(1), MAX_SAY_TEXT );
+		CG_RemoveChatEscapeChar( text );
+		if ( !cg_chatMode.integer ) {
+			CG_Printf( "%s\n", text );
+		} else {
+			CG_AddToChat( text );
+			CG_Printf( "[skipnotify]%s\n", text );
+		}
+#endif
 		return;
 	}
 #ifndef SMOKINGUNS
