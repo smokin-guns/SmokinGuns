@@ -206,6 +206,7 @@ vmCvar_t  ui_initialized;
 vmCvar_t  ui_teamArenaFirstRun;
 #else
 vmCvar_t  ui_sgFirstRun;
+vmCvar_t  ui_farclip;
 #endif
 
 void _UI_Init( qboolean );
@@ -3675,6 +3676,10 @@ static void UI_Update(const char *name) {
 				trap_Cvar_SetValue( "cg_shadows", 1 );
 				trap_Cvar_SetValue( "cg_brassTime", 2500 );
 				trap_Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" );
+#ifdef SMOKINGUNS
+				trap_Cvar_SetValue( "ui_farclip", 0 );
+				trap_Cvar_SetValue( "cg_farclip", 0 );
+#endif
 			break;
 			case 1: // normal
 				trap_Cvar_SetValue( "r_fullScreen", 1 );
@@ -3691,6 +3696,12 @@ static void UI_Update(const char *name) {
 				trap_Cvar_SetValue( "cg_brassTime", 2500 );
 				trap_Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" );
 				trap_Cvar_SetValue( "cg_shadows", 0 );
+#ifdef SMOKINGUNS
+				trap_Cvar_SetValue( "ui_farclip", 1 );
+				trap_Cvar_SetValue( "cg_farclip", 1 );
+				trap_Cvar_SetValue( "cg_farclipValue", 2 );
+				trap_Cvar_SetValue( "cg_farclipZoomValue", 6 );
+#endif
 			break;
 			case 2: // fast
 				trap_Cvar_SetValue( "r_fullScreen", 1 );
@@ -3707,6 +3718,12 @@ static void UI_Update(const char *name) {
 				trap_Cvar_SetValue( "r_inGameVideo", 0 );
 				trap_Cvar_SetValue( "cg_brassTime", 0 );
 				trap_Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_NEAREST" );
+#ifdef SMOKINGUNS
+				trap_Cvar_SetValue( "ui_farclip", 2 );
+				trap_Cvar_SetValue( "cg_farclip", 1 );
+				trap_Cvar_SetValue( "cg_farclipValue", 1.5 );
+				trap_Cvar_SetValue( "cg_farclipZoomValue", 4.5 );
+#endif
 			break;
 			case 3: // fastest
 				trap_Cvar_SetValue( "r_fullScreen", 1 );
@@ -3723,6 +3740,12 @@ static void UI_Update(const char *name) {
 				trap_Cvar_SetValue( "r_fastSky", 1 );
 				trap_Cvar_SetValue( "r_inGameVideo", 0 );
 				trap_Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_NEAREST" );
+#ifdef SMOKINGUNS
+				trap_Cvar_SetValue( "ui_farclip", 3 );
+				trap_Cvar_SetValue( "cg_farclip", 1 );
+				trap_Cvar_SetValue( "cg_farclipValue", 1 );
+				trap_Cvar_SetValue( "cg_farclipZoomValue", 3 );
+#endif
 			break;
 		}
 	} else if (Q_stricmp(name, "ui_mousePitch") == 0) {
@@ -3731,6 +3754,31 @@ static void UI_Update(const char *name) {
 		} else {
 			trap_Cvar_SetValue( "m_pitch", -0.022f );
 		}
+#ifdef SMOKINGUNS
+	} else if (Q_stricmp(name, "ui_farclip") == 0) {
+		// Handle farclip update from the UI
+		switch (val) {
+			case 0: // none
+				trap_Cvar_SetValue( "cg_farclip", 0 );
+				break;
+			case 1: // far
+				trap_Cvar_SetValue( "cg_farclip", 1 );
+				trap_Cvar_SetValue( "cg_farclipValue", 2 );
+				trap_Cvar_SetValue( "cg_farclipZoomValue", 6 );
+				break;
+			case 2: // medium
+				trap_Cvar_SetValue( "cg_farclip", 1 );
+				trap_Cvar_SetValue( "cg_farclipValue", 1.5 );
+				trap_Cvar_SetValue( "cg_farclipZoomValue", 4.5 );
+				break;
+			case 3: // near (default)
+			default:
+				trap_Cvar_SetValue( "cg_farclip", 1 );
+				trap_Cvar_SetValue( "cg_farclipValue", 1 );
+				trap_Cvar_SetValue( "cg_farclipZoomValue", 3 );
+				break;
+		}
+#endif
 	}
 }
 
@@ -6130,8 +6178,11 @@ void _UI_Init( qboolean inGameLoad ) {
 		trap_Cvar_Set("ui_sgFirstRun", "1");
 		trap_Cvar_Set("ui_redteam", DEFAULT_REDTEAM_NAME);
 		trap_Cvar_Set("ui_blueteam", DEFAULT_BLUETEAM_NAME);
-#endif
 	}
+	if (trap_Cvar_VariableValue("cg_farclip") != 0 && trap_Cvar_VariableValue("ui_farclip") == 0 ) {
+		//trap_Cvar_SetValue("ui_farclip", trap_Cvar_VariableValue("cg_farclipValue")*2-1);
+	}
+#endif
 
 	trap_Cvar_Register(NULL, "debug_protocol", "", 0 );
 
@@ -6759,7 +6810,7 @@ vmCvar_t	ui_sv_needpass;
 vmCvar_t	ui_sv_dmflags;
 vmCvar_t	ui_sv_bot_minplayers;
 vmCvar_t	ui_sv_version;
-vmCvar_t	ui_sv_wq_version;
+vmCvar_t	ui_sv_sg_version;
 #endif
 
 static cvarTable_t		cvarTable[] = {
@@ -6916,6 +6967,7 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_teamArenaFirstRun, "ui_teamArenaFirstRun", "0", CVAR_ARCHIVE},
 #else
 	{ &ui_sgFirstRun, "ui_sgFirstRun", "0", CVAR_ARCHIVE},
+	{ &ui_farclip, "ui_farclip", "3", CVAR_ARCHIVE},
 #endif
 	{ &ui_realWarmUp, "g_warmup", "20", CVAR_ARCHIVE},
 #ifndef SMOKINGUNS
