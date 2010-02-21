@@ -1,11 +1,34 @@
 Changes in SG 1.1
 ******************
 ***** CHANGES ****
-- engine source synchronized with ioQuake3 SDK rev1772
+- engine source synchronized with ioQuake3 SDK rev1774
 - Added support to new autorecord demo mode where demo filename is not output to
   the screen: set cl_autoRecordDemo to 2 to use it
 - Fixed a bug related to gatling, thanks to Barto for the reporting
 - Enhanced SDK portability
+- Added getenv trap for future use
+- Added support for chat messages area with 6 new cvars:
+  - cg_chatTime: time to keep a line in the area in seconds (default 3s)
+  - cg_chatHeight: Area height in lines (default is 3, max is 8)
+  - cg_chatWidth: Area width in chars (default is 50, max is 79)
+  - cg_chatBigText: When set area chars are just doubled in size (default to 0)
+  - cg_chatMode: integer to set the chat area mod
+    - when set to 0, the default: Chat area is disabled and chat message are
+      just displayed like in SG 1.0
+    - when set to 1: Chat area is enabled for every chat messages
+    - when set to 2: Only team chat are displayed in chat area, normal chat
+      messages are not displayed. This is like cg_teamChatsOnly in vanilla Q3.
+  - cg_chatPosition:
+    - when set to 0, the default: Chat area is put at the bottom left, just above
+      the 6th pistol ammo when player is fighting in akimbo mode
+    - when set to 1: Chat area is put at the top left, just below the normal
+      console notification area
+    - when set to 2: Chat area is put at the bottom center, just above the main
+      hud. In that case, player may need to lower cg_chatWidth if cg_BigText is
+      also set.
+- Added 'tell' server side command to authorize admins to tell privately to player
+  This command is based on the UrbanTerror 4.1 implementation, thanks guys.
+  See http://www.urbanterror.net
 
 Changes in SG 1.1b4-20100116
 ******************

@@ -2019,7 +2019,56 @@ static void CG_DrawTeamInfo( void ) {
 		}
 	}
 }
-#endif // MISSIONPACK
+#else
+static void CG_DrawChatMessages( void ) {
+	int i, x, y;
+	int w = CHATCHAR_WIDTH;
+	int h = CHATCHAT_HEIGHT;
+	vec4_t	hcolor={ 1.0f, 1.0f, 1.0f, 1.0f };
+	int		chatHeight;
+
+	if (cg_chatHeight.integer < CHAT_HEIGHT)
+		chatHeight = cg_chatHeight.integer;
+	else
+		chatHeight = CHAT_HEIGHT;
+	if (chatHeight <= 0)
+		return; // disabled
+
+	if (cgs.LastChatPos != cgs.ChatPos) {
+		if (cg.time - cgs.ChatMsgTimes[cgs.LastChatPos % chatHeight] > cg_chatTime.integer) {
+			cgs.LastChatPos++;
+		}
+
+		// Set position on main screen
+		switch ( cg_chatPosition.integer ) {
+		case 0:
+		default:
+			x=0;
+			y=330;
+			break;
+		case 1:
+			x=0;
+			y=160;
+			break;
+		case 2:
+			x=180;
+			y=410;
+			break;
+		}
+
+		// Update char size
+		if (cg_chatBigText.integer) {
+			w = 2*CHATCHAR_WIDTH;
+			h = 2*CHATCHAT_HEIGHT;
+		}
+
+		for (i = cgs.ChatPos - 1; i >= cgs.LastChatPos; i--) {
+			CG_DrawStringExt( x + w, y - (cgs.ChatPos - i)*h,
+				cgs.ChatMsgs[i % chatHeight], hcolor, qfalse, qfalse, w, h, 0 );
+		}
+	}
+}
+#endif // SMOKINGUNS
 
 /*
 ===================
@@ -4149,6 +4198,9 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 		}
 	}
 #else
+	// Draw chat messages
+	CG_DrawChatMessages();
+
 	if ( !CG_DrawFollow() ) {
 		if(cg_warmupmessage.integer)
 			CG_DrawWarmup();

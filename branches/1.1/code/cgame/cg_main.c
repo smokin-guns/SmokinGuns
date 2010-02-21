@@ -159,11 +159,20 @@ vmCvar_t	cg_thirdPersonAngle;
 vmCvar_t	cg_lagometer;
 vmCvar_t	cg_drawAttacker;
 vmCvar_t	cg_synchronousClients;
-vmCvar_t 	cg_teamChatTime;
-vmCvar_t 	cg_teamChatHeight;
-vmCvar_t 	cg_stats;
-vmCvar_t 	cg_buildScript;
-vmCvar_t 	cg_forceModel;
+#ifndef SMOKINGUNS
+vmCvar_t	cg_teamChatTime;
+vmCvar_t	cg_teamChatHeight;
+#else
+vmCvar_t	cg_chatTime;
+vmCvar_t	cg_chatHeight;
+vmCvar_t	cg_chatWidth;
+vmCvar_t	cg_chatMode;
+vmCvar_t	cg_chatPosition;
+vmCvar_t	cg_chatBigText;
+#endif
+vmCvar_t	cg_stats;
+vmCvar_t	cg_buildScript;
+vmCvar_t	cg_forceModel;
 vmCvar_t	cg_paused;
 #ifdef SMOKINGUNS
 vmCvar_t	cg_menu;
@@ -174,13 +183,13 @@ vmCvar_t	cg_deferPlayers;
 vmCvar_t	cg_drawTeamOverlay;
 vmCvar_t	cg_teamOverlayUserinfo;
 vmCvar_t	cg_drawFriend;
+#ifndef SMOKINGUNS
 vmCvar_t	cg_teamChatsOnly;
 vmCvar_t	cg_noVoiceChats;
 vmCvar_t	cg_noVoiceText;
-#ifndef SMOKINGUNS
 vmCvar_t	cg_hudFiles;
-vmCvar_t 	cg_scorePlum;
-vmCvar_t 	cg_smoothClients;
+vmCvar_t	cg_scorePlum;
+vmCvar_t	cg_smoothClients;
 #endif
 vmCvar_t	pmove_fixed;
 //vmCvar_t	cg_pmove_fixed;
@@ -203,8 +212,8 @@ vmCvar_t	cg_oldPlasma;
 vmCvar_t	cg_trueLightning;
 #endif
 
-vmCvar_t 	cg_redTeamName;
-vmCvar_t 	cg_blueTeamName;
+vmCvar_t	cg_redTeamName;
+vmCvar_t	cg_blueTeamName;
 vmCvar_t	cg_currentSelectedPlayer;
 vmCvar_t	cg_currentSelectedPlayerName;
 vmCvar_t	cg_singlePlayer;
@@ -394,11 +403,17 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_thirdPersonAngle, "cg_thirdPersonAngle", "0", CVAR_CHEAT },
 #ifndef SMOKINGUNS
 	{ &cg_thirdPerson, "cg_thirdPerson", "0", 0 },
-#else
-	{ &cg_thirdPerson, "cg_thirdPerson", "0", CVAR_CHEAT },
-#endif
 	{ &cg_teamChatTime, "cg_teamChatTime", "3000", CVAR_ARCHIVE  },
 	{ &cg_teamChatHeight, "cg_teamChatHeight", "0", CVAR_ARCHIVE  },
+#else
+	{ &cg_thirdPerson, "cg_thirdPerson", "0", CVAR_CHEAT },
+	{ &cg_chatTime, "cg_chatTime", "3000", CVAR_ARCHIVE  },
+	{ &cg_chatHeight, "cg_chatHeight", "0", CVAR_ARCHIVE  },
+	{ &cg_chatWidth, "cg_chatWidth", "50", CVAR_ARCHIVE  },
+	{ &cg_chatMode, "cg_chatMode", "0", CVAR_ARCHIVE },
+	{ &cg_chatPosition, "cg_chatPosition", "0", CVAR_ARCHIVE },
+	{ &cg_chatBigText, "cg_chatBigText", "0", CVAR_ARCHIVE },
+#endif
 	{ &cg_forceModel, "cg_forceModel", "0", CVAR_ARCHIVE  },
 	{ &cg_predictItems, "cg_predictItems", "1", CVAR_ARCHIVE },
 #ifndef SMOKINGUNS
@@ -410,9 +425,11 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_teamOverlayUserinfo, "teamoverlay", "0", CVAR_ROM | CVAR_USERINFO },
 	{ &cg_stats, "cg_stats", "0", 0 },
 	{ &cg_drawFriend, "cg_drawFriend", "1", CVAR_ARCHIVE },
+#ifndef SMOKINGUNS
 	{ &cg_teamChatsOnly, "cg_teamChatsOnly", "0", CVAR_ARCHIVE },
 	{ &cg_noVoiceChats, "cg_noVoiceChats", "0", CVAR_ARCHIVE },
 	{ &cg_noVoiceText, "cg_noVoiceText", "0", CVAR_ARCHIVE },
+#endif
 	// the following variables are created in other parts of the system,
 	// but we also reference them here
 	{ &cg_buildScript, "com_buildScript", "0", 0 },	// force loading of all possible data amd error on failures
