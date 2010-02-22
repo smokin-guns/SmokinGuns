@@ -1149,6 +1149,13 @@ void RB_StageIteratorGeneric( void )
 
 	input = &tess;
 
+#ifdef SMOKINGUNS
+	// Avoid the without vertexes case generating an OpenGL error when trying
+	// to use qglLockArraysEXT && qglUnlockArraysEXT APIs later in this Iterator
+	if(!input->numVertexes)
+		return;
+#endif
+
 	RB_DeformTessGeometry();
 
 	//
