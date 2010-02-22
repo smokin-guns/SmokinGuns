@@ -78,13 +78,13 @@ struct glslobj {
 } glslobj;
 
 struct r_fbuffer {
-	GLuint 	fbo;
+	GLuint	fbo;
+	GLuint	mfbo;					//fbo buffer for multisampling
 	GLuint	numBuffers;
-	GLuint	*buffers;
-	GLuint	*front;					//front buffer
-	GLuint	*back;					//back buffer
-	GLuint	*depth;					//depth buffer
-	GLuint	*stencil;				//stencil buffer
+	GLuint	front;					//front buffer
+	GLuint	back;					//back buffer
+	GLuint	depth;					//depth buffer
+	GLuint	stencil;				//stencil buffer
 	int		modeFlags;				//the modeflags
 } r_fbuffer;
 
@@ -100,6 +100,22 @@ static GLint	samples = 0;		//is set after multisample support is initialized
 
 struct r_fbuffer screenBuffer;
 struct r_fbuffer gaussblurBuffer;
+
+//------------------------------
+// better framebuffer creation
+//------------------------------
+// for this we do a more opengl way of figuring out what level of framebuffer
+// objects are supported. we try each mode from 'best' to 'worst' until we
+// get a mode that works.
+
+#define FB_ZBUFFER 		0x01
+#define FB_STENCIL 		0x02
+#define FB_PACKED 		0x04
+#define FB_ZTEXTURE 	0x08
+#define FB_BACKBUFFER	0x10
+#define FB_SEPARATEZS	0x20
+#define FB_SMOOTH		0x40
+#define FB_MULTISAMPLE	0x80
 
 // defines not available in SDL<1.3
 #ifndef GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE_EXT
@@ -242,17 +258,18 @@ GLuint *R_CreateTexbuffer(	GLuint *store, int width, int height,
 	qglTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
 	qglTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 	qglTexImage2D( GL_TEXTURE_2D, 0, bindType, width, height, 0,
-					bindType, bindSize, 0 );
+					bindType, bindSize, NULL );
+
 	return store;
 }
 
 GLuint *R_CreateRenderbuffer(	GLuint *store, int width, int height,
-								GLenum bindType)
+								GLenum bindType, qboolean withMultisample)
 {
 	qglGenRenderbuffersEXT( 1, store );
 	qglBindRenderbufferEXT( GL_RENDERBUFFER_EXT, *store );
 
-	if (useMultisample) {
+	if (withMultisample) {
 		// Add GL_EXT_framebuffer_multisample support
 		qglRenderbufferStorageMultisampleEXT( GL_RENDERBUFFER_EXT, samples, bindType, width, height );
 	} else {
@@ -262,53 +279,36 @@ GLuint *R_CreateRenderbuffer(	GLuint *store, int width, int height,
 	return store;
 }
 
-//------------------------------
-// better framebuffer creation
-//------------------------------
-// for this we do a more opengl way of figuring out what level of framebuffer
-// objects are supported. we try each mode from 'best' to 'worst' until we
-// get a mode that works.
-
-#define FB_ZBUFFER 		0x01
-#define FB_STENCIL 		0x02
-#define FB_PACKED 		0x04
-#define FB_ZTEXTURE 	0x08
-#define FB_BACKBUFFER	0x10
-#define FB_SEPARATEZS	0x20
-#define FB_SMOOTH		0x40
-
 int R_DeleteFBuffer( struct r_fbuffer *buffer) {
 	int flags = buffer->modeFlags;
 
 	if (flags & FB_STENCIL) {
 			if (flags & FB_ZTEXTURE) {
-				qglDeleteFramebuffersEXT(1, buffer->depth);
-				qglDeleteFramebuffersEXT(1, buffer->stencil);
-				qglDeleteTextures(1, buffer->depth);
+				qglDeleteFramebuffersEXT(1, &buffer->depth);
+				qglDeleteFramebuffersEXT(1, &buffer->stencil);
+				qglDeleteTextures(1, &buffer->depth);
 			}
 			else {
-				qglDeleteRenderbuffersEXT(1, buffer->depth);
-				qglDeleteRenderbuffersEXT(1, buffer->stencil);
+				qglDeleteRenderbuffersEXT(1, &buffer->depth);
+				qglDeleteRenderbuffersEXT(1, &buffer->stencil);
 			}
 	}
 	else if (flags & FB_ZBUFFER) {
 			if (flags & FB_ZTEXTURE) {
-				qglDeleteFramebuffersEXT(1, buffer->depth);
-				qglDeleteTextures(1, buffer->depth);
+				qglDeleteFramebuffersEXT(1, &buffer->depth);
+				qglDeleteTextures(1, &buffer->depth);
 			}
 			else {
-				qglDeleteRenderbuffersEXT(1, buffer->depth);
+				qglDeleteRenderbuffersEXT(1, &buffer->depth);
 			}
 	}
 	if (flags & FB_BACKBUFFER) {
-		qglDeleteFramebuffersEXT(1, buffer->back);
-		qglDeleteTextures(1, buffer->back);
+		qglDeleteFramebuffersEXT(1, &buffer->back);
+		qglDeleteTextures(1, &buffer->back);
 	}
 
-	qglDeleteFramebuffersEXT(1, buffer->front);
-	qglDeleteTextures(1, buffer->front);
-
-	ri.Free(buffer->buffers);
+	qglDeleteFramebuffersEXT(1, &buffer->front);
+	qglDeleteTextures(1, &buffer->front);
 
 	qglDeleteFramebuffersEXT(1, &(buffer->fbo));
 
@@ -317,7 +317,6 @@ int R_DeleteFBuffer( struct r_fbuffer *buffer) {
 
 int R_CreateFBuffer( struct r_fbuffer *buffer, int width, int height, int flags)
 {
-	int index = 0;
 	qboolean filter = qfalse;
 
 	//do some checks
@@ -334,52 +333,6 @@ int R_CreateFBuffer( struct r_fbuffer *buffer, int width, int height, int flags)
 	//store the flags in the struct
 	buffer->modeFlags = flags;
 
-	//allocate enough storage buffers
-	buffer->numBuffers = 1;
-	if (flags & FB_STENCIL) {
-		if (flags & FB_PACKED) {
-			buffer->numBuffers += 1;
-		}
-		if (flags & FB_SEPARATEZS) {
-			buffer->numBuffers += 2;
-		}
-	}
-	if (flags & FB_ZBUFFER) {
-		buffer->numBuffers += 1;
-	}
-	if (flags & FB_BACKBUFFER) {
-		buffer->numBuffers += 1;
-	}
-
-	buffer->buffers = ri.Malloc(sizeof(GLuint) * buffer->numBuffers);
-
-	//link the named variables to the storage space
-	buffer->front = &(buffer->buffers[index]);
-	index++;
-
-	if (flags & FB_BACKBUFFER) {
-		buffer->back = &(buffer->buffers[index]);
-		index++;
-	}
-
-	if (flags & FB_STENCIL) {
-		if (flags & FB_PACKED) {
-			buffer->stencil = &(buffer->buffers[index]);
-			buffer->depth = &(buffer->buffers[index]);
-			index++;
-		}
-		if (flags & FB_SEPARATEZS) {
-			buffer->depth = &(buffer->buffers[index]);
-			index++;
-			buffer->stencil = &(buffer->buffers[index]);
-			index++;
-		}
-	}
-	else if (flags & FB_ZBUFFER) {
-		buffer->depth = &(buffer->buffers[index]);
-		index++;
-	}
-
 	//set the filter state
 	if (flags & FB_SMOOTH) {
 		filter = qtrue;
@@ -392,88 +345,88 @@ int R_CreateFBuffer( struct r_fbuffer *buffer, int width, int height, int flags)
 	if (flags & FB_STENCIL) {
 		if (flags & FB_PACKED) {
 			if (flags & FB_ZTEXTURE) {
-				R_CreateTexbuffer( 	buffer->depth, width, height, qfalse,
+				R_CreateTexbuffer(	&buffer->depth, width, height, qfalse,
 									GL_UNSIGNED_INT_24_8_EXT, GL_DEPTH_STENCIL_EXT);
 
 				qglFramebufferTexture2DEXT(	GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
-											GL_TEXTURE_2D, *buffer->depth, 0);
+											GL_TEXTURE_2D, buffer->depth, 0);
 
 				qglFramebufferTexture2DEXT(	GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
-											GL_TEXTURE_2D, *buffer->stencil, 0);
+											GL_TEXTURE_2D, buffer->stencil, 0);
 			}
 			else {
-				R_CreateRenderbuffer(buffer->depth, width, height, GL_DEPTH_STENCIL_EXT);
-				qglFramebufferRenderbufferEXT(		GL_FRAMEBUFFER_EXT,
+				R_CreateRenderbuffer(&buffer->depth, width, height, GL_DEPTH_STENCIL_EXT, flags & FB_MULTISAMPLE);
+				qglFramebufferRenderbufferEXT(	GL_FRAMEBUFFER_EXT,
 												GL_DEPTH_ATTACHMENT_EXT,
 												GL_RENDERBUFFER_EXT,
-												*buffer->depth);
+												buffer->depth);
 
-				qglFramebufferRenderbufferEXT(		GL_FRAMEBUFFER_EXT,
+				qglFramebufferRenderbufferEXT(	GL_FRAMEBUFFER_EXT,
 												GL_STENCIL_ATTACHMENT_EXT,
 												GL_RENDERBUFFER_EXT,
-												*buffer->stencil);
+												buffer->stencil);
 			}
 		}
 		if (flags & FB_SEPARATEZS) {
 			if (flags & FB_ZTEXTURE) {
-				R_CreateTexbuffer( 	buffer->depth, width, height, qfalse,
+				R_CreateTexbuffer(	&buffer->depth, width, height, qfalse,
 									GL_UNSIGNED_INT, GL_DEPTH_COMPONENT);
 
 				qglFramebufferTexture2DEXT(	GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
-											GL_TEXTURE_2D, *buffer->depth, 0);
+											GL_TEXTURE_2D, buffer->depth, 0);
 
-				R_CreateRenderbuffer(buffer->stencil, width, height, GL_STENCIL_INDEX8_EXT);
+				R_CreateRenderbuffer(&buffer->stencil, width, height, GL_STENCIL_INDEX8_EXT, flags & FB_MULTISAMPLE);
 
 				qglFramebufferRenderbufferEXT(	GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
-												GL_RENDERBUFFER_EXT, *buffer->stencil);
+												GL_RENDERBUFFER_EXT, buffer->stencil);
 			}
 			else {
-				R_CreateRenderbuffer(buffer->depth, width, height, GL_DEPTH_STENCIL_EXT);
+				R_CreateRenderbuffer(&buffer->depth, width, height, GL_DEPTH_STENCIL_EXT, flags & FB_MULTISAMPLE);
 				qglFramebufferRenderbufferEXT(	GL_FRAMEBUFFER_EXT,
 												GL_DEPTH_ATTACHMENT_EXT,
 												GL_RENDERBUFFER_EXT,
-												*buffer->depth);
+												buffer->depth);
 
-				R_CreateRenderbuffer(buffer->stencil, width, height, GL_STENCIL_INDEX8_EXT);
+				R_CreateRenderbuffer(&buffer->stencil, width, height, GL_STENCIL_INDEX8_EXT, flags & FB_MULTISAMPLE);
 				qglFramebufferRenderbufferEXT(	GL_FRAMEBUFFER_EXT,
 												GL_STENCIL_ATTACHMENT_EXT,
 												GL_RENDERBUFFER_EXT,
-												*buffer->stencil);
+												buffer->stencil);
 			}
 		}
 	}
 	else if (flags & FB_ZBUFFER) {
 		if (flags & FB_ZTEXTURE) {
-			R_CreateTexbuffer( 	buffer->depth, width, height, qfalse,
+			R_CreateTexbuffer(	&buffer->depth, width, height, qfalse,
 								GL_UNSIGNED_INT, GL_DEPTH_COMPONENT);
 
 			qglFramebufferTexture2DEXT(	GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
-										GL_TEXTURE_2D, *buffer->depth, 0);
+										GL_TEXTURE_2D, buffer->depth, 0);
 		}
 		else {
-			R_CreateRenderbuffer(buffer->depth, width, height, GL_DEPTH_STENCIL_EXT);
+			R_CreateRenderbuffer(&buffer->depth, width, height, GL_DEPTH_STENCIL_EXT, flags & FB_MULTISAMPLE);
 			qglFramebufferRenderbufferEXT(	GL_FRAMEBUFFER_EXT,
 											GL_DEPTH_ATTACHMENT_EXT,
 											GL_RENDERBUFFER_EXT,
-											*buffer->depth);
+											buffer->depth);
 		}
 	}
 
 	if (flags & FB_BACKBUFFER) {
-		R_CreateTexbuffer(	buffer->back, width, height, filter,
+		R_CreateTexbuffer(	&buffer->back, width, height, filter,
 							GL_UNSIGNED_BYTE, GL_RGBA);
 
 		//we link to the second colour attachment
 		qglFramebufferTexture2DEXT(	GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT1_EXT,
-									GL_TEXTURE_2D, *buffer->back, 0);
+									GL_TEXTURE_2D, buffer->back, 0);
 	}
 
 	//create the main colour buffer
-	R_CreateTexbuffer(	buffer->front, width, height, filter,
+	R_CreateTexbuffer(	&buffer->front, width, height, filter,
 						GL_UNSIGNED_BYTE, GL_RGBA);
 
 	qglFramebufferTexture2DEXT(	GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
-								GL_TEXTURE_2D, *buffer->front, 0);
+								GL_TEXTURE_2D, buffer->front, 0);
 
 	return R_CheckFramebufferStatus("FBO creation") ? 0 : -1 ;
 }
@@ -491,10 +444,10 @@ qboolean R_TestFbuffer_SeparateDS( void ) {
 	qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, buffers[0]);
 
 	//create the depth buffer
-	R_CreateRenderbuffer( &buffers[1], width, height, GL_DEPTH_COMPONENT);
+	R_CreateRenderbuffer( &buffers[1], width, height, GL_DEPTH_COMPONENT, useMultisample);
 
 	//stencil buffer as a render buffer
-	R_CreateRenderbuffer( &buffers[2], width, height, GL_STENCIL_INDEX8_EXT);
+	R_CreateRenderbuffer( &buffers[2], width, height, GL_STENCIL_INDEX8_EXT, useMultisample);
 	//attach the textures/renderbuffers to the framebuffer
 	qglFramebufferRenderbufferEXT(	GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
 									GL_RENDERBUFFER_EXT, buffers[1]);
@@ -540,7 +493,7 @@ qboolean R_TestFbuffer_PackedDS( void ) {
 	qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, buffers[0]);
 
 	//create the buffer
-	R_CreateRenderbuffer( &buffers[1], width, height, GL_DEPTH_STENCIL_EXT);
+	R_CreateRenderbuffer( &buffers[1], width, height, GL_DEPTH_STENCIL_EXT, useMultisample);
 	//attach the textures/renderbuffers to the framebuffer
 	qglFramebufferRenderbufferEXT(	GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
 									GL_RENDERBUFFER_EXT, buffers[1]);
@@ -703,7 +656,7 @@ void R_FrameBuffer_BlurInit( void ) {
 	blur_size = ( r_ext_framebuffer_blur_size->integer < 2 ) ? 2 : r_ext_framebuffer_blur_size->integer;
 
 	R_CreateFBuffer( &gaussblurBuffer, blur_size, blur_size, FB_BACKBUFFER | FB_SMOOTH);
-	qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	R_FrameBufferUnBind();
 
 	//create our glsl shader
 	glslBlur.vert_numSources = 1;
@@ -768,7 +721,7 @@ void R_FrameBuffer_BlurDraw( GLuint *srcTex ) {
 	loc = qglGetUniformLocation(program, "blurSize");
 	qglUniform2f(loc, r_ext_framebuffer_blur_amount->value / 100.0, 0.0);
 
-	R_DrawQuad(	*gaussblurBuffer.front, fb_size, fb_size);
+	R_DrawQuad(gaussblurBuffer.front, fb_size, fb_size);
 
 	//we do the second pass of the blur here
 	qglDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
@@ -776,7 +729,7 @@ void R_FrameBuffer_BlurDraw( GLuint *srcTex ) {
 	qglUniform2f(loc, 0.0, r_ext_framebuffer_blur_amount->value / 100.0);
 
 	R_SetGL2DSize(fb_size, fb_size);
-	R_DrawQuad(	*gaussblurBuffer.back, fb_size, fb_size);
+	R_DrawQuad(gaussblurBuffer.back, fb_size, fb_size);
 	qglUseProgram(0);
 
 	//finally the FRONT buffer in the fbo is given the blurred image
@@ -837,7 +790,7 @@ void R_FrameBuffer_RotoDraw( struct r_fbuffer *src, GLuint *srcTex ) {
 	qglUniform2f(loc, 1.0 / glConfig.vidWidth, 1.0 / glConfig.vidHeight);
 
 	if (useRotoZEdgeEffect) {
-		R_DrawQuadMT(	*srcTex, *src->depth,
+		R_DrawQuadMT(	*srcTex, src->depth,
 						glConfig.vidWidth, glConfig.vidHeight);
 	} else {
 		R_DrawQuad(	*srcTex, glConfig.vidWidth, glConfig.vidHeight);
@@ -886,7 +839,7 @@ void R_FrameBuffer_BloomDraw( GLuint *srcTex ) {
 	loc = qglGetUniformLocation(program, "sharpness");
 	qglUniform1f(loc, r_ext_framebuffer_bloom_sharpness->value);
 
-	R_DrawQuadMT(	*srcTex, *gaussblurBuffer.front,
+	R_DrawQuadMT(	*srcTex, gaussblurBuffer.front,
 					glConfig.vidWidth, glConfig.vidHeight);
 	qglUseProgram(0);
 	//quick test to just see the blur
@@ -902,7 +855,7 @@ void R_FrameBuffer_BloomDelete( void ) {
 static void R_FrameBuffer_Draw( void ) {
 	//draws the framebuffer to the screen, pretty simple really.
 	R_SetGL2DSize(glConfig.vidWidth, glConfig.vidHeight);
-	R_DrawQuad(	*(screenBuffer.front), glConfig.vidWidth, glConfig.vidHeight);
+	R_DrawQuad(screenBuffer.front, glConfig.vidWidth, glConfig.vidHeight);
 }
 
 void R_FrameBuffer_Init( void ) {
@@ -1002,6 +955,9 @@ void R_FrameBuffer_Init( void ) {
 
 	screenbuff_flags |= FB_ZBUFFER;
 
+	if (useMultisample)
+		screenbuff_flags |= FB_MULTISAMPLE;
+
 	//create our main frame buffer
 	status = R_CreateFBuffer(	&screenBuffer, glConfig.vidWidth,
 								glConfig.vidHeight, screenbuff_flags);
@@ -1033,22 +989,8 @@ void R_FrameBuffer_Init( void ) {
 	//auto detects that its needed
 	R_FrameBuffer_BlurInit();
 
-	qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, *screenBuffer.front);
-
 	// Now framebuffer is initialized, we can safely use it
 	useFrameBuffer = qtrue;
-}
-
-void R_FrameBuffer_BeginFrame( void ) {
-	if (!useFrameBuffer)
-		return;
-
-	// Be sure to reset the frame buffer
-	if (rendered)
-		R_FrameBuffer_ResetDraw();
-
-	// Reset the rendered flag
-	rendered = qfalse;
 }
 
 void R_FrameBuffer_EndFrame( void ) {
@@ -1072,14 +1014,14 @@ void R_FrameBuffer_EndFrame( void ) {
 
 	qglColor4f( 1, 1, 1, 1 );
 
-	srcBuffer = screenBuffer.front;
+	srcBuffer = &screenBuffer.front;
 
 	if (useRotoscopeEffect) {
 		if (useBloomEffect) {
 			//we need to draw to the back buffer
 			qglDrawBuffer(GL_COLOR_ATTACHMENT1_EXT);
 			R_FrameBuffer_RotoDraw(&screenBuffer, srcBuffer);
-			srcBuffer = screenBuffer.back;
+			srcBuffer = &screenBuffer.back;
 			qglDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
 		}
 		else {
@@ -1108,19 +1050,6 @@ void R_FrameBuffer_EndFrame( void ) {
 	rendered = qtrue;
 }
 
-void R_FrameBuffer_ResetDraw( void ) {
-	if (!useFrameBuffer)
-		return;
-
-	//We re-bind our framebuffer so everything gets rendered into it.
-	R_FrameBufferBind();
-
-	qglDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
-
-	// Reset the rendered flag
-	rendered = qfalse;
-}
-
 void R_FrameBuffer_Shutdown( void ) {
 	//cleanup
 	if (!useFrameBuffer)
@@ -1143,4 +1072,32 @@ void R_FrameBuffer_Shutdown( void ) {
 
 	//delete the main screen buffer
 	R_DeleteFBuffer(&screenBuffer);
+}
+
+/*
+=============
+RB_DrawFrameBuffer
+Replacement for RB_DrawBuffer when useFrameBuffer is set
+=============
+*/
+const void	*RB_DrawFrameBuffer( const void *data ) {
+	const drawBufferCommand_t	*cmd;
+
+	cmd = (const drawBufferCommand_t *)data;
+
+	// We re-bind our framebuffer so everything gets rendered into it.
+	R_FrameBufferBind();
+
+	qglDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
+
+	// Reset the rendered flag
+	rendered = qfalse;
+
+	// clear screen for debugging
+	if ( r_clear->integer ) {
+		qglClearColor( 1, 0, 0.5, 1 );
+		qglClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	}
+
+	return (const void *)(cmd + 1);
 }

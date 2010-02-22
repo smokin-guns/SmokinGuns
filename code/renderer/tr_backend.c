@@ -1119,8 +1119,6 @@ const void	*RB_SwapBuffers( const void *data ) {
 	if (!backEnd.projection2D) {
 		R_FrameBuffer_EndFrame();
 	}
-	//reset the framebuffer so next frame will render in the right buffer
-	R_FrameBuffer_ResetDraw();
 #endif
 
 	if ( !glState.finishCalled ) {
@@ -1171,9 +1169,10 @@ void RB_ExecuteRenderCommands( const void *data ) {
 			break;
 		case RC_DRAW_BUFFER:
 #ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
-			R_FrameBuffer_BeginFrame();
-#endif
+			data = useFrameBuffer ? RB_DrawFrameBuffer( data ) : RB_DrawBuffer( data );
+#else
 			data = RB_DrawBuffer( data );
+#endif
 			break;
 		case RC_SWAP_BUFFERS:
 			data = RB_SwapBuffers( data );

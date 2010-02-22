@@ -988,6 +988,7 @@ extern float     displayAspect;
 extern qboolean	framebufferSupported;
 extern qboolean	glslSupported;
 extern qboolean	multisampleSupported;
+extern qboolean	useFrameBuffer;
 #endif
 
 //
@@ -1300,10 +1301,9 @@ FRAMEBUFFER RENDER PATH SPECIFIC FUNCTIONS AND STATE VARIABLES
 void 		R_FrameBufferBind( void );
 void 		R_FrameBufferUnBind( void );
 void		R_FrameBuffer_Init( void );
-void		R_FrameBuffer_BeginFrame( void );
 void		R_FrameBuffer_EndFrame( void );
-void		R_FrameBuffer_ResetDraw( void );
 void		R_FrameBuffer_Shutdown( void );
+const void	*RB_DrawFrameBuffer( const void *data );
 #endif
 
 /*
