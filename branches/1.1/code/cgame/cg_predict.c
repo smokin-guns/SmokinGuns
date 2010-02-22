@@ -1216,6 +1216,17 @@ void CG_PredictPlayerState( void ) {
 				CG_AdjustPositionForMover( cg.predictedPlayerState.origin,
 					cg.predictedPlayerState.groundEntityNum, cg.physicsTime, cg.oldTime, adjusted );
 
+#ifdef SMOKINGUNS
+				// If ground entity has changed and cg_boostfps is set, be sure it is in visible entity list
+				if ( cg_boostfps.integer && oldPlayerState.groundEntityNum != cg.predictedPlayerState.groundEntityNum ) {
+					centity_t *cent = &cg_entities[ cg.predictedPlayerState.groundEntityNum ];
+					if (!cent->visible) {
+						cg_VisibleSolidEntities[cg_numVisibleSolidEntities] = cent;
+						cg_numVisibleSolidEntities++;
+					}
+				}
+#endif
+
 				if ( cg_showmiss.integer ) {
 					if (!VectorCompare( oldPlayerState.origin, adjusted )) {
 						CG_Printf("prediction error\n");
