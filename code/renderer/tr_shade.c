@@ -1150,8 +1150,9 @@ void RB_StageIteratorGeneric( void )
 	input = &tess;
 
 #ifdef SMOKINGUNS
-	// Avoid the without vertexes case generating an OpenGL error when trying
+	// Avoid a case without vertexes case generating an OpenGL error when trying
 	// to use qglLockArraysEXT && qglUnlockArraysEXT APIs later in this Iterator
+	// So we are able to detect other OpenGL error setting r_ignoreGLErrors to 0
 	if(!input->numVertexes)
 		return;
 #endif
