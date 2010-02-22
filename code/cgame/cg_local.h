@@ -122,6 +122,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	CULL_IN				0	// completely unclipped
 #define	CULL_CLIP			1	// clipped by one or more planes
 #define	CULL_OUT			2	// completely outside the clipping planes
+
+// Range under which we guarantee entities will be in the visible entity list
+// when cg_boostfps is set
+#define FORCE_VISIBILITY_RANGE 150
 #endif
 
 typedef enum {

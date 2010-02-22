@@ -1504,6 +1504,10 @@ qboolean CG_IsEntityVisible(centity_t *cent, vec_t max_sight) {
 		// well predicted if it is visible (traces will only detect visible entities
 		// when cg_boostfps is set)
 		visible = qtrue;
+	else if (distance < FORCE_VISIBILITY_RANGE)
+		// Btw keep too closed entities as visible to avoid prediction error
+		// when moving over it and not being in the fov
+		visible = qtrue;
 	else if (hasBounds) {
 		radius = Distance(box_vertex[5], box_vertex[3]) * 0.5f;
 		cent->radius = radius;	// Keep its radius
