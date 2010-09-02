@@ -41,6 +41,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // Used to determine where to store user-specific files
 static char homePath[ MAX_OSPATH ] = { 0 };
 
+#ifdef __WIN64__
+void Sys_SnapVector( float *v )
+{
+        v[0] = rint(v[0]);
+        v[1] = rint(v[1]);
+        v[2] = rint(v[2]);
+}
+#endif
+
 /*
 ================
 Sys_DefaultHomePath
@@ -350,7 +359,7 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 {
 	char		search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
 	char		filename[MAX_OSPATH];
-	int			findhandle;
+	intptr_t	findhandle;
 	struct _finddata_t findinfo;
 
 	if ( *numfiles >= MAX_FOUND_FILES - 1 ) {
@@ -433,7 +442,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 	char		**listCopy;
 	char		*list[MAX_FOUND_FILES];
 	struct _finddata_t findinfo;
-	int			findhandle;
+	intptr_t		findhandle;
 	int			flag;
 	int			i;
 

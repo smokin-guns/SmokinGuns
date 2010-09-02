@@ -125,9 +125,7 @@ typedef enum {
 	UI_LAN_COMPARESERVERS,
 	// 1.32
 	UI_FS_SEEK,
-#ifndef SMOKINGUNS
 	UI_SET_PBCLSTATUS,
-#endif
 
 	UI_MEMSET = 100,
 	UI_MEMCPY,
