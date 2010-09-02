@@ -241,7 +241,7 @@ static	cvar_t		*fs_homepath;
 
 #ifdef MACOS_X
 // Also search the .app bundle for .pk3 files
-static  cvar_t          *fs_apppath;
+static	cvar_t		*fs_apppath;
 #endif
 
 static	cvar_t		*fs_basepath;
@@ -298,8 +298,8 @@ char lastValidBase[MAX_OSPATH];
 char lastValidGame[MAX_OSPATH];
 
 #ifdef FS_MISSING
-static  cvar_t	*fs_missingfiles;
-FILE*		missingFiles = NULL;
+static	cvar_t	*fs_missingfiles;
+FILE*	missingFiles = NULL;
 #endif
 
 /* C99 defines __func__ */
@@ -2023,8 +2023,8 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, char *filt
 
 			// don't scan directories for files if we are pure or restricted
 			if ( fs_numServerPaks ) {
-		        continue;
-		    } else {
+				continue;
+			} else {
 				netpath = FS_BuildOSPath( search->dir->path, search->dir->gamedir, path );
 				sysFiles = Sys_ListFiles( netpath, extension, filter, &numSysFiles, qfalse );
 				for ( i = 0 ; i < numSysFiles ; i++ ) {
@@ -2091,7 +2091,7 @@ void FS_FreeFileList( char **list ) {
 FS_GetFileList
 ================
 */
-int	FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize ) {
+int	FS_GetFileList( const char *path, const char *extension, char *listbuf, int bufsize ) {
 	int		nFiles, i, nTotal, nLen;
 	char **pFiles = NULL;
 
@@ -2660,7 +2660,8 @@ qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring ) {
 		havepak = qfalse;
 
 		// never autodownload any of the id paks
-		if ( FS_idPak(fs_serverReferencedPakNames[i], BASEGAME) || FS_idPak(fs_serverReferencedPakNames[i], "missionpack") ) {
+		if ( FS_idPak(fs_serverReferencedPakNames[i], "baseq3")
+		|| FS_idPak(fs_serverReferencedPakNames[i], "missionpack") ) {
 			continue;
 		}
 
@@ -2837,9 +2838,9 @@ FS_Startup
 */
 static void FS_Startup( const char *gameName )
 {
-    const char *homePath;
+	const char *homePath;
 #ifdef SDK_BASEGAME
-    cvar_t *fs_sdk_basegame;
+	cvar_t *fs_sdk_basegame;
 #endif
 
 	Com_Printf( "----- FS_Startup -----\n" );
