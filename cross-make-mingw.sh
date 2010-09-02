@@ -3,7 +3,7 @@
 COMPILE_PLATFORM=`uname|sed -e s/_.*//|tr '[:upper:]' '[:lower:]'`
 
 MAKE=make
-export PLATFORM=mingw32
+export PLATFORM=mingw32 ARCH=x86
 
 if [ "$COMPILE_PLATFORM" = "darwin" ]; then
 	export CC=i386-mingw32msvc-gcc
@@ -14,11 +14,7 @@ elif [ "$COMPILE_PLATFORM" = "freebsd" ]; then
 	export WINDRES=mingw32-windres
 	MAKE=gmake
 
-elif [ "$(</etc/system-release)" == "Fedora release 10 (Cambridge)" ]; then
-	export CC=i686-pc-mingw32-gcc
-	export WINDRES=i686-pc-mingw32-windres
-
-elif [ "$(</etc/system-release)" == "Fedora release 11 (Leonidas)" ]; then
+elif [ -e "/etc/redhat-release" ]; then
 	export CC=i686-pc-mingw32-gcc
 	export WINDRES=i686-pc-mingw32-windres
 
