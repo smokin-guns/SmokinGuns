@@ -210,16 +210,16 @@ typedef enum {
 
 	GT_TEAM,			// team deathmatch
 #ifndef SMOKINGUNS
-	//all following gametypes are not valid in smokinguns
 	GT_CTF,				// capture the flag
+	GT_MAX_GAME_TYPE,		// other gametypes haven't been implemented.
 	GT_1FCTF,
 	GT_OBELISK,
-	GT_HARVESTER,
+	GT_HARVESTER
 #else
 	GT_RTP,				// round teamplay
 	GT_BR,				// bank robbery
-#endif
 	GT_MAX_GAME_TYPE
+#endif
 } gametype_t;
 
 typedef enum { GENDER_MALE, GENDER_FEMALE, GENDER_NEUTER } gender_t;
