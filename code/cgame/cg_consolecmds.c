@@ -638,16 +638,16 @@ static void CG_SaveFileAiNode_f(void){
 	trap_FS_FCloseFile(file);
 	CG_Printf("AI-Node_File: %s succesfully written.\n", filename);
 }
+
 static void CG_OpenFileAiNode_f(void){
 	int				i;
 	fileHandle_t	file;
-	char			header[] = "AI-NODES";
 	int				len;
-	char			headercheck[10];
-	char *filename;
-	const char	*info;
-	const char	*map;
-	char buf[5000];
+	char			headercheck[sizeof(AINODE_FILE_HEADER)+1];
+	char			*filename;
+	const char		*info;
+	const char		*map;
+	char 			buf[MAX_AINODEFILE+1];
 
 	int				pos = 0;
 
@@ -664,8 +664,8 @@ static void CG_OpenFileAiNode_f(void){
 		trap_FS_FCloseFile( file );
 		return;
 	}
-	if ( len >= 5000 ) {
-		CG_Printf("ai file too big: %s!\n", filename);
+	if ( len > MAX_AINODEFILE ) {
+		CG_Printf("ai file too big: %s! %d > " STRING(MAX_AINODEFILE) "\n", filename);
 		trap_FS_FCloseFile( file );
 		return;
 	}
@@ -674,13 +674,12 @@ static void CG_OpenFileAiNode_f(void){
 	trap_FS_FCloseFile( file );
 
 	// read the header
-	BG_StringRead(headercheck, (char*)buf, sizeof(header));
-	pos += sizeof(header);
-	headercheck[8] = '\0';
+	Q_strncpyz(headercheck, buf, sizeof(AINODE_FILE_HEADER));
+	pos += sizeof(AINODE_FILE_HEADER);
 
 	//check
-	if(Q_stricmp(headercheck, header)){
-		CG_Printf("no valid ai-file: %s\n", filename);
+	if(Q_stricmp(headercheck, AINODE_FILE_HEADER)){
+		CG_Printf("Not a valid ai-file: %s\n", filename);
 		return;
 	}
 
@@ -689,7 +688,7 @@ static void CG_OpenFileAiNode_f(void){
 		if(len <= pos){
 			break;
 		}
-		BG_StringRead((char*)ai_nodes[i], (char*)(buf+pos), sizeof(vec3_t));
+		Com_Memcpy(ai_nodes[i], buf+pos, sizeof(vec3_t));
 		pos += sizeof(vec3_t);
 		//G_Printf("%i. %f %f %f\n", i+1, ai_nodes[i][0], ai_nodes[i][1], ai_nodes[i][2]);
 	}
@@ -697,6 +696,7 @@ static void CG_OpenFileAiNode_f(void){
 	ai_nodepointer = i;
 	CG_Printf("AiNode-File: %s: %i nodes parsed\n", filename, ai_nodepointer);
 }
+
 static void CG_SetAiNode_f(void){
 
 	if(!cg_cheats)
