@@ -3229,14 +3229,6 @@ qboolean BG_ShootThruWall( float *damage,
 	return qfalse;
 }
 
-void BG_StringRead(char *destination, char *source, int size) {
-	int i;
-
-	for( i = 0; i < size; i++ ) {
-		destination[i] = source[i];
-	}
-}
-
 void BG_ModifyEyeAngles( vec3_t origin, vec3_t viewangles,
 						void (*trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask ),
 						vec3_t legOffset, qboolean print){
