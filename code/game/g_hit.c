@@ -551,7 +551,7 @@ PARSEHITFILECODE
 ======================
 G_ParseAnimationFile
 
-Read a configuration file containing animation coutns and rates
+Read a configuration file containing animation counts and rates
 models/wq3_players/wq_male1/animation.cfg, etc
 ======================
 */
@@ -705,14 +705,12 @@ G_OpenFileAiNode
 */
 extern	vec3_t	ai_nodes[MAX_AINODES];
 extern	int		ai_nodecount;
-#define MAX_AINODEFILE 10000
 qboolean G_OpenFileAiNode(const char *filename){
 	int				i;
 	fileHandle_t	file;
-	char			header[] = "AI-NODES";
 	int				len;
-	char			headercheck[10];
-	char			buf[MAX_AINODEFILE];
+	char			headercheck[sizeof(AINODE_FILE_HEADER)+1];
+	char			buf[MAX_AINODEFILE+1];
 
 	int				pos = 0;
 
@@ -723,8 +721,8 @@ qboolean G_OpenFileAiNode(const char *filename){
 		trap_FS_FCloseFile( file );
 		return qfalse;
 	}
-	if ( len >= MAX_AINODEFILE ) {
-		G_Printf("ai file too big: %s!\n", filename);
+	if ( len > MAX_AINODEFILE ) {
+		G_Printf("ai file too big: %s! %d > " STRING(AINODE_FILE_MAX_SIZE) "\n", filename);
 		trap_FS_FCloseFile( file );
 		return qfalse;
 	}
@@ -733,12 +731,11 @@ qboolean G_OpenFileAiNode(const char *filename){
 	trap_FS_FCloseFile( file );
 
 	// read the header
-	BG_StringRead(headercheck, (char*)buf, sizeof(header));
-	pos += sizeof(header);
-	headercheck[8] = '\0';
+	Q_strncpyz(headercheck, buf, sizeof(AINODE_FILE_HEADER));
+	pos += sizeof(AINODE_FILE_HEADER);
 
 	//check
-	if(Q_stricmp(headercheck, header)){
+	if(Q_stricmp(headercheck, AINODE_FILE_HEADER)){
 		G_Printf("no valid ai-file: %s\n", filename);
 		return qfalse;
 	}
@@ -749,7 +746,7 @@ qboolean G_OpenFileAiNode(const char *filename){
 		if(len <= pos){
 			break;
 		}
-		BG_StringRead((char*)ai_nodes[i], (char*)(buf+pos), sizeof(vec3_t));
+		Com_Memcpy(ai_nodes[i], buf+pos, sizeof(vec3_t));
 		pos += sizeof(vec3_t);
 		//G_Printf("%i. %f %f %f\n", i+1, ai_nodes[i][0], ai_nodes[i][1], ai_nodes[i][2]);
 
@@ -869,19 +866,19 @@ qboolean G_ParseHitFile(hit_data_t *hit_data, int part){
 	//
 
 	// read in the header seperately, because of size-problems in the qvm
-	BG_StringRead((char*)&header.ident, (char*)(buf+pos), sizeof(short));
+	Com_Memcpy(&header.ident, buf+pos, sizeof(short));
 #if defined Q3_VM || !defined LittleShort	// QVM or SO on a big endian processor
 	header.ident = LittleShort(header.ident);  // fix endianness
 #endif
 	pos += sizeof(short);
 
-	BG_StringRead((char*)&header.numFrames, (char*)(buf+pos), sizeof(short));
+	Com_Memcpy(&header.numFrames, buf+pos, sizeof(short));
 #if defined Q3_VM || !defined LittleShort	// QVM or SO on a big endian processor
 	header.numFrames = LittleShort(header.numFrames);
 #endif
 	pos += sizeof(short);
 
-	BG_StringRead((char*)&header.numMeshes, (char*)(buf+pos), sizeof(short));
+	Com_Memcpy(&header.numMeshes, buf+pos, sizeof(short));
 #if defined Q3_VM || !defined LittleShort	// QVM or SO on a big endian processor
 	header.numMeshes = LittleShort(header.numMeshes);
 #endif
@@ -923,7 +920,7 @@ qboolean G_ParseHitFile(hit_data_t *hit_data, int part){
 				return qfalse;
 			}
 
-			BG_StringRead((char*)ptag, (char*)(buf+pos), sizeof(hit_tag_t));
+			Com_Memcpy(ptag, buf+pos, sizeof(hit_tag_t));
 #if defined Q3_VM || !defined LittleFloat	// QVM or SO on a big endian processor
 			for (j = 0; j < 3; j++) { // fix endianness
 				ptag->angles[j] = LittleFloat(((const float *)&ptag->angles)[j]);
@@ -995,36 +992,36 @@ qboolean G_ParseHitFile(hit_data_t *hit_data, int part){
 			trap_FS_FCloseFile( file );
 		}*/
 
-		BG_StringRead((char*)&m_header.name, (char*)(buf+pos), sizeof(m_header.name));
+		Com_Memcpy(&m_header.name, buf+pos, sizeof(m_header.name));
 		pos += sizeof(m_header.name);
 
-		BG_StringRead((char*)&m_header.a1, (char*)(buf+pos), sizeof(short));
+		Com_Memcpy(&m_header.a1, buf+pos, sizeof(short));
 #if defined Q3_VM || !defined LittleShort	// QVM or SO on a big endian processor
 		m_header.a1 = LittleShort(m_header.a1);  // fix endianness
 #endif
 		pos += sizeof(short);
 
-		BG_StringRead((char*)&m_header.a2, (char*)(buf+pos), sizeof(short));
+		Com_Memcpy(&m_header.a2, buf+pos, sizeof(short));
 #if defined Q3_VM || !defined LittleShort	// QVM or SO on a big endian processor
 		m_header.a2 = LittleShort(m_header.a2);
 #endif
 		pos += sizeof(short);
 
-		BG_StringRead((char*)&m_header.dir1, (char*)(buf+pos), 3*sizeof(short));
+		Com_Memcpy(&m_header.dir1, buf+pos, 3*sizeof(short));
 #if defined Q3_VM || !defined LittleShort	// QVM or SO on a big endian processor
 		for (k = 0; k < 3; k++)
 			m_header.dir1[k] = LittleShort(m_header.dir1[k]);
 #endif
 		pos += 3*sizeof(short);
 
-		BG_StringRead((char*)&m_header.dir2, (char*)(buf+pos), 3*sizeof(short));
+		Com_Memcpy(&m_header.dir2, buf+pos, 3*sizeof(short));
 #if defined Q3_VM || !defined LittleShort	// QVM or SO on a big endian processor
 		for (k = 0; k < 3; k++)
 			m_header.dir2[k] = LittleShort(m_header.dir2[k]);
 #endif
 		pos += 3*sizeof(short);
 
-		BG_StringRead((char*)&m_header.length, (char*)(buf+pos), sizeof(short));
+		Com_Memcpy(&m_header.length, buf+pos, sizeof(short));
 #if defined Q3_VM || !defined LittleShort	// QVM or SO on a big endian processor
 		m_header.length = LittleShort(m_header.length);
 #endif
@@ -1051,11 +1048,11 @@ qboolean G_ParseHitFile(hit_data_t *hit_data, int part){
 			return qfalse;
 		}
 
-		memcpy(&hit_data->meshes[hit_num].header, &m_header, sizeof(short)*9+sizeof(m_header.name));
+		Com_Memcpy(&hit_data->meshes[hit_num].header, &m_header, sizeof(short)*9+sizeof(m_header.name));
 
 		// now parse the frames
 		for(f=0; f<header.numFrames; f++){
-			BG_StringRead((char*)&hit_data->meshes[hit_num].pos[f], (char*)(buf+pos), sizeof(hit_mesh_t));
+			Com_Memcpy(&hit_data->meshes[hit_num].pos[f], buf+pos, sizeof(hit_mesh_t));
 #if defined Q3_VM || !defined LittleShort	// QVM or SO on a big endian processor
 			for (k = 0; k < 3; k++) { // fix endianness
 				hit_data->meshes[hit_num].pos[f].normal[k]

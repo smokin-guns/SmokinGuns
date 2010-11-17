@@ -1448,6 +1448,8 @@ int BG_AnimLength( int anim, int weapon);
 
 // ai nodes for the bots
 #define MAX_AINODES			100
+#define MAX_AINODEFILE		10000
+#define AINODE_FILE_HEADER	"AI-NODES"
 
 //prefixInfo-stats
 typedef struct {
@@ -1571,7 +1573,6 @@ typedef struct hit_data_s {
 ////////////////////////////////////////////
 
 
-void BG_StringRead(char *destination, char *source, int size);
 void BG_ModifyEyeAngles( vec3_t origin, vec3_t viewangles,
 						void (*trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask ),
 						vec3_t legOffset, qboolean print);
