@@ -4407,6 +4407,43 @@ static void CheckWeaponChange(void){
 }
 #endif
 
+static void CG_AddNumber( refEntity_t *re, int number, int size ) {
+	vec3_t	origin, dir, vec, up = {0, 0, 1};
+	int		i, digits[10], numdigits, negative;
+	float	offset;
+
+	VectorCopy(re->origin, origin);
+
+	VectorSubtract(cg.refdef.vieworg, origin, dir);
+	CrossProduct(dir, up, vec);
+	VectorNormalize(vec);
+
+	negative = qfalse;
+	if (number < 0) {
+		negative = qtrue;
+		number = -number;
+	}
+
+	for (numdigits = 0; !(numdigits && !number); numdigits++) {
+		digits[numdigits] = number % 10;
+		number = number / 10;
+	}
+
+	if (negative) {
+		digits[numdigits] = 10;
+		numdigits++;
+	}
+
+	offset = ((float)((numdigits-1) * size)) * 0.5f;
+	if (offset)
+		VectorMA(origin, offset, vec, origin);
+	for (i = 0; i < numdigits; i++) {
+		VectorMA(origin, (float)(-i * size), vec, re->origin);
+		re->customShader = cgs.media.numberShaders[digits[numdigits-1-i]];
+		trap_R_AddRefEntityToScene( re );
+	}
+}
+
 static void CG_DrawNodes(void){
 	refEntity_t		node;
 	int i;
@@ -4416,14 +4453,25 @@ static void CG_DrawNodes(void){
 	for(i=0; i < ai_nodepointer; i++){
 		vec3_t angles;
 
+		node.customShader = 0;
 		node.hModel = cgs.media.ai_node;
 		VectorCopy( ai_nodes[i], node.origin );
 		VectorCopy( ai_nodes[i], node.lightingOrigin );
 		node.renderfx = 0;
+		node.radius = 0.0f;
 		vectoangles(ai_angles[i], angles);
 		AnglesToAxis( angles, node.axis );
 		node.reType = RT_MODEL;
-		trap_R_AddRefEntityToScene( &node);
+		trap_R_AddRefEntityToScene(&node);
+
+		// Draw node number
+		node.hModel = 0;
+#define AINODE_NUMBERS_SIZE 5
+		node.radius = AINODE_NUMBERS_SIZE * 0.75f;
+		node.renderfx = RF_DEPTHHACK;
+		node.reType = RT_SPRITE;
+		node.origin[2] += 15.0f;
+		CG_AddNumber(&node, i, AINODE_NUMBERS_SIZE);
 	}
 }
 
