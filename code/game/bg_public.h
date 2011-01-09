@@ -260,7 +260,7 @@ typedef enum {
 	FARCLIP_SQUARE_INFINITE_Z
 } farclip_t ;
 
-#define CLOSECLIP_BINARY_MASK	0x80		// bit on => LOD definition, bit off => no LOD definition: always displayed
+#define CLOSECLIP_BINARY_MASK	0x80		// bit on => this is a close-clip rather than a far-clip
 
 /*
 -----------------------
