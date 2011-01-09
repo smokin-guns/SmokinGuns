@@ -1958,6 +1958,8 @@ The wait time at a corner has completed, so start moving again
 void Think_BeginMoving( gentity_t *ent ) {
 	ent->s.pos.trTime = level.time;
 	ent->s.pos.trType = TR_LINEAR_STOP;
+	ent->s.apos.trTime = level.time;
+	ent->s.apos.trType = TR_LINEAR_STOP;
 }
 
 /*
@@ -1984,7 +1986,13 @@ void Reached_Train( gentity_t *ent ) {
 	ent->nextTrain = next->nextTrain;
 	VectorCopy( next->s.origin, ent->pos1 );
 	VectorCopy( next->nextTrain->s.origin, ent->pos2 );
-
+	
+	// -------------------------------------------------------------
+	VectorCopy( next->s.origin, ent->pos1 );
+	VectorCopy( next->nextTrain->s.origin, ent->pos2 );
+	// -------------------------------------------------------------
+	
+	
 	// if the path_corner has a speed, use that
 	if ( next->speed ) {
 		speed = next->speed;
@@ -2001,6 +2009,7 @@ void Reached_Train( gentity_t *ent ) {
 	length = VectorLength( move );
 
 	ent->s.pos.trDuration = length * 1000 / speed;
+	ent->s.apos.trDuration = length * 1000 / speed;
 
 	// Tequila comment: Be sure to send to clients after any fast move case
 	ent->r.svFlags &= ~SVF_NOCLIENT;
@@ -2032,6 +2041,7 @@ void Reached_Train( gentity_t *ent ) {
 		ent->nextthink = level.time + next->wait * 1000;
 		ent->think = Think_BeginMoving;
 		ent->s.pos.trType = TR_STATIONARY;
+		ent->s.apos.trType = TR_STATIONARY;
 	}
 }
 
@@ -2340,10 +2350,92 @@ check either the X_AXIS or Y_AXIS box to change that.
 
 "model2"	.md3 model to also draw
 "speed"		determines how fast it moves; default value is 100.
-"dmg"		damage to inflict when blocked (2 default)
+"dmg"		damage to inflict when blocked (0 default)
+"func"		type of func: linear, sin (default is "linear")
+"delta"		angle's delta in degree around the origine angle (only if func = sin)
+"freq"		frequency of the movement (only if func = sin)
 "color"		constantLight color
 "light"		constantLight radius
 */
+
+// Joe Kari : New func_rotating allowing the "sin" function (greater flexibility than pendulum)
+
+#ifdef SMOKINGUNS
+void SP_func_rotating (gentity_t *ent) {
+	float		freq ;
+	float		phase ;
+	float		delta ;
+	float		speed ;
+	char            *tmp_char ;
+	char            func_char[32] ;
+	float		func_val1 , func_val2 ;
+	
+	G_SpawnFloat( "speed", "30", &speed ) ;
+	G_SpawnInt( "dmg", "0", &ent->damage ) ;
+	G_SpawnFloat( "phase", "0", &phase ) ;
+	G_SpawnString( "func" , "linear" , &tmp_char ) ;
+	sscanf( tmp_char , "%31s %f %f" , func_char , &func_val1 , &func_val2 ) ;
+	G_SpawnFloat( "delta", "0", &delta ) ;
+	G_SpawnFloat( "freq", "1000", &freq ) ;
+        
+	trap_SetBrushModel( ent, ent->model );
+	
+	if ( !Q_stricmp( "sin" , func_char ) )
+	{
+		if ( freq < 0.001 ) { freq = 0.001 ; }
+		else if ( freq > 20 ) { freq = 20 ; }
+		
+		ent->s.pos.trDuration = 1000 / freq ;
+		
+		InitMover( ent );
+		
+		VectorCopy( ent->s.origin, ent->s.pos.trBase ) ;
+		VectorCopy( ent->s.origin, ent->r.currentOrigin ) ;
+		VectorCopy( ent->s.angles, ent->s.apos.trBase ) ;
+		
+		ent->s.apos.trDuration = 1000 / freq ;
+		ent->s.apos.trTime = ent->s.apos.trDuration * phase ;
+		ent->s.apos.trType = TR_SINE ;
+		
+		// set the axis of rotation
+		if ( ent->spawnflags & 4 ) {
+			ent->s.apos.trDelta[2] = delta ;
+		} else if ( ent->spawnflags & 8 ) {
+			ent->s.apos.trDelta[0] = delta ;
+		} else {
+			ent->s.apos.trDelta[1] = delta ;
+		}
+	}
+	else /* if ( !Q_stricmp( "linear" , func_char ) ) */
+	{
+		// standard func_rotating
+		
+		if ( !ent->speed ) {
+			ent->speed = 100;
+		}
+		
+		InitMover( ent );
+		
+		VectorCopy( ent->s.origin, ent->s.pos.trBase );
+		VectorCopy( ent->s.pos.trBase, ent->r.currentOrigin );
+		VectorCopy( ent->s.apos.trBase, ent->r.currentAngles );
+		
+		// set the axis of rotation
+		ent->s.apos.trType = TR_LINEAR;
+		if ( ent->spawnflags & 4 ) {
+			ent->s.apos.trDelta[2] = ent->speed;
+		} else if ( ent->spawnflags & 8 ) {
+			ent->s.apos.trDelta[0] = ent->speed;
+		} else {
+			ent->s.apos.trDelta[1] = ent->speed;
+		}
+	}
+	
+	trap_LinkEntity( ent );
+}
+
+#else
+
 void SP_func_rotating (gentity_t *ent) {
 	if ( !ent->speed ) {
 		ent->speed = 100;
@@ -2373,6 +2465,7 @@ void SP_func_rotating (gentity_t *ent) {
 	trap_LinkEntity( ent );
 }
 
+#endif
 
 /*
 ===============================================================================
