@@ -597,14 +597,23 @@ void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
 #endif
 
 		ent->s.pos.trTime = time;
+		ent->s.apos.trTime = time;
 		switch( moverState ) {
 		case MOVER_POS1:
 			VectorCopy( ent->pos1, ent->s.pos.trBase );
 			ent->s.pos.trType = TR_STATIONARY;
+			//jk---
+			VectorCopy( ent->apos1, ent->s.apos.trBase );
+			ent->s.apos.trType = TR_STATIONARY;
+			//---
 			break;
 		case MOVER_POS2:
 			VectorCopy( ent->pos2, ent->s.pos.trBase );
 			ent->s.pos.trType = TR_STATIONARY;
+			//jk---
+			VectorCopy( ent->apos2, ent->s.apos.trBase );
+			ent->s.apos.trType = TR_STATIONARY;
+			//---
 			break;
 		case MOVER_1TO2:
 			VectorCopy( ent->pos1, ent->s.pos.trBase );
@@ -612,6 +621,13 @@ void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
 			f = 1000.0 / ent->s.pos.trDuration;
 			VectorScale( delta, f, ent->s.pos.trDelta );
 			ent->s.pos.trType = TR_LINEAR_STOP;
+			//jk---
+			VectorCopy( ent->apos1, ent->s.apos.trBase );
+			AnglesSubtract( ent->apos2, ent->apos1, delta );
+			f = 1000.0 / ent->s.apos.trDuration;
+			VectorScale( delta, f, ent->s.apos.trDelta );
+			ent->s.apos.trType = TR_LINEAR_STOP;
+			//---
 			break;
 		case MOVER_2TO1:
 			VectorCopy( ent->pos2, ent->s.pos.trBase );
@@ -619,6 +635,13 @@ void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
 			f = 1000.0 / ent->s.pos.trDuration;
 			VectorScale( delta, f, ent->s.pos.trDelta );
 			ent->s.pos.trType = TR_LINEAR_STOP;
+			//jk---
+			VectorCopy( ent->pos2, ent->s.pos.trBase );
+			VectorSubtract( ent->pos1, ent->pos2, delta );
+			f = 1000.0 / ent->s.pos.trDuration;
+			VectorScale( delta, f, ent->s.pos.trDelta );
+			ent->s.pos.trType = TR_LINEAR_STOP;
+			//---
 			break;
 #ifdef SMOKINGUNS
 		default: // Tequila comment: Avoid a compilation warning about MOVER_STATIC
@@ -927,7 +950,9 @@ so the movement delta can be calculated
 */
 void InitMover( gentity_t *ent ) {
 	vec3_t		move;
+	vec3_t		amove;
 	float		distance;
+	float		adistance;
 	float		light;
 	vec3_t		color;
 	qboolean	lightSet, colorSet;
@@ -944,8 +969,8 @@ void InitMover( gentity_t *ent ) {
 		ent->s.loopSound = G_SoundIndex( sound );
 	}
 	
-	// Joe Kari: this prevent from collision with func_static far clipping
 #ifdef SMOKINGUNS
+	// Joe Kari: this prevent from collision with func_static far clipping
 	ent->s.powerups = FARCLIP_NONE ;
 #endif
 
@@ -982,13 +1007,17 @@ void InitMover( gentity_t *ent ) {
 	ent->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	ent->s.eType = ET_MOVER;
 	VectorCopy (ent->pos1, ent->r.currentOrigin);
+	VectorCopy (ent->apos1, ent->r.currentAngles);
 	trap_LinkEntity (ent);
 
 	ent->s.pos.trType = TR_STATIONARY;
+	ent->s.apos.trType = TR_STATIONARY;
 	VectorCopy( ent->pos1, ent->s.pos.trBase );
+	VectorCopy( ent->apos1, ent->s.apos.trBase );
 
 	// calculate time to reach second position from speed
 #ifdef SMOKINGUNS
+	// FIXME (Joe Kari): we should replace ent->pos with ent->apos in all the game and cgame code for func_door_rotating
 	ent->r.contents = CONTENTS_BODY;
 
 	if ( ent->s.eFlags & EF_ROTATING_DOOR ){
@@ -1018,6 +1047,19 @@ void InitMover( gentity_t *ent ) {
 	if ( ent->s.pos.trDuration <= 0 ) {
 		ent->s.pos.trDuration = 1;
 	}
+	
+	//jk---
+	AnglesSubtract( ent->apos2, ent->apos1, amove ) ;
+	adistance = VectorLength( amove );
+	VectorScale( amove, ent->speed, ent->s.apos.trDelta );
+	//ent->s.apos.trDuration = adistance * 1000 / ent->speed;
+	ent->s.apos.trDuration = ent->s.pos.trDuration;
+	if ( ent->s.apos.trDuration <= 0 ) {
+		ent->s.apos.trDuration = 1;
+	}
+	
+	//ent->s.apos.trDuration = ent->s.pos.trDuration ;
+	//---
 }
 
 
@@ -1971,7 +2013,9 @@ void Reached_Train( gentity_t *ent ) {
 	gentity_t		*next;
 	float			speed;
 	vec3_t			move;
+	vec3_t			amove;
 	float			length;
+	float			alength;
 
 	// copy the apropriate values
 	next = ent->nextTrain;
@@ -1986,11 +2030,10 @@ void Reached_Train( gentity_t *ent ) {
 	ent->nextTrain = next->nextTrain;
 	VectorCopy( next->s.origin, ent->pos1 );
 	VectorCopy( next->nextTrain->s.origin, ent->pos2 );
-	
-	// -------------------------------------------------------------
-	VectorCopy( next->s.origin, ent->pos1 );
-	VectorCopy( next->nextTrain->s.origin, ent->pos2 );
-	// -------------------------------------------------------------
+	//jk---
+	VectorCopy( next->s.angles, ent->apos1 );
+	VectorCopy( next->nextTrain->s.angles, ent->apos2 );
+	//---
 	
 	
 	// if the path_corner has a speed, use that
@@ -2007,9 +2050,13 @@ void Reached_Train( gentity_t *ent ) {
 	// calculate duration
 	VectorSubtract( ent->pos2, ent->pos1, move );
 	length = VectorLength( move );
+	//jk---
+	AnglesSubtract( ent->apos2, ent->apos1, amove );
+	alength = VectorLength( amove );
+	//---
 
 	ent->s.pos.trDuration = length * 1000 / speed;
-	ent->s.apos.trDuration = length * 1000 / speed;
+	ent->s.apos.trDuration = alength * 1000 / speed;
 
 	// Tequila comment: Be sure to send to clients after any fast move case
 	ent->r.svFlags &= ~SVF_NOCLIENT;
@@ -2041,7 +2088,9 @@ void Reached_Train( gentity_t *ent ) {
 		ent->nextthink = level.time + next->wait * 1000;
 		ent->think = Think_BeginMoving;
 		ent->s.pos.trType = TR_STATIONARY;
+		//jk---
 		ent->s.apos.trType = TR_STATIONARY;
+		//---
 	}
 }
 
@@ -2148,6 +2197,7 @@ void SP_func_train (gentity_t *self) {
 	}
 
 	trap_SetBrushModel( self, self->model );
+	
 	InitMover( self );
 
 	self->reached = Reached_Train;

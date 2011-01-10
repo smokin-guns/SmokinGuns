@@ -1321,11 +1321,6 @@ typedef struct entityState_s {
 
 	int		generic1;
 
-	// Joe Kari: attempt to add far clipping to entities
-	// for instance, the engine itself should be modified (msg.c)
-#ifdef SMOKINGUNS
-	//int		farclip_dist;
-#endif
 } entityState_t;
 
 typedef enum {
