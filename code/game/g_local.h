@@ -155,7 +155,11 @@ struct gentity_s {
 	gentity_t	*nextTrain;
 	gentity_t	*prevTrain;
 	vec3_t		pos1, pos2;
-
+	
+	// Joe Kari (test):
+	vec3_t		apos1, apos2;
+	// ------------------------------------------
+	
 	char		*message;
 
 	int			timestamp;		// body queue sinking, etc
@@ -169,6 +173,7 @@ struct gentity_s {
 	gentity_t	*target_ent;
 
 	float		speed;
+	
 	vec3_t		movedir;
 
 	int			nextthink;
