@@ -561,44 +561,10 @@ void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
 
 	ent->moverState = moverState;
 
-#ifdef SMOKINGUNS
-	if ( ent->s.eFlags & EF_ROTATING_DOOR ) {
-
-		ent->s.apos.trTime = time;
-
-		switch( moverState ) {
-		case MOVER_POS1:
-			VectorCopy( ent->pos1, ent->s.apos.trBase );
-			ent->s.apos.trType = TR_STATIONARY;
-			break;
-		case MOVER_POS2:
-			VectorCopy( ent->pos2, ent->s.apos.trBase );
-			ent->s.apos.trType = TR_STATIONARY;
-			break;
-		case MOVER_1TO2:
-			VectorCopy( ent->pos1, ent->s.apos.trBase );
-			VectorSubtract( ent->pos2, ent->pos1, delta );
-			f = 1000.0 / ent->s.apos.trDuration;
-			VectorScale( delta, f, ent->s.apos.trDelta );
-			ent->s.apos.trType = TR_LINEAR_STOP;
-			break;
-		case MOVER_2TO1:
-			VectorCopy( ent->pos2, ent->s.apos.trBase );
-			VectorSubtract( ent->pos1, ent->pos2, delta );
-			f = 1000.0 / ent->s.apos.trDuration;
-			VectorScale( delta, f, ent->s.apos.trDelta );
-			ent->s.apos.trType = TR_LINEAR_STOP;
-			break;
-		default: // Tequila comment: Avoid a compilation warning about MOVER_STATIC
-			break;
-		}
-
-	} else {
-#endif
-
-		ent->s.pos.trTime = time;
-		ent->s.apos.trTime = time;
-		switch( moverState ) {
+	ent->s.pos.trTime = time;
+	ent->s.apos.trTime = time;
+	switch( moverState ) {
+		
 		case MOVER_POS1:
 			VectorCopy( ent->pos1, ent->s.pos.trBase );
 			ent->s.pos.trType = TR_STATIONARY;
@@ -636,19 +602,18 @@ void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
 			VectorScale( delta, f, ent->s.pos.trDelta );
 			ent->s.pos.trType = TR_LINEAR_STOP;
 			//jk---
-			VectorCopy( ent->pos2, ent->s.pos.trBase );
-			VectorSubtract( ent->pos1, ent->pos2, delta );
-			f = 1000.0 / ent->s.pos.trDuration;
-			VectorScale( delta, f, ent->s.pos.trDelta );
-			ent->s.pos.trType = TR_LINEAR_STOP;
+			VectorCopy( ent->apos2, ent->s.apos.trBase );
+			AnglesSubtract( ent->apos1, ent->apos2, delta );
+			f = 1000.0 / ent->s.apos.trDuration;
+			VectorScale( delta, f, ent->s.apos.trDelta );
+			ent->s.apos.trType = TR_LINEAR_STOP;
 			//---
 			break;
 #ifdef SMOKINGUNS
 		default: // Tequila comment: Avoid a compilation warning about MOVER_STATIC
 			break;
-		}
-#endif
 	}
+#endif
 
 	BG_EvaluateTrajectory( &ent->s.pos, level.time, ent->r.currentOrigin );
 	trap_LinkEntity( ent );
@@ -776,54 +741,54 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 				axis = 1;
 			}
 
-			VectorCopy(ent->pos1, ent->pos2);
+			VectorCopy(ent->apos1, ent->apos2);
 
 			if (ent->spawnflags & DOOR_ROTATING_ONE_WAY) {
-				ent->pos2[axis] += ent->count;
+				ent->apos2[axis] += ent->count;
 			} else {
-				int len, pos;
+				int len, apos;
 				vec3_t	space;
 
 				VectorSubtract(ent->r.maxs, ent->r.mins, space);
 
-				//from whitch side??
+				//from which side??
 				if(space[1] < space[0]){
 					len = 1;
-					pos = 0;
+					apos = 0;
 				} else {
 					len = 0;
-					pos = 1;
+					apos = 1;
 				}
 				if (len){
 					if(activator->client->ps.origin[len] > ent->r.currentOrigin[len]){
-						if(ent->r.maxs[pos] <
-							-ent->r.mins[pos]){
-							ent->pos2[axis] += ent->count;
+						if(ent->r.maxs[apos] <
+							-ent->r.mins[apos]){
+							ent->apos2[axis] += ent->count;
 						} else {
-							ent->pos2[axis] -= ent->count;
+							ent->apos2[axis] -= ent->count;
 						}
 					} else  {
-						if(ent->r.maxs[pos] <
-							-ent->r.mins[pos]) {
-							ent->pos2[axis] -= ent->count;
+						if(ent->r.maxs[apos] <
+							-ent->r.mins[apos]) {
+							ent->apos2[axis] -= ent->count;
 						} else {
-							ent->pos2[axis] += ent->count;
+							ent->apos2[axis] += ent->count;
 						}
 					}
 				} else {
 					if(activator->client->ps.origin[len] > ent->r.currentOrigin[len]){
-						if(ent->r.maxs[pos] <
-							-ent->r.mins[pos]){
-							ent->pos2[axis] -= ent->count;
+						if(ent->r.maxs[apos] <
+							-ent->r.mins[apos]){
+							ent->apos2[axis] -= ent->count;
 						} else {
-							ent->pos2[axis] += ent->count;
+							ent->apos2[axis] += ent->count;
 						}
 					} else  {
-						if(ent->r.maxs[pos] <
-							-ent->r.mins[pos]) {
-							ent->pos2[axis] += ent->count;
+						if(ent->r.maxs[apos] <
+							-ent->r.mins[apos]) {
+							ent->apos2[axis] += ent->count;
 						} else {
-							ent->pos2[axis] -= ent->count;
+							ent->apos2[axis] -= ent->count;
 						}
 					}
 				}
@@ -926,6 +891,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 			if(ent->s.number != i && t->s.eType == ET_MOVER &&
 				t->s.angles2[0] == -1000 &&
+				// FIXME: String comparison are BAD: too SLOW
 				!Q_stricmp(ent->targetname, t->targetname)){
 
 				// mark the door as being mastered
@@ -1022,9 +988,9 @@ void InitMover( gentity_t *ent ) {
 
 	if ( ent->s.eFlags & EF_ROTATING_DOOR ){
 		ent->s.apos.trType = TR_STATIONARY;
-		VectorCopy( ent->pos1, ent->s.apos.trBase );
+		VectorCopy( ent->apos1, ent->s.apos.trBase );
 
-		AnglesSubtract( ent->pos2, ent->pos1, move );
+		AnglesSubtract( ent->apos2, ent->apos1, move );
 		distance = VectorLength( move );
 		if ( ! ent->speed ) {
 			ent->speed = 100;
@@ -1367,7 +1333,8 @@ ONE_WAY : always open the same way, set negative distance to reverse
 void SP_func_door_rotating (gentity_t *ent) {
 	int	distance;
 
-	ent->s.apos.trType = TR_LINEAR;
+	ent->s.pos.trType = TR_LINEAR;
+	ent->s.apos.trType = TR_STATIONARY;
 
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.wav");
 	ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.wav");
@@ -1386,11 +1353,15 @@ void SP_func_door_rotating (gentity_t *ent) {
 			distance = 90;
 
 		ent->count = distance;
-
-		VectorCopy( ent->s.apos.trBase, ent->pos1);
-		VectorCopy( ent->s.apos.trBase, ent->pos2);
-
-		ent->pos2[1] += ent->count;
+		
+		VectorCopy( ent->s.pos.trBase, ent->pos1);
+		VectorCopy( ent->s.pos.trBase, ent->pos2);
+		//jk---
+		VectorCopy( ent->s.apos.trBase, ent->apos1);
+		VectorCopy( ent->s.apos.trBase, ent->apos2);
+		//---
+		
+		ent->apos2[1] += ent->count;
 
 		// default wait of 4 seconds
 		if (!ent->wait)
@@ -1408,9 +1379,10 @@ void SP_func_door_rotating (gentity_t *ent) {
 		if ( ent->spawnflags & 1 ) {
 			vec3_t	temp;
 
-			VectorCopy( ent->pos2, temp );
-			VectorCopy( ent->s.origin, ent->pos2 );
-			VectorCopy( temp, ent->pos1 );
+			VectorCopy( ent->apos2, temp );
+			//VectorCopy( ent->s.origin, ent->apos2 );
+			VectorCopy( ent->s.angles, ent->apos2 );
+			VectorCopy( temp, ent->apos1 );
 		}
 	}
 
