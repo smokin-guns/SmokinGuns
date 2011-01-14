@@ -34,6 +34,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define DOOR_ROTATING_X_AXIS 32
 #define DOOR_ROTATING_Y_AXIS 64
 #define DOOR_ROTATING_ONE_WAY 128
+
+#define TRAIN_MOVING_SYNC 8
+#define TRAIN_ROTATING_SYNC 8
 #endif
 
 /*
@@ -563,6 +566,7 @@ void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
 
 	ent->s.pos.trTime = time;
 	ent->s.apos.trTime = time;
+	
 	switch( moverState ) {
 		
 		case MOVER_POS1:
@@ -983,7 +987,7 @@ void InitMover( gentity_t *ent ) {
 
 	// calculate time to reach second position from speed
 #ifdef SMOKINGUNS
-	// FIXME (Joe Kari): we should replace ent->pos with ent->apos in all the game and cgame code for func_door_rotating
+	// FIXME (Joe Kari): we should replace ent->pos with ent->apos in all the game code for func_door_rotating
 	ent->r.contents = CONTENTS_BODY;
 
 	if ( ent->s.eFlags & EF_ROTATING_DOOR ){
@@ -1333,7 +1337,7 @@ ONE_WAY : always open the same way, set negative distance to reverse
 void SP_func_door_rotating (gentity_t *ent) {
 	int	distance;
 
-	ent->s.pos.trType = TR_LINEAR;
+	ent->s.pos.trType = TR_STATIONARY;
 	ent->s.apos.trType = TR_STATIONARY;
 
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.wav");
@@ -1984,6 +1988,7 @@ Reached_Train
 void Reached_Train( gentity_t *ent ) {
 	gentity_t		*next;
 	float			speed;
+	float			aspeed;
 	vec3_t			move;
 	vec3_t			amove;
 	float			length;
@@ -1997,9 +2002,10 @@ void Reached_Train( gentity_t *ent ) {
 
 	// fire all other targets
 	G_UseTargets( next, NULL );
-
+	
 	// set the new trajectory
 	ent->nextTrain = next->nextTrain;
+	
 	VectorCopy( next->s.origin, ent->pos1 );
 	VectorCopy( next->nextTrain->s.origin, ent->pos2 );
 	//jk---
@@ -2018,7 +2024,20 @@ void Reached_Train( gentity_t *ent ) {
 	if ( speed < 1 ) {
 		speed = 1;
 	}
-
+	
+	//jk---
+	// if the path_corner has a "aspeed", use that
+	if ( next->aspeed ) {
+		aspeed = next->aspeed;
+	} else {
+		// otherwise use the train's "aspeed"
+		aspeed = ent->aspeed;
+	}
+	if ( aspeed < 1 ) {
+		aspeed = 1;
+	}
+	//---
+	
 	// calculate duration
 	VectorSubtract( ent->pos2, ent->pos1, move );
 	length = VectorLength( move );
@@ -2028,7 +2047,7 @@ void Reached_Train( gentity_t *ent ) {
 	//---
 
 	ent->s.pos.trDuration = length * 1000 / speed;
-	ent->s.apos.trDuration = alength * 1000 / speed;
+	ent->s.apos.trDuration = alength * 1000 / aspeed;
 
 	// Tequila comment: Be sure to send to clients after any fast move case
 	ent->r.svFlags &= ~SVF_NOCLIENT;
@@ -2046,8 +2065,27 @@ void Reached_Train( gentity_t *ent ) {
 		ent->s.pos.trDuration=1;
 
 		// Tequila comment: Don't send entity to clients so it becomes really invisible 
-		ent->r.svFlags |= SVF_NOCLIENT;
+		// Joe Kari: can cause few bug, commented out... (especially with rotating train)
+		//ent->r.svFlags |= SVF_NOCLIENT;
 	}
+	
+	//jk---
+	// Joe Kari: same for fast angles move...
+	if(ent->s.apos.trDuration<1) {
+		ent->s.apos.trDuration=1;
+	}
+	
+	// if spawnflags have TRAIN_MOVING_SYNC, train speed is slowed down if "aspeed" isn't fast enough
+	if ( ( ent->spawnflags & TRAIN_MOVING_SYNC || next->spawnflags & TRAIN_MOVING_SYNC )
+		&& ent->s.apos.trDuration > ent->s.pos.trDuration ) {
+		ent->s.pos.trDuration = ent->s.apos.trDuration ;
+	}
+	// if spawnflags have TRAIN_ROTATING_SYNC, train "aspeed" is slowed down if speed isn't fast enough
+	if ( ( ent->spawnflags & TRAIN_ROTATING_SYNC || next->spawnflags & TRAIN_ROTATING_SYNC )
+		&& ent->s.pos.trDuration > ent->s.apos.trDuration ) {
+		ent->s.apos.trDuration = ent->s.pos.trDuration ;
+	}
+	//---
 
 	// looping sound
 	ent->s.loopSound = next->soundLoop;
@@ -2130,6 +2168,11 @@ void SP_path_corner( gentity_t *self ) {
 		G_FreeEntity( self );
 		return;
 	}
+	
+	//jk---
+	G_SpawnFloat( "aspeed", "90", &self->aspeed );
+	//---
+
 	// path corners don't need to be linked in
 }
 
@@ -2161,7 +2204,11 @@ void SP_func_train (gentity_t *self) {
 	if ( !self->speed ) {
 		self->speed = 100;
 	}
-
+	
+	//jk---
+	G_SpawnFloat( "aspeed", "90", &self->aspeed );
+	//---
+	
 	if ( !self->target ) {
 		G_Printf ("func_train without a target at %s\n", vtos(self->r.absmin));
 		G_FreeEntity( self );
@@ -2207,7 +2254,7 @@ void SP_func_static( gentity_t *ent )
 {
 	
 	// Joe Kari: new func_static (totally rewritten) with far-clipping and level of detail support
-	// with reminder-style comment
+	// with remainder-style comment
 	
 	float		light ;
 	vec3_t		color ;
