@@ -156,9 +156,9 @@ struct gentity_s {
 	gentity_t	*prevTrain;
 	vec3_t		pos1, pos2;
 	
-	// Joe Kari (test):
+	//jk---
 	vec3_t		apos1, apos2;
-	// ------------------------------------------
+	//---
 	
 	char		*message;
 
@@ -173,6 +173,9 @@ struct gentity_s {
 	gentity_t	*target_ent;
 
 	float		speed;
+	//jk---
+	float		aspeed;
+	//---
 	
 	vec3_t		movedir;
 
