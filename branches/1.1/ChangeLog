@@ -32,6 +32,8 @@ Changes in SG 1.1
 - Added ui_farclip cvar to be used as farclip management facility for UI part
 - Fixed another bad prediction case when cg_boostfps is set, thanks again to Joe Kari for the reporting
 - Fixed old minor OpenGL error which prevented to debug easily FBO enhancement
+- Added rotating feature to func_train
+- Added sine "pendulum style" rotation to func_rotating
 
 Changes in SG 1.1b4-20100116
 ******************
