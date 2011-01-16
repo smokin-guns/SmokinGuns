@@ -156,9 +156,9 @@ struct gentity_s {
 	gentity_t	*prevTrain;
 	vec3_t		pos1, pos2;
 	
-	//jk---
+#ifdef SMOKINGUNS
 	vec3_t		apos1, apos2;
-	//---
+#endif
 	
 	char		*message;
 
@@ -173,9 +173,9 @@ struct gentity_s {
 	gentity_t	*target_ent;
 
 	float		speed;
-	//jk---
+#ifdef SMOKINGUNS
 	float		aspeed;
-	//---
+#endif
 	
 	vec3_t		movedir;
 
