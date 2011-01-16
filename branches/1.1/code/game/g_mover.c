@@ -35,8 +35,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define DOOR_ROTATING_Y_AXIS 64
 #define DOOR_ROTATING_ONE_WAY 128
 
-#define TRAIN_MOVING_SYNC 8
-#define TRAIN_ROTATING_SYNC 8
 #endif
 
 /*
@@ -572,18 +570,18 @@ void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
 		case MOVER_POS1:
 			VectorCopy( ent->pos1, ent->s.pos.trBase );
 			ent->s.pos.trType = TR_STATIONARY;
-			//jk---
+#ifdef SMOKINGUNS
 			VectorCopy( ent->apos1, ent->s.apos.trBase );
 			ent->s.apos.trType = TR_STATIONARY;
-			//---
+#endif
 			break;
 		case MOVER_POS2:
 			VectorCopy( ent->pos2, ent->s.pos.trBase );
 			ent->s.pos.trType = TR_STATIONARY;
-			//jk---
+#ifdef SMOKINGUNS
 			VectorCopy( ent->apos2, ent->s.apos.trBase );
 			ent->s.apos.trType = TR_STATIONARY;
-			//---
+#endif
 			break;
 		case MOVER_1TO2:
 			VectorCopy( ent->pos1, ent->s.pos.trBase );
@@ -591,13 +589,13 @@ void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
 			f = 1000.0 / ent->s.pos.trDuration;
 			VectorScale( delta, f, ent->s.pos.trDelta );
 			ent->s.pos.trType = TR_LINEAR_STOP;
-			//jk---
+#ifdef SMOKINGUNS
 			VectorCopy( ent->apos1, ent->s.apos.trBase );
 			AnglesSubtract( ent->apos2, ent->apos1, delta );
 			f = 1000.0 / ent->s.apos.trDuration;
 			VectorScale( delta, f, ent->s.apos.trDelta );
 			ent->s.apos.trType = TR_LINEAR_STOP;
-			//---
+#endif
 			break;
 		case MOVER_2TO1:
 			VectorCopy( ent->pos2, ent->s.pos.trBase );
@@ -605,13 +603,13 @@ void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
 			f = 1000.0 / ent->s.pos.trDuration;
 			VectorScale( delta, f, ent->s.pos.trDelta );
 			ent->s.pos.trType = TR_LINEAR_STOP;
-			//jk---
+#ifdef SMOKINGUNS
 			VectorCopy( ent->apos2, ent->s.apos.trBase );
 			AnglesSubtract( ent->apos1, ent->apos2, delta );
 			f = 1000.0 / ent->s.apos.trDuration;
 			VectorScale( delta, f, ent->s.apos.trDelta );
 			ent->s.apos.trType = TR_LINEAR_STOP;
-			//---
+#endif
 			break;
 #ifdef SMOKINGUNS
 		default: // Tequila comment: Avoid a compilation warning about MOVER_STATIC
@@ -987,23 +985,26 @@ void InitMover( gentity_t *ent ) {
 
 	// calculate time to reach second position from speed
 #ifdef SMOKINGUNS
-	// FIXME (Joe Kari): we should replace ent->pos with ent->apos in all the game code for func_door_rotating
 	ent->r.contents = CONTENTS_BODY;
 
 	if ( ent->s.eFlags & EF_ROTATING_DOOR ){
 		ent->s.apos.trType = TR_STATIONARY;
 		VectorCopy( ent->apos1, ent->s.apos.trBase );
 
-		AnglesSubtract( ent->apos2, ent->apos1, move );
-		distance = VectorLength( move );
+		AnglesSubtract( ent->apos2, ent->apos1, amove );
+		distance = VectorLength( amove );
 		if ( ! ent->speed ) {
 			ent->speed = 100;
 		}
-		VectorScale( move, ent->speed, ent->s.apos.trDelta );
+		VectorScale( amove, ent->speed, ent->s.apos.trDelta );
 		ent->s.apos.trDuration = distance * 1000 / ent->speed;
-		if ( ent->s.pos.trDuration <= 0 ) {
-			ent->s.pos.trDuration = 1;
+		if ( ent->s.apos.trDuration <= 0 ) {
+			ent->s.apos.trDuration = 1;
 		}
+		
+		// For God only know the reason, if ent->s.pos.trDuration is not set, it causes trouble...
+		ent->s.pos.trDuration = ent->s.apos.trDuration ;
+		
 		return ;
 	}
 #endif
@@ -1018,18 +1019,18 @@ void InitMover( gentity_t *ent ) {
 		ent->s.pos.trDuration = 1;
 	}
 	
-	//jk---
+#ifdef SMOKINGUNS
 	AnglesSubtract( ent->apos2, ent->apos1, amove ) ;
 	adistance = VectorLength( amove );
 	VectorScale( amove, ent->speed, ent->s.apos.trDelta );
+	
 	//ent->s.apos.trDuration = adistance * 1000 / ent->speed;
 	ent->s.apos.trDuration = ent->s.pos.trDuration;
+	
 	if ( ent->s.apos.trDuration <= 0 ) {
 		ent->s.apos.trDuration = 1;
 	}
-	
-	//ent->s.apos.trDuration = ent->s.pos.trDuration ;
-	//---
+#endif
 }
 
 
@@ -1360,10 +1361,8 @@ void SP_func_door_rotating (gentity_t *ent) {
 		
 		VectorCopy( ent->s.pos.trBase, ent->pos1);
 		VectorCopy( ent->s.pos.trBase, ent->pos2);
-		//jk---
 		VectorCopy( ent->s.apos.trBase, ent->apos1);
 		VectorCopy( ent->s.apos.trBase, ent->apos2);
-		//---
 		
 		ent->apos2[1] += ent->count;
 
@@ -1966,6 +1965,13 @@ TRAIN
 #define TRAIN_TOGGLE		2
 #define TRAIN_BLOCK_STOPS	4
 
+#ifdef SMOKINGUNS
+#define TRAIN_MOV_SYNC_SPEEDUP 8
+#define TRAIN_MOV_SYNC_SLOWDOWN 16
+#define TRAIN_ROT_SYNC_SPEEDUP 32
+#define TRAIN_ROT_SYNC_SLOWDOWN 64
+#endif
+
 /*
 ===============
 Think_BeginMoving
@@ -1993,6 +1999,10 @@ void Reached_Train( gentity_t *ent ) {
 	vec3_t			amove;
 	float			length;
 	float			alength;
+	qboolean		rot_sync_speedup;
+	qboolean		rot_sync_slowdown;
+	qboolean		mov_sync_speedup;
+	qboolean		mov_sync_slowdown;
 
 	// copy the apropriate values
 	next = ent->nextTrain;
@@ -2008,10 +2018,10 @@ void Reached_Train( gentity_t *ent ) {
 	
 	VectorCopy( next->s.origin, ent->pos1 );
 	VectorCopy( next->nextTrain->s.origin, ent->pos2 );
-	//jk---
+#ifdef SMOKINGUNS
 	VectorCopy( next->s.angles, ent->apos1 );
 	VectorCopy( next->nextTrain->s.angles, ent->apos2 );
-	//---
+#endif
 	
 	
 	// if the path_corner has a speed, use that
@@ -2025,7 +2035,7 @@ void Reached_Train( gentity_t *ent ) {
 		speed = 1;
 	}
 	
-	//jk---
+#ifdef SMOKINGUNS
 	// if the path_corner has a "aspeed", use that
 	if ( next->aspeed ) {
 		aspeed = next->aspeed;
@@ -2036,18 +2046,18 @@ void Reached_Train( gentity_t *ent ) {
 	if ( aspeed < 1 ) {
 		aspeed = 1;
 	}
-	//---
+#endif
 	
 	// calculate duration
 	VectorSubtract( ent->pos2, ent->pos1, move );
 	length = VectorLength( move );
-	//jk---
+	ent->s.pos.trDuration = length * 1000 / speed;
+
+#ifdef SMOKINGUNS
 	AnglesSubtract( ent->apos2, ent->apos1, amove );
 	alength = VectorLength( amove );
-	//---
-
-	ent->s.pos.trDuration = length * 1000 / speed;
 	ent->s.apos.trDuration = alength * 1000 / aspeed;
+#endif
 
 	// Tequila comment: Be sure to send to clients after any fast move case
 	ent->r.svFlags &= ~SVF_NOCLIENT;
@@ -2069,23 +2079,56 @@ void Reached_Train( gentity_t *ent ) {
 		//ent->r.svFlags |= SVF_NOCLIENT;
 	}
 	
-	//jk---
+#ifdef SMOKINGUNS
 	// Joe Kari: same for fast angles move...
 	if(ent->s.apos.trDuration<1) {
 		ent->s.apos.trDuration=1;
 	}
 	
-	// if spawnflags have TRAIN_MOVING_SYNC, train speed is slowed down if "aspeed" isn't fast enough
-	if ( ( ent->spawnflags & TRAIN_MOVING_SYNC || next->spawnflags & TRAIN_MOVING_SYNC )
-		&& ent->s.apos.trDuration > ent->s.pos.trDuration ) {
-		ent->s.pos.trDuration = ent->s.apos.trDuration ;
+	
+	// Here we are computing translation/rotation synchronization, if needed
+	
+	// preliminaries...
+	rot_sync_speedup = ent->spawnflags & TRAIN_ROT_SYNC_SPEEDUP || next->spawnflags & TRAIN_ROT_SYNC_SPEEDUP ;
+	rot_sync_slowdown = ent->spawnflags & TRAIN_ROT_SYNC_SLOWDOWN || next->spawnflags & TRAIN_ROT_SYNC_SLOWDOWN ;
+	mov_sync_speedup = ent->spawnflags & TRAIN_MOV_SYNC_SPEEDUP || next->spawnflags & TRAIN_MOV_SYNC_SPEEDUP ;
+	mov_sync_slowdown = ent->spawnflags & TRAIN_MOV_SYNC_SLOWDOWN || next->spawnflags & TRAIN_MOV_SYNC_SLOWDOWN ;
+	
+	if ( ent->s.apos.trDuration > ent->s.pos.trDuration ) {
+		// Rotation is slower than translation
+		
+		if ( rot_sync_speedup && mov_sync_slowdown ) {
+			// Both synchronize, so we take the average duration...
+			ent->s.pos.trDuration = ( ent->s.pos.trDuration + ent->s.apos.trDuration ) / 2 ;
+			ent->s.apos.trDuration = ent->s.pos.trDuration ;
+		}
+		else if ( rot_sync_speedup ) {
+			// Rotation can speed up to synchronize...
+			ent->s.apos.trDuration = ent->s.pos.trDuration ;
+		}
+		else if ( mov_sync_slowdown ) {
+			// Translation can slow down to synchronize...
+			ent->s.pos.trDuration = ent->s.apos.trDuration ;
+		}
 	}
-	// if spawnflags have TRAIN_ROTATING_SYNC, train "aspeed" is slowed down if speed isn't fast enough
-	if ( ( ent->spawnflags & TRAIN_ROTATING_SYNC || next->spawnflags & TRAIN_ROTATING_SYNC )
-		&& ent->s.pos.trDuration > ent->s.apos.trDuration ) {
-		ent->s.apos.trDuration = ent->s.pos.trDuration ;
+	else if ( ent->s.pos.trDuration > ent->s.apos.trDuration ) {
+		// Translation is slower than rotation
+		
+		if ( rot_sync_slowdown && mov_sync_speedup ) {
+			// Both synchronize, so we take the average duration...
+			ent->s.pos.trDuration = ( ent->s.pos.trDuration + ent->s.apos.trDuration ) / 2 ;
+			ent->s.apos.trDuration = ent->s.pos.trDuration ;
+		}
+		else if ( rot_sync_slowdown ) {
+			// Rotation can slow down to synchronize...
+			ent->s.apos.trDuration = ent->s.pos.trDuration ;
+		}
+		else if ( mov_sync_speedup ) {
+			// Translation can speed up to synchronize...
+			ent->s.pos.trDuration = ent->s.apos.trDuration ;
+		}
 	}
-	//---
+#endif
 
 	// looping sound
 	ent->s.loopSound = next->soundLoop;
@@ -2098,9 +2141,9 @@ void Reached_Train( gentity_t *ent ) {
 		ent->nextthink = level.time + next->wait * 1000;
 		ent->think = Think_BeginMoving;
 		ent->s.pos.trType = TR_STATIONARY;
-		//jk---
+#ifdef SMOKINGUNS
 		ent->s.apos.trType = TR_STATIONARY;
-		//---
+#endif
 	}
 }
 
@@ -2160,6 +2203,7 @@ void Think_SetupTrainTargets( gentity_t *ent ) {
 Train path corners.
 Target: next path corner and other targets to fire
 "speed" speed to move to the next corner
+"aspeed" "angular speed" to move to the next corner
 "wait" seconds to wait before behining move to next corner
 */
 void SP_path_corner( gentity_t *self ) {
@@ -2169,9 +2213,9 @@ void SP_path_corner( gentity_t *self ) {
 		return;
 	}
 	
-	//jk---
+#ifdef SMOKINGUNS
 	G_SpawnFloat( "aspeed", "90", &self->aspeed );
-	//---
+#endif
 
 	// path corners don't need to be linked in
 }
@@ -2184,6 +2228,7 @@ Trains MUST HAVE AN ORIGIN BRUSH.
 The train spawns at the first target it is pointing at.
 "model2"	.md3 model to also draw
 "speed"		default 100
+"aspeed"	"angular speed", default 90
 "dmg"		default	2
 "noise"		looping sound to play when the train is in motion
 "target"	next path corner
@@ -2205,9 +2250,9 @@ void SP_func_train (gentity_t *self) {
 		self->speed = 100;
 	}
 	
-	//jk---
+#ifdef SMOKINGUNS
 	G_SpawnFloat( "aspeed", "90", &self->aspeed );
-	//---
+#endif
 	
 	if ( !self->target ) {
 		G_Printf ("func_train without a target at %s\n", vtos(self->r.absmin));
@@ -2395,8 +2440,6 @@ void SP_func_static( gentity_t *ent )
 	
 	//G_Printf( "^5%s (%i) : %i - %i\n" , tmp_char , ent->s.powerups , ent->s.legsAnim , ent->s.torsoAnim ) ;
 	
-	
-	// should determinate in which cluster the entity is ??
 	trap_LinkEntity( ent ) ;
 	
 }
