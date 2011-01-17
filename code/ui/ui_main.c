@@ -3648,6 +3648,8 @@ static void UI_Update(const char *name) {
 			break;
 		}
 	} else if (Q_stricmp(name, "r_lodbias") == 0) {
+		// Joe Kari: Now r_subdivisions has its own menu entry -> Curves Detail
+#ifndef SMOKINGUNS
 		switch (val) {
 			case 0:
 				trap_Cvar_SetValue( "r_subdivisions", 4 );
@@ -3659,11 +3661,12 @@ static void UI_Update(const char *name) {
 				trap_Cvar_SetValue( "r_subdivisions", 20 );
 			break;
 		}
+#endif
 	} else if (Q_stricmp(name, "ui_glCustom") == 0) {
 		switch (val) {
 			case 0:	// high quality
 				trap_Cvar_SetValue( "r_fullScreen", 1 );
-				trap_Cvar_SetValue( "r_subdivisions", 4 );
+				trap_Cvar_SetValue( "r_subdivisions", 1 );
 				trap_Cvar_SetValue( "r_vertexlight", 0 );
 				trap_Cvar_SetValue( "r_lodbias", 0 );
 				trap_Cvar_SetValue( "r_colorbits", 32 );
@@ -3677,13 +3680,18 @@ static void UI_Update(const char *name) {
 				trap_Cvar_SetValue( "cg_brassTime", 2500 );
 				trap_Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" );
 #ifdef SMOKINGUNS
-				trap_Cvar_SetValue( "ui_farclip", 0 );
-				trap_Cvar_SetValue( "cg_farclip", 0 );
+				//trap_Cvar_SetValue( "ui_farclip", 0 );
+				//trap_Cvar_SetValue( "cg_farclip", 0 );
+				trap_Cvar_SetValue( "ui_farclip", 1 );
+				trap_Cvar_SetValue( "cg_farclip", 1 );
+				trap_Cvar_SetValue( "cg_farclipValue", 2 );
+				trap_Cvar_SetValue( "cg_farclipZoomValue", 6 );
+				trap_Cvar_SetValue( "cg_mapLOD", 2 );
 #endif
 			break;
 			case 1: // normal
 				trap_Cvar_SetValue( "r_fullScreen", 1 );
-				trap_Cvar_SetValue( "r_subdivisions", 12 );
+				trap_Cvar_SetValue( "r_subdivisions", 4 );
 				trap_Cvar_SetValue( "r_vertexlight", 0 );
 				trap_Cvar_SetValue( "r_lodbias", 0 );
 				trap_Cvar_SetValue( "r_colorbits", 0 );
@@ -3697,15 +3705,16 @@ static void UI_Update(const char *name) {
 				trap_Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" );
 				trap_Cvar_SetValue( "cg_shadows", 0 );
 #ifdef SMOKINGUNS
-				trap_Cvar_SetValue( "ui_farclip", 1 );
+				trap_Cvar_SetValue( "ui_farclip", 2 );
 				trap_Cvar_SetValue( "cg_farclip", 1 );
-				trap_Cvar_SetValue( "cg_farclipValue", 2 );
-				trap_Cvar_SetValue( "cg_farclipZoomValue", 6 );
+				trap_Cvar_SetValue( "cg_farclipValue", 1.5 );
+				trap_Cvar_SetValue( "cg_farclipZoomValue", 4.5 );
+				trap_Cvar_SetValue( "cg_mapLOD", 2 );
 #endif
 			break;
 			case 2: // fast
 				trap_Cvar_SetValue( "r_fullScreen", 1 );
-				trap_Cvar_SetValue( "r_subdivisions", 8 );
+				trap_Cvar_SetValue( "r_subdivisions", 12 );
 				trap_Cvar_SetValue( "r_vertexlight", 0 );
 				trap_Cvar_SetValue( "r_lodbias", 1 );
 				trap_Cvar_SetValue( "r_colorbits", 0 );
@@ -3719,10 +3728,11 @@ static void UI_Update(const char *name) {
 				trap_Cvar_SetValue( "cg_brassTime", 0 );
 				trap_Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_NEAREST" );
 #ifdef SMOKINGUNS
-				trap_Cvar_SetValue( "ui_farclip", 2 );
+				trap_Cvar_SetValue( "ui_farclip", 3 );
 				trap_Cvar_SetValue( "cg_farclip", 1 );
-				trap_Cvar_SetValue( "cg_farclipValue", 1.5 );
-				trap_Cvar_SetValue( "cg_farclipZoomValue", 4.5 );
+				trap_Cvar_SetValue( "cg_farclipValue", 1 );
+				trap_Cvar_SetValue( "cg_farclipZoomValue", 3 );
+				trap_Cvar_SetValue( "cg_mapLOD", 1 );
 #endif
 			break;
 			case 3: // fastest
@@ -3745,6 +3755,7 @@ static void UI_Update(const char *name) {
 				trap_Cvar_SetValue( "cg_farclip", 1 );
 				trap_Cvar_SetValue( "cg_farclipValue", 1 );
 				trap_Cvar_SetValue( "cg_farclipZoomValue", 3 );
+				trap_Cvar_SetValue( "cg_mapLOD", 0 );
 #endif
 			break;
 		}

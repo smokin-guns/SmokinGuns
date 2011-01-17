@@ -160,7 +160,7 @@ itemDef {
 		textscale .28      
       		forecolor 1 1 1 1
       		visible 0 
-		action { uiScript glCustom ; uiScript update "r_colorbits" }
+		action { uiScript glCustom ; uiScript update "r_displayRefresh" }
 	}
 
 	itemDef {
@@ -200,10 +200,10 @@ itemDef {
    		name graphics
 		group grpSystem
     		type ITEM_TYPE_MULTI
-		text "Geometric Detail:"
+		text "Models Detail:"
 		cvar "r_lodbias"
-		cvarFloatList { "High" 0 "Medium" 1 "Low" 2 }
-		rect 192 180 256 18
+		cvarFloatList { "Low" 2 "Medium" 1 "High" 0 }
+		rect 96 180 192 18
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 128
       		textaligny 20
@@ -214,13 +214,64 @@ itemDef {
 	}
 
 	itemDef {
+   		name graphics
+		group grpSystem
+    		type ITEM_TYPE_MULTI
+		text "Curves Detail:"
+		cvar "r_subdivisions"
+		cvarFloatList { "Very Low" 20 "Low" 12 "Medium" 4 "High" 2 "Very High" 1 }
+		rect 320 180 192 18
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .28       
+      		forecolor 1 1 1 1
+      		visible 0 
+		action { uiScript glCustom ; uiScript update "r_subdivisions" }
+	}
+
+	itemDef {
+   		name graphics
+		group grpSystem
+    		type ITEM_TYPE_MULTI
+		text "Far-clipping distance:"
+		cvar "ui_farclip"
+		cvarFloatList { "Close" 3 "Medium" 2 "Far" 1 "Never" 0 }
+		rect 96 200 192 18
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .28       
+      		forecolor 1 1 1 1
+      		visible 0 
+		action { uiScript glCustom ; uiScript update "ui_farclip" }
+	}
+
+	itemDef {
+   		name graphics
+		group grpSystem
+    		type ITEM_TYPE_MULTI
+		text "Map Detail:"
+		cvar "cg_mapLOD"
+		cvarFloatList { "Low" 0 "Medium" 1 "High" 2 "Cinematic" 3 }
+		rect 320 200 192 18
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .28       
+      		forecolor 1 1 1 1
+      		visible 0 
+		action { uiScript glCustom ; uiScript update "cg_mapLOD" }
+	}
+
+	itemDef {
   		name graphics
 		group grpSystem
    		type ITEM_TYPE_MULTI
 		text "Texture Detail:"
 		cvar "r_picmip"
 		cvarFloatList { "Low" 2 "Normal" 1 "High" 0 }
-		rect 192 200 256 18
+		rect 96 220 192 18
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 128
       		textaligny 20
@@ -237,7 +288,7 @@ itemDef {
 		text "Texture Quality:"
 		cvar "r_texturebits"
 		cvarFloatList { "Default" 0 "16 bit" 16 "32 bit" 32 }
-		rect 192 220 256 18
+		rect 320 220 192 18
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 128
       		textaligny 20
