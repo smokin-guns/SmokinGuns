@@ -2029,6 +2029,11 @@ void Reached_Train( gentity_t *ent ) {
 	if ( ! rotation_only ) {
 		VectorCopy( next->s.origin, ent->pos1 );
 		VectorCopy( next->nextTrain->s.origin, ent->pos2 );
+	} else {
+		VectorCopy( ent->s.origin, ent->pos1 );
+		VectorCopy( ent->s.origin, ent->pos2 );
+		//VectorCopy( ent->s.origin, ent->s.pos.trBase );
+		//VectorCopy( ent->s.origin, ent->r.currentOrigin );
 	}
 	VectorCopy( next->s.angles, ent->apos1 );
 	VectorCopy( next->nextTrain->s.angles, ent->apos2 );
@@ -2220,7 +2225,7 @@ void SP_path_corner( gentity_t *self ) {
 	}
 	
 #ifdef SMOKINGUNS
-	G_SpawnFloat( "aspeed", "90", &self->aspeed );
+	G_SpawnFloat( "aspeed", "0", &self->aspeed );
 #endif
 
 	// path corners don't need to be linked in
