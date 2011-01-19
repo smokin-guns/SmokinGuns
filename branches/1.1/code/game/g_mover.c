@@ -1970,6 +1970,7 @@ TRAIN
 #define TRAIN_MOV_SYNC_SLOWDOWN 16
 #define TRAIN_ROT_SYNC_SPEEDUP 32
 #define TRAIN_ROT_SYNC_SLOWDOWN 64
+#define TRAIN_ROTATION_ONLY 128
 #endif
 
 /*
@@ -1999,6 +2000,7 @@ void Reached_Train( gentity_t *ent ) {
 	vec3_t			amove;
 	float			length;
 	float			alength;
+	qboolean		rotation_only;
 	qboolean		rot_sync_speedup;
 	qboolean		rot_sync_slowdown;
 	qboolean		mov_sync_speedup;
@@ -2016,11 +2018,23 @@ void Reached_Train( gentity_t *ent ) {
 	// set the new trajectory
 	ent->nextTrain = next->nextTrain;
 	
-	VectorCopy( next->s.origin, ent->pos1 );
-	VectorCopy( next->nextTrain->s.origin, ent->pos2 );
 #ifdef SMOKINGUNS
+	// preliminaries...
+	rotation_only = ent->spawnflags & TRAIN_ROTATION_ONLY || next->spawnflags & TRAIN_ROTATION_ONLY ;
+	rot_sync_speedup = ent->spawnflags & TRAIN_ROT_SYNC_SPEEDUP || next->spawnflags & TRAIN_ROT_SYNC_SPEEDUP ;
+	rot_sync_slowdown = ent->spawnflags & TRAIN_ROT_SYNC_SLOWDOWN || next->spawnflags & TRAIN_ROT_SYNC_SLOWDOWN ;
+	mov_sync_speedup = ent->spawnflags & TRAIN_MOV_SYNC_SPEEDUP || next->spawnflags & TRAIN_MOV_SYNC_SPEEDUP ;
+	mov_sync_slowdown = ent->spawnflags & TRAIN_MOV_SYNC_SLOWDOWN || next->spawnflags & TRAIN_MOV_SYNC_SLOWDOWN ;
+	
+	if ( ! rotation_only ) {
+		VectorCopy( next->s.origin, ent->pos1 );
+		VectorCopy( next->nextTrain->s.origin, ent->pos2 );
+	}
 	VectorCopy( next->s.angles, ent->apos1 );
 	VectorCopy( next->nextTrain->s.angles, ent->apos2 );
+#else
+	VectorCopy( next->s.origin, ent->pos1 );
+	VectorCopy( next->nextTrain->s.origin, ent->pos2 );
 #endif
 	
 	
@@ -2057,7 +2071,6 @@ void Reached_Train( gentity_t *ent ) {
 	AnglesSubtract( ent->apos2, ent->apos1, amove );
 	alength = VectorLength( amove );
 	ent->s.apos.trDuration = alength * 1000 / aspeed;
-#endif
 
 	// Tequila comment: Be sure to send to clients after any fast move case
 	ent->r.svFlags &= ~SVF_NOCLIENT;
@@ -2075,11 +2088,10 @@ void Reached_Train( gentity_t *ent ) {
 		ent->s.pos.trDuration=1;
 
 		// Tequila comment: Don't send entity to clients so it becomes really invisible 
-		// Joe Kari: can cause few bug, commented out... (especially with rotating train)
+		// Joe Kari: can cause bugs, commented out... (especially it limits/bugs rotating train)
 		//ent->r.svFlags |= SVF_NOCLIENT;
 	}
 	
-#ifdef SMOKINGUNS
 	// Joe Kari: same for fast angles move...
 	if(ent->s.apos.trDuration<1) {
 		ent->s.apos.trDuration=1;
@@ -2087,12 +2099,6 @@ void Reached_Train( gentity_t *ent ) {
 	
 	
 	// Here we are computing translation/rotation synchronization, if needed
-	
-	// preliminaries...
-	rot_sync_speedup = ent->spawnflags & TRAIN_ROT_SYNC_SPEEDUP || next->spawnflags & TRAIN_ROT_SYNC_SPEEDUP ;
-	rot_sync_slowdown = ent->spawnflags & TRAIN_ROT_SYNC_SLOWDOWN || next->spawnflags & TRAIN_ROT_SYNC_SLOWDOWN ;
-	mov_sync_speedup = ent->spawnflags & TRAIN_MOV_SYNC_SPEEDUP || next->spawnflags & TRAIN_MOV_SYNC_SPEEDUP ;
-	mov_sync_slowdown = ent->spawnflags & TRAIN_MOV_SYNC_SLOWDOWN || next->spawnflags & TRAIN_MOV_SYNC_SLOWDOWN ;
 	
 	if ( ent->s.apos.trDuration > ent->s.pos.trDuration ) {
 		// Rotation is slower than translation
