@@ -210,7 +210,7 @@ itemDef {
     		type ITEM_TYPE_MULTI
 		text "Curves Detail:"
 		cvar "r_subdivisions"
-		cvarFloatList { "Very Low" 20 "Low" 12 "Medium" 4 "High" 2 "Very High" 1 }
+		cvarFloatList { "Very Low" 20 "Low" 12 "Medium" 4 "High" 2 "Very High" 1 "Perfect" 0 }
 		rect 160 190 160 18
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 128
