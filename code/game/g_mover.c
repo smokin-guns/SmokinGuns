@@ -1971,6 +1971,7 @@ TRAIN
 #define TRAIN_ROT_SYNC_SPEEDUP 32
 #define TRAIN_ROT_SYNC_SLOWDOWN 64
 #define TRAIN_ROTATION_ONLY 128
+#define TRAIN_RELATIVE_MOVE 256
 #endif
 
 /*
@@ -1996,11 +1997,13 @@ void Reached_Train( gentity_t *ent ) {
 	gentity_t		*next;
 	float			speed;
 	float			aspeed;
+	vec3_t			tmp_vector;
 	vec3_t			move;
 	vec3_t			amove;
 	float			length;
 	float			alength;
 	qboolean		rotation_only;
+	qboolean		relative_move;
 	qboolean		rot_sync_speedup;
 	qboolean		rot_sync_slowdown;
 	qboolean		mov_sync_speedup;
@@ -2020,20 +2023,23 @@ void Reached_Train( gentity_t *ent ) {
 	
 #ifdef SMOKINGUNS
 	// preliminaries...
+	relative_move = ent->spawnflags & TRAIN_RELATIVE_MOVE || next->spawnflags & TRAIN_RELATIVE_MOVE ;
 	rotation_only = ent->spawnflags & TRAIN_ROTATION_ONLY || next->spawnflags & TRAIN_ROTATION_ONLY ;
 	rot_sync_speedup = ent->spawnflags & TRAIN_ROT_SYNC_SPEEDUP || next->spawnflags & TRAIN_ROT_SYNC_SPEEDUP ;
 	rot_sync_slowdown = ent->spawnflags & TRAIN_ROT_SYNC_SLOWDOWN || next->spawnflags & TRAIN_ROT_SYNC_SLOWDOWN ;
 	mov_sync_speedup = ent->spawnflags & TRAIN_MOV_SYNC_SPEEDUP || next->spawnflags & TRAIN_MOV_SYNC_SPEEDUP ;
 	mov_sync_slowdown = ent->spawnflags & TRAIN_MOV_SYNC_SLOWDOWN || next->spawnflags & TRAIN_MOV_SYNC_SLOWDOWN ;
 	
-	if ( ! rotation_only ) {
-		VectorCopy( next->s.origin, ent->pos1 );
-		VectorCopy( next->nextTrain->s.origin, ent->pos2 );
-	} else {
+	if ( rotation_only ) {
 		VectorCopy( ent->s.origin, ent->pos1 );
 		VectorCopy( ent->s.origin, ent->pos2 );
-		//VectorCopy( ent->s.origin, ent->s.pos.trBase );
-		//VectorCopy( ent->s.origin, ent->r.currentOrigin );
+	} else if ( relative_move ) {
+		VectorSubtract( ent->s.origin, ent->firstTrain->s.origin, tmp_vector );
+		VectorAdd( ent->s.origin, tmp_vector, ent->pos1 );
+		VectorAdd( ent->s.origin, tmp_vector, ent->pos2 );
+	} else {
+		VectorCopy( next->s.origin, ent->pos1 );
+		VectorCopy( next->nextTrain->s.origin, ent->pos2 );
 	}
 	VectorCopy( next->s.angles, ent->apos1 );
 	VectorCopy( next->nextTrain->s.angles, ent->apos2 );

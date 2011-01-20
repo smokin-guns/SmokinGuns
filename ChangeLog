@@ -34,6 +34,8 @@ Changes in SG 1.1
 - Fixed old minor OpenGL error which prevented to debug easily FBO enhancement
 - Added rotating feature to func_train
 - Added sine "pendulum style" rotation to func_rotating
+- Number of curve's subdivisions has been raised to improve visual quality
+- Added to system/graphics menu an entry for far-clipping, map Level Of Detail, and curves details
 
 Changes in SG 1.1b4-20100116
 ******************

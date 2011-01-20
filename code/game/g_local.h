@@ -151,6 +151,9 @@ struct gentity_s {
 	int			sound2to1;
 	int			soundPos2;
 	int			soundLoop;
+#ifdef SMOKINGUNS
+	gentity_t       *firstTrain;
+#endif
 	gentity_t	*parent;
 	gentity_t	*nextTrain;
 	gentity_t	*prevTrain;

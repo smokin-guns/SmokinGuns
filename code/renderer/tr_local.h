@@ -547,10 +547,16 @@ typedef struct drawSurf_s {
 	surfaceType_t		*surface;		// any of surface*_t
 } drawSurf_t;
 
-#define	MAX_FACE_POINTS		64
 
+#define	MAX_FACE_POINTS		64
 #define	MAX_PATCH_SIZE		32			// max dimensions of a patch mesh in map file
+
+#ifndef SMOKINGUNS
 #define	MAX_GRID_SIZE		65			// max dimensions of a grid mesh in memory
+#else
+// Joe Kari: Attempt to allow lowering of r_subdivisions without exceeding the MAX_GRID_SIZE limit
+#define	MAX_GRID_SIZE		129			// x2 on this value
+#endif
 
 // when cgame directly specifies a polygon, it becomes a srfPoly_t
 // as soon as it is called
