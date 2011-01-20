@@ -1161,6 +1161,9 @@ static void PM_CrashLand( void ) {
 	float		vel, acc;
 	float		t;
 	float		a, b, c, den;
+#ifdef SMOKINGUNS
+	int		damage;
+#endif
 
 #ifndef SMOKINGUNS
 	// decide which landing animation to use
@@ -1271,19 +1274,22 @@ static void PM_CrashLand( void ) {
 			PM_AddEvent( PM_FootstepForSurface() );
 		}
 #else
+		// Joe Kari: using PM_AddEvent2 to produce linear damage calculated here
+		damage = (int)( ( delta - 37 ) * 2 ) ;
+		
 		if ( delta > 60 ) {
-			PM_AddEvent( EV_FALL_VERY_FAR );
+			PM_AddEvent2( EV_FALL_VERY_FAR , damage );
 			//Com_Printf("FALLING_DAMAGE: very far\n");
 		} else if ( delta > 50 ) {
 			//if ( pm->ps->stats[STAT_HEALTH] > 0 ) {
-				PM_AddEvent( EV_FALL_FAR );
+				PM_AddEvent2( EV_FALL_FAR , damage );
 				//Printf("FALLING_DAMAGE: far\n");
 			//}
 		} else if ( delta > 39 ) {
 			// this is a pain grunt, so don't play it if dead
 			if ( pm->ps->stats[STAT_HEALTH] > 0 ) {
-				PM_AddEvent( EV_FALL_MEDIUM );
-				//Printf("FALLING_DAMAGE: very medium\n");
+				PM_AddEvent2( EV_FALL_MEDIUM , damage );
+				//Printf("FALLING_DAMAGE: medium\n");
 			}
 		} else if ( delta > 12 ) {
 			if ( pm->ps->stats[STAT_HEALTH] > 0 ) {
