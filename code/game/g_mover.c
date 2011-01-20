@@ -2031,13 +2031,16 @@ void Reached_Train( gentity_t *ent ) {
 	mov_sync_slowdown = ent->spawnflags & TRAIN_MOV_SYNC_SLOWDOWN || next->spawnflags & TRAIN_MOV_SYNC_SLOWDOWN ;
 	
 	if ( rotation_only ) {
+		// The train coordinate never change
 		VectorCopy( ent->s.origin, ent->pos1 );
 		VectorCopy( ent->s.origin, ent->pos2 );
 	} else if ( relative_move ) {
+		// The train start from its own location and move relatively to it
 		VectorSubtract( ent->s.origin, ent->firstTrain->s.origin, tmp_vector );
-		VectorAdd( ent->s.origin, tmp_vector, ent->pos1 );
-		VectorAdd( ent->s.origin, tmp_vector, ent->pos2 );
+		VectorAdd( next->s.origin, tmp_vector, ent->pos1 );
+		VectorAdd( next->nextTrain->s.origin, tmp_vector, ent->pos2 );
 	} else {
+		// Standard case, coordinate are taken from the current path_corner origin
 		VectorCopy( next->s.origin, ent->pos1 );
 		VectorCopy( next->nextTrain->s.origin, ent->pos2 );
 	}
@@ -2174,8 +2177,12 @@ Link all the corners together
 */
 void Think_SetupTrainTargets( gentity_t *ent ) {
 	gentity_t		*path, *next, *start;
-
+	
 	ent->nextTrain = G_Find( NULL, FOFS(targetname), ent->target );
+#ifdef SMOKINGUNS
+	// Joe Kari: usefull for the TRAIN_RELATIVE_MOVE spawnflags
+	ent->firstTrain = ent->nextTrain ;
+#endif
 	if ( !ent->nextTrain ) {
 		G_Printf( "func_train at %s with an unfound target\n",
 			vtos(ent->r.absmin) );
