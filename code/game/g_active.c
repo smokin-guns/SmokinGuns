@@ -915,6 +915,9 @@ but any server game effects are handled here
 void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 	int		i, j;
 	int		event;
+#ifdef SMOKINGUNS
+	int		eventParm;
+#endif
 	gclient_t *client;
 	int		damage;
 	vec3_t	dir;
@@ -932,6 +935,9 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 	}
 	for ( i = oldEventSequence ; i < client->ps.eventSequence ; i++ ) {
 		event = client->ps.events[ i & (MAX_PS_EVENTS-1) ];
+#ifdef SMOKINGUNS
+		eventParm = client->ps.eventParms[ i & (MAX_PS_EVENTS-1) ];
+#endif
 
 		switch ( event ) {
 		case EV_FALL_MEDIUM:
@@ -952,6 +958,11 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 				damage = 5;
 			}
 #else
+			// Joe Kari: damage is now in the event parameter
+			// This event is throwed from bg_pmove.c by the PM_CrashLand() function
+			damage = eventParm;
+			
+			/*
 			if ( event == EV_FALL_VERY_FAR ) {
 				damage = 80 + rand()%5;
 			} else if ( event == EV_FALL_FAR ) {
@@ -959,6 +970,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			} else if ( event == EV_FALL_MEDIUM ) {
 				damage = 35 + rand()%2;
 			}
+			*/
 
 			ent->client->ps.powerups[DM_LEGS_1]++;
 #endif
