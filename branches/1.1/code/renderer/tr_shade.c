@@ -1015,9 +1015,21 @@ static void ComputeTexCoords( shaderStage_t *pStage ) {
 		case TCGEN_FOG:
 			RB_CalcFogTexCoords( ( float * ) tess.svars.texcoords[b] );
 			break;
+#ifndef SMOKINGUNS
 		case TCGEN_ENVIRONMENT_MAPPED:
 			RB_CalcEnvironmentTexCoords( ( float * ) tess.svars.texcoords[b] );
 			break;
+#else
+		case TCGEN_ENVIRONMENT_MAPPED_X:
+			RB_CalcEnvironmentTexCoords( ( float * ) tess.svars.texcoords[b] , 0 );
+			break;
+		case TCGEN_ENVIRONMENT_MAPPED_Y:
+			RB_CalcEnvironmentTexCoords( ( float * ) tess.svars.texcoords[b] , 1 );
+			break;
+		case TCGEN_ENVIRONMENT_MAPPED_Z:
+			RB_CalcEnvironmentTexCoords( ( float * ) tess.svars.texcoords[b] , 2 );
+			break;
+#endif
 		case TCGEN_BAD:
 			return;
 		}
