@@ -207,7 +207,13 @@ typedef enum {
 	TCGEN_IDENTITY,			// clear to 0,0
 	TCGEN_LIGHTMAP,
 	TCGEN_TEXTURE,
+#ifndef SMOKINGUNS
 	TCGEN_ENVIRONMENT_MAPPED,
+#else
+	TCGEN_ENVIRONMENT_MAPPED_X,
+	TCGEN_ENVIRONMENT_MAPPED_Y,
+	TCGEN_ENVIRONMENT_MAPPED_Z,
+#endif
 	TCGEN_FOG,
 	TCGEN_VECTOR			// S and T from world coordinates
 } texCoordGen_t;
@@ -1573,7 +1579,11 @@ void	R_TransformClipToWindow( const vec4_t clip, const viewParms_t *view, vec4_t
 
 void	RB_DeformTessGeometry( void );
 
+#ifndef SMOKINGUNS
 void	RB_CalcEnvironmentTexCoords( float *dstTexCoords );
+#else
+void	RB_CalcEnvironmentTexCoords( float *dstTexCoords , int axis );
+#endif
 void	RB_CalcFogTexCoords( float *dstTexCoords );
 void	RB_CalcScrollTexCoords( const float scroll[2], float *dstTexCoords );
 void	RB_CalcRotateTexCoords( float rotSpeed, float *dstTexCoords );
