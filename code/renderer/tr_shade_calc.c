@@ -920,9 +920,34 @@ void RB_CalcEnvironmentTexCoords( float *st )
 
 #else
 
+// This is temporary
+// Don't know why Q3's rsqrt is in q_math.c, but Q3's sqrt is hidden in cm_trace.c ...
+// I will probably move it to q_math.c later ...
+
+float Q_sqrt(float number) {
+	floatint_t t;
+	float x, y;
+	const float f = 1.5F;
+	x = number * 0.5F;
+	t.f  = number;
+	t.i  = 0x5f3759df - ( t.i >> 1 );
+	y  = t.f;
+	y  = y * ( f - ( x * y * y ) );
+	y  = y * ( f - ( x * y * y ) );
+	return number * y;
+}
+
+float Q_sqrt_signed(float number)
+{
+	if ( number >= 0 ) { return Q_sqrt( number ) ; }
+	else { return - Q_sqrt( - number ) ; }
+}
+
+// Joe Kari: This new function allow custom projection axis for tcgen environment 
+
 void RB_CalcEnvironmentTexCoords( float *st , int axis )
 {
-	int			i;
+	int		i;
 	float		*v, *normal;
 	vec3_t		viewer, reflected;
 	float		d;
@@ -930,8 +955,6 @@ void RB_CalcEnvironmentTexCoords( float *st , int axis )
 	v = tess.xyz[0];
 	normal = tess.normal[0];
 
-	// Joe Kari: allow custom projection axis for tcgen environment 
-	
 	if ( axis == 0 ) {
 		// For the X-axis
 		for (i = 0 ; i < tess.numVertexes ; i++, v += 4, normal += 4, st += 2 )
@@ -965,8 +988,8 @@ void RB_CalcEnvironmentTexCoords( float *st , int axis )
 			st[0] = 0.5 + reflected[0] * 0.5;
 			st[1] = 0.5 - reflected[2] * 0.5;
 		}
-	} else {
-		// For the Z-axis, use this:
+	} else if ( axis == 2 ) {
+		// For the Z-axis
 		for (i = 0 ; i < tess.numVertexes ; i++, v += 4, normal += 4, st += 2 )
 		{
 			VectorSubtract (backEnd.or.viewOrigin, v, viewer);
@@ -980,6 +1003,68 @@ void RB_CalcEnvironmentTexCoords( float *st , int axis )
 			
 			st[0] = 0.5 + reflected[0] * 0.5;
 			st[1] = 0.5 - reflected[1] * 0.5;
+			// or st[1] = 0.5 + reflected[1] * 0.5; ??? 
+		}
+	} else {
+		
+		// Work in progress - TcGen using arbitrary axis
+		
+		vec3_t		dir ;
+		vec3_t		xy_plan ;
+		float		xy_ratio , yx_ratio , z_ratio , inv_z_ratio ;
+		
+		dir[0] = 0.7f ;
+		dir[1] = 0.0f ;
+		dir[2] = 0.7f ;
+		
+		// Maybe this should be moved later into tr_shader.c to compute it at loading time
+		
+		VectorCopy( dir , xy_plan ) ;
+		xy_plan[2] = 0 ;
+		
+		/*
+		VectorNormalizeFast( xy_plan ) ;
+		if ( xy_plan[1] >= 0 ) {
+			xy_ratio = Q_sqrt( xy_plan[1] ) * 0.5f ;
+			yx_ratio = 0.5f - xy_ratio ;
+		} else {
+			xy_ratio = - Q_sqrt( - xy_plan[1] ) * 0.5f ;
+			yx_ratio = - 0.5f - xy_ratio ;
+		}
+		*/
+		
+		if ( xy_plan[0] >= 0 ) {
+			VectorNormalizeFast( xy_plan ) ;
+			yx_ratio = Q_sqrt( xy_plan[0] ) * 0.5f ;
+			xy_ratio = 0.5f - yx_ratio ;
+		} else {
+			VectorNormalizeFast( xy_plan ) ;
+			yx_ratio = - Q_sqrt( - xy_plan[0] ) * 0.5f ;
+			xy_ratio = - 0.5f - yx_ratio ;
+		}
+		
+		VectorNormalizeFast( dir ) ;
+		if ( dir[2] >= 0 ) {
+			inv_z_ratio = Q_sqrt( dir[2] ) ;
+			z_ratio = 0.5f - inv_z_ratio * 0.5f ;
+		} else {
+			inv_z_ratio = - Q_sqrt( - dir[2] ) ;
+			z_ratio = - 0.5f - inv_z_ratio * 0.5f ;
+		}
+		
+		for (i = 0 ; i < tess.numVertexes ; i++, v += 4, normal += 4, st += 2 )
+		{
+			VectorSubtract( backEnd.or.viewOrigin, v, viewer ) ;
+			VectorNormalizeFast( viewer ) ;
+
+			d = DotProduct( normal, viewer ) ;
+			
+			reflected[0] = normal[0]*2*d - viewer[0] ;
+			reflected[1] = normal[1]*2*d - viewer[1] ;
+			reflected[2] = normal[2]*2*d - viewer[2] ;
+			
+			st[0] = 0.5 + reflected[0] * xy_ratio + reflected[1] * yx_ratio ;
+			st[1] = 0.5 - reflected[0] * yx_ratio * inv_z_ratio - reflected[1] * xy_ratio * inv_z_ratio - reflected[2] * z_ratio ;
 		}
 	}
 }
