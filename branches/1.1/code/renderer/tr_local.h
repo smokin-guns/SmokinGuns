@@ -213,6 +213,7 @@ typedef enum {
 	TCGEN_ENVIRONMENT_MAPPED_X,
 	TCGEN_ENVIRONMENT_MAPPED_Y,
 	TCGEN_ENVIRONMENT_MAPPED_Z,
+	TCGEN_CUSTOM_ENVIRONMENT_MAP,
 #endif
 	TCGEN_FOG,
 	TCGEN_VECTOR			// S and T from world coordinates
@@ -234,7 +235,7 @@ typedef struct {
 	float frequency;
 } waveForm_t;
 
-#define TR_MAX_TEXMODS 4
+#define TR_MAX_TEXMODS 5
 
 typedef enum {
 	TMOD_NONE,
@@ -247,7 +248,7 @@ typedef enum {
 	TMOD_ENTITY_TRANSLATE
 } texMod_t;
 
-#define	MAX_SHADER_DEFORMS	3
+#define	MAX_SHADER_DEFORMS	5
 typedef struct {
 	deform_t	deformation;			// vertex coordinate modification type
 
@@ -286,7 +287,7 @@ typedef struct {
 } texModInfo_t;
 
 
-#define	MAX_IMAGE_ANIMATIONS	8
+#define	MAX_IMAGE_ANIMATIONS	24
 
 typedef struct {
 	image_t			*image[MAX_IMAGE_ANIMATIONS];
@@ -1583,6 +1584,7 @@ void	RB_DeformTessGeometry( void );
 void	RB_CalcEnvironmentTexCoords( float *dstTexCoords );
 #else
 void	RB_CalcEnvironmentTexCoords( float *dstTexCoords , int axis );
+void	RB_CalcCustomEnvironmentTexCoords( float *dstTexCoords , vec3_t dir_vector, vec3_t normal_weight );
 #endif
 void	RB_CalcFogTexCoords( float *dstTexCoords );
 void	RB_CalcScrollTexCoords( const float scroll[2], float *dstTexCoords );

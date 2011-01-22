@@ -1029,6 +1029,9 @@ static void ComputeTexCoords( shaderStage_t *pStage ) {
 		case TCGEN_ENVIRONMENT_MAPPED_Z:
 			RB_CalcEnvironmentTexCoords( ( float * ) tess.svars.texcoords[b] , 2 );
 			break;
+		case TCGEN_CUSTOM_ENVIRONMENT_MAP:
+			RB_CalcCustomEnvironmentTexCoords( ( float * ) tess.svars.texcoords[b] , pStage->bundle[b].tcGenVectors[0] , pStage->bundle[b].tcGenVectors[1] );
+			break;
 #endif
 		case TCGEN_BAD:
 			return;

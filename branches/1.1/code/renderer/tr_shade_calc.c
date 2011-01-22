@@ -1003,69 +1003,65 @@ void RB_CalcEnvironmentTexCoords( float *st , int axis )
 			
 			st[0] = 0.5 + reflected[0] * 0.5;
 			st[1] = 0.5 - reflected[1] * 0.5;
-			// or st[1] = 0.5 + reflected[1] * 0.5; ??? 
+			//st[1] = - ( 0.5 + reflected[1] * 0.5 ) ;
 		}
-	} else {
-		
-		// Work in progress - TcGen using arbitrary axis
-		
-		vec3_t		dir ;
-		vec3_t		xy_plan ;
-		float		xy_ratio , yx_ratio , z_ratio , inv_z_ratio ;
-		
-		dir[0] = 0.7f ;
-		dir[1] = 0.0f ;
-		dir[2] = 0.7f ;
-		
-		// Maybe this should be moved later into tr_shader.c to compute it at loading time
-		
-		VectorCopy( dir , xy_plan ) ;
-		xy_plan[2] = 0 ;
-		
-		/*
-		VectorNormalizeFast( xy_plan ) ;
-		if ( xy_plan[1] >= 0 ) {
-			xy_ratio = Q_sqrt( xy_plan[1] ) * 0.5f ;
-			yx_ratio = 0.5f - xy_ratio ;
-		} else {
-			xy_ratio = - Q_sqrt( - xy_plan[1] ) * 0.5f ;
-			yx_ratio = - 0.5f - xy_ratio ;
-		}
-		*/
-		
-		if ( xy_plan[0] >= 0 ) {
-			VectorNormalizeFast( xy_plan ) ;
-			yx_ratio = Q_sqrt( xy_plan[0] ) * 0.5f ;
-			xy_ratio = 0.5f - yx_ratio ;
-		} else {
-			VectorNormalizeFast( xy_plan ) ;
-			yx_ratio = - Q_sqrt( - xy_plan[0] ) * 0.5f ;
-			xy_ratio = - 0.5f - yx_ratio ;
-		}
-		
-		VectorNormalizeFast( dir ) ;
-		if ( dir[2] >= 0 ) {
-			inv_z_ratio = Q_sqrt( dir[2] ) ;
-			z_ratio = 0.5f - inv_z_ratio * 0.5f ;
-		} else {
-			inv_z_ratio = - Q_sqrt( - dir[2] ) ;
-			z_ratio = - 0.5f - inv_z_ratio * 0.5f ;
-		}
-		
-		for (i = 0 ; i < tess.numVertexes ; i++, v += 4, normal += 4, st += 2 )
-		{
-			VectorSubtract( backEnd.or.viewOrigin, v, viewer ) ;
-			VectorNormalizeFast( viewer ) ;
+	}
+}
 
-			d = DotProduct( normal, viewer ) ;
-			
-			reflected[0] = normal[0]*2*d - viewer[0] ;
-			reflected[1] = normal[1]*2*d - viewer[1] ;
-			reflected[2] = normal[2]*2*d - viewer[2] ;
-			
-			st[0] = 0.5 + reflected[0] * xy_ratio + reflected[1] * yx_ratio ;
-			st[1] = 0.5 - reflected[0] * yx_ratio * inv_z_ratio - reflected[1] * xy_ratio * inv_z_ratio - reflected[2] * z_ratio ;
-		}
+
+
+void RB_CalcCustomEnvironmentTexCoords( float *st , vec3_t dir_vector , vec3_t normal_weight )
+{
+	int		i;
+	float		*v, *normal;
+	vec3_t		viewer, reflected;
+	float		d;
+	vec3_t		xy_plan ;
+	float		xy_ratio , yx_ratio , z_ratio , inv_z_ratio ;
+	
+
+	v = tess.xyz[0];
+	normal = tess.normal[0];
+
+	// Work in progress - TcGen using arbitrary axis
+	
+	// Maybe this should be moved later into tr_shader.c to compute it at loading time
+	
+	VectorCopy( dir_vector , xy_plan ) ;
+	xy_plan[2] = 0 ;
+	
+	if ( xy_plan[0] >= 0 ) {
+		VectorNormalizeFast( xy_plan ) ;
+		yx_ratio = xy_plan[0] * xy_plan[0] ;
+		xy_ratio = 1.0f - yx_ratio ;
+	} else {
+		VectorNormalizeFast( xy_plan ) ;
+		yx_ratio = - xy_plan[0] * xy_plan[0] ;
+		xy_ratio = - 1.0f - yx_ratio ;
+	}
+	
+	VectorNormalizeFast( dir_vector ) ;
+	if ( dir_vector[2] >= 0 ) {
+		inv_z_ratio = dir_vector[2] * dir_vector[2] ;
+		z_ratio = 1.0f - inv_z_ratio ;
+	} else {
+		inv_z_ratio = - dir_vector[2] * dir_vector[2] ;
+		z_ratio = - 1.0f - inv_z_ratio ;
+	}
+	
+	for ( i = 0 ; i < tess.numVertexes ; i++, v += 4, normal += 4, st += 2 )
+	{
+		VectorSubtract( backEnd.or.viewOrigin, v, viewer ) ;
+		VectorNormalizeFast( viewer ) ;
+
+		d = DotProduct( normal, viewer ) ;
+		
+		reflected[0] = normal[0] * normal_weight[0] * d - viewer[0] ;
+		reflected[1] = normal[1] * normal_weight[1] * d - viewer[1] ;
+		reflected[2] = normal[2] * normal_weight[2] * d - viewer[2] ;
+		
+		st[0] = 0.5 + ( reflected[0] * xy_ratio + reflected[1] * yx_ratio ) * 0.5f ;
+		st[1] = 0.5 + ( reflected[0] * yx_ratio * inv_z_ratio + reflected[1] * xy_ratio * inv_z_ratio - reflected[2] * z_ratio ) * 0.5f ;
 	}
 }
 
