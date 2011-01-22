@@ -41,6 +41,17 @@ Changes in SG 1.1
 	- "tcgen environment_X" use X-axis (the default, same as "tcgen environment")
 	- "tcgen environment_Y" use Y-axis
 	- "tcgen environment_Z" use Z-axis (this one could be really usefull for reflecting water)
+	- "tcgen customEnvironment ( vector ) ( normal_weight_vector )" use a custom projection vector,
+		and set custom weight for normals
+		tcgen environment == tcgen customEnvironment ( 1 0 0 ) ( 2 2 2 )
+		Interesting value for normal_weight_vector are 
+			* ( 0 0 0 ) for a skybox-like environment map
+			* ( 2 2 2 ) for the default Q3 environment map
+			* ( 4 4 4 ) for an environment map with more deformation
+- Limit raised for shaders:
+	- up to 5 deformVertex (was 3)
+	- up to 5 tcMod (was 4)
+	- up to 24 animMap image (was 8)
 
 Changes in SG 1.1b4-20100116
 ******************

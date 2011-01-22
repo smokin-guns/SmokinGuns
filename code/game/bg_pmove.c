@@ -1215,7 +1215,9 @@ static void PM_CrashLand( void ) {
 #else
 	// ducking while falling 0.8*damage
 	if ( pm->ps->pm_flags & PMF_DUCKED ) {
-		delta *= 0.8f;
+		// The new falling damage needs to raise a bit this value
+		//delta *= 0.8f;
+		delta *= 0.9f;
 	}
 
 	if( delta > 12){
