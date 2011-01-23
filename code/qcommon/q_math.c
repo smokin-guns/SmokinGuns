@@ -469,6 +469,7 @@ void vectoangles( const vec3_t value1, vec3_t angles ) {
 }
 
 
+
 /*
 =================
 AnglesToAxis

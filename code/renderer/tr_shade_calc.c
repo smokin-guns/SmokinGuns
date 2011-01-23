@@ -920,28 +920,7 @@ void RB_CalcEnvironmentTexCoords( float *st )
 
 #else
 
-// This is temporary
-// Don't know why Q3's rsqrt is in q_math.c, but Q3's sqrt is hidden in cm_trace.c ...
-// I will probably move it to q_math.c later ...
 
-float Q_sqrt(float number) {
-	floatint_t t;
-	float x, y;
-	const float f = 1.5F;
-	x = number * 0.5F;
-	t.f  = number;
-	t.i  = 0x5f3759df - ( t.i >> 1 );
-	y  = t.f;
-	y  = y * ( f - ( x * y * y ) );
-	y  = y * ( f - ( x * y * y ) );
-	return number * y;
-}
-
-float Q_sqrt_signed(float number)
-{
-	if ( number >= 0 ) { return Q_sqrt( number ) ; }
-	else { return - Q_sqrt( - number ) ; }
-}
 
 // Joe Kari: This new function allow custom projection axis for tcgen environment 
 
@@ -968,7 +947,7 @@ void RB_CalcEnvironmentTexCoords( float *st , int axis )
 			reflected[1] = normal[1]*2*d - viewer[1];
 			reflected[2] = normal[2]*2*d - viewer[2];
 			
-			st[0] = 0.5 + reflected[1] * 0.5;
+			st[0] = 0.5 - reflected[1] * 0.5;
 			st[1] = 0.5 - reflected[2] * 0.5;
 		}
 	
@@ -1003,7 +982,6 @@ void RB_CalcEnvironmentTexCoords( float *st , int axis )
 			
 			st[0] = 0.5 + reflected[0] * 0.5;
 			st[1] = 0.5 - reflected[1] * 0.5;
-			//st[1] = - ( 0.5 + reflected[1] * 0.5 ) ;
 		}
 	}
 }
@@ -1023,31 +1001,16 @@ void RB_CalcCustomEnvironmentTexCoords( float *st , vec3_t dir_vector , vec3_t n
 	v = tess.xyz[0];
 	normal = tess.normal[0];
 
-	// Work in progress - TcGen using arbitrary axis
-	
-	// Maybe this should be moved later into tr_shader.c to compute it at loading time
-	
 	VectorCopy( dir_vector , xy_plan ) ;
 	xy_plan[2] = 0 ;
 	
-	if ( xy_plan[0] >= 0 ) {
-		VectorNormalizeFast( xy_plan ) ;
-		yx_ratio = xy_plan[0] * xy_plan[0] ;
-		xy_ratio = 1.0f - yx_ratio ;
-	} else {
-		VectorNormalizeFast( xy_plan ) ;
-		yx_ratio = - xy_plan[0] * xy_plan[0] ;
-		xy_ratio = - 1.0f - yx_ratio ;
-	}
+	VectorNormalizeFast( xy_plan ) ;
+	yx_ratio = xy_plan[0] * xy_plan[0] ;
+	xy_ratio = 1.0f - yx_ratio ;
 	
 	VectorNormalizeFast( dir_vector ) ;
-	if ( dir_vector[2] >= 0 ) {
-		inv_z_ratio = dir_vector[2] * dir_vector[2] ;
-		z_ratio = 1.0f - inv_z_ratio ;
-	} else {
-		inv_z_ratio = - dir_vector[2] * dir_vector[2] ;
-		z_ratio = - 1.0f - inv_z_ratio ;
-	}
+	inv_z_ratio = dir_vector[2] * dir_vector[2] ;
+	z_ratio = 1.0f - inv_z_ratio ;
 	
 	for ( i = 0 ; i < tess.numVertexes ; i++, v += 4, normal += 4, st += 2 )
 	{
@@ -1060,8 +1023,86 @@ void RB_CalcCustomEnvironmentTexCoords( float *st , vec3_t dir_vector , vec3_t n
 		reflected[1] = normal[1] * normal_weight[1] * d - viewer[1] ;
 		reflected[2] = normal[2] * normal_weight[2] * d - viewer[2] ;
 		
-		st[0] = 0.5 + ( reflected[0] * xy_ratio + reflected[1] * yx_ratio ) * 0.5f ;
-		st[1] = 0.5 + ( reflected[0] * yx_ratio * inv_z_ratio + reflected[1] * xy_ratio * inv_z_ratio - reflected[2] * z_ratio ) * 0.5f ;
+		// Joe Kari: please do not modify thoses lines: it is VERY hard 
+		// to figure out where to use "+" and where to use "-"
+		st[0] = 0.5 + ( reflected[0] * xy_ratio - reflected[1] * yx_ratio ) * 0.5f ;
+		st[1] = 0.5 + ( reflected[0] * yx_ratio * inv_z_ratio - reflected[1] * xy_ratio * inv_z_ratio - reflected[2] * z_ratio ) * 0.5f ;
+	}
+}
+
+
+
+void RB_CalcEnvironment360TexCoords( float *st , vec3_t dir_vector , vec3_t normal_weight )
+{
+	int		i;
+	float		*v, *normal;
+	vec3_t		viewer, reflected;
+	float		d;
+	/*
+	vec3_t		xy_plan ;
+	float		xy_ratio , yx_ratio , z_ratio , inv_z_ratio ;
+	*/
+	float		last_s = 0.5f ;
+	
+
+	v = tess.xyz[0];
+	normal = tess.normal[0];
+
+	/*
+	VectorCopy( dir_vector , xy_plan ) ;
+	xy_plan[2] = 0 ;
+	
+	VectorNormalizeFast( xy_plan ) ;
+	yx_ratio = xy_plan[0] * xy_plan[0] ;
+	xy_ratio = 1.0f - yx_ratio ;
+	
+	VectorNormalizeFast( dir_vector ) ;
+	inv_z_ratio = dir_vector[2] * dir_vector[2] ;
+	z_ratio = 1.0f - inv_z_ratio ;
+	*/
+	
+	for ( i = 0 ; i < tess.numVertexes ; i++, v += 4, normal += 4, st += 2 )
+	{
+		VectorSubtract( backEnd.or.viewOrigin, v, viewer ) ;
+		VectorNormalizeFast( viewer ) ;
+
+		d = DotProduct( normal, viewer ) ;
+		
+		reflected[0] = normal[0] * normal_weight[0] * d - viewer[0] ;
+		reflected[1] = normal[1] * normal_weight[1] * d - viewer[1] ;
+		reflected[2] = normal[2] * normal_weight[2] * d - viewer[2] ;
+		
+		VectorNormalizeFast( reflected ) ;
+		
+		
+		if ( reflected[1] == 0 && reflected[0] == 0 )
+		{
+			st[0] = 0 ;
+			if ( reflected[2] > 0 ) { st[1] = 0.00001f ; }
+			else { st[1] = 0.99999f ; }
+		}
+		else
+		{
+			if ( reflected[0] ) {
+				st[0] = 0.5f + ( atan2 ( reflected[1], reflected[0] ) / M_2xPI ) ;
+			}
+			else if ( reflected[1] > 0 ) { st[0] = 0.25f ; }
+			else { st[0] = 0.75f ; }
+			
+			// No Z-deformation: (not good at all...)
+			//st[1] = 0.5f - ( asin( reflected[2] * 0.98f ) * M_1_PI );
+			
+			// Z-deformation (most 360 environment needs this):
+			//st[1] = 0.5f - reflected[2] * 0.49999f ;
+			
+			// Z-deformation Mirrored:
+			st[1] = 0.99f - fabs( reflected[2] * 0.98f) ;
+		}
+		
+		// Handle the border case (where tex coord should wrap around)
+		// ^^ st00pid h4ck ^^ 
+		st[0] += roundf( last_s - st[0] ) ;
+		last_s = st[0] ;
 	}
 }
 
