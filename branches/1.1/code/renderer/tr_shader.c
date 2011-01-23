@@ -977,6 +977,13 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 				
 				stage->bundle[0].tcGen = TCGEN_CUSTOM_ENVIRONMENT_MAP;
 			}
+			else if ( !Q_stricmp( token, "environment_360" ) )
+			{
+				ParseVector( text, 3, stage->bundle[0].tcGenVectors[0] );
+				ParseVector( text, 3, stage->bundle[0].tcGenVectors[1] );
+				
+				stage->bundle[0].tcGen = TCGEN_ENVIRONMENT_360;
+			}
 #endif
 			else if ( !Q_stricmp( token, "lightmap" ) )
 			{

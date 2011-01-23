@@ -398,6 +398,15 @@ typedef	int	fixed16_t;
 #define M_PI		3.14159265358979323846f	// matches value in gcc v2 math.h
 #endif
 
+#ifdef SMOKINGUNS
+#ifndef M_PI_2
+#define M_PI_2		1.57079632679489661923f
+#endif
+#ifndef M_2xPI
+#define M_2xPI		6.28318530717958647692f
+#endif
+#endif
+
 #define NUMVERTEXNORMALS	162
 extern	vec3_t	bytedirs[NUMVERTEXNORMALS];
 
@@ -502,6 +511,11 @@ float Q_rsqrt( float f );		// reciprocal square root
 #endif
 
 #define SQRTFAST( x ) ( (x) * Q_rsqrt( x ) )
+
+#ifdef SMOKINGUNS
+// Joe Kari: for consistencies... (I never remember this SQRTFAST...)
+#define Q_sqrt( x ) ( (x) * Q_rsqrt( x ) )
+#endif
 
 signed char ClampChar( int i );
 signed short ClampShort( int i );

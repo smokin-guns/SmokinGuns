@@ -214,6 +214,7 @@ typedef enum {
 	TCGEN_ENVIRONMENT_MAPPED_Y,
 	TCGEN_ENVIRONMENT_MAPPED_Z,
 	TCGEN_CUSTOM_ENVIRONMENT_MAP,
+	TCGEN_ENVIRONMENT_360,
 #endif
 	TCGEN_FOG,
 	TCGEN_VECTOR			// S and T from world coordinates
@@ -1585,6 +1586,7 @@ void	RB_CalcEnvironmentTexCoords( float *dstTexCoords );
 #else
 void	RB_CalcEnvironmentTexCoords( float *dstTexCoords , int axis );
 void	RB_CalcCustomEnvironmentTexCoords( float *dstTexCoords , vec3_t dir_vector, vec3_t normal_weight );
+void	RB_CalcEnvironment360TexCoords( float *dstTexCoords , vec3_t dir_vector, vec3_t normal_weight );
 #endif
 void	RB_CalcFogTexCoords( float *dstTexCoords );
 void	RB_CalcScrollTexCoords( const float scroll[2], float *dstTexCoords );
