@@ -3971,6 +3971,8 @@ BotCheckBuy
 void BotCheckBuy(bot_state_t *bs){
 	int money, i, mark, mark2;
 	gitem_t *item;
+	qboolean bought = qfalse;
+	
 
 	if(g_gametype.integer >= GT_RTP){
 		if(!(bs->cur_ps.stats[STAT_FLAGS] & SF_CANBUY))
@@ -4064,13 +4066,15 @@ void BotCheckBuy(bot_state_t *bs){
 	if(mark != -1 || mark2 != -1){
 		trap_EA_Command(bs->client, va("cg_buy %s", item->classname));
 		money -= item->prize;
+		bought = qtrue ;
 	}
 
-	// now look if we have enough money to buy some money
+	// now look if we have enough money to buy some ammo
 	if(money >= 5){
 		item = BG_FindItemForAmmo(WP_CART_CLIP);
 		trap_EA_Command(bs->client, va("cg_buy %s", item->classname));
 		money -= item->prize;
+		bought = qtrue ;
 	}
 
 	// if still some money, buy a misc item
@@ -4114,6 +4118,7 @@ void BotCheckBuy(bot_state_t *bs){
 	if(mark != -1 || mark2 != -1){
 		trap_EA_Command(bs->client, va("cg_buy %s", item->classname));
 		money -= item->prize;
+		bought = qtrue ;
 	}
 
 	// if we have got some more money now, buy pistol ammo
@@ -4121,10 +4126,18 @@ void BotCheckBuy(bot_state_t *bs){
 		item = BG_FindItemForAmmo(WP_BULLETS_CLIP);
 		trap_EA_Command(bs->client, va("cg_buy %s", item->classname));
 		money -= item->prize;
+		bought = qtrue ;
 	}
 
 	bs->flags ^= BFL_BOUGHT;
 	BotChooseWeapon(bs);
+	
+	
+	// Bugfix hinted by The Doctor
+	// http://www.smokin-guns.net/viewtopic.php?t=2382&start=15
+	if ( bought ) {
+		bs->buytime = level.time + 3000 + rand() % 4000 ;
+	}
 }
 
 /*
