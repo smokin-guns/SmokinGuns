@@ -1303,7 +1303,15 @@ int BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 	if (!areanum || !AAS_AreaReachability(areanum))
 	{
 		//use the last valid area the bot was in
+#ifndef SMOKINGUNS
 		areanum = gs->lastreachabilityarea;
+#else
+		// Bugfix by The Doctor
+		// http://www.smokin-guns.net/viewtopic.php?t=2382&start=15
+		if (gs->lastreachabilityarea>0) {
+			areanum = gs->lastreachabilityarea;
+		}
+#endif
 	} //end if
 	//remember the last area with reachabilities the bot was in
 	gs->lastreachabilityarea = areanum;
