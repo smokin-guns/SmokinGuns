@@ -46,7 +46,7 @@ static const orderTask_t validOrders[] = {
 	{ VOICECHAT_FOLLOWFLAGCARRIER,	TEAMTASK_ESCORT }
 };
 
-static const int numValidOrders = sizeof(validOrders) / sizeof(orderTask_t);
+static const int numValidOrders = ARRAY_LEN(validOrders);
 
 #ifndef SMOKINGUNS
 static int CG_ValidOrder(const char *p) {
@@ -616,6 +616,7 @@ static void CG_MapRestart( void ) {
 	cg.timelimitWarnings = 0;
 
 	cg.intermissionStarted = qfalse;
+	cg.levelShot = qfalse;
 
 	cgs.voteTime = 0;
 

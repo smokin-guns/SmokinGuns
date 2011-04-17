@@ -2114,7 +2114,7 @@ gitem_t	bg_itemlist[] =
 };
 #endif
 
-int		bg_numItems = sizeof(bg_itemlist) / sizeof(bg_itemlist[0]) - 1;
+int		bg_numItems = ARRAY_LEN( bg_itemlist ) - 1;
 
 
 /*

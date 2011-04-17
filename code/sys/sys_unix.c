@@ -59,19 +59,27 @@ char *Sys_DefaultHomePath(void)
 	{
 		if( ( p = getenv( "HOME" ) ) != NULL )
 		{
-			Q_strncpyz( homePath, p, sizeof( homePath ) );
+			Com_sprintf(homePath, sizeof(homePath), "%s%c", p, PATH_SEP);
 #ifdef MACOS_X
-			Q_strcat( homePath, sizeof( homePath ),
+			Q_strcat(homePath, sizeof(homePath),
+				"Library/Application Support/");
+
+			if(com_homepath->string[0])
+				Q_strcat(homePath, sizeof(homePath), com_homepath->string);
+			else
 #ifndef SMOKINGUNS
-					"/Library/Application Support/Quake3" );
+				Q_strcat(homePath, sizeof(homePath), "Quake3");
 #else
-					"/Library/Application Support/" PRODUCT_SHORTNAME );
+				Q_strcat(homePath, sizeof(homePath), PRODUCT_SHORTNAME);
 #endif
 #else
+			if(com_homepath->string[0])
+				Q_strcat(homePath, sizeof(homePath), com_homepath->string);
+			else
 #ifndef SMOKINGUNS
-			Q_strcat( homePath, sizeof( homePath ), "/.q3a" );
+				Q_strcat(homePath, sizeof(homePath), ".q3a");
 #else
-			Q_strcat( homePath, sizeof( homePath ), "/." BASEGAME );
+				Q_strcat(homePath, sizeof(homePath), "." BASEGAME);
 #endif
 #endif
 		}
@@ -220,8 +228,7 @@ Sys_Milliseconds
 */
 /* base time in seconds, that's our origin
    timeval:tv_sec is an int:
-   assuming this wraps every 0x7fffffff - ~68 years since the Epoch (1970) - we're safe till 2038
-   using unsigned long data type to work right with Sys_XTimeToSysTime */
+   assuming this wraps every 0x7fffffff - ~68 years since the Epoch (1970) - we're safe till 2038 */
 unsigned long sys_timeBase = 0;
 /* current time in ms, using sys_timeBase as origin
    NOTE: sys_timeBase*1000 + curtime -> ms since the Epoch
@@ -368,6 +375,36 @@ qboolean Sys_Mkdir( const char *path )
 		return errno == EEXIST;
 
 	return qtrue;
+}
+
+/*
+==================
+Sys_Mkfifo
+==================
+*/
+FILE *Sys_Mkfifo( const char *ospath )
+{
+	FILE	*fifo;
+	int	result;
+	int	fn;
+	struct	stat buf;
+
+	// if file already exists AND is a pipefile, remove it
+	if( !stat( ospath, &buf ) && S_ISFIFO( buf.st_mode ) )
+		FS_Remove( ospath );
+
+	result = mkfifo( ospath, 0600 );
+	if( result != 0 )
+		return NULL;
+
+	fifo = fopen( ospath, "w+" );
+	if( fifo )
+	{
+		fn = fileno( fifo );
+		fcntl( fn, F_SETFL, O_NONBLOCK );
+	}
+
+	return fifo;
 }
 
 /*
@@ -629,7 +666,7 @@ void Sys_ErrorDialog( const char *error )
 	unsigned int size;
 	int f = -1;
 	const char *homepath = Cvar_VariableString( "fs_homepath" );
-	const char *gamedir = Cvar_VariableString( "fs_gamedir" );
+	const char *gamedir = Cvar_VariableString( "fs_game" );
 	const char *fileName = "crashlog.txt";
 	char *ospath = FS_BuildOSPath( homepath, gamedir, fileName );
 
@@ -872,6 +909,31 @@ void Sys_PlatformInit( void )
 
 /*
 ==============
+Sys_PlatformExit
+
+Unix specific deinitialisation
+==============
+*/
+void Sys_PlatformExit( void )
+{
+#ifdef DEDICATED
+	char pidfile[MAX_OSPATH];
+
+	// single exit point (regular exit or in case of signal fault)
+	// includes unlinking of the PID file. Original code for handling
+	// the PID file by hika AT bsdmon DOT com
+	Cvar_VariableStringBuffer("sv_pidfile", pidfile, sizeof(pidfile));
+
+	if (pidfile[0]) {
+		// Try to unlink the pid file
+		if (Sys_Unlink(pidfile) != 0)
+			printf("Cannot unlink %s : %s\n", pidfile, strerror(errno));
+	}
+#endif
+}
+
+/*
+==============
 Sys_SetEnv
 
 set/unset environment variables (empty value removes it)
@@ -964,31 +1026,6 @@ void Sys_PlatformPostInit( char *progname )
 			printf("Cannot open %s for writing : %s\n", cv_pid->string, strerror(errno));
 			Cvar_Set( "sv_pidfile", '\0' );
 		}
-	}
-#endif
-}
-
-/*
-==============
-Sys_PlatformExit
-
-Unix specific exit
-==============
-*/
-void Sys_PlatformExit( void )
-{
-#ifdef DEDICATED
-	char pidfile[MAX_OSPATH];
-
-	// single exit point (regular exit or in case of signal fault)
-	// includes unlinking of the PID file. Original code for handling
-	// the PID file by hika AT bsdmon DOT com
-	Cvar_VariableStringBuffer("sv_pidfile", pidfile, sizeof(pidfile));
-
-	if (pidfile[0]) {
-		// Try to unlink the pid file
-		if (Sys_Unlink(pidfile) != 0)
-			printf("Cannot unlink %s : %s\n", pidfile, strerror(errno));
 	}
 #endif
 }
