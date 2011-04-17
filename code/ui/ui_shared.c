@@ -3279,7 +3279,8 @@ static bind_t g_bindings[] =
 	{"messagemode4",	-1,					-1,		-1, -1}
 #else
 	{"messagemode4",	-1,					-1,		-1, -1},
-	{"+voiprecord",		-1,					-1,		-1, -1}
+	{"+voiprecord",		-1,					-1,		-1, -1},
+	{"minimize",		-1,					-1,		-1, -1}
 #endif
 };
 
