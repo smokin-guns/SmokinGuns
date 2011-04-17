@@ -34,8 +34,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../client/client.h"
 #include "../sys/sys_local.h"
 
-#define ARRAYLEN(x) (sizeof(x)/sizeof(x[0]))
-
 #ifdef MACOS_X
 // Mouse acceleration needs to be disabled
 #define MACOS_X_ACCELERATION_HACK
@@ -576,17 +574,13 @@ static void IN_InitJoystick( void )
 {
 	int i = 0;
 	int total = 0;
+	char buf[16384] = "";
 
 	if (stick != NULL)
 		SDL_JoystickClose(stick);
 
 	stick = NULL;
 	memset(&stick_state, '\0', sizeof (stick_state));
-
-	if( !in_joystick->integer ) {
-		Com_DPrintf( "Joystick is not active.\n" );
-		return;
-	}
 
 	if (!SDL_WasInit(SDL_INIT_JOYSTICK))
 	{
@@ -601,8 +595,21 @@ static void IN_InitJoystick( void )
 
 	total = SDL_NumJoysticks();
 	Com_DPrintf("%d possible joysticks\n", total);
+
+	// Print list and build cvar to allow ui to select joystick.
 	for (i = 0; i < total; i++)
-		Com_DPrintf("[%d] %s\n", i, SDL_JoystickName(i));
+	{
+		Q_strcat(buf, sizeof(buf), SDL_JoystickName(i));
+		Q_strcat(buf, sizeof(buf), "\n");
+	}
+
+	Cvar_Get( "in_availableJoysticks", buf, CVAR_ROM );
+
+	if( !in_joystick->integer ) {
+		Com_DPrintf( "Joystick is not active.\n" );
+		SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+		return;
+	}
 
 	in_joystickNo = Cvar_Get( "in_joystickNo", "0", CVAR_ARCHIVE );
 	if( in_joystickNo->integer < 0 || in_joystickNo->integer >= total )
@@ -648,7 +655,7 @@ IN_JoyMove
 */
 static void IN_JoyMove( void )
 {
-	qboolean joy_pressed[ARRAYLEN(joy_keys)];
+	qboolean joy_pressed[ARRAY_LEN(joy_keys)];
 	unsigned int axes = 0;
 	unsigned int hats = 0;
 	int total = 0;
@@ -691,8 +698,8 @@ static void IN_JoyMove( void )
 	total = SDL_JoystickNumButtons(stick);
 	if (total > 0)
 	{
-		if (total > ARRAYLEN(stick_state.buttons))
-			total = ARRAYLEN(stick_state.buttons);
+		if (total > ARRAY_LEN(stick_state.buttons))
+			total = ARRAY_LEN(stick_state.buttons);
 		for (i = 0; i < total; i++)
 		{
 			qboolean pressed = (SDL_JoystickGetButton(stick, i) != 0);
@@ -1006,7 +1013,7 @@ void IN_Init( void )
 
 	in_joystick = Cvar_Get( "in_joystick", "0", CVAR_ARCHIVE|CVAR_LATCH );
 	in_joystickDebug = Cvar_Get( "in_joystickDebug", "0", CVAR_TEMP );
-	in_joystickThreshold = Cvar_Get( "in_joystickThreshold", "0.15", CVAR_ARCHIVE );
+	in_joystickThreshold = Cvar_Get( "joy_threshold", "0.15", CVAR_ARCHIVE );
 
 #ifdef MACOS_X_ACCELERATION_HACK
 	in_disablemacosxmouseaccel = Cvar_Get( "in_disablemacosxmouseaccel", "1", CVAR_ARCHIVE );

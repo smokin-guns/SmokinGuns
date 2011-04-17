@@ -299,6 +299,8 @@ typedef struct {
 #ifndef SMOKINGUNS
 	int			punkbuster;
 #endif
+	int			g_humanplayers;
+	int			g_needpass;
 } serverInfo_t;
 
 typedef struct {

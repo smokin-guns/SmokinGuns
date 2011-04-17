@@ -95,14 +95,12 @@ void SV_GetChallenge(netadr_t from)
 	challenge->wasrefused = qfalse;
 
 
-#if ! defined STANDALONE || defined SMOKINGUNS
+#ifndef STANDALONE
 	// Drop the authorize stuff if this client is coming in via v6 as the auth server does not support ipv6.
 	// Drop also for addresses coming in on local LAN and for stand-alone games independent from id's assets.
-#ifndef SMOKINGUNS
-	if(challenge->adr.type == NA_IP && !Cvar_VariableIntegerValue("com_standalone") && !Sys_IsLANAddress(from))
-#else
+	if(challenge->adr.type == NA_IP && !com_standalone->integer && !Sys_IsLANAddress(from))
+#elif defined SMOKINGUNS
 	if(challenge->adr.type == NA_IP && !Sys_IsLANAddress(from))
-#endif
 	{
 		// look up the authorize server's IP
 		if (svs.authorizeAddress.type == NA_BAD)
@@ -204,7 +202,8 @@ static qboolean SV_TrustedClient( char* ip, char *info ) {
 }
 #endif
 
-#if ! defined STANDALONE || defined SMOKINGUNS
+#ifndef STANDALONE
+#elif defined SMOKINGUNS
 /*
 ====================
 SV_AuthorizeIpPacket
@@ -352,8 +351,8 @@ void SV_DirectConnect( netadr_t from ) {
 	Q_strncpyz( userinfo, Cmd_Argv(1), sizeof(userinfo) );
 
 	version = atoi( Info_ValueForKey( userinfo, "protocol" ) );
-	if ( version != PROTOCOL_VERSION ) {
-		NET_OutOfBandPrint( NS_SERVER, from, "print\nServer uses protocol version %i.\n", PROTOCOL_VERSION );
+	if ( version != com_protocol->integer ) {
+		NET_OutOfBandPrint( NS_SERVER, from, "print\nServer uses protocol version %i (yours is %i).\n", com_protocol->integer, version );
 		Com_DPrintf ("    rejected connect from version %i\n", version);
 		return;
 	}
@@ -774,7 +773,11 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 
 	client->deltaMessage = -1;
 	client->nextSnapshotTime = svs.time;	// generate a snapshot immediately
-	client->lastUsercmd = *cmd;
+
+	if(cmd)
+		memcpy(&client->lastUsercmd, cmd, sizeof(client->lastUsercmd));
+	else
+		memset(&client->lastUsercmd, '\0', sizeof(client->lastUsercmd));
 
 	// call the game begin function
 	VM_Call( gvm, GAME_CLIENT_BEGIN, client - svs.clients );
@@ -902,7 +905,7 @@ void SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
 	int curindex;
 	int rate;
 	int blockspersnap;
-	int idPack = 0, missionPack = 0, unreferenced = 1;
+	int unreferenced = 1;
 	char errorMessage[1024];
 	char pakbuf[MAX_QPATH], *pakptr;
 	int numRefPaks;
@@ -910,7 +913,13 @@ void SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
 	if (!*cl->downloadName)
 		return;	// Nothing being downloaded
 
-	if (!cl->download) {
+	if(!cl->download)
+	{
+		qboolean idPack = qfalse;
+		#ifndef STANDALONE
+		qboolean missionPack = qfalse;
+		#endif
+	
  		// Chop off filename extension.
 		Com_sprintf(pakbuf, sizeof(pakbuf), "%s", cl->downloadName);
 		pakptr = Q_strrchr(pakbuf, '.');
@@ -937,8 +946,11 @@ void SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
 
 						// now that we know the file is referenced,
 						// check whether it's legal to download it.
-						missionPack = FS_idPak(pakbuf, "missionpack");
-						idPack = missionPack || FS_idPak(pakbuf, BASEGAME);
+#ifndef STANDALONE
+						missionPack = FS_idPak(pakbuf, BASETA, NUM_TA_PAKS);
+						idPack = missionPack;
+#endif
+						idPack = idPack || FS_idPak(pakbuf, BASEGAME, NUM_ID_PAKS);
 
 						break;
 					}
@@ -961,11 +973,15 @@ void SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
 			}
 			else if (idPack) {
 				Com_Printf("clientDownload: %d : \"%s\" cannot download id pk3 files\n", (int) (cl - svs.clients), cl->downloadName);
-				if (missionPack) {
+#ifndef STANDALONE
+				if(missionPack)
+				{
 					Com_sprintf(errorMessage, sizeof(errorMessage), "Cannot autodownload Team Arena file \"%s\"\n"
 									"The Team Arena mission pack can be found in your local game store.", cl->downloadName);
 				}
-				else {
+				else
+#endif
+				{
 					Com_sprintf(errorMessage, sizeof(errorMessage), "Cannot autodownload id pk3 file \"%s\"", cl->downloadName);
 				}
 			}
@@ -1537,7 +1553,7 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK ) {
 
 	if (clientOK) {
 		// pass unknown strings to the game
-		if (!u->name && sv.state == SS_GAME) {
+		if (!u->name && sv.state == SS_GAME && (cl->state == CS_ACTIVE || cl->state == CS_PRIMED)) {
 			Cmd_Args_Sanitize();
 			VM_Call( gvm, GAME_CLIENT_COMMAND, cl - svs.clients );
 		}
@@ -1824,7 +1840,7 @@ void SV_UserVoip( client_t *cl, msg_t *msg ) {
 
 		// Transmit this packet to the client.
 		// !!! FIXME: I don't like this queueing system.
-		if (client->queuedVoipPackets >= (sizeof (client->voipPacket) / sizeof (client->voipPacket[0]))) {
+		if (client->queuedVoipPackets >= ARRAY_LEN(client->voipPacket)) {
 			Com_Printf("Too many VoIP packets queued for client #%d\n", i);
 			continue;  // no room for another packet right now.
 		}

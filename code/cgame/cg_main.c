@@ -568,7 +568,7 @@ static cvarTable_t		cvarTable[] = {
 //	{ &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
 };
 
-static int		cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
+static int  cvarTableSize = ARRAY_LEN( cvarTable );
 
 /*
 =================
@@ -673,7 +673,7 @@ void CG_UpdateCvars( void ) {
 
 	// check for modications here
 
-	// If team overlay is on, ask for updates from the server.  If its off,
+	// If team overlay is on, ask for updates from the server.  If it's off,
 	// let the server know so we don't receive it
 	if ( drawTeamOverlayModificationCount != cg_drawTeamOverlay.modificationCount ) {
 		drawTeamOverlayModificationCount = cg_drawTeamOverlay.modificationCount;
@@ -1481,17 +1481,15 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.hastePuffShader = trap_R_RegisterShader("hasteSmokePuff" );
 
 #ifdef MISSIONPACK
-	if ( cgs.gametype == GT_CTF || cgs.gametype == GT_1FCTF || cgs.gametype == GT_HARVESTER || cg_buildScript.integer ) {
-#else
-	if ( cgs.gametype == GT_CTF || cg_buildScript.integer ) {
-#endif
+	if ( cgs.gametype == GT_HARVESTER || cg_buildScript.integer ) {
 		cgs.media.redCubeModel = trap_R_RegisterModel( "models/powerups/orb/r_orb.md3" );
 		cgs.media.blueCubeModel = trap_R_RegisterModel( "models/powerups/orb/b_orb.md3" );
 		cgs.media.redCubeIcon = trap_R_RegisterShader( "icons/skull_red" );
 		cgs.media.blueCubeIcon = trap_R_RegisterShader( "icons/skull_blue" );
 	}
+#endif
 #else
-	cgs.media.backTileShader = trap_R_RegisterShader( "hud/tile" );//"gfx/2d/backtile" );
+	cgs.media.backTileShader = trap_R_RegisterShader( "hud/tile" );
 
 	CG_LoadingStage(1);
 #endif
@@ -2390,7 +2388,7 @@ void CG_LoadMenus(const char *menuFile) {
 #ifndef SMOKINGUNS
 	len = trap_FS_FOpenFile( menuFile, &f, FS_READ );
 	if ( !f ) {
-		trap_Error( va( S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile ) );
+		Com_Printf( S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile );
 		len = trap_FS_FOpenFile( "ui/hud.txt", &f, FS_READ );
 		if (!f) {
 			trap_Error( va( S_COLOR_RED "default menu file not found: ui/hud.txt, unable to continue!\n") );

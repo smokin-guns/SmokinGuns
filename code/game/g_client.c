@@ -1221,7 +1221,6 @@ void ClientUserinfoChanged( int clientNum ) {
 	char	blueTeam[MAX_INFO_STRING];
 	char	userinfo[MAX_INFO_STRING];
 #ifdef SMOKINGUNS
-	char	guid[MAX_INFO_STRING];
 	char	version[MAX_INFO_STRING];
 	char	md5[MAX_INFO_STRING];
 #endif
@@ -1535,7 +1534,6 @@ void ClientUserinfoChanged( int clientNum ) {
 #endif
 	strcpy(redTeam, Info_ValueForKey( userinfo, "g_redteam" ));
 	strcpy(blueTeam, Info_ValueForKey( userinfo, "g_blueteam" ));
-	strcpy(guid, Info_ValueForKey(userinfo, "cl_guid"));
 
 	// send over a subset of the userinfo keys so other clients can
 	// print scoreboards, display models, and play custom sounds
@@ -1551,21 +1549,16 @@ void ClientUserinfoChanged( int clientNum ) {
 			client->pers.netname, client->sess.sessionTeam, model,
 			client->pers.maxHealth, client->sess.wins, client->sess.losses,
 			Info_ValueForKey( userinfo, "skill" ), teamTask, teamLeader);
-	} else if (*guid == 0) {
-		s = va("n\\%s\\t\\%i\\model\\%s\\g_redteam\\%s\\g_blueteam\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d\\v\\%s",
-			client->pers.netname, client->sess.sessionTeam, model, redTeam, blueTeam,
-			client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader, version);
 #endif
 	}
 	else
 	{
 #ifndef SMOKINGUNS
-		s = va("n\\%s\\guid\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
-			client->pers.netname, guid, client->sess.sessionTeam, model, headModel, redTeam, blueTeam, c1, c2,
+		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
+			client->pers.netname, client->sess.sessionTeam, model, headModel, redTeam, blueTeam, c1, c2,
 			client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader);
 #else
-		s = va("guid\\%s\\n\\%s\\t\\%i\\model\\%s\\g_redteam\\%s\\g_blueteam\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d\\v\\%s\\md5\\%s",
-			guid,
+		s = va("\\n\\%s\\t\\%i\\model\\%s\\g_redteam\\%s\\g_blueteam\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d\\v\\%s\\md5\\%s",
 			client->pers.netname, client->sess.sessionTeam, model, redTeam, blueTeam,
 			client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader, version, md5);
 #endif

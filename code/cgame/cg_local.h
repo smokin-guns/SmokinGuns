@@ -754,10 +754,10 @@ typedef struct {
 	int				spectatorPaintLen; 									// current offset from start
 #ifdef SMOKINGUNS
 	vec4_t		spectatorCurrentColor;									// current color from start
-#endif
-
+#else
 	// skull trails
 	skulltrail_t	skulltrails[MAX_CLIENTS];
+#endif
 
 	// centerprinting
 	int			centerPrintTime;
@@ -768,9 +768,6 @@ typedef struct {
 
 	// low ammo warning state
 	int			lowAmmoWarning;		// 1 = low, 2 = empty
-
-	// kill timers for carnage reward
-	int			lastKillTime;
 
 	// crosshair client ID
 	int			crosshairClientNum;
@@ -838,9 +835,6 @@ typedef struct {
 	float		v_dmg_time;
 	float		v_dmg_pitch;
 	float		v_dmg_roll;
-
-	vec3_t		kick_angles;	// weapon kicks
-	vec3_t		kick_origin;
 
 	// temp working variables for player view
 	float		bobfracsin;
@@ -1059,10 +1053,12 @@ typedef struct {
 	qhandle_t	charsetPropB;
 	qhandle_t	whiteShader;
 
+#ifndef SMOKINGUNS
 	qhandle_t	redCubeModel;
 	qhandle_t	blueCubeModel;
 	qhandle_t	redCubeIcon;
 	qhandle_t	blueCubeIcon;
+#endif
 	qhandle_t	redFlagModel;
 	qhandle_t	blueFlagModel;
 	qhandle_t	neutralFlagModel;
@@ -2206,8 +2202,10 @@ void CG_LoadingStage( int amount);
 //
 // cg_scoreboard.c
 //
+#ifndef SMOKINGUNS
 qboolean CG_DrawOldScoreboard( void );
 void CG_DrawOldTourneyScoreboard( void );
+#endif
 
 //
 // cg_consolecmds.c

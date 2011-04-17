@@ -1196,7 +1196,7 @@ static qboolean CG_ScanForExistingClientInfo( clientInfo_t *ci ) {
 #else
 			&& !Q_stricmp( ci->redTeam, match->redTeam ) ) {
 #endif
-			// this clientinfo is identical, so use it's handles
+			// this clientinfo is identical, so use its handles
 
 			ci->deferred = qfalse;
 
@@ -1430,7 +1430,7 @@ void CG_NewClientInfo( int clientNum ) {
 
 		if( cgs.gametype >= GT_TEAM ) {
 #ifndef SMOKINGUNS
-			Q_strncpyz( newInfo.headModelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.headModelName ) );
+			Q_strncpyz( newInfo.headModelName, DEFAULT_TEAM_HEAD, sizeof( newInfo.headModelName ) );
 			Q_strncpyz( newInfo.headSkinName, "default", sizeof( newInfo.headSkinName ) );
 #else
 			Q_strncpyz( newInfo.headModelName, DEFAULT_MODEL, sizeof( newInfo.headModelName ) );

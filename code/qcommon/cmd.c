@@ -436,11 +436,20 @@ char *Cmd_Cmd(void)
    Replace command separators with space to prevent interpretation
    This is a hack to protect buggy qvms
    https://bugzilla.icculus.org/show_bug.cgi?id=3593
+   https://bugzilla.icculus.org/show_bug.cgi?id=4769
 */
-void Cmd_Args_Sanitize( void ) {
+
+void Cmd_Args_Sanitize(void)
+{
 	int i;
-	for ( i = 1 ; i < cmd_argc ; i++ ) {
-		char* c = cmd_argv[i];
+
+	for(i = 1; i < cmd_argc; i++)
+	{
+		char *c = cmd_argv[i];
+		
+		if(strlen(c) > MAX_CVAR_VALUE_STRING - 1)
+			c[MAX_CVAR_VALUE_STRING - 1] = '\0';
+		
 		while ((c = strpbrk(c, "\n\r;"))) {
 			*c = ' ';
 			++c;
@@ -582,6 +591,20 @@ void Cmd_TokenizeStringIgnoreQuotes( const char *text_in ) {
 
 /*
 ============
+Cmd_FindCommand
+============
+*/
+cmd_function_t *Cmd_FindCommand( const char *cmd_name )
+{
+	cmd_function_t *cmd;
+	for( cmd = cmd_functions; cmd; cmd = cmd->next )
+		if( !Q_stricmp( cmd_name, cmd->name ) )
+			return cmd;
+	return NULL;
+}
+
+/*
+============
 Cmd_AddCommand
 ============
 */
@@ -589,14 +612,12 @@ void	Cmd_AddCommand( const char *cmd_name, xcommand_t function ) {
 	cmd_function_t	*cmd;
 
 	// fail if the command already exists
-	for ( cmd = cmd_functions ; cmd ; cmd=cmd->next ) {
-		if ( !strcmp( cmd_name, cmd->name ) ) {
-			// allow completion-only commands to be silently doubled
-			if ( function != NULL ) {
-				Com_Printf ("Cmd_AddCommand: %s already defined\n", cmd_name);
-			}
-			return;
-		}
+	if( Cmd_FindCommand( cmd_name ) )
+	{
+		// allow completion-only commands to be silently doubled
+		if( function != NULL )
+			Com_Printf( "Cmd_AddCommand: %s already defined\n", cmd_name );
+		return;
 	}
 
 	// use a small malloc to avoid zone fragmentation
@@ -650,6 +671,28 @@ void	Cmd_RemoveCommand( const char *cmd_name ) {
 	}
 }
 
+/*
+============
+Cmd_RemoveCommandSafe
+
+Only remove commands with no associated function
+============
+*/
+void Cmd_RemoveCommandSafe( const char *cmd_name )
+{
+	cmd_function_t *cmd = Cmd_FindCommand( cmd_name );
+
+	if( !cmd )
+		return;
+	if( cmd->function )
+	{
+		Com_Error( ERR_DROP, "Restricted source tried to remove "
+			"system command \"%s\"\n", cmd_name );
+		return;
+	}
+
+	Cmd_RemoveCommand( cmd_name );
+}
 
 /*
 ============
@@ -776,7 +819,7 @@ Cmd_CompleteCfgName
 */
 void Cmd_CompleteCfgName( char *args, int argNum ) {
 	if( argNum == 2 ) {
-		Field_CompleteFilename( "", "cfg", qfalse );
+		Field_CompleteFilename( "", "cfg", qfalse, qtrue );
 	}
 }
 
