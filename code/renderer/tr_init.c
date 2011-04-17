@@ -32,6 +32,11 @@ qboolean	textureFilterAnisotropic = qfalse;
 int			maxAnisotropy = 0;
 float		displayAspect = 0.0f;
 
+// Used to fix glReadPixels during screenshots and video frame capture
+// 4 is just for reference the default value for GL_PACK_ALIGNMENT
+// see http://www.opengl.org/sdk/docs/man/xhtml/glPixelStore.xml
+GLint		glPackAlignment = 4;
+
 glstate_t	glState;
 
 static void GfxInfo_f( void );
@@ -406,7 +411,10 @@ void RB_TakeScreenshot( int x, int y, int width, int height, char *fileName ) {
 	buffer[15] = height >> 8;
 	buffer[16] = 24;	// pixel size
 
+	qglGetIntegerv(GL_PACK_ALIGNMENT, &glPackAlignment);
+	qglPixelStorei(GL_PACK_ALIGNMENT, 1);
 	qglReadPixels( x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer+18 );
+	qglPixelStorei(GL_PACK_ALIGNMENT, glPackAlignment);
 
 	// swap rgb to bgr
 	c = 18 + width * height * 3;
@@ -439,7 +447,10 @@ void RB_TakeScreenshotJPEG( int x, int y, int width, int height, char *fileName 
 
 	buffer = ri.Hunk_AllocateTempMemory(memcount);
 
+	qglGetIntegerv(GL_PACK_ALIGNMENT, &glPackAlignment);
+	qglPixelStorei(GL_PACK_ALIGNMENT, 1);
 	qglReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+	qglPixelStorei(GL_PACK_ALIGNMENT, glPackAlignment);
 
 	// gamma correct
 	if(glConfig.deviceSupportsGamma)
@@ -572,7 +583,10 @@ void R_LevelShot( void ) {
 	buffer[14] = 128;
 	buffer[16] = 24;	// pixel size
 
+	qglGetIntegerv(GL_PACK_ALIGNMENT, &glPackAlignment);
+	qglPixelStorei(GL_PACK_ALIGNMENT, 1);
 	qglReadPixels( 0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_RGB, GL_UNSIGNED_BYTE, source );
+	qglPixelStorei(GL_PACK_ALIGNMENT, glPackAlignment);
 
 	// resample from source
 	xScale = glConfig.vidWidth / 512.0f;
@@ -741,8 +755,11 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 	
 	cmd = (const videoFrameCommand_t *)data;
 	
+	qglGetIntegerv(GL_PACK_ALIGNMENT, &glPackAlignment);
+	qglPixelStorei(GL_PACK_ALIGNMENT, 1);
 	qglReadPixels(0, 0, cmd->width, cmd->height, GL_RGB,
 		GL_UNSIGNED_BYTE, cmd->captureBuffer);
+	qglPixelStorei(GL_PACK_ALIGNMENT, glPackAlignment);
 
 	memcount = cmd->width * cmd->height * 3;
 
