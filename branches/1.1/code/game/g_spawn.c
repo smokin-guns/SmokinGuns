@@ -94,7 +94,6 @@ typedef struct
 	char	*name;
 	int		ofs;
 	fieldtype_t	type;
-	int		flags;
 } field_t;
 
 field_t fields[] = {

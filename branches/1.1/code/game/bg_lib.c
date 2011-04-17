@@ -297,18 +297,29 @@ int toupper( int c ) {
 	return c;
 }
 
-void *memmove( void *dest, const void *src, size_t count ) {
-	int		i;
+void *memmove(void *dest, const void *src, size_t count)
+{
+	size_t		i;
 
-	if ( dest > src ) {
-		for ( i = count-1 ; i >= 0 ; i-- ) {
-			((char *)dest)[i] = ((char *)src)[i];
+	if(count)
+	{
+		if(dest > src)
+		{
+			i = count;
+			
+			do
+			{
+				i--;
+				((char *) dest)[i] = ((char *) src)[i];
+			} while(i > 0);
 		}
-	} else {
-		for ( i = 0 ; i < count ; i++ ) {
-			((char *)dest)[i] = ((char *)src)[i];
+		else
+		{
+			for(i = 0; i < count; i++)
+				((char *) dest)[i] = ((char *) src)[i];
 		}
 	}
+	
 	return dest;
 }
 
@@ -929,7 +940,7 @@ The variable pointed to by endptr will hold the location of the first character
 in the nptr string that was not used in the conversion
 ==============
 */
-double strtod( const char *nptr, const char **endptr )
+double strtod( const char *nptr, char **endptr )
 {
 	double res;
 	qboolean neg = qfalse;
@@ -942,12 +953,10 @@ double strtod( const char *nptr, const char **endptr )
 	if( Q_stricmpn( nptr, "nan", 3 ) == 0 )
 	{
 		floatint_t nan;
-		if( endptr == NULL )
-		{
-			nan.ui = 0x7fffffff;
-			return nan.f;
-		}
-		*endptr = &nptr[3];
+
+		if( endptr )
+			*endptr = (char *)&nptr[3];
+
 		// nan can be followed by a bracketed number (in hex, octal,
 		// or decimal) which is then put in the mantissa
 		// this can be used to generate signalling or quiet NaNs, for
@@ -955,7 +964,7 @@ double strtod( const char *nptr, const char **endptr )
 		// note that nan(0) is infinity!
 		if( nptr[3] == '(' )
 		{
-			const char *end;
+			char *end;
 			int mantissa = strtol( &nptr[4], &end, 0 );
 			if( *end == ')' )
 			{
@@ -975,9 +984,9 @@ double strtod( const char *nptr, const char **endptr )
 		if( endptr == NULL )
 			return inf.f;
 		if( Q_stricmpn( &nptr[3], "inity", 5 ) == 0 )
-			*endptr = &nptr[8];
+			*endptr = (char *)&nptr[8];
 		else
-			*endptr = &nptr[3];
+			*endptr = (char *)&nptr[3];
 		return inf.f;
 	}
 
@@ -1043,12 +1052,12 @@ double strtod( const char *nptr, const char **endptr )
 			float res2;
 			// apparently (confusingly) the exponent should be
 			// decimal
-			exp = strtol( &nptr[1], &end, 10 );
+			exp = strtol( &nptr[1], (char **)&end, 10 );
 			if( &nptr[1] == end )
 			{
 				// no exponent
 				if( endptr )
-					*endptr = nptr;
+					*endptr = (char *)nptr;
 				return res;
 			}
 			if( exp > 0 )
@@ -1075,7 +1084,7 @@ double strtod( const char *nptr, const char **endptr )
 			}
 		}
 		if( endptr )
-			*endptr = end;
+			*endptr = (char *)end;
 		return res;
 	}
 	// decimal
@@ -1107,12 +1116,12 @@ double strtod( const char *nptr, const char **endptr )
 		{
 			int exp;
 			float res10;
-			exp = strtol( &nptr[1], &end, 10 );
+			exp = strtol( &nptr[1], (char **)&end, 10 );
 			if( &nptr[1] == end )
 			{
 				// no exponent
 				if( endptr )
-					*endptr = nptr;
+					*endptr = (char *)nptr;
 				return res;
 			}
 			if( exp > 0 )
@@ -1141,7 +1150,7 @@ double strtod( const char *nptr, const char **endptr )
 			}
 		}
 		if( endptr )
-			*endptr = end;
+			*endptr = (char *)end;
 		return res;
 	}
 }
@@ -1251,13 +1260,13 @@ Will not overflow - returns LONG_MIN or LONG_MAX as appropriate
 *endptr is set to the location of the first character not used
 ==============
 */
-long strtol( const char *nptr, const char **endptr, int base )
+long strtol( const char *nptr, char **endptr, int base )
 {
 	long res;
 	qboolean pos = qtrue;
 
 	if( endptr )
-		*endptr = nptr;
+		*endptr = (char *)nptr;
 	// bases other than 0, 2, 8, 16 are very rarely used, but they're
 	// not much extra effort to support
 	if( base < 0 || base == 1 || base > 36 )
@@ -1279,14 +1288,14 @@ long strtol( const char *nptr, const char **endptr, int base )
 		nptr++;
 		// 0 is always a valid digit
 		if( endptr )
-			*endptr = nptr;
+			*endptr = (char *)nptr;
 		if( *nptr == 'x' || *nptr == 'X' )
 		{
 			if( base != 0 && base != 16 )
 			{
 				// can't be hex, reject x (accept 0)
 				if( endptr )
-					*endptr = nptr;
+					*endptr = (char *)nptr;
 				return 0;
 			}
 			nptr++;
@@ -1319,7 +1328,7 @@ long strtol( const char *nptr, const char **endptr, int base )
 			res = res * base - val;
 		nptr++;
 		if( endptr )
-			*endptr = nptr;
+			*endptr = (char *)nptr;
 	}
 	if( pos )
 	{
@@ -1756,13 +1765,8 @@ static int dopr (char *buffer, size_t maxlen, const char *format, va_list args)
       break; /* some picky compilers need this */
     }
   }
-  if (buffer != NULL)
-  {
-    if (currlen < maxlen - 1) 
-      buffer[currlen] = '\0';
-    else 
-      buffer[maxlen - 1] = '\0';
-  }
+  if (maxlen > 0)
+    buffer[currlen] = '\0';
   return total;
 }
 
@@ -2085,8 +2089,6 @@ static int dopr_outch (char *buffer, size_t *currlen, size_t maxlen, char c)
 
 int Q_vsnprintf(char *str, size_t length, const char *fmt, va_list args)
 {
-	if (str != NULL)
-		str[0] = 0;
 	return dopr(str, length, fmt, args);
 }
 

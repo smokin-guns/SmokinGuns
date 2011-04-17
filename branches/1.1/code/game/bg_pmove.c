@@ -37,7 +37,6 @@ pml_t		pml;
 float	pm_stopspeed = 100.0f;
 float	pm_duckScale = 0.25f;
 float	pm_swimScale = 0.50f;
-float	pm_wadeScale = 0.70f;
 
 float	pm_accelerate = 10.0f;
 float	pm_airaccelerate = 1.0f;
@@ -52,7 +51,6 @@ float	pm_spectatorfriction = 5.0f;
 float	pm_stopspeed = 20.0f;
 float	pm_duckScale = 0.50f;
 float	pm_swimScale = 0.60f;
-float	pm_wadeScale = 0.70f;
 float	pm_ladderScale = 0.80f;  // Set the max movement speed to 80% of normal
 float	pm_reloadScale = 0.75f;
 

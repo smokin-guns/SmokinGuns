@@ -37,14 +37,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #define BASEGAME			"foobar"
   #define CLIENT_WINDOW_TITLE     	"changeme"
   #define CLIENT_WINDOW_MIN_TITLE 	"changeme2"
-  #define GAMENAME_FOR_MASTER		"iofoo3"	// must NOT contain whitespaces
+  #define GAMENAME_FOR_MASTER		"iofoo3"		// must NOT contain whitespaces
+  #define HEARTBEAT_FOR_MASTER		GAMENAME_FOR_MASTER
+  #define FLATLINE_FOR_MASTER		GAMENAME_FOR_MASTER "dead"
 #else
   #define PRODUCT_NAME			"ioq3"
   #define BASEGAME			"baseq3"
   #define CLIENT_WINDOW_TITLE     	"ioquake3"
   #define CLIENT_WINDOW_MIN_TITLE 	"ioq3"
   #define GAMENAME_FOR_MASTER		"Quake3Arena"
+  #define HEARTBEAT_FOR_MASTER		"QuakeArena-1"
+  #define FLATLINE_FOR_MASTER		HEARTBEAT_FOR_MASTER
 #endif
+
+#define BASETA				"missionpack"
 
 #ifdef _MSC_VER
   #define PRODUCT_VERSION "1.36"
@@ -74,13 +80,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #define CLIENT_WINDOW_TITLE		PRODUCT_NAME
   #define CLIENT_WINDOW_MIN_TITLE 	"SG"
   #define GAMENAME_FOR_MASTER		"smokinguns"
+  #define HEARTBEAT_FOR_MASTER		GAMENAME_FOR_MASTER
+  #define FLATLINE_FOR_MASTER		GAMENAME_FOR_MASTER "dead"
 
   // PRODUCT_VERSION will be used for sg_version cvar
   #ifndef PRODUCT_VERSION
     #define PRODUCT_VERSION	1.1
   #endif
   #ifndef SG_RELEASE
-    #define SG_RELEASE	20110301
+    #define SG_RELEASE	20110417
   #endif
 
   #ifndef XSTRING
@@ -106,7 +114,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #endif
 #endif
 
-#define MAX_TEAMNAME 32
+#define MAX_TEAMNAME		32
+#define MAX_MASTER_SERVERS      5	// number of supported master servers
+
+#define DEMOEXT	"dm_"			// standard demo extension
 
 #ifdef _MSC_VER
 
@@ -185,16 +196,6 @@ typedef int intptr_t;
 #include <ctype.h>
 #include <limits.h>
 
-// vsnprintf is ISO/IEC 9899:1999
-// abstracting this to make it portable
-#ifdef _WIN32
-  #define Q_vsnprintf _vsnprintf
-  #define Q_snprintf _snprintf
-#else
-  #define Q_vsnprintf vsnprintf
-  #define Q_snprintf snprintf
-#endif
-
 #ifdef _MSC_VER
   #include <io.h>
 
@@ -206,8 +207,14 @@ typedef int intptr_t;
   typedef unsigned __int32 uint32_t;
   typedef unsigned __int16 uint16_t;
   typedef unsigned __int8 uint8_t;
+
+  // vsnprintf is ISO/IEC 9899:1999
+  // abstracting this to make it portable
+  int Q_vsnprintf(char *str, size_t size, const char *format, va_list ap);
 #else
   #include <stdint.h>
+
+  #define Q_vsnprintf vsnprintf
 #endif
 
 #endif
@@ -235,9 +242,9 @@ typedef int		clipHandle_t;
 #define PAD(x,y) (((x)+(y)-1) & ~((y)-1))
 
 #ifdef __GNUC__
-#define ALIGN(x) __attribute__((aligned(x)))
+#define QALIGN(x) __attribute__((aligned(x)))
 #else
-#define ALIGN(x)
+#define QALIGN(x)
 #endif
 
 #ifndef NULL
@@ -251,7 +258,7 @@ typedef int		clipHandle_t;
 #define	MAX_QINT			0x7fffffff
 #define	MIN_QINT			(-MAX_QINT-1)
 
-#define ARRAY_LEN(x)			(sizeof(x) / sizeof(*x))
+#define ARRAY_LEN(x)			(sizeof(x) / sizeof(*(x)))
 
 
 // angle indexes
@@ -904,6 +911,7 @@ default values.
 
 #define CVAR_SERVER_CREATED	0x0800	// cvar was created by a server the client connected to.
 #define CVAR_VM_CREATED		0x1000	// cvar was created exclusively in one of the VMs.
+#define CVAR_PROTECTED		0x2000	// prevent modifying this var from VMs or the server
 #define CVAR_NONEXISTENT	0xFFFFFFFF	// Cvar doesn't exist.
 
 // nothing outside the Cvar_*() functions should modify these fields!
@@ -1439,5 +1447,8 @@ typedef enum _flag_status {
 #define CDKEY_LEN 16
 #define CDCHKSUM_LEN 2
 
+
+#define LERP( a, b, w ) ( ( a ) * ( 1.0f - ( w ) ) + ( b ) * ( w ) )
+#define LUMA( red, green, blue ) ( 0.2126f * ( red ) + 0.7152f * ( green ) + 0.0722f * ( blue ) )
 
 #endif	// __Q_SHARED_H

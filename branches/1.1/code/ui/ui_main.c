@@ -61,7 +61,7 @@ static const char *skillLevels[] = {
 #endif
 };
 
-static const int numSkillLevels = sizeof(skillLevels) / sizeof(const char*);
+static const int numSkillLevels = ARRAY_LEN( skillLevels );
 
 
 static const char *netSources[] = {
@@ -70,13 +70,13 @@ static const char *netSources[] = {
 	"Internet",
 	"Favorites"
 };
-static const int numNetSources = sizeof(netSources) / sizeof(const char*);
+static const int numNetSources = ARRAY_LEN( netSources );
 
 static const serverFilter_t serverFilters[] = {
 #ifndef SMOKINGUNS
 	{"All", "" },
 	{"Quake 3 Arena", "" },
-	{"Team Arena", "missionpack" },
+	{"Team Arena", BASETA },
 	{"Rocket Arena", "arena" },
 	{"Alliance", "alliance20" },
 	{"Weapons Factory Arena", "wfa" },
@@ -85,6 +85,9 @@ static const serverFilter_t serverFilters[] = {
 	{PRODUCT_NAME, BASEGAME}
 #endif
 };
+
+static const int numServerFilters = ARRAY_LEN( serverFilters );
+
 
 static const char *teamArenaGameTypes[] = {
 #ifndef SMOKINGUNS
@@ -107,43 +110,8 @@ static const char *teamArenaGameTypes[] = {
 #endif
 };
 
-static int const numTeamArenaGameTypes = sizeof(teamArenaGameTypes) / sizeof(const char*);
+static int const numTeamArenaGameTypes = ARRAY_LEN( teamArenaGameTypes );
 
-
-static const char *teamArenaGameNames[] = {
-#ifndef SMOKINGUNS
-	"Free For All",
-	"Tournament",
-	"Single Player",
-	"Team Deathmatch",
-	"Capture the Flag",
-	"One Flag CTF",
-	"Overload",
-	"Harvester",
-	"Team Tournament",
-#else
-	"Deathmatch",
-	"Duel",
-	"Single Player",
-	"Team Deathmatch",
-	"Round Teamplay",
-	"Bank Robbery"
-#endif
-};
-
-static int const numTeamArenaGameNames = sizeof(teamArenaGameNames) / sizeof(const char*);
-
-
-static const int numServerFilters = sizeof(serverFilters) / sizeof(serverFilter_t);
-
-static const char *sortKeys[] = {
-	"Server Name",
-	"Map Name",
-	"Open Player Spots",
-	"Game Type",
-	"Ping Time"
-};
-static const int numSortKeys = sizeof(sortKeys) / sizeof(const char*);
 
 static char* netnames[] = {
 	"???",
@@ -1233,7 +1201,7 @@ void UI_Load(void) {
 
 static const char *handicapValues[] = {"None","95","90","85","80","75","70","65","60","55","50","45","40","35","30","25","20","15","10","5",NULL};
 #ifndef SMOKINGUNS
-static int numHandicaps = sizeof(handicapValues) / sizeof(const char*);
+static int numHandicaps = ARRAY_LEN(handicapValues);
 #endif
 
 static void UI_DrawHandicap(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
@@ -3358,8 +3326,8 @@ static void UI_StartSinglePlayer(void) {
 		j = 0;
 	}
 
-	trap_Cvar_SetValue( "singleplayer", 1 );
-	trap_Cvar_SetValue( "g_gametype", Com_Clamp( 0, 7, tierList[i].gameTypes[j] ) );
+ 	trap_Cvar_SetValue( "singleplayer", 1 );
+ 	trap_Cvar_SetValue( "g_gametype", Com_Clamp( 0, GT_MAX_GAME_TYPE-1, tierList[i].gameTypes[j] ) );
 	trap_Cmd_ExecuteText( EXEC_APPEND, va( "wait ; wait ; map %s\n", tierList[i].maps[j] ) );
 	skill = trap_Cvar_VariableValue( "g_spSkill" );
 
@@ -3485,11 +3453,11 @@ static void UI_LoadDemos( void ) {
 	char	*demoname;
 	int		i, len;
 
-	Com_sprintf(demoExt, sizeof(demoExt), "dm_%d", (int)trap_Cvar_VariableValue("protocol"));
+	Com_sprintf(demoExt, sizeof(demoExt), "%s%d", DEMOEXT, (int)trap_Cvar_VariableValue("protocol"));
 
 	uiInfo.demoCount = trap_FS_GetFileList( "demos", demoExt, demolist, 4096 );
 
-	Com_sprintf(demoExt, sizeof(demoExt), ".dm_%d", (int)trap_Cvar_VariableValue("protocol"));
+	Com_sprintf(demoExt, sizeof(demoExt), ".%s%d", DEMOEXT, (int)trap_Cvar_VariableValue("protocol"));
 
 	if (uiInfo.demoCount) {
 		if (uiInfo.demoCount > MAX_DEMOS) {
@@ -3820,7 +3788,7 @@ static void UI_RunMenuScript(char **args) {
 			}
 #endif
 
-			trap_Cvar_SetValue( "g_gametype", Com_Clamp( 0, 8, uiInfo.gameTypes[ui_netGameType.integer].gtEnum ) );
+			trap_Cvar_SetValue( "g_gametype", Com_Clamp( 0, GT_MAX_GAME_TYPE-1, uiInfo.gameTypes[ui_netGameType.integer].gtEnum ) );
 #ifndef SMOKINGUNS
 			trap_Cvar_Set("g_redTeam", UI_Cvar_VariableString("ui_teamName"));
 			trap_Cvar_Set("g_blueTeam", UI_Cvar_VariableString("ui_opponentName"));
@@ -6713,7 +6681,6 @@ vmCvar_t	ui_spSelection;
 
 vmCvar_t	ui_browserMaster;
 vmCvar_t	ui_browserGameType;
-vmCvar_t	ui_browserSortKey;
 vmCvar_t	ui_browserShowFull;
 vmCvar_t	ui_browserShowEmpty;
 
@@ -6872,7 +6839,6 @@ static cvarTable_t		cvarTable[] = {
 
 	{ &ui_browserMaster, "ui_browserMaster", "0", CVAR_ARCHIVE },
 	{ &ui_browserGameType, "ui_browserGameType", "0", CVAR_ARCHIVE },
-	{ &ui_browserSortKey, "ui_browserSortKey", "4", CVAR_ARCHIVE },
 	{ &ui_browserShowFull, "ui_browserShowFull", "1", CVAR_ARCHIVE },
 	{ &ui_browserShowEmpty, "ui_browserShowEmpty", "1", CVAR_ARCHIVE },
 
@@ -6994,7 +6960,7 @@ static cvarTable_t		cvarTable[] = {
 
 };
 
-static int		cvarTableSize = sizeof(cvarTable) / sizeof(cvarTable[0]);
+static int		cvarTableSize = ARRAY_LEN( cvarTable );
 
 
 /*

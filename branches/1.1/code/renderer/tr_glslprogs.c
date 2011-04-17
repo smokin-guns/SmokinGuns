@@ -326,7 +326,7 @@ void main()\n\
 	}
 };
 
-const int max_progs = sizeof(glsl_progs)/sizeof(glsl_progs[0]);
+const int max_progs = ARRAY_LEN( glsl_progs );
 
 void R_GLSLProgs_Init( void ) {
 	int i = max_progs;

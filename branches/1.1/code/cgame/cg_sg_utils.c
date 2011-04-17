@@ -2239,4 +2239,4 @@ qboolean ( * CG_Farclip_Tester[] )( vec3_t , vec3_t , float , float ) = {
         CG_Farclip_Square_Infinite_Z
 } ;
 
-int CG_Farclip_Tester_Table_Size = sizeof( CG_Farclip_Tester ) / sizeof( void* );
+int CG_Farclip_Tester_Table_Size = ARRAY_LEN( CG_Farclip_Tester );
