@@ -40,6 +40,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #define GAMENAME_FOR_MASTER		"iofoo3"		// must NOT contain whitespaces
   #define HEARTBEAT_FOR_MASTER		GAMENAME_FOR_MASTER
   #define FLATLINE_FOR_MASTER		GAMENAME_FOR_MASTER "dead"
+  #define HOMEPATH_NAME_UNIX		".foo"
+  #define HOMEPATH_NAME_WIN			"FooBar"
+  #define HOMEPATH_NAME_MACOSX		HOMEPATH_NAME_WIN
 #else
   #define PRODUCT_NAME			"ioq3"
   #define BASEGAME			"baseq3"
@@ -48,6 +51,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #define GAMENAME_FOR_MASTER		"Quake3Arena"
   #define HEARTBEAT_FOR_MASTER		"QuakeArena-1"
   #define FLATLINE_FOR_MASTER		HEARTBEAT_FOR_MASTER
+  #define HOMEPATH_NAME_UNIX		".q3a"
+  #define HOMEPATH_NAME_WIN			"Quake3"
+  #define HOMEPATH_NAME_MACOSX		HOMEPATH_NAME_WIN
 #endif
 
 #define BASETA				"missionpack"
@@ -82,6 +88,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #define GAMENAME_FOR_MASTER		"smokinguns"
   #define HEARTBEAT_FOR_MASTER		GAMENAME_FOR_MASTER
   #define FLATLINE_FOR_MASTER		GAMENAME_FOR_MASTER "dead"
+  #define HOMEPATH_NAME_UNIX		".smokinguns"
+  #define HOMEPATH_NAME_WIN			PRODUCT_NAME
+  #define HOMEPATH_NAME_MACOSX		PRODUCT_SHORTNAME
 
   // PRODUCT_VERSION will be used for sg_version cvar
   #ifndef PRODUCT_VERSION

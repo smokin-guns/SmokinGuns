@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qcommon.h"
 #include "tr_public.h"
 #include "qgl.h"
+#include "iqm.h"
 
 #define GL_INDEX_TYPE		GL_UNSIGNED_INT
 typedef unsigned int glIndex_t;
@@ -542,6 +543,7 @@ typedef enum {
 #ifdef RAVENMD4
 	SF_MDR,
 #endif
+	SF_IQM,
 	SF_FLARE,
 	SF_ENTITY,				// beams, rails, lightning, etc that can be determined by entity
 	SF_DISPLAY_LIST,
@@ -654,6 +656,40 @@ typedef struct {
 	drawVert_t		*verts;
 } srfTriangles_t;
 
+// inter-quake-model
+typedef struct {
+	int		num_vertexes;
+	int		num_triangles;
+	int		num_frames;
+	int		num_surfaces;
+	int		num_joints;
+	struct srfIQModel_s	*surfaces;
+
+	float		*positions;
+	float		*texcoords;
+	float		*normals;
+	float		*tangents;
+	byte		*blendIndexes;
+	byte		*blendWeights;
+	byte		*colors;
+	int		*triangles;
+
+	int		*jointParents;
+	float		*poseMats;
+	float		*bounds;
+	char		*names;
+} iqmData_t;
+
+// inter-quake-model surface
+typedef struct srfIQModel_s {
+	surfaceType_t	surfaceType;
+	char		name[MAX_QPATH];
+	shader_t	*shader;
+	iqmData_t	*data;
+	int		first_vertex, num_vertexes;
+	int		first_triangle, num_triangles;
+} srfIQModel_t;
+
 
 extern	void (*rb_surfaceTable[SF_NUM_SURFACE_TYPES])(void *);
 
@@ -762,8 +798,9 @@ typedef enum {
 	MOD_MESH,
 	MOD_MD4,
 #ifdef RAVENMD4
-	MOD_MDR
+	MOD_MDR,
 #endif
+	MOD_IQM
 } modtype_t;
 
 typedef struct model_s {
@@ -774,7 +811,7 @@ typedef struct model_s {
 	int			dataSize;			// just for listing purposes
 	bmodel_t	*bmodel;			// only if type == MOD_BRUSH
 	md3Header_t	*md3[MD3_MAX_LODS];	// only if type == MOD_MESH
-	void	*md4;				// only if type == (MOD_MD4 | MOD_MDR)
+	void		*modelData;			// only if type == (MOD_MD4 | MOD_MDR | MOD_IQM)
 
 	int			 numLods;
 } model_t;
@@ -1550,6 +1587,12 @@ void RB_SurfaceAnim( md4Surface_t *surfType );
 void R_MDRAddAnimSurfaces( trRefEntity_t *ent );
 void RB_MDRSurfaceAnim( md4Surface_t *surface );
 #endif
+qboolean R_LoadIQM (model_t *mod, void *buffer, int filesize, const char *name );
+void R_AddIQMSurfaces( trRefEntity_t *ent );
+void RB_IQMSurfaceAnim( surfaceType_t *surface );
+int R_IQMLerpTag( orientation_t *tag, iqmData_t *data,
+                  int startFrame, int endFrame,
+                  float frac, const char *tagName );
 
 /*
 =============================================================
