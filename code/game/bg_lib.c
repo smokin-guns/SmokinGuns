@@ -262,7 +262,11 @@ char *strchr( const char *string, int c ) {
 		}
 		string++;
 	}
-	return (char *)0;
+	
+	if(c)
+		return NULL;
+	else
+		return (char *) string;
 }
 
 char *strstr( const char *string, const char *strCharSet ) {
