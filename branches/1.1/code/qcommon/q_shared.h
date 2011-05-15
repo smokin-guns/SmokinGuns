@@ -739,6 +739,14 @@ void PerpendicularVector( vec3_t dst, const vec3_t src );
 int Q_isnan( float x );
 
 
+#ifndef MAX
+#define MAX(x,y) ((x)>(y)?(x):(y))
+#endif
+
+#ifndef MIN
+#define MIN(x,y) ((x)<(y)?(x):(y))
+#endif
+
 //=============================================
 
 float Com_Clamp( float min, float max, float value );
@@ -825,7 +833,6 @@ int		Q_strncmp (const char *s1, const char *s2, int n);
 int		Q_stricmpn (const char *s1, const char *s2, int n);
 char	*Q_strlwr( char *s1 );
 char	*Q_strupr( char *s1 );
-char	*Q_strrchr( const char* string, int c );
 const char	*Q_stristr( const char *s, const char *find);
 
 // buffer size safe library replacements
