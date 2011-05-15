@@ -60,20 +60,13 @@ char *COM_SkipPath (char *pathname)
 COM_GetExtension
 ============
 */
-const char *COM_GetExtension( const char *name ) {
-	int length, i;
-
-	length = strlen(name)-1;
-	i = length;
-
-	while (name[i] != '.')
-	{
-		i--;
-		if (name[i] == '/' || i == 0)
-			return ""; // no extension
-	}
-
-	return &name[i+1];
+const char *COM_GetExtension( const char *name )
+{
+	const char *dot = strrchr(name, '.'), *slash;
+	if (dot && (!(slash = strrchr(name, '/')) || slash < dot))
+		return dot + 1;
+	else
+		return "";
 }
 
 
@@ -82,47 +75,31 @@ const char *COM_GetExtension( const char *name ) {
 COM_StripExtension
 ============
 */
-void COM_StripExtension( const char *in, char *out, int destsize ) {
-	int	length;
-
-	Q_strncpyz(out, in, destsize);
-
-	length = strlen(out)-1;
-	while (length > 0 && out[length] != '.')
-	{
-		length--;
-		if (out[length] == '/')
-			return;		// no extension
-	}
-	if (length)
-		out[length] = 0;
+void COM_StripExtension( const char *in, char *out, int destsize )
+{
+	const char *dot = strrchr(in, '.'), *slash;
+	if (dot && (!(slash = strrchr(in, '/')) || slash < dot))
+		Q_strncpyz(out, in, (destsize < dot-in+1 ? destsize : dot-in+1));
+	else
+		Q_strncpyz(out, in, destsize);
 }
 
 
 /*
 ==================
 COM_DefaultExtension
+
+if path doesn't have an extension, then append
+ the specified one (which should include the .)
 ==================
 */
-void COM_DefaultExtension (char *path, int maxSize, const char *extension ) {
-	char	oldPath[MAX_QPATH];
-	char	*src;
-
-//
-// if path doesn't have a .EXT, append extension
-// (extension should include the .)
-//
-	src = path + strlen(path) - 1;
-
-	while (*src != '/' && src != path) {
-		if ( *src == '.' ) {
-			return;                 // it has an extension
-		}
-		src--;
-	}
-
-	Q_strncpyz( oldPath, path, sizeof( oldPath ) );
-	Com_sprintf( path, maxSize, "%s%s", oldPath, extension );
+void COM_DefaultExtension( char *path, int maxSize, const char *extension )
+{
+	const char *dot = strrchr(path, '.'), *slash;
+	if (dot && (!(slash = strrchr(path, '/')) || slash < dot))
+		return;
+	else
+		Q_strcat(path, maxSize, extension);
 }
 
 /*
@@ -683,26 +660,6 @@ int Q_isalpha( int c )
 	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
 		return ( 1 );
 	return ( 0 );
-}
-
-char* Q_strrchr( const char* string, int c )
-{
-	char cc = c;
-	char *s;
-	char *sp=(char *)0;
-
-	s = (char*)string;
-
-	while (*s)
-	{
-		if (*s == cc)
-			sp = s;
-		s++;
-	}
-	if (cc == 0)
-		sp = s;
-
-	return sp;
 }
 
 qboolean Q_isanumber( const char *s )
