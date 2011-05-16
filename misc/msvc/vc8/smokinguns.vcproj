@@ -50,7 +50,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="..\..\..\code\SDL12\include;..\..\..\code\libcurl;..\..\..\code\AL;..\..\..\code\libspeex\include;..\..\..\code\zlib"
+				AdditionalIncludeDirectories="..\..\..\code\SDL12\include;..\..\..\code\libcurl;..\..\..\code\AL;..\..\..\code\libspeex\include;..\..\..\code\zlib;&quot;..\..\..\code\jpeg-8c&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;USE_CURL;USE_CURL_DLOPEN;USE_OPENAL;USE_OPENAL_DLOPEN;USE_VOIP;HAVE_CONFIG_H;STANDALONE;SMOKINGUNS;FRAMEBUFFER_AND_GLSL_SUPPORT;USE_INTERNAL_JPEG"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
@@ -152,7 +152,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="..\..\..\code\SDL12\include; ..\..\..\code\libcurl; ..\..\..\code\AL; ..\..\..\code\libspeex\include; ..\..\..\code\zlib"
+				AdditionalIncludeDirectories="..\..\..\code\SDL12\include; ..\..\..\code\libcurl; ..\..\..\code\AL; ..\..\..\code\libspeex\include; ..\..\..\code\zlib;&quot;..\..\..\code\jpeg-8c&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;USE_CURL;USE_CURL_DLOPEN;USE_OPENAL;USE_OPENAL_DLOPEN;USE_VOIP;HAVE_CONFIG_H;STANDALONE;SMOKINGUNS;FRAMEBUFFER_AND_GLSL_SUPPORT;USE_INTERNAL_JPEG"
 				RuntimeLibrary="0"
 				EnableEnhancedInstructionSet="1"
@@ -253,7 +253,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="..\..\..\code\SDL12\include; ..\..\..\code\libcurl; ..\..\..\code\AL; ..\..\..\code\libspeex\include; ..\..\..\code\zlib"
+				AdditionalIncludeDirectories="..\..\..\code\SDL12\include; ..\..\..\code\libcurl; ..\..\..\code\AL; ..\..\..\code\libspeex\include; ..\..\..\code\zlib;&quot;..\..\..\code\jpeg-8c&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;USE_CURL;USE_CURL_DLOPEN;USE_OPENAL;USE_OPENAL_DLOPEN;USE_VOIP;HAVE_CONFIG_H;STANDALONE;SMOKINGUNS;FRAMEBUFFER_AND_GLSL_SUPPORT;USE_INTERNAL_JPEG"
 				RuntimeLibrary="0"
 				EnableEnhancedInstructionSet="2"
@@ -355,7 +355,7 @@
 				FavorSizeOrSpeed="0"
 				OmitFramePointers="false"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="..\..\..\code\SDL12\include;..\..\..\code\libcurl;..\..\..\code\AL;..\..\..\code\libspeex\include;..\..\..\code\zlib"
+				AdditionalIncludeDirectories="..\..\..\code\SDL12\include;..\..\..\code\libcurl;..\..\..\code\AL;..\..\..\code\libspeex\include;..\..\..\code\zlib;&quot;..\..\..\code\jpeg-8c&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;USE_CURL;USE_CURL_DLOPEN;USE_OPENAL;USE_OPENAL_DLOPEN;USE_VOIP;HAVE_CONFIG_H;STANDALONE;SMOKINGUNS;FRAMEBUFFER_AND_GLSL_SUPPORT;USE_INTERNAL_JPEG"
 				StringPooling="false"
 				RuntimeLibrary="3"
@@ -826,143 +826,187 @@
 				Name="Source Files"
 				>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jcapimin.c"
+					RelativePath="..\..\..\code\jpeg-8c\jaricom.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jcapistd.c"
+					RelativePath="..\..\..\code\jpeg-8c\jcapimin.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jccoefct.c"
+					RelativePath="..\..\..\code\jpeg-8c\jcapistd.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jccolor.c"
+					RelativePath="..\..\..\code\jpeg-8c\jcarith.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jcdctmgr.c"
+					RelativePath="..\..\..\code\jpeg-8c\jccoefct.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jchuff.c"
+					RelativePath="..\..\..\code\jpeg-8c\jccolor.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jcinit.c"
+					RelativePath="..\..\..\code\jpeg-8c\jcdctmgr.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jcmainct.c"
+					RelativePath="..\..\..\code\jpeg-8c\jchuff.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jcmarker.c"
+					RelativePath="..\..\..\code\jpeg-8c\jcinit.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jcmaster.c"
+					RelativePath="..\..\..\code\jpeg-8c\jcmainct.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jcomapi.c"
+					RelativePath="..\..\..\code\jpeg-8c\jcmarker.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jcparam.c"
+					RelativePath="..\..\..\code\jpeg-8c\jcmaster.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jcphuff.c"
+					RelativePath="..\..\..\code\jpeg-8c\jcomapi.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jcprepct.c"
+					RelativePath="..\..\..\code\jpeg-8c\jcparam.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jcsample.c"
+					RelativePath="..\..\..\code\jpeg-8c\jcprepct.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jdapimin.c"
+					RelativePath="..\..\..\code\jpeg-8c\jcsample.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jdapistd.c"
+					RelativePath="..\..\..\code\jpeg-8c\jctrans.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jdatasrc.c"
+					RelativePath="..\..\..\code\jpeg-8c\jdapimin.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jdcoefct.c"
+					RelativePath="..\..\..\code\jpeg-8c\jdapistd.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jdcolor.c"
+					RelativePath="..\..\..\code\jpeg-8c\jdarith.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jddctmgr.c"
+					RelativePath="..\..\..\code\jpeg-8c\jdatadst.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jdhuff.c"
+					RelativePath="..\..\..\code\jpeg-8c\jdatasrc.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jdinput.c"
+					RelativePath="..\..\..\code\jpeg-8c\jdcoefct.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jdmainct.c"
+					RelativePath="..\..\..\code\jpeg-8c\jdcolor.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jdmarker.c"
+					RelativePath="..\..\..\code\jpeg-8c\jddctmgr.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jdmaster.c"
+					RelativePath="..\..\..\code\jpeg-8c\jdhuff.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jdpostct.c"
+					RelativePath="..\..\..\code\jpeg-8c\jdinput.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jdsample.c"
+					RelativePath="..\..\..\code\jpeg-8c\jdmainct.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jdtrans.c"
+					RelativePath="..\..\..\code\jpeg-8c\jdmarker.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jerror.c"
+					RelativePath="..\..\..\code\jpeg-8c\jdmaster.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jfdctflt.c"
+					RelativePath="..\..\..\code\jpeg-8c\jdmerge.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jidctflt.c"
+					RelativePath="..\..\..\code\jpeg-8c\jdpostct.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jmemmgr.c"
+					RelativePath="..\..\..\code\jpeg-8c\jdsample.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jmemnobs.c"
+					RelativePath="..\..\..\code\jpeg-8c\jdtrans.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jutils.c"
+					RelativePath="..\..\..\code\jpeg-8c\jerror.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\code\jpeg-8c\jfdctflt.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\code\jpeg-8c\jfdctfst.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\code\jpeg-8c\jfdctint.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\code\jpeg-8c\jidctflt.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\code\jpeg-8c\jidctfst.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\code\jpeg-8c\jidctint.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\code\jpeg-8c\jmemmgr.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\code\jpeg-8c\jmemnobs.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\code\jpeg-8c\jquant1.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\code\jpeg-8c\jquant2.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\code\jpeg-8c\jutils.c"
 					>
 				</File>
 			</Filter>
@@ -970,47 +1014,39 @@
 				Name="Header Files"
 				>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jchuff.h"
+					RelativePath="..\..\..\code\jpeg-8c\jconfig.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jconfig.h"
+					RelativePath="..\..\..\code\jpeg-8c\jdct.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jdct.h"
+					RelativePath="..\..\..\code\jpeg-8c\jerror.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jdhuff.h"
+					RelativePath="..\..\..\code\jpeg-8c\jinclude.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jerror.h"
+					RelativePath="..\..\..\code\jpeg-8c\jmemsys.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jinclude.h"
+					RelativePath="..\..\..\code\jpeg-8c\jmorecfg.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jmemsys.h"
+					RelativePath="..\..\..\code\jpeg-8c\jpegint.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jmorecfg.h"
+					RelativePath="..\..\..\code\jpeg-8c\jpeglib.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\code\jpeg-6b\jpegint.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\code\jpeg-6b\jpeglib.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\code\jpeg-6b\jversion.h"
+					RelativePath="..\..\..\code\jpeg-8c\jversion.h"
 					>
 				</File>
 			</Filter>
