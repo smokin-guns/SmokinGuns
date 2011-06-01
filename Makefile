@@ -164,12 +164,8 @@ ifndef DEBUG_CFLAGS
 DEBUG_CFLAGS=-g -O0
 endif
 
-ifndef FRAMEBUFFER_AND_GLSL_SUPPORT
-FRAMEBUFFER_AND_GLSL_SUPPORT=0
-endif
-
-ifndef BUILD_SDK_DIFF
-SDK_DIFF=0
+ifndef USE_OLD_VM64
+USE_OLD_VM64=0
 endif
 
 #############################################################################
@@ -1664,14 +1660,12 @@ ifeq ($(ARCH),i386)
   Q3OBJ += \
     $(B)/client/snd_mixa.o \
     $(B)/client/matha.o \
-    $(B)/client/ftola.o \
     $(B)/client/snapvectora.o
 endif
 ifeq ($(ARCH),x86)
   Q3OBJ += \
     $(B)/client/snd_mixa.o \
     $(B)/client/matha.o \
-    $(B)/client/ftola.o \
     $(B)/client/snapvectora.o
 endif
 
@@ -1733,19 +1727,47 @@ endif
 
 ifeq ($(HAVE_VM_COMPILED),true)
   ifeq ($(ARCH),i386)
-    Q3OBJ += $(B)/client/vm_x86.o
+    Q3OBJ += \
+      $(B)/client/vm_x86.o \
+      $(B)/client/ftola.o
   endif
   ifeq ($(ARCH),x86)
-    Q3OBJ += $(B)/client/vm_x86.o
+    Q3OBJ += \
+      $(B)/client/vm_x86.o \
+      $(B)/client/ftola.o
   endif
   ifeq ($(ARCH),x86_64)
-    Q3OBJ += $(B)/client/vm_x86_64.o $(B)/client/vm_x86_64_assembler.o
+    ifeq ($(USE_OLD_VM64),1)
+      Q3OBJ += \
+        $(B)/client/vm_x86_64.o \
+        $(B)/client/vm_x86_64_assembler.o
+    else
+      Q3OBJ += \
+        $(B)/client/vm_x86.o \
+        $(B)/client/ftola.o
+    endif
   endif
   ifeq ($(ARCH),amd64)
-    Q3OBJ += $(B)/client/vm_x86_64.o $(B)/client/vm_x86_64_assembler.o
+    ifeq ($(USE_OLD_VM64),1)
+      Q3OBJ += \
+        $(B)/client/vm_x86_64.o \
+        $(B)/client/vm_x86_64_assembler.o
+    else
+      Q3OBJ += \
+        $(B)/client/vm_x86.o \
+        $(B)/client/ftola.o
+    endif
   endif
   ifeq ($(ARCH),x64)
-    Q3OBJ += $(B)/client/vm_x86_64.o $(B)/client/vm_x86_64_assembler.o
+    ifeq ($(USE_OLD_VM64),1)
+      Q3OBJ += \
+        $(B)/client/vm_x86_64.o \
+        $(B)/client/vm_x86_64_assembler.o
+    else
+      Q3OBJ += \
+        $(B)/client/vm_x86.o \
+        $(B)/client/ftola.o
+    endif
   endif
   ifeq ($(ARCH),ppc)
     Q3OBJ += $(B)/client/vm_powerpc.o $(B)/client/vm_powerpc_asm.o
@@ -1895,13 +1917,11 @@ Q3DOBJ = \
 
 ifeq ($(ARCH),i386)
   Q3DOBJ += \
-      $(B)/ded/ftola.o \
       $(B)/ded/snapvectora.o \
       $(B)/ded/matha.o
 endif
 ifeq ($(ARCH),x86)
   Q3DOBJ += \
-      $(B)/ded/ftola.o \
       $(B)/ded/snapvectora.o \
       $(B)/ded/matha.o
 endif
@@ -1918,19 +1938,47 @@ endif
 
 ifeq ($(HAVE_VM_COMPILED),true)
   ifeq ($(ARCH),i386)
-    Q3DOBJ += $(B)/ded/vm_x86.o
+    Q3DOBJ += \
+      $(B)/ded/vm_x86.o \
+      $(B)/ded/ftola.o
   endif
   ifeq ($(ARCH),x86)
-    Q3DOBJ += $(B)/ded/vm_x86.o
+    Q3DOBJ += \
+      $(B)/ded/vm_x86.o \
+      $(B)/ded/ftola.o
   endif
   ifeq ($(ARCH),x86_64)
-    Q3DOBJ += $(B)/ded/vm_x86_64.o $(B)/ded/vm_x86_64_assembler.o
+    ifeq ($(USE_OLD_VM64),1)
+      Q3DOBJ += \
+        $(B)/ded/vm_x86_64.o \
+        $(B)/ded/vm_x86_64_assembler.o
+    else
+      Q3DOBJ += \
+        $(B)/ded/vm_x86.o \
+        $(B)/ded/ftola.o
+    endif
   endif
   ifeq ($(ARCH),amd64)
-    Q3DOBJ += $(B)/ded/vm_x86_64.o $(B)/ded/vm_x86_64_assembler.o
+    ifeq ($(USE_OLD_VM64),1)
+      Q3DOBJ += \
+        $(B)/ded/vm_x86_64.o \
+        $(B)/ded/vm_x86_64_assembler.o
+    else
+      Q3DOBJ += \
+        $(B)/ded/vm_x86.o \
+        $(B)/ded/ftola.o
+    endif
   endif
   ifeq ($(ARCH),x64)
-    Q3DOBJ += $(B)/ded/vm_x86_64.o $(B)/ded/vm_x86_64_assembler.o
+    ifeq ($(USE_OLD_VM64),1)
+      Q3DOBJ += \
+        $(B)/ded/vm_x86_64.o \
+        $(B)/ded/vm_x86_64_assembler.o
+    else
+      Q3DOBJ += \
+        $(B)/ded/vm_x86.o \
+        $(B)/ded/ftola.o
+    endif
   endif
   ifeq ($(ARCH),ppc)
     Q3DOBJ += $(B)/ded/vm_powerpc.o $(B)/ded/vm_powerpc_asm.o
