@@ -583,7 +583,6 @@ int		CG_PointContents( const vec3_t point, int passEntityNum ) {
 			continue;
 		}
 
-		// Ensiform : Trivial change to use the projected origin & angles of moving water based entities.
 		contents |= trap_CM_TransformedPointContents( point, cmodel, cent->lerpOrigin, cent->lerpAngles );
 	}
 
