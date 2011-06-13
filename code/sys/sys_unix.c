@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <pwd.h>
 #include <libgen.h>
 #include <fcntl.h>
+#include <fenv.h>
 
 qboolean stdinIsATTY;
 
@@ -227,31 +228,6 @@ int Sys_Milliseconds (void)
 
 	return curtime;
 }
-
-#if !id386
-/*
-==================
-fastftol
-==================
-*/
-long fastftol( float f )
-{
-	return (long)f;
-}
-
-/*
-==================
-Sys_SnapVector
-==================
-*/
-void Sys_SnapVector( float *v )
-{
-	v[0] = rint(v[0]);
-	v[1] = rint(v[1]);
-	v[2] = rint(v[2]);
-}
-#endif
-
 
 /*
 ==================
@@ -859,6 +835,12 @@ Unix specific GL implementation initialisation
 void Sys_GLimpInit( void )
 {
 	// NOP
+}
+
+void Sys_SetFloatEnv(void)
+{
+	// rounding towards 0
+	fesetround(FE_TOWARDZERO);
 }
 
 /*
