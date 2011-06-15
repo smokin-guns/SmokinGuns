@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -104,7 +104,6 @@ int _atoi( const char **stringPtr );
 long strtol( const char *nptr, char **endptr, int base );
 
 int Q_vsnprintf( char *buffer, size_t length, const char *fmt, va_list argptr );
-int Q_snprintf( char *buffer, size_t length, const char *fmt, ... ) __attribute__ ((format (printf, 3, 4)));
 
 int sscanf( const char *buffer, const char *fmt, ... ) __attribute__ ((format (scanf, 2, 3)));
 

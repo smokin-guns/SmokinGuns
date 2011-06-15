@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -1668,7 +1668,7 @@ void QDECL G_LogPrintf( const char *fmt, ... ) {
 	char		string[1024];
 	int			min, tens, sec;
 
-	sec = level.time / 1000;
+	sec = ( level.time - level.startTime ) / 1000;
 
 	min = sec / 60;
 	sec -= min * 60;
