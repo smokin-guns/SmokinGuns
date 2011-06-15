@@ -141,8 +141,9 @@ struct vm_s {
     intptr_t			(*systemCall)( intptr_t *parms );
 
 	//------------------------------------
-
-    char		name[MAX_QPATH];
+   
+	char		name[MAX_QPATH];
+	void	*searchPath;				// hint for FS_ReadFileDir()
 
 	// for dynamic linked modules
 	void		*dllHandle;
