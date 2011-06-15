@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -1284,11 +1284,7 @@ static void SV_DumpUser_f( void ) {
 	}
 
 	if ( Cmd_Argc() != 2 ) {
-#ifndef SMOKINGUNS
-		Com_Printf ("Usage: info <userid>\n");
-#else
 		Com_Printf ("Usage: dumpuser <userid>\n");
-#endif
 		return;
 	}
 

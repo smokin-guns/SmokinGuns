@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -273,11 +273,11 @@ CopyWinding
 */
 winding_t	*CopyWinding (winding_t *w)
 {
-	unsigned long	size;
+	intptr_t	size;
 	winding_t	*c;
 
 	c = AllocWinding (w->numpoints);
-	size = (long)((winding_t *)0)->p[w->numpoints];
+	size = (intptr_t) ((winding_t *)0)->p[w->numpoints];
 	Com_Memcpy (c, w, size);
 	return c;
 }

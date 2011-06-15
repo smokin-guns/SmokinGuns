@@ -1,55 +1,39 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2011 Smokin' Guns
 
-This file is part of Smokin' Guns.
+This file is part of Quake III Arena source code.
 
-Smokin' Guns is free software; you can redistribute it
+Quake III Arena source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Smokin' Guns is distributed in the hope that it will be
+Quake III Arena source code is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Smokin' Guns; if not, write to the Free Software
+along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-//
-// math.s
-// x86 assembly-language math routines.
+#ifndef __ASM_INLINE_I386__
+#define __ASM_INLINE_I386__
 
-#include "qasm.h"
+#include "../qcommon/q_platform.h"
 
+#ifdef idx64
+  #define EAX "%%rax"
+  #define EBX "%%rbx"
+  #define ESP "%%rsp"
+  #define EDI "%%rdi"
+#else
+  #define EAX "%%eax"
+  #define EBX "%%ebx"
+  #define ESP "%%esp"
+  #define EDI "%%edi"
+#endif
 
-#if	id386
-
-	.text
-
-// TODO: rounding needed?
-// stack parameter offset
-#define	val	4
-
-.globl C(Invert24To16)
-C(Invert24To16):
-
-	movl	val(%esp),%ecx
-	movl	$0x100,%edx		// 0x10000000000 as dividend
-	cmpl	%edx,%ecx
-	jle		LOutOfRange
-
-	subl	%eax,%eax
-	divl	%ecx
-
-	ret
-
-LOutOfRange:
-	movl	$0xFFFFFFFF,%eax
-	ret
-
-#endif	// id386
+#endif

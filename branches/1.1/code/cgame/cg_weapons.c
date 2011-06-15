@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -816,6 +816,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		MAKERGB( weaponInfo->missileDlightColor, 1, 0.75f, 0 );
 		weaponInfo->readySound = trap_S_RegisterSound( "sound/weapons/melee/fsthum.wav", qfalse );
 		weaponInfo->firingSound = trap_S_RegisterSound( "sound/weapons/melee/fstrun.wav", qfalse );
+		cgs.media.lightningShader = trap_R_RegisterShader( "lightningBoltNew");
 		break;
 
 #ifdef MISSIONPACK
@@ -1903,7 +1904,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		if(ps){
 
 			// check if player is in the water
-			contents = trap_CM_PointContents( cg.refdef.vieworg, 0 );
+			contents = CG_PointContents( cg.refdef.vieworg, 0 );
 			if ( contents & CONTENTS_WATER ) {
 				goto muzzle;
 			}
@@ -1930,7 +1931,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 
 		if(ps){
 			// check if player is in the water
-			contents = trap_CM_PointContents( cg.refdef.vieworg, 0 );
+			contents = CG_PointContents( cg.refdef.vieworg, 0 );
 			if ( contents & CONTENTS_WATER ) {
 				goto muzzle;
 			}
@@ -3752,8 +3753,8 @@ static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum ) {
 
 	CG_Trace( &tr, start, NULL, NULL, end, skipNum, MASK_SHOT );
 
-	sourceContentType = trap_CM_PointContents( start, 0 );
-	destContentType = trap_CM_PointContents( tr.endpos, 0 );
+	sourceContentType = CG_PointContents( start, 0 );
+	destContentType = CG_PointContents( tr.endpos, 0 );
 
 	// FIXME: should probably move this cruft into CG_BubbleTrail
 	if ( sourceContentType == destContentType ) {
@@ -3831,8 +3832,8 @@ cg_shotgunfire:
 		}
 	}
 
-	sourceContentType = trap_CM_PointContents( tr_start, 0 );
-	destContentType = trap_CM_PointContents( tr.endpos, 0 );
+	sourceContentType = CG_PointContents( tr_start, 0 );
+	destContentType = CG_PointContents( tr.endpos, 0 );
 
 	// FIXME: should probably move this cruft into CG_BubbleTrail
 	if ( sourceContentType == destContentType ) {
@@ -4110,7 +4111,7 @@ void CG_ShotgunFire( entityState_t *es ) {
 		// ragepro can't alpha fade, so don't even bother with smoke
 		vec3_t			up;
 
-		contents = trap_CM_PointContents( es->pos.trBase, 0 );
+		contents = CG_PointContents( es->pos.trBase, 0 );
 #ifndef SMOKINGUNS
 		if ( !( contents & CONTENTS_WATER ) ) {
 #else
@@ -4287,8 +4288,8 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, 
 #ifdef SMOKINGUNS
 			int shaderNum;
 #endif
-			sourceContentType = trap_CM_PointContents( start, 0 );
-			destContentType = trap_CM_PointContents( end, 0 );
+			sourceContentType = CG_PointContents( start, 0 );
+			destContentType = CG_PointContents( end, 0 );
 
 			// do a complete bubble trail if necessary
 			if ( ( sourceContentType == destContentType ) && ( sourceContentType & CONTENTS_WATER ) ) {
@@ -4362,7 +4363,7 @@ void CG_MakeSmokePuff(entityState_t *ent){
 		// ragepro can't alpha fade, so don't even bother with smoke
 		vec3_t			up;
 
-		contents = trap_CM_PointContents( ent->pos.trBase, 0 );
+		contents = CG_PointContents( ent->pos.trBase, 0 );
 		if ( !( contents & CONTENTS_WATER ) ) {
 			VectorSet( up, 0, 0, 8 );
 			CG_SmokePuff( v, up, 24, 1, 1, 0.8f, 0.40f, 400, cg.time, 0, LEF_PUFF_DONT_SCALE, cgs.media.shotgunSmokePuffShader );

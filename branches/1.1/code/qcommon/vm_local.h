@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // don't change, this is hardcoded into x86 VMs, opStack protection relies
 // on this
-#define	OPSTACK_SIZE	256
+#define	OPSTACK_SIZE	1024
 #define	OPSTACK_MASK	(OPSTACK_SIZE-1)
 
 // don't change
@@ -157,7 +157,7 @@ struct vm_s {
 	int			entryOfs;
 	int			codeLength;
 
-	int			*instructionPointers;
+	intptr_t	*instructionPointers;
 	int			instructionCount;
 
 	byte		*dataBase;

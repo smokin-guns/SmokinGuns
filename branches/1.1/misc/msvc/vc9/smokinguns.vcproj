@@ -49,9 +49,10 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				WholeProgramOptimization="true"
+				InlineFunctionExpansion="2"
 				AdditionalIncludeDirectories="..\..\..\code\SDL12\include;..\..\..\code\libcurl;..\..\..\code\AL;..\..\..\code\libspeex\include;..\..\..\code\zlib;&quot;..\..\..\code\jpeg-8c&quot;"
 				PreprocessorDefinitions="WIN32;__WIN32__;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;USE_CURL;USE_CURL_DLOPEN;USE_OPENAL;USE_OPENAL_DLOPEN;USE_VOIP;HAVE_CONFIG_H;STANDALONE;SMOKINGUNS;FRAMEBUFFER_AND_GLSL_SUPPORT;USE_INTERNAL_JPEG"
+				StringPooling="true"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile="$(IntDir)\quake3.pch"
@@ -88,10 +89,8 @@
 				MapFileName="$(IntDir)\smokinguns.map"
 				SubSystem="2"
 				StackReserveSize="8388608"
-				LinkTimeCodeGeneration="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				TurnOffAssemblyGeneration="false"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -1363,6 +1362,10 @@
 				</File>
 				<File
 					RelativePath="..\..\..\code\renderer\tr_model.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\code\renderer\tr_model_iqm.c"
 					>
 				</File>
 				<File

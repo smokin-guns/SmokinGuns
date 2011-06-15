@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -219,7 +219,7 @@ int R_ComputeLOD( trRefEntity_t *ent ) {
 		}
 
 		flod *= tr.currentModel->numLods;
-		lod = myftol( flod );
+		lod = Q_ftol(flod);
 
 		if ( lod < 0 )
 		{

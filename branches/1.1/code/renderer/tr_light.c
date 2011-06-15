@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -360,9 +360,9 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	}
 
 	// save out the byte packet version
-	((byte *)&ent->ambientLightInt)[0] = myftol( ent->ambientLight[0] );
-	((byte *)&ent->ambientLightInt)[1] = myftol( ent->ambientLight[1] );
-	((byte *)&ent->ambientLightInt)[2] = myftol( ent->ambientLight[2] );
+	((byte *)&ent->ambientLightInt)[0] = Q_ftol(ent->ambientLight[0]);
+	((byte *)&ent->ambientLightInt)[1] = Q_ftol(ent->ambientLight[1]);
+	((byte *)&ent->ambientLightInt)[2] = Q_ftol(ent->ambientLight[2]);
 	((byte *)&ent->ambientLightInt)[3] = 0xff;
 
 	// transform the direction to local space

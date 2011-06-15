@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -498,7 +498,7 @@ void CG_AddFragment( localEntity_t *le ) {
 
 	// check if we hit water
 	if(le->leFlags & LEF_WHISKEY){
-		int contents = trap_CM_PointContents(le->refEntity.origin, 0);
+		int contents = CG_PointContents(le->refEntity.origin, 0);
 		if(contents & CONTENTS_WATER){
 			le->endTime = cg.time - 100;
 			CG_FreeLocalEntity(le);
@@ -795,7 +795,7 @@ void CG_AddFragment( localEntity_t *le ) {
 	// if it is in a nodrop zone, remove it
 	// this keeps gibs from waiting at the bottom of pits of death
 	// and floating levels
-	if ( trap_CM_PointContents( trace.endpos, 0 ) & CONTENTS_NODROP ) {
+	if ( CG_PointContents( trace.endpos, 0 ) & CONTENTS_NODROP ) {
 		CG_FreeLocalEntity( le );
 		return;
 	}

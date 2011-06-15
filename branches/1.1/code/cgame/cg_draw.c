@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -2911,7 +2911,7 @@ static void CG_ScanForCrosshairEntity( qboolean *changeCrosshair, qboolean *isPl
 #endif
 
 	// if the player is in fog, don't show it
-	content = trap_CM_PointContents( trace.endpos, 0 );
+	content = CG_PointContents( trace.endpos, 0 );
 	if ( content & CONTENTS_FOG ) {
 		return;
 	}

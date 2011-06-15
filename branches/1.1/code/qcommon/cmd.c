@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -687,7 +687,7 @@ void Cmd_RemoveCommandSafe( const char *cmd_name )
 	if( cmd->function )
 	{
 		Com_Error( ERR_DROP, "Restricted source tried to remove "
-			"system command \"%s\"\n", cmd_name );
+			"system command \"%s\"", cmd_name );
 		return;
 	}
 

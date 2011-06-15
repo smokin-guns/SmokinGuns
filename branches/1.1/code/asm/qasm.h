@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2008 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 .section .note.GNU-stack,"",@progbits
 #endif
 
-#ifdef __ELF__
+#if defined(__ELF__) || defined(__WIN64__)
 #define C(label) label
 #else
 #define C(label) _##label

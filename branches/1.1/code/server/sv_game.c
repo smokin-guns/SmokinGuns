@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -427,7 +427,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case G_REAL_TIME:
 		return Com_RealTime( VMA(1) );
 	case G_SNAPVECTOR:
-		Sys_SnapVector( VMA(1) );
+		Q_SnapVector(VMA(1));
 		return 0;
 
 		//====================================
@@ -535,7 +535,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 
 	case BOTLIB_EA_ACTION:
 		botlib_export->ea.EA_Action( args[1], args[2] );
-		break;
+		return 0;
 	case BOTLIB_EA_GESTURE:
 		botlib_export->ea.EA_Gesture( args[1] );
 		return 0;
@@ -841,7 +841,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	default:
 		Com_Error( ERR_DROP, "Bad game system trap: %ld", (long int) args[0] );
 	}
-	return -1;
+	return 0;
 }
 
 /*
