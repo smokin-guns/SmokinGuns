@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -930,7 +930,7 @@ void QDECL Com_sprintf( char *dest, int size, const char *fmt, ...) {
 	va_end (argptr);
 
 	if(len >= size)
-		Com_Printf("Com_sprintf: Output length %d too short, require %d bytes.\n", size, len);
+		Com_Printf("Com_sprintf: Output length %d too short, require %d bytes.\n", size, len + 1);
 }
 
 /*

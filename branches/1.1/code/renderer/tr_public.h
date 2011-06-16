@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -154,7 +154,7 @@ typedef struct {
 	// a -1 return means the file does not exist
 	// NULL can be passed for buf to just determine existance
 	int		(*FS_FileIsInPAK)( const char *name, int *pCheckSum );
-	int		(*FS_ReadFile)( const char *name, void **buf );
+	long	(*FS_ReadFile)( const char *name, void **buf );
 	void	(*FS_FreeFile)( void *buf );
 	char **	(*FS_ListFiles)( const char *name, const char *extension, int *numfilesfound );
 	void	(*FS_FreeFileList)( char **filelist );
