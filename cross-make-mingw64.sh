@@ -1,35 +1,10 @@
 #!/bin/sh
 
-CMD_PREFIX="amd64-mingw32msvc x86_64-w64-mingw32";
-
-if [ "X$CC" = "X" ]; then
-	for check in $CMD_PREFIX; 
-	do
-		full_check="${check}-gcc"
-		if [ ! $(which "$full_check" 2>/dev/null) = "" ]; then
-			export CC="$full_check"
-			break
-		fi
-	done
-fi
-
-if [ "X$WINDRES" = "X" ]; then
-	for check in $CMD_PREFIX
-	do
-		full_check="${check}-windres"
-		if [ ! $(which "$full_check" 2>/dev/null) = "" ]; then
-			export WINDRES="$full_check"
-			break
-		fi
-	done
-fi
-
-if [ "X$WINDRES" = "X" -o "X$CC" = "X" ]; then
-	echo "Error: Must define or find WINDRES and CC"
-	exit 1
-fi
-
+export CC=amd64-mingw32msvc-gcc
+export WINDRES=amd64-mingw32msvc-windres
 export PLATFORM=mingw32
-export ARCH=x64
-
+if [ !$ARCH ]
+then
+export ARCH=x86_64
+fi
 exec make $*
