@@ -3,7 +3,6 @@
 COMPILE_PLATFORM=`uname|sed -e s/_.*//|tr '[:upper:]' '[:lower:]'`
 
 MAKE=make
-export PLATFORM=mingw32 ARCH=x86
 
 if [ "$COMPILE_PLATFORM" = "darwin" ]; then
 	export CC=i386-mingw32msvc-gcc
@@ -17,10 +16,19 @@ elif [ "$COMPILE_PLATFORM" = "freebsd" ]; then
 elif [ -e "/etc/redhat-release" ]; then
 	export CC=i686-pc-mingw32-gcc
 	export WINDRES=i686-pc-mingw32-windres
-
-else
-	export CC=i586-mingw32msvc-gcc
-	export WINDRES=i586-mingw32msvc-windres
 fi
+
+if [ -z "$CC" ]
+then
+  export CC=i586-mingw32msvc-gcc
+fi
+
+if [ -z "$WINDRES" ]
+then
+  export WINDRES=i586-mingw32msvc-windres
+fi
+
+export PLATFORM=mingw32
+export ARCH=x86
 
 exec $MAKE $*

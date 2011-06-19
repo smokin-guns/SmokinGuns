@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -92,7 +92,7 @@ void CL_FlushMemory( void ) {
 void CL_StartHunkUsers( qboolean rendererOnly ) {
 }
 
-void CL_Snd_Restart(void)
+void CL_Snd_Shutdown(void)
 {
 }
 

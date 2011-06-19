@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -1844,10 +1844,10 @@ CL_Snd_Restart
 Restart the sound subsystem
 =================
 */
-void CL_Snd_Restart(void)
+void CL_Snd_Shutdown(void)
 {
 	S_Shutdown();
-	S_Init();
+	cls.soundStarted = qfalse;
 }
 
 /*
@@ -1861,7 +1861,8 @@ handles will be invalid
 */
 void CL_Snd_Restart_f(void)
 {
-	CL_Snd_Restart();
+	CL_Snd_Shutdown();
+	// sound will be reinitialized by vid_restart
 	CL_Vid_Restart_f();
 }
 
@@ -3461,7 +3462,7 @@ void CL_Shutdown( char *finalmsg ) {
 
 	CL_Disconnect( qtrue );
 
-	S_Shutdown();
+	CL_Snd_Shutdown();
 	CL_ShutdownRef();
 
 	CL_ShutdownUI();

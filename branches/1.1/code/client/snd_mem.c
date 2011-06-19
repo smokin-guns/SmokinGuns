@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -99,6 +99,12 @@ void SND_setup(void) {
 	freelist = p + scs - 1;
 
 	Com_Printf("Sound memory manager started\n");
+}
+
+void SND_shutdown(void)
+{
+		free(sfxScratchBuffer);
+		free(buffer);
 }
 
 /*
@@ -256,7 +262,7 @@ qboolean S_LoadSound( sfx_t *sfx )
 	}
 
 	Hunk_FreeTempMemory(samples);
-	Z_Free(data);
+	Hunk_FreeTempMemory(data);
 
 	return qtrue;
 }
