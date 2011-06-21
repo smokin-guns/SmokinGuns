@@ -163,10 +163,13 @@ demo through a file.
 
 typedef struct {
 
+	connstate_t	state;				// connection status
+
 	int			clientNum;
 	int			lastPacketSentTime;			// for retransmits during connection
 	int			lastPacketTime;				// for timeouts
 
+	char		servername[MAX_OSPATH];		// name of server from original connect (used by reconnect)
 	netadr_t	serverAddress;
 	int			connectTime;				// for connection retransmits
 	int			connectPacketCount;			// for display on connection dialog
@@ -304,11 +307,7 @@ typedef struct {
 } serverInfo_t;
 
 typedef struct {
-	connstate_t	state;				// connection status
-
 	qboolean	cddialog;			// bring up the cd needed dialog next frame
-
-	char		servername[MAX_OSPATH];		// name of server from original connect (used by reconnect)
 
 	// when the server clears the hunk, all of these must be restarted
 	qboolean	rendererStarted;
@@ -342,6 +341,8 @@ typedef struct {
 	serverInfo_t	favoriteServers[MAX_OTHER_SERVERS];
 
 	int pingUpdateSource;		// source currently pinging or updating
+	
+	char		oldGame[MAX_QPATH];
 
 	// update server info
 	netadr_t	updateServer;
@@ -460,8 +461,6 @@ extern	cvar_t	*cl_voip;
 //
 
 void CL_Init (void);
-void CL_FlushMemory(void);
-void CL_ShutdownAll(void);
 void CL_AddReliableCommand(const char *cmd, qboolean isDisconnectCmd);
 
 void CL_StartHunkUsers( qboolean rendererOnly );
@@ -509,7 +508,8 @@ extern 	kbutton_t 	in_speed;
 extern 	kbutton_t 	in_voiprecord;
 #endif
 
-void CL_InitInput (void);
+void CL_InitInput(void);
+void CL_ShutdownInput(void);
 void CL_SendCmd (void);
 void CL_ClearState (void);
 void CL_ReadPackets (void);
@@ -554,7 +554,8 @@ qboolean CL_UpdateVisiblePings_f( int source );
 void Con_DrawCharacter (int cx, int line, int num);
 
 void Con_CheckResize (void);
-void Con_Init (void);
+void Con_Init(void);
+void Con_Shutdown(void);
 void Con_Clear_f (void);
 void Con_ToggleConsole_f (void);
 void Con_DrawNotify (void);

@@ -587,7 +587,7 @@ void Console_Key (int key) {
 	// enter finishes the line
 	if ( key == K_ENTER || key == K_KP_ENTER ) {
 		// if not in the game explicitly prepend a slash if needed
-		if ( cls.state != CA_ACTIVE &&
+		if ( clc.state != CA_ACTIVE &&
 				g_consoleField.buffer[0] &&
 				g_consoleField.buffer[0] != '\\' &&
 				g_consoleField.buffer[0] != '/' ) {
@@ -626,7 +626,7 @@ void Console_Key (int key) {
 
 		CL_SaveConsoleHistory( );
 
-		if ( cls.state == CA_DISCONNECTED ) {
+		if ( clc.state == CA_DISCONNECTED ) {
 			SCR_UpdateScreen ();	// force an update, because the command
 		}							// may take some time
 		return;
@@ -732,7 +732,7 @@ void Message_Key( int key ) {
 
 	if ( key == K_ENTER || key == K_KP_ENTER )
 	{
-		if ( chatField.buffer[0] && cls.state == CA_ACTIVE ) {
+		if ( chatField.buffer[0] && clc.state == CA_ACTIVE ) {
 			if (chat_playerNum != -1 )
 
 				Com_sprintf( buffer, sizeof( buffer ), "tell %i \"%s\"\n", chat_playerNum, chatField.buffer );
@@ -1197,7 +1197,7 @@ void CL_KeyDownEvent( int key, unsigned time )
 
 	// keys can still be used for bound actions
 	if ( ( key < 128 || key == K_MOUSE1 ) &&
-		( clc.demoplaying || cls.state == CA_CINEMATIC ) && Key_GetCatcher( ) == 0 ) {
+		( clc.demoplaying || clc.state == CA_CINEMATIC ) && Key_GetCatcher( ) == 0 ) {
 
 		if (Cvar_VariableValue ("com_cameraMode") == 0) {
 			Cvar_Set ("nextdemo","");
@@ -1221,10 +1221,10 @@ void CL_KeyDownEvent( int key, unsigned time )
 		}
 
 		if ( !( Key_GetCatcher( ) & KEYCATCH_UI ) ) {
-			if ( cls.state == CA_ACTIVE && !clc.demoplaying ) {
+			if ( clc.state == CA_ACTIVE && !clc.demoplaying ) {
 				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_INGAME );
 			}
-			else if ( cls.state != CA_DISCONNECTED ) {
+			else if ( clc.state != CA_DISCONNECTED ) {
 				CL_Disconnect_f();
 				S_StopAllSounds();
 				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_MAIN );
@@ -1249,7 +1249,7 @@ void CL_KeyDownEvent( int key, unsigned time )
 		} 
 	} else if ( Key_GetCatcher( ) & KEYCATCH_MESSAGE ) {
 		Message_Key( key );
-	} else if ( cls.state == CA_DISCONNECTED ) {
+	} else if ( clc.state == CA_DISCONNECTED ) {
 		Console_Key( key );
 	} else {
 		// send the bound action
@@ -1286,7 +1286,7 @@ void CL_KeyUpEvent( int key, unsigned time )
 	// console mode and menu mode, to keep the character from continuing
 	// an action started before a mode switch.
 	//
-	if( cls.state != CA_DISCONNECTED )
+	if( clc.state != CA_DISCONNECTED )
 		CL_ParseBinding( key, qfalse, time );
 
 	if ( Key_GetCatcher( ) & KEYCATCH_UI && uivm ) {
@@ -1337,7 +1337,7 @@ void CL_CharEvent( int key ) {
 	{
 		Field_CharEvent( &chatField, key );
 	}
-	else if ( cls.state == CA_DISCONNECTED )
+	else if ( clc.state == CA_DISCONNECTED )
 	{
 		Field_CharEvent( &g_consoleField, key );
 	}
