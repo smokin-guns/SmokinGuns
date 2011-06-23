@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -36,8 +36,8 @@ GetClientState
 */
 static void GetClientState( uiClientState_t *state ) {
 	state->connectPacketCount = clc.connectPacketCount;
-	state->connState = cls.state;
-	Q_strncpyz( state->servername, cls.servername, sizeof( state->servername ) );
+	state->connState = clc.state;
+	Q_strncpyz( state->servername, clc.servername, sizeof( state->servername ) );
 	Q_strncpyz( state->updateInfoString, cls.updateInfoString, sizeof( state->updateInfoString ) );
 	Q_strncpyz( state->messageString, clc.serverMessage, sizeof( state->messageString ) );
 	state->clientNum = cl.snap.ps.clientNum;
@@ -1118,7 +1118,7 @@ void CL_InitUI( void ) {
 	if (v == UI_OLD_API_VERSION) {
 //		Com_Printf(S_COLOR_YELLOW "WARNING: loading old Quake III Arena User Interface version %d\n", v );
 		// init for this gamestate
-		VM_Call( uivm, UI_INIT, (cls.state >= CA_AUTHORIZING && cls.state < CA_ACTIVE));
+		VM_Call( uivm, UI_INIT, (clc.state >= CA_AUTHORIZING && clc.state < CA_ACTIVE));
 	}
 	else if (v != UI_API_VERSION) {
 		Com_Error( ERR_DROP, "User Interface is version %d, expected %d", v, UI_API_VERSION );
@@ -1126,7 +1126,7 @@ void CL_InitUI( void ) {
 	}
 	else {
 		// init for this gamestate
-		VM_Call( uivm, UI_INIT, (cls.state >= CA_AUTHORIZING && cls.state < CA_ACTIVE) );
+		VM_Call( uivm, UI_INIT, (clc.state >= CA_AUTHORIZING && clc.state < CA_ACTIVE) );
 	}
 }
 

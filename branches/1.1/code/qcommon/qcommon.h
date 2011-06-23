@@ -518,6 +518,9 @@ void	Cvar_Update( vmCvar_t *vmCvar );
 void 	Cvar_Set( const char *var_name, const char *value );
 // will create the variable with no flags if it doesn't exist
 
+cvar_t	*Cvar_Set2(const char *var_name, const char *value, qboolean force);
+// same as Cvar_Set, but allows more control over setting of cvar
+
 void	Cvar_SetSafe( const char *var_name, const char *value );
 // sometimes we set variables from an untrusted source: fail if flags & CVAR_PROTECTED
 
@@ -611,7 +614,7 @@ qboolean FS_Initialized( void );
 void	FS_InitFilesystem ( void );
 void	FS_Shutdown( qboolean closemfp );
 
-qboolean	FS_ConditionalRestart( int checksumFeed );
+qboolean FS_ConditionalRestart(int checksumFeed, qboolean disconnect);
 void	FS_Restart( int checksumFeed );
 // shutdown and restart the filesystem so changes to fs_gamedir can take effect
 
@@ -827,7 +830,7 @@ void 		QDECL Com_Printf( const char *fmt, ... ) __attribute__ ((format (printf, 
 void 		QDECL Com_DPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 void 		QDECL Com_Error( int code, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
 void 		Com_Quit_f( void );
-void		Com_GameRestart(int checksumFeed, qboolean clientRestart);
+void		Com_GameRestart(int checksumFeed, qboolean disconnect);
 
 int			Com_Milliseconds( void );	// will be journaled properly
 unsigned	Com_BlockChecksum( const void *buffer, int length );
@@ -888,6 +891,7 @@ extern	int		time_backend;		// renderer backend time
 extern	int		com_frameTime;
 
 extern	qboolean	com_errorEntered;
+extern	qboolean	com_fullyInitialized;
 
 extern	fileHandle_t	com_journalFile;
 extern	fileHandle_t	com_journalDataFile;
@@ -977,7 +981,7 @@ void CL_InitKeyCommands( void );
 
 void CL_Init( void );
 void CL_Disconnect( qboolean showMainMenu );
-void CL_Shutdown( char *finalmsg );
+void CL_Shutdown(char *finalmsg, qboolean disconnect);
 void CL_Frame( int msec );
 qboolean CL_GameCommand( void );
 void CL_KeyEvent (int key, qboolean down, unsigned time);
@@ -1011,11 +1015,14 @@ void	CL_ForwardCommandToServer( const char *string );
 void CL_CDDialog( void );
 // bring up the "need a cd to play" dialog
 
-void CL_ShutdownAll( void );
-// shutdown all the client stuff
-
 void CL_FlushMemory( void );
 // dump all memory on an error
+
+void CL_ShutdownAll(qboolean shutdownRef);
+// shutdown client
+
+void CL_InitRef(void);
+// initialize renderer interface
 
 void CL_StartHunkUsers( qboolean rendererOnly );
 // start all the client stuff using the hunk

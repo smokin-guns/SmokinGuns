@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -2729,7 +2729,6 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 						item->cursorPos = 0;
 						g_editingField = qtrue;
 						g_editItem = item;
-						DC->setOverstrikeMode(qtrue);
 					}
 				} else {
 					if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)) {
@@ -2767,7 +2766,6 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 					item->cursorPos = 0;
 					g_editingField = qtrue;
 					g_editItem = item;
-					DC->setOverstrikeMode(qtrue);
 				} else {
 						Item_Action(item);
 				}

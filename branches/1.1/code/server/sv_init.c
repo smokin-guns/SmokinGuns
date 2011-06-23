@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -418,7 +418,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	CL_MapLoading();
 
 	// make sure all the client stuff is unloaded
-	CL_ShutdownAll();
+	CL_ShutdownAll(qfalse);
 
 	// clear the whole hunk because we're (re)loading the server
 	Hunk_Clear();
