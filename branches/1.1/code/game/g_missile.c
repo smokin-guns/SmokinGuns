@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -76,6 +76,7 @@ void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 		// check for stop
 		if ( trace->plane.normal[2] > 0.2 && VectorLength( ent->s.pos.trDelta ) < 40 ) {
 			G_SetOrigin( ent, trace->endpos );
+			ent->s.time = level.time / 4;
 
 #ifdef SMOKINGUNS
 			if(!Q_stricmp(ent->classname, "grenadeno")){
