@@ -202,6 +202,10 @@ typedef struct client_s {
 
 	int				oldServerTime;
 	qboolean		csUpdated[MAX_CONFIGSTRINGS+1];	
+	
+#ifdef LEGACY_PROTOCOL
+	qboolean		compat;
+#endif
 } client_t;
 
 //=============================================================================
