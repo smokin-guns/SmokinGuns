@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -84,7 +84,8 @@ Netchan_Setup
 called to open a channel to a remote system
 ==============
 */
-void Netchan_Setup( netsrc_t sock, netchan_t *chan, netadr_t adr, int qport ) {
+void Netchan_Setup(netsrc_t sock, netchan_t *chan, netadr_t adr, int qport, int challenge, qboolean compat)
+{
 	Com_Memset (chan, 0, sizeof(*chan));
 
 	chan->sock = sock;
@@ -92,93 +93,12 @@ void Netchan_Setup( netsrc_t sock, netchan_t *chan, netadr_t adr, int qport ) {
 	chan->qport = qport;
 	chan->incomingSequence = 0;
 	chan->outgoingSequence = 1;
-}
+	chan->challenge = challenge;
 
-// TTimo: unused, commenting out to make gcc happy
-#if 0
-/*
-==============
-Netchan_ScramblePacket
-
-A probably futile attempt to make proxy hacking somewhat
-more difficult.
-==============
-*/
-#define	SCRAMBLE_START	6
-static void Netchan_ScramblePacket( msg_t *buf ) {
-	unsigned	seed;
-	int			i, j, c, mask, temp;
-	int			seq[MAX_PACKETLEN];
-
-	seed = ( LittleLong( *(unsigned *)buf->data ) * 3 ) ^ ( buf->cursize * 123 );
-	c = buf->cursize;
-	if ( c <= SCRAMBLE_START ) {
-		return;
-	}
-	if ( c > MAX_PACKETLEN ) {
-		Com_Error( ERR_DROP, "MAX_PACKETLEN" );
-	}
-
-	// generate a sequence of "random" numbers
-	for (i = 0 ; i < c ; i++) {
-		seed = (119 * seed + 1);
-		seq[i] = seed;
-	}
-
-	// transpose each character
-	for ( mask = 1 ; mask < c-SCRAMBLE_START ; mask = ( mask << 1 ) + 1 ) {
-	}
-	mask >>= 1;
-	for (i = SCRAMBLE_START ; i < c ; i++) {
-		j = SCRAMBLE_START + ( seq[i] & mask );
-		temp = buf->data[j];
-		buf->data[j] = buf->data[i];
-		buf->data[i] = temp;
-	}
-
-	// byte xor the data after the header
-	for (i = SCRAMBLE_START ; i < c ; i++) {
-		buf->data[i] ^= seq[i];
-	}
-}
-
-static void Netchan_UnScramblePacket( msg_t *buf ) {
-	unsigned	seed;
-	int			i, j, c, mask, temp;
-	int			seq[MAX_PACKETLEN];
-
-	seed = ( LittleLong( *(unsigned *)buf->data ) * 3 ) ^ ( buf->cursize * 123 );
-	c = buf->cursize;
-	if ( c <= SCRAMBLE_START ) {
-		return;
-	}
-	if ( c > MAX_PACKETLEN ) {
-		Com_Error( ERR_DROP, "MAX_PACKETLEN" );
-	}
-
-	// generate a sequence of "random" numbers
-	for (i = 0 ; i < c ; i++) {
-		seed = (119 * seed + 1);
-		seq[i] = seed;
-	}
-
-	// byte xor the data after the header
-	for (i = SCRAMBLE_START ; i < c ; i++) {
-		buf->data[i] ^= seq[i];
-	}
-
-	// transpose each character in reverse order
-	for ( mask = 1 ; mask < c-SCRAMBLE_START ; mask = ( mask << 1 ) + 1 ) {
-	}
-	mask >>= 1;
-	for (i = c-1 ; i >= SCRAMBLE_START ; i--) {
-		j = SCRAMBLE_START + ( seq[i] & mask );
-		temp = buf->data[j];
-		buf->data[j] = buf->data[i];
-		buf->data[i] = temp;
-	}
-}
+#ifdef LEGACY_PROTOCOL
+	chan->compat = compat;
 #endif
+}
 
 /*
 =================
@@ -191,16 +111,23 @@ void Netchan_TransmitNextFragment( netchan_t *chan ) {
 	msg_t		send;
 	byte		send_buf[MAX_PACKETLEN];
 	int			fragmentLength;
+	int			outgoingSequence;
 
 	// write the packet header
 	MSG_InitOOB (&send, send_buf, sizeof(send_buf));				// <-- only do the oob here
 
-	MSG_WriteLong( &send, chan->outgoingSequence | FRAGMENT_BIT );
+	outgoingSequence = chan->outgoingSequence | FRAGMENT_BIT;
+	MSG_WriteLong(&send, outgoingSequence);
 
 	// send the qport if we are a client
 	if ( chan->sock == NS_CLIENT ) {
 		MSG_WriteShort( &send, qport->integer );
 	}
+
+#ifdef LEGACY_PROTOCOL
+	if(!chan->compat)
+#endif
+		MSG_WriteLong(&send, NETCHAN_GENCHECKSUM(chan->challenge, chan->outgoingSequence));
 
 	// copy the reliable message to the packet first
 	fragmentLength = FRAGMENT_SIZE;
@@ -213,7 +140,11 @@ void Netchan_TransmitNextFragment( netchan_t *chan ) {
 	MSG_WriteData( &send, chan->unsentBuffer + chan->unsentFragmentStart, fragmentLength );
 
 	// send the datagram
-	NET_SendPacket( chan->sock, send.cursize, send.data, chan->remoteAddress );
+	NET_SendPacket(chan->sock, send.cursize, send.data, chan->remoteAddress);
+
+	// Store send time and size of this packet for rate control
+	chan->lastSentTime = Sys_Milliseconds();
+	chan->lastSentSize = send.cursize;
 
 	if ( showpackets->integer ) {
 		Com_Printf ("%s send %4i : s=%i fragment=%i,%i\n"
@@ -269,17 +200,26 @@ void Netchan_Transmit( netchan_t *chan, int length, const byte *data ) {
 	MSG_InitOOB (&send, send_buf, sizeof(send_buf));
 
 	MSG_WriteLong( &send, chan->outgoingSequence );
-	chan->outgoingSequence++;
 
 	// send the qport if we are a client
-	if ( chan->sock == NS_CLIENT ) {
-		MSG_WriteShort( &send, qport->integer );
-	}
+	if(chan->sock == NS_CLIENT)
+		MSG_WriteShort(&send, qport->integer);
+
+#ifdef LEGACY_PROTOCOL
+	if(!chan->compat)
+#endif
+		MSG_WriteLong(&send, NETCHAN_GENCHECKSUM(chan->challenge, chan->outgoingSequence));
+
+	chan->outgoingSequence++;
 
 	MSG_WriteData( &send, data, length );
 
 	// send the datagram
 	NET_SendPacket( chan->sock, send.cursize, send.data, chan->remoteAddress );
+
+	// Store send time and size of this packet for rate control
+	chan->lastSentTime = Sys_Milliseconds();
+	chan->lastSentSize = send.cursize;
 
 	if ( showpackets->integer ) {
 		Com_Printf( "%s send %4i : s=%i ack=%i\n"
@@ -326,6 +266,17 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 	// read the qport if we are a server
 	if ( chan->sock == NS_SERVER ) {
 		qport = MSG_ReadShort( msg );
+	}
+
+#ifdef LEGACY_PROTOCOL
+	if(!chan->compat)
+#endif
+	{
+		int checksum = MSG_ReadLong(msg);
+
+		// UDP spoofing protection
+		if(NETCHAN_GENCHECKSUM(chan->challenge, sequence) != checksum)
+			return qfalse;
 	}
 
 	// read the fragment information

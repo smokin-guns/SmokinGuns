@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -1161,7 +1161,7 @@ void R_GetAnimTag( mdrHeader_t *mod, int framenum, const char *tagName, md3Tag_t
 
 			// uncompressed model...
 			//
-			frameSize = (long)( &((mdrFrame_t *)0)->bones[ mod->numBones ] );
+			frameSize = (intptr_t)( &((mdrFrame_t *)0)->bones[ mod->numBones ] );
 			frame = (mdrFrame_t *)((byte *)mod + mod->ofsFrames + framenum * frameSize );
 
 			for (j = 0; j < 3; j++)

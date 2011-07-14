@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -150,10 +150,12 @@ void UI_SetBestScores(postGameInfo_t *newInfo, qboolean postGame) {
 	}
 }
 
-void UI_LoadBestScores(const char *map, int game) {
+void UI_LoadBestScores(const char *map, int game)
+{
 	char		fileName[MAX_QPATH];
 	fileHandle_t f;
 	postGameInfo_t newInfo;
+	int protocol, protocolLegacy;
 
 #ifdef SMOKINGUNS
 	// Tequila: Minor fix to not try to load anything when map is not defined here
@@ -174,12 +176,31 @@ void UI_LoadBestScores(const char *map, int game) {
 	}
 	UI_SetBestScores(&newInfo, qfalse);
 
-	Com_sprintf(fileName, MAX_QPATH, "demos/%s_%d.%s%d", map, game, DEMOEXT, (int)trap_Cvar_VariableValue("protocol"));
 	uiInfo.demoAvailable = qfalse;
-	if (trap_FS_FOpenFile(fileName, &f, FS_READ) >= 0) {
+
+	protocolLegacy = trap_Cvar_VariableValue("com_legacyprotocol");
+	protocol = trap_Cvar_VariableValue("com_protocol");
+
+	if(!protocol)
+		protocol = trap_Cvar_VariableValue("protocol");
+	if(protocolLegacy == protocol)
+		protocolLegacy = 0;
+
+	Com_sprintf(fileName, MAX_QPATH, "demos/%s_%d.%s%d", map, game, DEMOEXT, protocol);
+	if(trap_FS_FOpenFile(fileName, &f, FS_READ) >= 0)
+	{
 		uiInfo.demoAvailable = qtrue;
 		trap_FS_FCloseFile(f);
 	}
+	else if(protocolLegacy > 0)
+	{
+		Com_sprintf(fileName, MAX_QPATH, "demos/%s_%d.%s%d", map, game, DEMOEXT, protocolLegacy);
+		if (trap_FS_FOpenFile(fileName, &f, FS_READ) >= 0)
+		{
+			uiInfo.demoAvailable = qtrue;
+			trap_FS_FCloseFile(f);
+		}
+	} 
 }
 
 /*

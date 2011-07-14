@@ -352,6 +352,11 @@ static void CG_Item( centity_t *cent ) {
 
 #ifndef SMOKINGUNS
 		cent->lerpOrigin[2] += 8;	// an extra height boost
+	}
+	
+	if( item->giType == IT_WEAPON && item->giTag == WP_RAILGUN ) {
+		clientInfo_t *ci = &cgs.clientinfo[cg.snap->ps.clientNum];
+		Byte4Copy( ci->c1RGBA, ent.shaderRGBA );
 #endif
 	}
 
@@ -464,6 +469,8 @@ static void CG_Item( centity_t *cent ) {
 	}
 }
 
+//============================================================================
+
 /*
 ===============
 CG_Missile
@@ -476,7 +483,7 @@ static void CG_Missile( centity_t *cent ) {
 //	int	col;
 
 	s1 = &cent->currentState;
-	if ( s1->weapon > WP_NUM_WEAPONS ) {
+	if ( s1->weapon >= WP_NUM_WEAPONS ) {
 		s1->weapon = 0;
 	}
 	weapon = &cg_weapons[s1->weapon];
@@ -679,7 +686,7 @@ static void CG_Grapple( centity_t *cent ) {
 	const weaponInfo_t		*weapon;
 
 	s1 = &cent->currentState;
-	if ( s1->weapon > WP_NUM_WEAPONS ) {
+	if ( s1->weapon >= WP_NUM_WEAPONS ) {
 		s1->weapon = 0;
 	}
 	weapon = &cg_weapons[s1->weapon];

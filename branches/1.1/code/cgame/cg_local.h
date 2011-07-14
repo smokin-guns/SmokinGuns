@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -220,11 +220,15 @@ typedef struct {
 #endif
 	int				painTime;
 	int				painDirection;	// flip from 0 to 1
+#ifndef SMOKINGUNS
 	int				lightningFiring;
 
 	// railgun trail spawning
 	vec3_t			railgunImpact;
 	qboolean		railgunFlash;
+
+	int				railFireTime;
+#endif
 
 	// machinegun spinning
 	float			barrelAngle;
@@ -482,6 +486,9 @@ typedef struct {
 #ifndef SMOKINGUNS
 	vec3_t			color1;
 	vec3_t			color2;
+	
+	byte c1RGBA[4];
+	byte c2RGBA[4];
 #endif
 
 	int				score;			// updated by score servercmds
@@ -498,9 +505,11 @@ typedef struct {
 
 	int				powerups;		// so can display quad/flag status
 
+#ifndef SMOKINGUNS
 	int				medkitUsageTime;
 	int				invulnerabilityStartTime;
 	int				invulnerabilityStopTime;
+#endif
 
 	int				breathPuffTime;
 

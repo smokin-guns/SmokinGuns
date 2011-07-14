@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #define HOMEPATH_NAME_UNIX		".foo"
   #define HOMEPATH_NAME_WIN			"FooBar"
   #define HOMEPATH_NAME_MACOSX		HOMEPATH_NAME_WIN
+//  #define LEGACY_PROTOCOL	// You probably don't need this for your standalone game
 #else
   #define PRODUCT_NAME			"ioq3"
   #define BASEGAME			"baseq3"
@@ -54,6 +55,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #define HOMEPATH_NAME_UNIX		".q3a"
   #define HOMEPATH_NAME_WIN			"Quake3"
   #define HOMEPATH_NAME_MACOSX		HOMEPATH_NAME_WIN
+  #define LEGACY_PROTOCOL
 #endif
 
 #define BASETA				"missionpack"
@@ -121,6 +123,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   // Tequila comment: activate Smokin' Guns MOD only features
   #define SMOKINGUNS_MOD
   #endif
+
+  // We want to support legacy protocol
+  #define LEGACY_PROTOCOL
 #endif
 
 #define MAX_TEAMNAME		32
@@ -271,7 +276,7 @@ typedef int		clipHandle_t;
 #define	MIN_QINT			(-MAX_QINT-1)
 
 #define ARRAY_LEN(x)			(sizeof(x) / sizeof(*(x)))
-
+#define STRARRAY_LEN(x)			(ARRAY_LEN(x) - 1)
 
 // angle indexes
 #define	PITCH				0		// up / down
@@ -631,6 +636,8 @@ typedef struct {
 #define VectorSet(v, x, y, z)	((v)[0]=(x), (v)[1]=(y), (v)[2]=(z))
 #define Vector4Copy(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
 
+#define Byte4Copy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
+
 #define	SnapVector(v) {v[0]=((int)(v[0]));v[1]=((int)(v[1]));v[2]=((int)(v[2]));}
 #ifdef SMOKINGUNS
 //unlagged - attack prediction #3
@@ -847,7 +854,7 @@ void Parse2DMatrix (char **buf_p, int y, int x, float *m);
 void Parse3DMatrix (char **buf_p, int z, int y, int x, float *m);
 int Com_HexStrToInt( const char *str );
 
-void	QDECL Com_sprintf (char *dest, int size, const char *fmt, ...) __attribute__ ((format (printf, 3, 4)));
+int QDECL Com_sprintf (char *dest, int size, const char *fmt, ...) __attribute__ ((format (printf, 3, 4)));
 
 char *Com_SkipTokens( char *s, int numTokens, char *sep );
 char *Com_SkipCharset( char *s, char *sep );

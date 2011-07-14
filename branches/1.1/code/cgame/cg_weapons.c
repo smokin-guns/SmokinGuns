@@ -1589,20 +1589,17 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 
 #ifndef SMOKINGUNS
 	// set custom shading for railgun refire rate
-	if ( ps ) {
-		if ( cg.predictedPlayerState.weapon == WP_RAILGUN 
-			&& cg.predictedPlayerState.weaponstate == WEAPON_FIRING ) {
-			float	f;
-
-			f = (float)cg.predictedPlayerState.weaponTime / 1500;
-			gun.shaderRGBA[1] = 0;
-			gun.shaderRGBA[0] = 
-			gun.shaderRGBA[2] = 255 * ( 1.0 - f );
-		} else {
-			gun.shaderRGBA[0] = 255;
-			gun.shaderRGBA[1] = 255;
-			gun.shaderRGBA[2] = 255;
+	if( weaponNum == WP_RAILGUN ) {
+		clientInfo_t *ci = &cgs.clientinfo[cent->currentState.clientNum];
+		if( cent->pe.railFireTime + 1500 > cg.time ) {
+			int scale = 255 * ( cg.time - cent->pe.railFireTime ) / 1500;
+			gun.shaderRGBA[0] = ( ci->c1RGBA[0] * scale ) >> 8;
+			gun.shaderRGBA[1] = ( ci->c1RGBA[1] * scale ) >> 8;
+			gun.shaderRGBA[2] = ( ci->c1RGBA[2] * scale ) >> 8;
 			gun.shaderRGBA[3] = 255;
+		}
+		else {
+			Byte4Copy( ci->c1RGBA, gun.shaderRGBA );
 		}
 	}
 
@@ -1667,10 +1664,10 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		return;
 	}
 
+#ifndef SMOKINGUNS
 	if ( !ps ) {
 		// add weapon ready sound
 		cent->pe.lightningFiring = qfalse;
-#ifndef SMOKINGUNS
 		if ( ( cent->currentState.eFlags & EF_FIRING ) && weapon->firingSound ) {
 			// lightning gun and guantlet make a different sound when fire is held down
 			trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->firingSound );
@@ -1678,10 +1675,8 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		} else if ( weapon->readySound ) {
 			trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->readySound );
 		}
-#endif
 	}
 
-#ifndef SMOKINGUNS
 	trap_R_LerpTag(&lerped, parent->hModel, parent->oldframe, parent->frame,
 		1.0 - parent->backlerp, "tag_weapon");
 	VectorCopy(parent->origin, gun.origin);
@@ -1692,7 +1687,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	if(ps && cg_drawGun.integer == 2)
 		VectorMA(gun.origin, -lerped.origin[1], parent->axis[1], gun.origin);
 	else if(!ps || cg_drawGun.integer != 3)
-       	VectorMA(gun.origin, lerped.origin[1], parent->axis[1], gun.origin);
+		VectorMA(gun.origin, lerped.origin[1], parent->axis[1], gun.origin);
 
 	VectorMA(gun.origin, lerped.origin[2], parent->axis[2], gun.origin);
 
@@ -3222,6 +3217,10 @@ void CG_FireWeapon( centity_t *cent, qboolean altfire, int weapon ) {
 		}
 	}
 
+	if( ent->weapon == WP_RAILGUN ) {
+		cent->pe.railFireTime = cg.time;
+	}
+
 	// play quad sound if needed
 	if ( cent->currentState.powerups & ( 1 << PW_QUAD ) ) {
 		trap_S_StartSound (NULL, cent->currentState.number, CHAN_ITEM, cgs.media.quadSound );
@@ -3631,6 +3630,10 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir,
 		if ( weapon == WP_RAILGUN ) {
 			// colorize with client color
 			VectorCopy( cgs.clientinfo[clientNum].color1, le->color );
+			le->refEntity.shaderRGBA[0] = le->color[0] * 0xff;
+			le->refEntity.shaderRGBA[1] = le->color[1] * 0xff;
+			le->refEntity.shaderRGBA[2] = le->color[2] * 0xff;
+			le->refEntity.shaderRGBA[3] = 0xff;
 		}
 #endif
 	}
@@ -3644,7 +3647,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir,
 		float	*color;
 
 		// colorize with client color
-		color = cgs.clientinfo[clientNum].color2;
+		color = cgs.clientinfo[clientNum].color1;
 		CG_ImpactMark( mark, origin, dir, random()*360, color[0],color[1], color[2],1, alphaFade, radius, qfalse );
 	} else {
 		CG_ImpactMark( mark, origin, dir, random()*360, 1,1,1,1, alphaFade, radius, qfalse );
@@ -3712,6 +3715,8 @@ void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum )
 #ifndef SMOKINGUNS
 	case WP_GRENADE_LAUNCHER:
 	case WP_ROCKET_LAUNCHER:
+	case WP_PLASMAGUN:
+	case WP_BFG:
 #ifdef MISSIONPACK
 	case WP_NAILGUN:
 	case WP_CHAINGUN:

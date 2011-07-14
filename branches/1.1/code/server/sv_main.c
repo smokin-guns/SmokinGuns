@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -642,7 +642,13 @@ void SVC_Info( netadr_t from ) {
 	// to prevent timed spoofed reply packets that add ghost servers
 	Info_SetValueForKey( infostring, "challenge", Cmd_Argv(1) );
 
-	Info_SetValueForKey( infostring, "protocol", va("%i", com_protocol->integer) );
+#ifdef LEGACY_PROTOCOL
+	if(com_legacyprotocol->integer > 0)
+		Info_SetValueForKey(infostring, "protocol", va("%i", com_legacyprotocol->integer));
+	else
+#endif
+		Info_SetValueForKey(infostring, "protocol", va("%i", com_protocol->integer));
+
 	Info_SetValueForKey( infostring, "hostname", sv_hostname->string );
 	Info_SetValueForKey( infostring, "mapname", sv_mapname->string );
 	Info_SetValueForKey( infostring, "clients", va("%i", count) );
@@ -868,10 +874,6 @@ void SV_PacketEvent( netadr_t from, msg_t *msg ) {
 		}
 		return;
 	}
-
-	// if we received a sequenced packet from an address we don't recognize,
-	// send an out of band disconnect packet to it
-	NET_OutOfBandPrint( NS_SERVER, from, "disconnect" );
 }
 
 
@@ -1154,5 +1156,52 @@ void SV_Frame( int msec ) {
 	SV_MasterHeartbeat(sv_heartbeat->string);
 }
 
-//============================================================================
+/*
+====================
+SV_RateMsec
 
+Return the number of msec until another message can be sent to
+a client based on its rate settings
+====================
+*/
+
+#define UDPIP_HEADER_SIZE 28
+#define UDPIP6_HEADER_SIZE 48
+
+int SV_RateMsec(client_t *client)
+{
+	int rate, rateMsec;
+	int messageSize;
+
+	messageSize = client->netchan.lastSentSize;
+	rate = client->rate;
+
+	if(sv_maxRate->integer)
+	{
+		if(sv_maxRate->integer < 1000)
+			Cvar_Set( "sv_MaxRate", "1000" );
+		if(sv_maxRate->integer < rate)
+			rate = sv_maxRate->integer;
+	}
+
+	if(sv_minRate->integer)
+	{
+		if(sv_minRate->integer < 1000)
+			Cvar_Set("sv_minRate", "1000");
+		if(sv_minRate->integer > rate)
+			rate = sv_minRate->integer;
+	}
+
+	if(client->netchan.remoteAddress.type == NA_IP6)
+		messageSize += UDPIP6_HEADER_SIZE;
+	else
+		messageSize += UDPIP_HEADER_SIZE;
+
+	rateMsec = messageSize * 1000 / ((int) (rate * com_timescale->value));
+	rate = Sys_Milliseconds() - client->netchan.lastSentTime;
+
+	if(rate > rateMsec)
+		return 0;
+	else
+		return rateMsec - rate;
+}
