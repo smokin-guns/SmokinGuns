@@ -181,8 +181,8 @@ void SV_GetChallenge(netadr_t from)
 #endif
 
 	challenge->pingTime = svs.time;
-	NET_OutOfBandPrint(NS_SERVER, challenge->adr, "challengeResponse %d %d",
-			   challenge->challenge, clientChallenge);
+	NET_OutOfBandPrint(NS_SERVER, challenge->adr, "challengeResponse %d %d %d",
+			   challenge->challenge, clientChallenge, com_protocol->integer);
 }
 
 #ifdef SMOKINGUNS
@@ -281,7 +281,7 @@ void SV_AuthorizeIpPacket( netadr_t from ) {
 #endif
 	if ( !Q_stricmp( s, "accept" ) ) {
 		NET_OutOfBandPrint(NS_SERVER, challengeptr->adr,
-			"challengeResponse %d %d", challengeptr->challenge, challengeptr->clientChallenge);
+			"challengeResponse %d %d %d", challengeptr->challenge, challengeptr->clientChallenge, com_protocol->integer);
 		return;
 	}
 	if ( !Q_stricmp( s, "unknown" ) ) {
@@ -637,6 +637,31 @@ gotnewcl:
 	}
 }
 
+/*
+=====================
+SV_FreeClient
+
+Destructor for data allocated in a client structure
+=====================
+*/
+void SV_FreeClient(client_t *client)
+{
+#ifdef USE_VOIP
+	int index;
+	
+	for(index = client->queuedVoipIndex; index < client->queuedVoipPackets; index++)
+	{
+		index %= ARRAY_LEN(client->voipPacket);
+		
+		Z_Free(client->voipPacket[index]);
+	}
+	
+	client->queuedVoipPackets = 0;
+#endif
+
+	SV_Netchan_FreeQueue(client);
+	SV_CloseDownload(client);
+}
 
 /*
 =====================
@@ -670,16 +695,11 @@ void SV_DropClient( client_t *drop, const char *reason ) {
 		}
 	}
 
-	// Kill any download
-	SV_CloseDownload( drop );
+	// Free all allocated data on the client structure
+	SV_FreeClient(drop);
 
 	// tell everyone why they got dropped
 	SV_SendServerCommand( NULL, "print \"%s" S_COLOR_WHITE " %s\n\"", drop->name, reason );
-
-	if (drop->download)	{
-		FS_FCloseFile( drop->download );
-		drop->download = 0;
-	}
 
 	// call the prog function for removing a client
 	// this will remove the body, among other things
@@ -855,7 +875,7 @@ static void SV_CloseDownload( client_t *cl ) {
 	// Free the temporary buffer space
 	for (i = 0; i < MAX_DOWNLOAD_WINDOW; i++) {
 		if (cl->downloadBlocks[i]) {
-			Hunk_FreeTempMemory(cl->downloadBlocks[i]);
+			Z_Free(cl->downloadBlocks[i]);
 			cl->downloadBlocks[i] = NULL;
 		}
 	}
@@ -1075,7 +1095,7 @@ int SV_WriteDownloadToClient(client_t *cl, msg_t *msg)
 		curindex = (cl->downloadCurrentBlock % MAX_DOWNLOAD_WINDOW);
 
 		if (!cl->downloadBlocks[curindex])
-			cl->downloadBlocks[curindex] = Hunk_AllocateTempMemory(MAX_DOWNLOAD_BLKSIZE);
+			cl->downloadBlocks[curindex] = Z_Malloc(MAX_DOWNLOAD_BLKSIZE);
 
 		cl->downloadBlockSize[curindex] = FS_Read( cl->downloadBlocks[curindex], MAX_DOWNLOAD_BLKSIZE, cl->download );
 
@@ -1253,7 +1273,7 @@ void SV_WriteVoipToClient( client_t *cl, msg_t *msg )
 			MSG_WriteShort(msg, packet->len);
 			MSG_WriteData(msg, packet->data, packet->len);
 
-			Hunk_FreeTempMemory(packet);
+			Z_Free(packet);
 		}
 
 		cl->queuedVoipPackets -= i;
@@ -1929,13 +1949,12 @@ void SV_UserVoip( client_t *cl, msg_t *msg ) {
 			continue;  // not addressed to this player.
 
 		// Transmit this packet to the client.
-		// !!! FIXME: I don't like this queueing system.
 		if (client->queuedVoipPackets >= ARRAY_LEN(client->voipPacket)) {
 			Com_Printf("Too many VoIP packets queued for client #%d\n", i);
 			continue;  // no room for another packet right now.
 		}
 
-		packet = Hunk_AllocateTempMemory(sizeof(*packet));
+		packet = Z_Malloc(sizeof(*packet));
 		packet->sender = sender;
 		packet->frames = frames;
 		packet->len = packetsize;
