@@ -1885,8 +1885,8 @@ qboolean CG_Cvar_ClampInt( const char *name, vmCvar_t *vmCvar, int min, int max 
 const char *CG_ConfigString( int index );
 const char *CG_Argv( int arg );
 
-void QDECL CG_Printf( const char *msg, ... );
-void QDECL CG_Error( const char *msg, ... );
+void QDECL CG_Printf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
+void QDECL CG_Error( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
 
 #ifndef SMOKINGUNS
 void CG_StartMusic( void );
