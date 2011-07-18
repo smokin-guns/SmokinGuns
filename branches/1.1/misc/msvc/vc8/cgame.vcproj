@@ -521,9 +521,6 @@
 				RelativePath="..\..\..\code\cgame\cg_predict.c"
 				>
 			</File>
-			<File
-				RelativePath="..\..\..\code\cgame\cg_scoreboard.c"
-				>
 			</File>
 			<File
 				RelativePath="..\..\..\code\cgame\cg_servercmds.c"
