@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -124,7 +124,8 @@ const char *TeamColorString(int team) {
 }
 
 // NULL for everyone
-void QDECL PrintMsg( gentity_t *ent, const char *fmt, ... ) {
+#ifndef SMOKINGUNS
+static __attribute__ ((format (printf, 2, 3))) void QDECL PrintMsg( gentity_t *ent, const char *fmt, ... ) {
 	char		msg[1024];
 	va_list		argptr;
 	char		*p;
@@ -141,6 +142,7 @@ void QDECL PrintMsg( gentity_t *ent, const char *fmt, ... ) {
 
 	trap_SendServerCommand ( ( (ent == NULL) ? -1 : ent-g_entities ), va("print \"%s\"", msg ));
 }
+#endif
 
 /*
 ==============

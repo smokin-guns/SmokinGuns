@@ -370,7 +370,7 @@ void R_GLSLProgs_Init( void ) {
 		} else {
 			glsl_progs[i].program = glsl_progs[i].default_program ;
 			ri.Printf( PRINT_ALL, "Using default %s GLSL program (%i bytes)\n",
-				glsl_progs[i].name, strlen(glsl_progs[i].program) );
+				glsl_progs[i].name, (int)strlen(glsl_progs[i].program) );
 		}
 
 		if (buffer) {

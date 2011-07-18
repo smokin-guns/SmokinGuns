@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -22,13 +22,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 /*****************************************************************************
-* name:		l_precomp.h
-*
-* desc:		pre compiler
-*
-* $Archive: /source/stable/code/botlib/l_precomp.h $
-*
-*****************************************************************************/
+ * name:		l_precomp.h
+ *
+ * desc:		pre compiler
+ *
+ * $Archive: /source/code/botlib/l_precomp.h $
+ *
+ *****************************************************************************/
 
 #ifndef MAX_PATH
 	#define MAX_PATH			MAX_QPATH
@@ -153,9 +153,9 @@ source_t *LoadSourceMemory(char *ptr, int length, char *name);
 //free the given source
 void FreeSource(source_t *source);
 //print a source error
-void QDECL SourceError(source_t *source, char *str, ...);
+void QDECL SourceError(source_t *source, char *str, ...) __attribute__ ((format (printf, 2, 3)));
 //print a source warning
-void QDECL SourceWarning(source_t *source, char *str, ...);
+void QDECL SourceWarning(source_t *source, char *str, ...)  __attribute__ ((format (printf, 2, 3)));
 
 #ifdef BSPC
 // some of BSPC source does include game/q_shared.h and some does not

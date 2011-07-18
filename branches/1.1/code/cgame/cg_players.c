@@ -159,7 +159,7 @@ qboolean CG_ParseMusicFile(void){
 	for(i=0;i<trackInfoNum;i++){
 
 		token = COM_ParseExt(p, qtrue);
-		Com_sprintf(trackInfo[i].path,sizeof(trackInfo[i].path), token);
+		Com_sprintf(trackInfo[i].path,sizeof(trackInfo[i].path), "%s", token);
 
 		token = COM_ParseExt(p, qtrue);
 		trackInfo[i].length = atoi(token);
@@ -4399,7 +4399,7 @@ void CG_ResetPlayerEntity( centity_t *cent ) {
 	cent->pe.torso.pitching = qfalse;
 
 	if ( cg_debugPosition.integer ) {
-		CG_Printf("%i ResetPlayerEntity yaw=%i\n", cent->currentState.number, cent->pe.torso.yawAngle );
+		CG_Printf("%i ResetPlayerEntity yaw=%f\n", cent->currentState.number, cent->pe.torso.yawAngle );
 	}
 
 #ifdef SMOKINGUNS

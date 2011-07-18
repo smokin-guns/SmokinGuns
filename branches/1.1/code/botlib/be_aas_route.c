@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -22,13 +22,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 /*****************************************************************************
-* name:		be_aas_route.c
-*
-* desc:		AAS
-*
-* $Archive: /source/stable/code/botlib/be_aas_route.c $
-*
-*****************************************************************************/
+ * name:		be_aas_route.c
+ *
+ * desc:		AAS
+ *
+ * $Archive: /MissionPack/code/botlib/be_aas_route.c $
+ *
+ *****************************************************************************/
 
 #include "../qcommon/q_shared.h"
 #include "l_utils.h"
@@ -1066,7 +1066,7 @@ int AAS_ReadRouteCache(void)
 	botimport.FS_Read(&routecacheheader, sizeof(routecacheheader_t), fp );
 	if (routecacheheader.ident != RCID)
 	{
-		AAS_Error("%s is not a route cache dump\n");
+		AAS_Error("%s is not a route cache dump\n", filename);
 		return qfalse;
 	} //end if
 	if (routecacheheader.version != RCVERSION)

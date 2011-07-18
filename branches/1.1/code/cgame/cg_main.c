@@ -2101,8 +2101,8 @@ void CG_PlayMusic( void ) {
 
 		} while(trackInfo[trackNum].played || trackNum == cg.oldTrackNum);
 
-		Com_sprintf( parm1, sizeof(parm1), trackInfo[trackNum].path);
-		Com_sprintf( parm2, sizeof(parm2), trackInfo[trackNum].path);
+		Com_sprintf( parm1, sizeof(parm1), "%s", trackInfo[trackNum].path);
+		Com_sprintf( parm2, sizeof(parm2), "%s", trackInfo[trackNum].path);
 		trackInfo[trackNum].played = qtrue;
 		cg.playmusic_endtime = cg.time + trackInfo[trackNum].replays*trackInfo[trackNum].length;
 		cg.playmusic_starttime = cg.time;

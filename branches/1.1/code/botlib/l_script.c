@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -22,13 +22,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 /*****************************************************************************
-* name:		l_script.c
-*
-* desc:		lexicographical parser
-*
-* $Archive: /source/stable/code/botlib/l_script.c $
-*
-*****************************************************************************/
+ * name:		l_script.c
+ *
+ * desc:		lexicographical parser
+ *
+ * $Archive: /MissionPack/code/botlib/l_script.c $
+ *
+ *****************************************************************************/
 
 //#define SCREWUP
 //#define BOTLIB
@@ -991,7 +991,7 @@ int PS_ExpectTokenType(script_t *script, int type, int subtype, token_t *token)
 		if (token->subtype != subtype)
 		{
 			ScriptError(script, "expected %s, found %s",
-							script->punctuations[subtype], token->string);
+							script->punctuations[subtype].p, token->string);
 			return 0;
 		} //end if
 	} //end else if
@@ -1159,7 +1159,7 @@ float ReadSignedFloat(script_t *script)
 	{
 		if(!PS_ExpectAnyToken(script, &token))
 		{
-			ScriptError(script, "Missing float value\n", token.string);
+			ScriptError(script, "Missing float value\n");
 			return 0;
 		}
 
@@ -1190,7 +1190,7 @@ signed long int ReadSignedInt(script_t *script)
 	{
 		if(!PS_ExpectAnyToken(script, &token))
 		{
-			ScriptError(script, "Missing integer value\n", token.string);
+			ScriptError(script, "Missing integer value\n");
 			return 0;
 		}
 

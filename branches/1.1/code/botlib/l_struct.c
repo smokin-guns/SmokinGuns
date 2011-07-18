@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -22,13 +22,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 /*****************************************************************************
-* name:		l_struct.c
-*
-* desc:		structure reading / writing
-*
-* $Archive: /source/stable/code/botlib/l_struct.c $
-*
-*****************************************************************************/
+ * name:		l_struct.c
+ *
+ * desc:		structure reading / writing
+ *
+ * $Archive: /MissionPack/CODE/botlib/l_struct.c $
+ *
+ *****************************************************************************/
 
 #ifdef BOTLIB
 #include "../qcommon/q_shared.h"
@@ -151,7 +151,7 @@ qboolean ReadNumber(source_t *source, fielddef_t *fd, void *p)
 		} //end if
 		if (intval < intmin || intval > intmax)
 		{
-			SourceError(source, "value %d out of range [%d, %d]", intval, intmin, intmax);
+			SourceError(source, "value %ld out of range [%ld, %ld]", intval, intmin, intmax);
 			return 0;
 		} //end if
 	} //end if
@@ -161,7 +161,7 @@ qboolean ReadNumber(source_t *source, fielddef_t *fd, void *p)
 		{
 			if (intval < fd->floatmin || intval > fd->floatmax)
 			{
-				SourceError(source, "value %d out of range [%f, %f]", intval, fd->floatmin, fd->floatmax);
+				SourceError(source, "value %ld out of range [%f, %f]", intval, fd->floatmin, fd->floatmax);
 				return 0;
 			} //end if
 		} //end if

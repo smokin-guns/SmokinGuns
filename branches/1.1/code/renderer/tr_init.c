@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -31,11 +31,6 @@ glconfig_t	glConfig;
 qboolean	textureFilterAnisotropic = qfalse;
 int			maxAnisotropy = 0;
 float		displayAspect = 0.0f;
-
-// Used to fix glReadPixels during screenshots and video frame capture
-// 4 is just for reference the default value for GL_PACK_ALIGNMENT
-// see http://www.opengl.org/sdk/docs/man/xhtml/glPixelStore.xml
-GLint		glPackAlignment = 4;
 
 glstate_t	glState;
 
@@ -1204,9 +1199,7 @@ void R_Init( void ) {
 	Com_Memset( &tess, 0, sizeof( tess ) );
 
 	if(sizeof(glconfig_t) != 11332)
-	{
-		ri.Error( ERR_FATAL, "Mod ABI incompatible: sizeof(glconfig_t) == %zd != 11332", sizeof(glconfig_t));
-	}
+		ri.Error( ERR_FATAL, "Mod ABI incompatible: sizeof(glconfig_t) == %u != 11332", (unsigned int) sizeof(glconfig_t));
 
 //	Swap_Init();
 

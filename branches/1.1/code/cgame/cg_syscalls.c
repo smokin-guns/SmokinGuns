@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -48,8 +48,11 @@ void	trap_Print( const char *fmt ) {
 	syscall( CG_PRINT, fmt );
 }
 
-void	trap_Error( const char *fmt ) {
-	syscall( CG_ERROR, fmt );
+void trap_Error(const char *fmt)
+{
+	syscall(CG_ERROR, fmt);
+	// shut up GCC warning about returning functions, because we know better
+	exit(1);
 }
 
 int		trap_Milliseconds( void ) {

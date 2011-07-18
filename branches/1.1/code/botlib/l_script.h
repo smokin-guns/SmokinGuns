@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -22,13 +22,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 /*****************************************************************************
-* name:		l_script.h
-*
-* desc:		lexicographical parser
-*
-* $Archive: /source/stable/code/botlib/l_script.h $
-*
-*****************************************************************************/
+ * name:		l_script.h
+ *
+ * desc:		lexicographical parser
+ *
+ * $Archive: /source/code/botlib/l_script.h $
+ *
+ *****************************************************************************/
 
 //undef if binary numbers of the form 0b... or 0B... are not allowed
 #define BINARYNUMBERS
@@ -241,8 +241,8 @@ void FreeScript(script_t *script);
 //set the base folder to load files from
 void PS_SetBaseFolder(char *path);
 //print a script error with filename and line number
-void QDECL ScriptError(script_t *script, char *str, ...);
+void QDECL ScriptError(script_t *script, char *str, ...) __attribute__ ((format (printf, 2, 3)));
 //print a script warning with filename and line number
-void QDECL ScriptWarning(script_t *script, char *str, ...);
+void QDECL ScriptWarning(script_t *script, char *str, ...) __attribute__ ((format (printf, 2, 3)));
 
 

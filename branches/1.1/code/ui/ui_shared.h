@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -394,8 +394,8 @@ typedef struct {
 	void (*getBindingBuf)( int keynum, char *buf, int buflen );
 	void (*setBinding)( int keynum, const char *binding );
 	void (*executeText)(int exec_when, const char *text );
-	void (*Error)(int level, const char *error, ...);
-	void (*Print)(const char *msg, ...);
+	void (*Error)(int level, const char *error, ...) __attribute__ ((format (printf, 2, 3)));
+	void (*Print)(const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
 	void (*Pause)(qboolean b);
 	int (*ownerDrawWidth)(int ownerDraw, float scale);
 	sfxHandle_t (*registerSound)(const char *name, qboolean compressed);

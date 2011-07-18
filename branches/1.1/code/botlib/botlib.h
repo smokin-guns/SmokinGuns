@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2011 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -172,7 +172,7 @@ typedef struct bot_entitystate_s
 typedef struct botlib_import_s
 {
 	//print messages from the bot library
-	void		(QDECL *Print)(int type, char *fmt, ...);
+	void		(QDECL *Print)(int type, char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 	//trace a bbox through the world
 	void		(*Trace)(bsp_trace_t *trace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask);
 	//trace a bbox against a specific entity

@@ -665,7 +665,7 @@ static void CG_OpenFileAiNode_f(void){
 		return;
 	}
 	if ( len > MAX_AINODEFILE ) {
-		CG_Printf("ai file too big: %s! %d > " STRING(MAX_AINODEFILE) "\n", filename);
+		CG_Printf("ai file too big: %s! %d > " STRING(MAX_AINODEFILE) "\n", filename, len);
 		trap_FS_FCloseFile( file );
 		return;
 	}
