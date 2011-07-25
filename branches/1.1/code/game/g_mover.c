@@ -1190,6 +1190,7 @@ void Think_MatchTeam( gentity_t *ent ) {
 TOGGLE		wait in both the start and end states for a trigger event.
 START_OPEN	the door to moves to its destination when spawned, and operate in reverse.  It is used to temporarily or permanently close off an area when triggered (not useful for touch or takedamage doors).
 NOMONSTER	monsters will not trigger this door
+SILENT		supresses the default door sounds.
 
 "model2"	.md3 model to also draw
 "angle"		determines the opening direction
@@ -1207,10 +1208,18 @@ void SP_func_door (gentity_t *ent) {
 	float	distance;
 	vec3_t	size;
 	float	lip;
+	//Pardner: if SILENT flag not set, use the default door sounds. 
+	//Use_BinaryMover() already handles entities without set sounds.
+#ifdef SMOKINGUNS
+	if ( !ent->spawnflags & 32 ) {
+#endif
 
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.wav");
 	ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.wav");
 
+#ifdef SMOKINGUNS
+	}
+#endif
 	ent->blocked = Blocked_Door;
 
 	// default speed of 400
@@ -1323,6 +1332,7 @@ TRIGGER_DOOR: door can't be used by an activate button but a trigger
 X_AXIS : open on the X-axis instead of the Z-axis
 Y_AXIS : open on the Y-axis instead of the Z-axis
 ONE_WAY : always open the same way, set negative distance to reverse
+SILENT: supresses the default door sounds. 
 
 "model2"	.md3 model to also draw
 "targetname" if set, no touch field will be spawned and a remote button or trigger field activates the door.
@@ -1340,10 +1350,18 @@ void SP_func_door_rotating (gentity_t *ent) {
 
 	ent->s.pos.trType = TR_STATIONARY;
 	ent->s.apos.trType = TR_STATIONARY;
+	//Pardner: if SILENT flag not set, use the default door sounds. 
+	//Use_BinaryMover() already handles entities without set sounds.
+#ifdef SMOKINGUNS
+	if ( !ent->spawnflags & 256 ) {
+#endif
 
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.wav");
 	ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.wav");
 
+#ifdef SMOKINGUNS
+	}
+#endif
 	ent->blocked = Blocked_Door;
 
 	// default speed of 130
@@ -1816,6 +1834,8 @@ void SpawnPlatTrigger( gentity_t *ent ) {
 /*QUAKED func_plat (0 .5 .8) ?
 Plats are always drawn in the extended position so they will light correctly.
 
+SILENT: supresses the default plat sounds. 
+
 "lip"		default 8, protrusion above rest position
 "height"	total height of movement, defaults to model height
 "speed"		overrides default 200.
@@ -1826,10 +1846,18 @@ Plats are always drawn in the extended position so they will light correctly.
 */
 void SP_func_plat (gentity_t *ent) {
 	float		lip, height;
+	//Pardner: if SILENT flag not set, use the default plat sounds. 
+	//Use_BinaryMover() already handles entities without set sounds.
+#ifdef SMOKINGUNS
+	if ( !ent->spawnflags & 1 ) {
+#endif
 
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/plats/pt1_strt.wav");
 	ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/plats/pt1_end.wav");
 
+#ifdef SMOKINGUNS
+	}
+#endif
 	VectorClear (ent->s.angles);
 
 	G_SpawnFloat( "speed", "200", &ent->speed );
