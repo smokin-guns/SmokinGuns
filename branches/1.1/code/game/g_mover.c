@@ -1211,7 +1211,7 @@ void SP_func_door (gentity_t *ent) {
 	//Pardner: if SILENT flag not set, use the default door sounds. 
 	//Use_BinaryMover() already handles entities without set sounds.
 #ifdef SMOKINGUNS
-	if ( !ent->spawnflags & 32 ) {
+	if ( !(ent->spawnflags & 32) ) {
 #endif
 
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.wav");
@@ -1353,7 +1353,7 @@ void SP_func_door_rotating (gentity_t *ent) {
 	//Pardner: if SILENT flag not set, use the default door sounds. 
 	//Use_BinaryMover() already handles entities without set sounds.
 #ifdef SMOKINGUNS
-	if ( !ent->spawnflags & 256 ) {
+	if ( !(ent->spawnflags & 256) ) {
 #endif
 
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.wav");
@@ -1849,7 +1849,7 @@ void SP_func_plat (gentity_t *ent) {
 	//Pardner: if SILENT flag not set, use the default plat sounds. 
 	//Use_BinaryMover() already handles entities without set sounds.
 #ifdef SMOKINGUNS
-	if ( !ent->spawnflags & 1 ) {
+	if ( !(ent->spawnflags & 1) ) {
 #endif
 
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/plats/pt1_strt.wav");
