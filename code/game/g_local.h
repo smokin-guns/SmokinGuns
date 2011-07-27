@@ -957,7 +957,7 @@ void AddTournamentQueue(gclient_t *client);
 void QDECL G_LogPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 void SendScoreboardMessageToAllClients( void );
 void QDECL G_Printf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
-void QDECL G_Error( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
+void QDECL G_Error( const char *fmt, ... ) __attribute__ ((noreturn, format (printf, 1, 2)));
 
 //
 // g_client.c
@@ -1246,7 +1246,7 @@ extern  minilog_t	g_minilog;
 #endif
 
 void	trap_Printf( const char *fmt );
-void	trap_Error( const char *fmt );
+void trap_Error(const char *fmt) __attribute__((noreturn));
 int		trap_Milliseconds( void );
 int		trap_RealTime( qtime_t *qtime );
 int		trap_Argc( void );
