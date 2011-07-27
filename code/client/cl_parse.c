@@ -671,6 +671,33 @@ qboolean CL_ShouldIgnoreVoipSender(int sender)
 
 /*
 =====================
+CL_PlayVoip
+
+Play raw data
+=====================
+*/
+
+static void CL_PlayVoip(int sender, int samplecnt, const byte *data, int flags)
+{
+	if(flags & VOIP_DIRECT)
+	{
+		S_RawSamples(sender + 1, samplecnt, clc.speexSampleRate, 2, 1,
+#ifndef SMOKINGUNS
+	             data, clc.voipGain[sender], -1);
+#else
+	             data, clc.voipGain[sender] + cl_voipDefaultGain->value, -1);
+#endif
+	}
+
+	if(flags & VOIP_SPATIAL)
+	{
+		S_RawSamples(sender + MAX_CLIENTS + 1, samplecnt, clc.speexSampleRate, 2, 1,
+	             data, 1.0f, sender);
+	}
+}
+
+/*
+=====================
 CL_ParseVoip
 
 A VoIP message has been received from the server
@@ -685,6 +712,7 @@ void CL_ParseVoip ( msg_t *msg ) {
 	const int sequence = MSG_ReadLong(msg);
 	const int frames = MSG_ReadByte(msg);
 	const int packetsize = MSG_ReadShort(msg);
+	const int flags = MSG_ReadBits(msg, VOIP_FLAGCNT);
 	char encoded[1024];
 	int seqdiff = sequence - clc.voipIncomingSequence[sender];
 	int written = 0;
@@ -780,12 +808,8 @@ void CL_ParseVoip ( msg_t *msg ) {
 		if ((written + clc.speexFrameSize) * 2 > sizeof (decoded)) {
 			Com_DPrintf("VoIP: playback %d bytes, %d samples, %d frames\n",
 			            written * 2, written, i);
-			S_RawSamples(sender + 1, written, clc.speexSampleRate, 2, 1,
-#ifndef SMOKINGUNS
-			             (const byte *) decoded, clc.voipGain[sender]);
-#else
-			             (const byte *) decoded, ( clc.voipGain[sender] + cl_voipDefaultGain->value ) );
-#endif
+
+			CL_PlayVoip(sender, written, (const byte *) decoded, flags);
 			written = 0;
 		}
 
@@ -808,14 +832,8 @@ void CL_ParseVoip ( msg_t *msg ) {
 	Com_DPrintf("VoIP: playback %d bytes, %d samples, %d frames\n",
 	            written * 2, written, i);
 
-	if (written > 0) {
-		S_RawSamples(sender + 1, written, clc.speexSampleRate, 2, 1,
-#ifndef SMOKINGUNS
-		             (const byte *) decoded, clc.voipGain[sender]);
-#else
-		             (const byte *) decoded, ( clc.voipGain[sender] + cl_voipDefaultGain->value ) );
-#endif
-	}
+	if(written > 0)
+		CL_PlayVoip(sender, written, (const byte *) decoded, flags);
 
 	clc.voipIncomingSequence[sender] = sequence + frames;
 }

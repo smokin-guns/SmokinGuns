@@ -95,7 +95,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #define HOMEPATH_NAME_MACOSX		PRODUCT_SHORTNAME
   // We support LEGACY_PROTOCOL 68 with 1.2, but this will removed on a later
   // release. We just want 1.2 client can connect to 1.1 server until all online
-  // server supports PROTOCOL 70
+  // server supports PROTOCOL 71
   #define LEGACY_PROTOCOL
 
   // PRODUCT_VERSION will be used for sg_version cvar
@@ -1030,6 +1030,23 @@ typedef struct {
 	int			integer;
 	char		string[MAX_CVAR_VALUE_STRING];
 } vmCvar_t;
+
+
+/*
+==============================================================
+
+VoIP
+
+==============================================================
+*/
+
+// if you change the count of flags be sure to also change VOIP_FLAGNUM
+#define VOIP_SPATIAL		0x01		// spatialized voip message
+#define VOIP_DIRECT		0x02		// non-spatialized voip message
+
+// number of flags voip knows. You will have to bump protocol version number if you
+// change this.
+#define VOIP_FLAGCNT		2
 
 /*
 ==============================================================
