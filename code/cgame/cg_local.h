@@ -222,10 +222,6 @@ typedef struct {
 	int				painDirection;	// flip from 0 to 1
 	int				lightningFiring;
 
-	// railgun trail spawning
-	vec3_t			railgunImpact;
-	qboolean		railgunFlash;
-
 	int				railFireTime;
 
 	// machinegun spinning
@@ -601,7 +597,6 @@ typedef struct weaponInfo_s {
 #ifndef SMOKINGUNS
 	sfxHandle_t		readySound;
 	sfxHandle_t		firingSound;
-	qboolean		loopFireSound;
 #endif
 } weaponInfo_t;
 
@@ -1273,7 +1268,7 @@ typedef struct {
 	sfxHandle_t	sfx_ric1;
 	sfxHandle_t	sfx_ric2;
 	sfxHandle_t	sfx_ric3;
-	sfxHandle_t	sfx_railg;
+	//sfxHandle_t	sfx_railg;
 #else
 	sfxHandle_t	sfx_ric[6];
 #endif
@@ -1301,7 +1296,6 @@ typedef struct {
 	sfxHandle_t	obeliskRespawnSound;
 	sfxHandle_t	winnerSound;
 	sfxHandle_t	loserSound;
-	sfxHandle_t	youSuckSound;
 	sfxHandle_t	gibSound;
 	sfxHandle_t	gibBounce1Sound;
 	sfxHandle_t	gibBounce2Sound;

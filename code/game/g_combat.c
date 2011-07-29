@@ -374,12 +374,8 @@ void LookAtKiller( gentity_t *self, gentity_t *attacker ) {
 	}
 
 	self->client->ps.stats[STAT_DEAD_YAW] = vectoyaw ( dir );
-
-	angles[YAW] = vectoyaw ( dir );
-	angles[PITCH] = 0;
-	angles[ROLL] = 0;
 #else
-    } else {
+	} else {
 		return; //if client doesnt have killer
 	}
 	//small hack. grapplePoint isnt used when player dead, so we use it to tell the client
@@ -1552,7 +1548,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	gclient_t	*client;
 #ifndef SMOKINGUNS
 	int			take;
-	int			save;
 	int			asave;
 #else
 	float		take;
@@ -1757,9 +1752,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		damage = 1;
 	}
 	take = damage;
-#ifndef SMOKINGUNS
-	save = 0;
 
+#ifndef SMOKINGUNS
 	// save some from armor
 	asave = CheckArmor (targ, take, dflags);
 	take -= asave;

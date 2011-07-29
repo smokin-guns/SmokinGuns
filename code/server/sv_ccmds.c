@@ -1762,7 +1762,7 @@ void SVCL_SaveRecord_f( void ) {
 		return;
 	}
 	if ( !cl->demorecording ) {
-		Com_Printf ("Not recording a demo for client %i.\n", cl - svs.clients);
+		Com_Printf ("Not recording a demo for client %i.\n", (int)(cl - svs.clients));
 		return;
 	}
 	clientnum = cl - svs.clients;

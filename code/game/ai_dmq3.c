@@ -5478,7 +5478,8 @@ extern vec3_t	playerMaxs;
 void BotAIBlocked(bot_state_t *bs, bot_moveresult_t *moveresult, int activate) {
 	int movetype, bspent;
 	// TheDoctor: Support for evasive maneuvers
-	vec3_t hordir, start, end, mins, maxs, sideward, direction, left, right, angles, forward, backward, up = {0, 0, 1};
+	vec3_t hordir, sideward, direction, left, right, angles, forward, backward, up = {0, 0, 1};
+	//vec3_t start, end, mins, maxs;
 	aas_entityinfo_t entinfo;
 	bot_activategoal_t activategoal;
 	char classname[128];

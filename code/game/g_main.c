@@ -3962,10 +3962,6 @@ Advances the non-player objects in the world
 void G_RunFrame( int levelTime ) {
 	int			i;
 	gentity_t	*ent;
-	int			msec;
-#ifndef SMOKINGUNS
-	int start, end;
-#endif
 
 	// if we are waiting for the level to restart, do nothing
 	if ( level.restarted ) {
@@ -3975,7 +3971,6 @@ void G_RunFrame( int levelTime ) {
 	level.framenum++;
 	level.previousTime = level.time;
 	level.time = levelTime;
-	msec = level.time - level.previousTime;
 
 	// get any cvar changes
 	G_UpdateCvars();
@@ -3988,9 +3983,6 @@ void G_RunFrame( int levelTime ) {
 	//
 	// go through all allocated objects
 	//
-#ifndef SMOKINGUNS
-	start = trap_Milliseconds();
-#endif
 	ent = &g_entities[0];
 	for (i=0 ; i<level.num_entities ; i++, ent++) {
 		if ( !ent->inuse ) {
@@ -4067,12 +4059,8 @@ void G_RunFrame( int levelTime ) {
 
 		G_RunThink( ent );
 	}
-#ifndef SMOKINGUNS
-end = trap_Milliseconds();
 
-start = trap_Milliseconds();
-
-#else
+#ifdef SMOKINGUNS
 //unlagged - backward reconciliation #2
 	// NOW run the missiles, with all players backward-reconciled
 	// to the positions they were in exactly 50ms ago, at the end
@@ -4098,6 +4086,7 @@ start = trap_Milliseconds();
 	G_UnTimeShiftAllClients( NULL );
 //unlagged - backward reconciliation #2
 #endif
+
 	// perform final fixups on the players
 	ent = &g_entities[0];
 	for (i=0 ; i < level.maxclients ; i++, ent++ ) {
@@ -4105,9 +4094,8 @@ start = trap_Milliseconds();
 			ClientEndFrame( ent );
 		}
 	}
-#ifndef SMOKINGUNS
-end = trap_Milliseconds();
 
+#ifndef SMOKINGUNS
 	// see if it is time to do a tournement restart
 	CheckTournament();
 #else

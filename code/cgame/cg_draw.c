@@ -1179,9 +1179,9 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 				p = CG_ConfigString(CS_LOCATIONS + ci->location);
 				if (!p || !*p)
 					p = "unknown";
-				len = CG_DrawStrlen(p);
-				if (len > lwidth)
-					len = lwidth;
+//				len = CG_DrawStrlen(p);
+//				if (len > lwidth)
+//					len = lwidth;
 
 //				xx = x + TINYCHAR_WIDTH * 2 + TINYCHAR_WIDTH * pwidth +
 //					((lwidth/2 - len/2) * TINYCHAR_WIDTH);
@@ -2021,8 +2021,8 @@ CG_DrawTeamInfo
 */
 #ifndef SMOKINGUNS
 static void CG_DrawTeamInfo( void ) {
-	int w, h;
-	int i, len;
+	int h;
+	int i;
 	vec4_t		hcolor;
 	int		chatHeight;
 
@@ -2042,16 +2042,6 @@ static void CG_DrawTeamInfo( void ) {
 		}
 
 		h = (cgs.teamChatPos - cgs.teamLastChatPos) * TINYCHAR_HEIGHT;
-
-		w = 0;
-
-		for (i = cgs.teamLastChatPos; i < cgs.teamChatPos; i++) {
-			len = CG_DrawStrlen(cgs.teamChatMsgs[i % chatHeight]);
-			if (len > w)
-				w = len;
-		}
-		w *= TINYCHAR_WIDTH;
-		w += TINYCHAR_WIDTH * 2;
 
 		if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED ) {
 			hcolor[0] = 1.0f;
@@ -2847,7 +2837,7 @@ CG_DrawCrosshair3D
 */
 static void CG_DrawCrosshair3D(void)
 {
-	float		w, h;
+	float		w;
 	qhandle_t	hShader;
 	float		f;
 	int			ca;
@@ -2874,14 +2864,13 @@ static void CG_DrawCrosshair3D(void)
 		return;
 	}
 
-	w = h = cg_crosshairSize.value;
+	w = cg_crosshairSize.value;
 
 	// pulse the size of the crosshair when picking up items
 	f = cg.time - cg.itemPickupBlendTime;
 	if ( f > 0 && f < ITEM_BLOB_TIME ) {
 		f /= ITEM_BLOB_TIME;
 		w *= ( 1 + f );
-		h *= ( 1 + f );
 	}
 
 	ca = cg_drawCrosshair.integer;
@@ -3197,7 +3186,6 @@ void Menu_UpdatePosition(menuDef_t *menu);
 static qboolean CG_DrawScoreboard( void ) {
 #ifdef SMOKINGUNS
 	static qboolean firstTime = qtrue;
-	float fade, *fadeColor;
 
 	if (menuScoreboard) {
 		menuScoreboard->window.flags &= ~WINDOW_FORCED;
@@ -3226,20 +3214,15 @@ static qboolean CG_DrawScoreboard( void ) {
 	if ( cg.showScores || (cg.predictedPlayerState.pm_type == PM_DEAD && !(cg.snap->ps.pm_flags & PMF_FOLLOW))
 	                              || cg.predictedPlayerState.pm_type == PM_INTERMISSION ) {
 #endif
-		fade = 1.0;
-		fadeColor = colorWhite;
 	} else {
-		fadeColor = CG_FadeColor( cg.scoreFadeTime, FADE_TIME );
-		if ( !fadeColor ) {
+		if ( !CG_FadeColor( cg.scoreFadeTime, FADE_TIME ) ) {
 			// next time scoreboard comes up, don't print killer
 			cg.deferredPlayerLoading = 0;
 			cg.killerName[0] = 0;
 			firstTime = qtrue;
 			return qfalse;
 		}
-		fade = *fadeColor;
 	}
-
 
 	if (menuScoreboard == NULL) {
 		if ( cgs.gametype >= GT_TEAM ) {
@@ -3446,9 +3429,12 @@ static void CG_DrawWarmup( void ) {
 	int			w;
 	int			sec;
 	int			i;
-	float scale;
-	clientInfo_t	*ci1, *ci2;
+#ifdef SMOKINGUNS
+	float		scale;
+#else
 	int			cw;
+#endif
+	clientInfo_t	*ci1, *ci2;
 	const char	*s;
 #ifdef SMOKINGUNS
 	vec4_t	color	= {0.85f, 0.69f, 0.04f, 1.0f};
@@ -3565,30 +3551,41 @@ static void CG_DrawWarmup( void ) {
 		trap_S_StartLocalSound( cgs.media.bang[rand()%3], CHAN_ANNOUNCER );
 #endif
 	}
-	scale = 0.45f;
+
+#ifdef SMOKINGUNS
 	switch ( cg.warmupCount ) {
 	case 0:
-		cw = 28;
 		scale = 0.54f;
 		break;
 	case 1:
-		cw = 24;
 		scale = 0.51f;
 		break;
 	case 2:
-		cw = 20;
 		scale = 0.48f;
 		break;
 	default:
-		cw = 16;
 		scale = 0.45f;
 		break;
 	}
 
-#ifdef SMOKINGUNS
-		w = CG_Text_Width(s, scale, 0);
-		CG_Text_Paint(320 - w / 2, 125, scale, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
+	w = CG_Text_Width(s, scale, 0);
+	CG_Text_Paint(320 - w / 2, 125, scale, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 #else
+	switch ( cg.warmupCount ) {
+	case 0:
+		cw = 28;
+		break;
+	case 1:
+		cw = 24;
+		break;
+	case 2:
+		cw = 20;
+		break;
+	default:
+		cw = 16;
+		break;
+	}
+
 	w = CG_DrawStrlen( s );
 	CG_DrawStringExt( 320 - w * cw/2, 70, s, colorWhite,
 			qfalse, qtrue, cw, (int)(cw * 1.5), 0 );

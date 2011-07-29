@@ -1189,9 +1189,6 @@ void CG_AddKamikaze( localEntity_t *le ) {
 			le->angles.trBase[1] = random() * 360;
 			le->angles.trBase[2] = random() * 360;
 		}
-		else {
-			c = 0;
-		}
 		memset(&shockwave, 0, sizeof(shockwave));
 		shockwave.hModel = cgs.media.kamikazeShockWave;
 		shockwave.reType = RT_MODEL;

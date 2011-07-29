@@ -644,7 +644,7 @@ void RB_CalcColorFromOneMinusEntity( unsigned char *dstColors )
 
 	for ( i = 0; i < tess.numVertexes; i++, pColors++ )
 	{
-		*pColors = * ( int * ) invModulate;
+		*pColors = c;
 	}
 }
 
