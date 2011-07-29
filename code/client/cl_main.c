@@ -122,8 +122,6 @@ cvar_t	*cl_guidServerUniq;
 
 cvar_t	*cl_consoleKeys;
 
-cvar_t  *cl_gamename;
-
 #ifdef SMOKINGUNS
 cvar_t	*cl_consoleType;
 cvar_t	*cl_consoleColor[4];
@@ -2378,9 +2376,9 @@ void CL_CheckForResend( void ) {
 #endif
 
 		// The challenge request shall be followed by a client challenge so no malicious server can hijack this connection.
-		// Add the heartbeat gamename so the server knows we're running the correct game and can reject the client
+		// Add the gamename so the server knows we're running the correct game or can reject the client
 		// with a meaningful message
-		Com_sprintf(data, sizeof(data), "getchallenge %d %s", clc.challenge, Cvar_VariableString("sv_heartbeat"));
+		Com_sprintf(data, sizeof(data), "getchallenge %d %s", clc.challenge, com_gamename->string);
 
 		NET_OutOfBandPrint(NS_CLIENT, clc.serverAddress, "%s", data);
 		break;
@@ -3555,7 +3553,6 @@ void CL_Init( void ) {
 	// ~ and `, as keys and characters
 	cl_consoleKeys = Cvar_Get( "cl_consoleKeys", "~ ` 0x7e 0x60", CVAR_ARCHIVE);
 
-	cl_gamename = Cvar_Get("cl_gamename", GAMENAME_FOR_MASTER, CVAR_TEMP);
 #ifdef SMOKINGUNS
 	cl_consoleType = Cvar_Get( "cl_consoleType", "0", CVAR_ARCHIVE );
 	cl_consoleColor[0] = Cvar_Get( "cl_consoleColorRed", "1", CVAR_ARCHIVE );
@@ -3811,8 +3808,18 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	char	info[MAX_INFO_STRING];
 	char	*infoString;
 	int		prot;
+	char	*gamename;
 
 	infoString = MSG_ReadString( msg );
+
+	// if this isn't the correct gamename, ignore it
+	gamename = Info_ValueForKey( infoString, "gamename" );
+
+	if (gamename && *gamename && strcmp(gamename, com_gamename->string))
+	{
+		Com_DPrintf( "Game mismatch in info packet: %s\n", infoString );
+		return;
+	}
 
 	// if this isn't the correct protocol version, ignore it
 	prot = atoi( Info_ValueForKey( infoString, "protocol" ) );
@@ -4195,16 +4202,17 @@ void CL_GlobalServers_f( void ) {
 		if(v4enabled)
 		{
 			Com_sprintf(command, sizeof(command), "getserversExt %s %s",
-				cl_gamename->string, Cmd_Argv(2));
+				com_gamename->string, Cmd_Argv(2));
 		}
 		else
 		{
 			Com_sprintf(command, sizeof(command), "getserversExt %s %s ipv6",
-				cl_gamename->string, Cmd_Argv(2));
+				com_gamename->string, Cmd_Argv(2));
 		}
 	}
 	else
-		Com_sprintf(command, sizeof(command), "getservers %s", Cmd_Argv(2));
+		Com_sprintf(command, sizeof(command), "getservers %s %s",
+			com_gamename->string, Cmd_Argv(2));
 
 	for (i=3; i < count; i++)
 	{
@@ -4264,12 +4272,12 @@ void CL_GlobalServersAllMaster_f( void ) {
 			if(v4enabled)
 			{
 				Com_sprintf(command, sizeof(command), "getserversExt %s %s ipv6",
-					cl_gamename->string, Cmd_Argv(1));
+					com_gamename->string, Cmd_Argv(1));
 			}
 			else
 			{
 				Com_sprintf(command, sizeof(command), "getserversExt %s %s",
-					cl_gamename->string, Cmd_Argv(1));
+					com_gamename->string, Cmd_Argv(1));
 			}
 
 			// TODO: test if we only have an IPv6 connection. If it's the case,

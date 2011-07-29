@@ -62,9 +62,6 @@ cvar_t	*sv_lanForceRate; // dedicated 1 (LAN) server forces local client rates t
 cvar_t	*sv_strictAuth;
 cvar_t	*sv_banFile;
 cvar_t  *sv_antiwallhack;		// TheDoctor: anti-wallhack
-cvar_t  *sv_heartbeat;			// Heartbeat string that is sent to the master
-cvar_t  *sv_flatline;			// If the master server supports it we can send a flatline
-					// when server is killed
 
 serverBan_t serverBans[SERVER_MAXBANS];
 int serverBansCount = 0;
@@ -339,11 +336,11 @@ Informs all masters that this server is going down
 void SV_MasterShutdown( void ) {
 	// send a hearbeat right now
 	svs.nextHeartbeatTime = -9999;
-	SV_MasterHeartbeat(sv_flatline->string);
+	SV_MasterHeartbeat(HEARTBEAT_FOR_MASTER);
 
 	// send it again to minimize chance of drops
 	svs.nextHeartbeatTime = -9999;
-	SV_MasterHeartbeat(sv_flatline->string);
+	SV_MasterHeartbeat(HEARTBEAT_FOR_MASTER);
 
 	// when the master tries to poll the server, it won't respond, so
 	// it will be removed from the list
@@ -644,6 +641,8 @@ void SVC_Info( netadr_t from ) {
 	// echo back the parameter to status. so servers can use it as a challenge
 	// to prevent timed spoofed reply packets that add ghost servers
 	Info_SetValueForKey( infostring, "challenge", Cmd_Argv(1) );
+
+	Info_SetValueForKey( infostring, "gamename", com_gamename->string );
 
 #ifdef LEGACY_PROTOCOL
 	if(com_legacyprotocol->integer > 0)
@@ -1156,7 +1155,7 @@ void SV_Frame( int msec ) {
 	SV_SendClientMessages();
 
 	// send a heartbeat to the master if needed
-	SV_MasterHeartbeat(sv_heartbeat->string);
+	SV_MasterHeartbeat(HEARTBEAT_FOR_MASTER);
 }
 
 /*

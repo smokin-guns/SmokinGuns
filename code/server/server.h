@@ -307,8 +307,6 @@ extern	cvar_t	*sv_strictAuth;
 extern	cvar_t	*sv_banFile;
 extern	cvar_t	*sv_autorecord;
 extern	cvar_t	*sv_antiwallhack;
-extern	cvar_t	*sv_heartbeat;
-extern	cvar_t	*sv_flatline;
 
 extern	serverBan_t serverBans[SERVER_MAXBANS];
 extern	int serverBansCount;
