@@ -799,7 +799,7 @@ void G_RunMissile( gentity_t *ent );
 #ifdef SMOKINGUNS
 void G_InstantExplode(vec3_t orig, gentity_t *attacker);
 #endif
-gentity_t *fire_blaster (gentity_t *self, vec3_t start, vec3_t aimdir);
+
 #ifndef SMOKINGUNS
 gentity_t *fire_plasma (gentity_t *self, vec3_t start, vec3_t aimdir);
 #endif
