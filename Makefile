@@ -369,7 +369,8 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu"))
   THREAD_LIBS=-lpthread
   LIBS=-ldl -lm
 
-  CLIENT_LIBS=$(SDL_LIBS) -lGL
+  CLIENT_LIBS=$(SDL_LIBS)
+  RENDERER_LIBS=-lGL
 
   ifeq ($(USE_OPENAL),1)
     ifneq ($(USE_OPENAL_DLOPEN),1)
@@ -645,7 +646,8 @@ ifeq ($(PLATFORM),freebsd)
 
   CLIENT_LIBS =
 
-  CLIENT_LIBS += $(SDL_LIBS) -lGL
+  CLIENT_LIBS += $(SDL_LIBS)
+  RENDERER_LIBS = -lGL
 
   # optional features/libraries
   ifeq ($(USE_OPENAL),1)
@@ -725,7 +727,8 @@ ifeq ($(PLATFORM),openbsd)
 
   CLIENT_LIBS =
 
-  CLIENT_LIBS += $(SDL_LIBS) -lGL
+  CLIENT_LIBS += $(SDL_LIBS)
+  RENDERER_LIBS = -lGL
 
   ifeq ($(USE_OPENAL),1)
     ifneq ($(USE_OPENAL_DLOPEN),1)
@@ -796,8 +799,9 @@ ifeq ($(PLATFORM),irix64)
 
   LIBS=-ldl -lm -lgen
   # FIXME: The X libraries probably aren't necessary?
-  CLIENT_LIBS=-L/usr/X11/$(LIB) $(SDL_LIBS) -lGL \
+  CLIENT_LIBS=-L/usr/X11/$(LIB) $(SDL_LIBS) \
     -lX11 -lXext -lm
+  RENDERER_LIBS = -lGL
 
 else # ifeq IRIX
 
@@ -880,7 +884,8 @@ ifeq ($(PLATFORM),sunos)
 
   BOTCFLAGS=-O0
 
-  CLIENT_LIBS +=$(SDL_LIBS) -lGL -lX11 -lXext -lm
+  CLIENT_LIBS +=$(SDL_LIBS) -lX11 -lXext -liconv -lm
+  RENDERER_LIBS = -lGL
 
 else # ifeq sunos
 
@@ -1879,12 +1884,12 @@ $(B)/ioquake3$(FULLBINEXT): $(Q3OBJ) $(LIBSDLMAIN)
 $(B)/renderer_opengl1_$(SHLIBNAME): $(Q3ROBJ) $(Q3POBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3ROBJ) $(Q3POBJ) \
-		$(THREAD_LIBS) $(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS)
+		$(THREAD_LIBS) $(LIBSDLMAIN) $(RENDERER_LIBS) $(LIBS)
 
 $(B)/renderer_opengl1_smp_$(SHLIBNAME): $(Q3ROBJ) $(Q3POBJ_SMP)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3ROBJ) $(Q3POBJ_SMP) \
-		$(THREAD_LIBS) $(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS)
+		$(THREAD_LIBS) $(LIBSDLMAIN) $(RENDERER_LIBS) $(LIBS)
 else
 $(B)/ioquake3$(FULLBINEXT): $(Q3OBJ) $(Q3ROBJ) $(Q3POBJ) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
