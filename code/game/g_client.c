@@ -727,8 +727,6 @@ void CopyToBodyQue( gentity_t *ent ) {
 	body = level.bodyQue[ level.bodyQueIndex ];
 	level.bodyQueIndex = (level.bodyQueIndex + 1) % BODY_QUEUE_SIZE;
 
-	trap_UnlinkEntity (body);
-
 	body->s = ent->s;
 #ifdef SMOKINGUNS
 	body->s.eType = ET_PLAYER;
@@ -909,22 +907,13 @@ void SetClientViewAngle( gentity_t *ent, vec3_t angle ) {
 
 /*
 ================
-respawn
+ClientRespawn
 ================
 */
-void respawn( gentity_t *ent ) {
-#ifndef SMOKINGUNS
-	gentity_t	*tent;
-#endif
+void ClientRespawn( gentity_t *ent ) {
 
 	CopyToBodyQue (ent);
 	ClientSpawn(ent);
-
-	// add a teleportation effect
-#ifndef SMOKINGUNS
-	tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
-	tent->s.clientNum = ent->s.clientNum;
-#endif
 }
 
 /*
@@ -1751,9 +1740,7 @@ and on transition between teams, but doesn't happen on respawns
 void ClientBegin( int clientNum ) {
 	gentity_t	*ent;
 	gclient_t	*client;
-#ifndef SMOKINGUNS
-	gentity_t	*tent;
-#else
+#ifdef SMOKINGUNS
 	vec3_t		viewangles;
 	vec3_t		origin;
 #endif
@@ -1799,10 +1786,6 @@ void ClientBegin( int clientNum ) {
 
 #ifndef SMOKINGUNS
 	if ( client->sess.sessionTeam != TEAM_SPECTATOR ) {
-		// send event
-		tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
-		tent->s.clientNum = ent->s.clientNum;
-
 		if ( g_gametype.integer != GT_TOURNAMENT  ) {
 			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname) );
 		}
@@ -2001,6 +1984,7 @@ void ClientSpawn(gentity_t *ent) {
 	clientSession_t		savedSess;
 	int		persistant[MAX_PERSISTANT];
 	gentity_t	*spawnPoint;
+	gentity_t *tent;
 	int		flags;
 	int		savedPing;
 //	char	*savedAreaBits;
@@ -2009,6 +1993,7 @@ void ClientSpawn(gentity_t *ent) {
 	char	userinfo[MAX_INFO_STRING];
 #else
 	gentity_t	*spawnPoint;
+	gentity_t *tent;
 	char		userinfo[MAX_INFO_STRING];
 	int		flags;
 	int		min_money = 0;
@@ -2266,19 +2251,7 @@ void ClientSpawn(gentity_t *ent) {
 	trap_GetUsercmd( client - level.clients, &ent->client->pers.cmd );
 	SetClientViewAngle( ent, spawn_angles );
 
-#ifndef SMOKINGUNS
-	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
-
-	} else {
-		G_KillBox( ent );
-		trap_LinkEntity (ent);
-
-		// force the base weapon up
-		client->ps.weapon = WP_MACHINEGUN;
-		client->ps.weaponstate = WEAPON_READY;
-
-	}
-#else
+#ifdef SMOKINGUNS
 	if ( ent->client->sess.sessionTeam < TEAM_SPECTATOR ) {
 		if ( g_gametype.integer == GT_DUEL )  {
 			min_money = DU_MIN_MONEY ;
@@ -2352,48 +2325,49 @@ void ClientSpawn(gentity_t *ent) {
 #endif
 	client->ps.legsAnim = LEGS_IDLE;
 
-	if ( level.intermissiontime ) {
-		MoveClientToIntermission( ent );
-	} else {
-		// fire the targets of the spawn point
-#ifdef SMOKINGUNS
-		if(spawnPoint)
-#endif
-			G_UseTargets( spawnPoint, ent );
-
-		// select the highest weapon number available, after any
-		// spawn given items have fired
+	if (!level.intermissiontime) {
+		if (ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
+			G_KillBox(ent);
+			// force the base weapon up
 #ifndef SMOKINGUNS
-		client->ps.weapon = 1;
-		for ( i = WP_NUM_WEAPONS - 1 ; i > 0 ; i-- ) {
-			if ( client->ps.stats[STAT_WEAPONS] & ( 1 << i ) ) {
-				client->ps.weapon = i;
-				break;
-			}
-		}
+			client->ps.weapon = WP_MACHINEGUN;
 #endif
-	}
+			client->ps.weaponstate = WEAPON_READY;
+			// fire the targets of the spawn point
+#ifdef SMOKINGUNS
+			if(spawnPoint)
+				G_UseTargets(spawnPoint, ent);
+#else
+			G_UseTargets(spawnPoint, ent);
+#endif
+			// select the highest weapon number available, after any spawn given items have fired
+#ifndef SMOKINGUNS
+			client->ps.weapon = 1;
 
+			for (i = WP_NUM_WEAPONS - 1 ; i > 0 ; i--) {
+				if (client->ps.stats[STAT_WEAPONS] & (1 << i)) {
+					client->ps.weapon = i;
+					break;
+				}
+			}
+#endif
+			// positively link the client, even if the command times are weird
+			VectorCopy(ent->client->ps.origin, ent->r.currentOrigin);
+
+			tent = G_TempEntity(ent->client->ps.origin, EV_PLAYER_TELEPORT_IN);
+			tent->s.clientNum = ent->s.clientNum;
+
+			trap_LinkEntity (ent);
+		}
+	} else {
+		// move players to intermission
+		MoveClientToIntermission(ent);
+	}
 	// run a client frame to drop exactly to the floor,
 	// initialize animations and other things
 	client->ps.commandTime = level.time - 100;
 	ent->client->pers.cmd.serverTime = level.time;
 	ClientThink( ent-g_entities );
-
-	// positively link the client, even if the command times are weird
-#ifndef SMOKINGUNS
-	if ( ent->client->sess.sessionTeam != TEAM_SPECTATOR ) {
-		BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
-		VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
-		trap_LinkEntity( ent );
-	}
-#else
-	if ( ent->client->sess.sessionTeam < TEAM_SPECTATOR) {
-		BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
-		VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
-		trap_LinkEntity( ent );
-	}
-#endif
 
 #ifdef SMOKINGUNS
 	client->player_died = qtrue;

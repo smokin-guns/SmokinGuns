@@ -134,15 +134,6 @@ void P_WorldEffects( gentity_t *ent ) {
 				if (ent->damage > 15)
 					ent->damage = 15;
 
-				// play a gurp sound instead of a normal pain sound
-				if (ent->health <= ent->damage) {
-					G_Sound(ent, CHAN_VOICE, G_SoundIndex("*drown.wav"));
-				} else if (rand()&1) {
-					G_Sound(ent, CHAN_VOICE, G_SoundIndex("sound/player/gurp1.wav"));
-				} else {
-					G_Sound(ent, CHAN_VOICE, G_SoundIndex("sound/player/gurp2.wav"));
-				}
-
 				// don't play a normal pain sound
 				ent->pain_debounce_time = level.time + 200;
 
@@ -1793,13 +1784,13 @@ void ClientThink_real( gentity_t *ent ) {
 #ifndef SMOKINGUNS
 			if ( g_forcerespawn.integer > 0 &&
 				( level.time - client->respawnTime ) > g_forcerespawn.integer * 1000 ) {
-				respawn( ent );
+				ClientRespawn( ent );
 				return;
 			}
 
 			// pressing attack or use is the normal respawn method
 			if ( ucmd->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE ) ) {
-				respawn( ent );
+				ClientRespawn( ent );
 			}
 #else
 			if (( level.time - client->respawnTime ) > 4 * 1000 ) {
@@ -1816,7 +1807,7 @@ void ClientThink_real( gentity_t *ent ) {
 					return;
 				}
 
-				respawn( ent );
+				ClientRespawn( ent );
 			}// pressing attack or use is the normal respawn method
 			else if ( ucmd->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE ) ) {
 
@@ -1833,7 +1824,7 @@ void ClientThink_real( gentity_t *ent ) {
 					return;
 				}
 
-				respawn( ent );
+				ClientRespawn( ent );
 			}
 #endif
 		}

@@ -195,17 +195,24 @@ int BotNearbyGoal(bot_state_t *bs, int tfl, bot_goal_t *ltg, float range) {
 
 	//check if the bot should go for air
 	if (BotGoForAir(bs, tfl, ltg, range)) return qtrue;
-	//if the bot is carrying the enemy flag
 #ifndef SMOKINGUNS
-	if (BotCTFCarryingFlag(bs)) {
-		//if the bot is just a few secs away from the base
+	// if the bot is carrying a flag or cubes
+	if (BotCTFCarryingFlag(bs)
+#ifdef MISSIONPACK
+		|| Bot1FCTFCarryingFlag(bs) || BotHarvesterCarryingCubes(bs)
+#endif
+#else
+	// Tequila: Handle case bot has the money bag in BR mode
+	if (BotBRCarryingMoneyBag(bs)
+#endif
+		) {
+		//if the bot is just a few secs away from the base 
 		if (trap_AAS_AreaTravelTimeToGoalArea(bs->areanum, bs->origin,
 				bs->teamgoal.areanum, TFL_DEFAULT) < 300) {
 			//make the range really small
 			range = 50;
 		}
 	}
-#endif
 	//
 	ret = trap_BotChooseNBGItem(bs->gs, bs->origin, bs->inventory, tfl, ltg, range);
 	/*
@@ -1392,18 +1399,13 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 				default: bs->ltgtype = 0; return qfalse;
 			}
 			//if not carrying the flag anymore
-#ifndef SMOKINGUNS
 			if (!BotCTFCarryingFlag(bs)) bs->ltgtype = 0;
-#else
-			bs->ltgtype = 0;
-#endif
 			//quit rushing after 2 minutes
 			if (bs->teamgoal_time < FloatTime()) bs->ltgtype = 0;
 			//if touching the base flag the bot should loose the enemy flag
 			if (trap_BotTouchingGoal(bs->origin, goal)) {
 				//if the bot is still carrying the enemy flag then the
 				//base flag is gone, now just walk near the base a bit
-#ifndef SMOKINGUNS
 				if (BotCTFCarryingFlag(bs)) {
 					trap_BotResetAvoidReach(bs->ms);
 					bs->rushbaseaway_time = FloatTime() + 5 + 10 * random();
@@ -1412,9 +1414,6 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 				else {
 					bs->ltgtype = 0;
 				}
-#else
-				bs->ltgtype = 0;
-#endif
 			}
 			BotAlternateRoute(bs, goal);
 			return qtrue;
@@ -1641,6 +1640,8 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 			return qtrue;
 		}
 	}
+#else
+	// Smokin'Guns TODO: Handle BR mode here
 #endif
 #endif
 	//normal goal stuff
@@ -1925,7 +1926,11 @@ int BotSelectActivateWeapon(bot_state_t *bs) {
 		return WEAPONINDEX_CHAINGUN;
 	else if (bs->inventory[INVENTORY_NAILGUN] > 0 && bs->inventory[INVENTORY_NAILS] > 0)
 		return WEAPONINDEX_NAILGUN;
+	else if (bs->inventory[INVENTORY_PROXLAUNCHER] > 0 && bs->inventory[INVENTORY_MINES] > 0)
+		return WEAPONINDEX_PROXLAUNCHER;
 #endif
+	else if (bs->inventory[INVENTORY_GRENADELAUNCHER] > 0 && bs->inventory[INVENTORY_GRENADES] > 0)
+		return WEAPONINDEX_GRENADE_LAUNCHER;
 	else if (bs->inventory[INVENTORY_RAILGUN] > 0 && bs->inventory[INVENTORY_SLUGS] > 0)
 		return WEAPONINDEX_RAILGUN;
 	else if (bs->inventory[INVENTORY_ROCKETLAUNCHER] > 0 && bs->inventory[INVENTORY_ROCKETS] > 0)
@@ -2853,11 +2858,12 @@ void AIEnter_Battle_Fight(bot_state_t *bs, char *s) {
 	BotRecordNodeSwitch(bs, "battle fight", "", s);
 	trap_BotResetLastAvoidReach(bs->ms);
 	bs->ainode = AINode_Battle_Fight;
+	bs->flags &= ~BFL_FIGHTSUICIDAL;
 }
 
 /*
 ==================
-AIEnter_Battle_Fight
+AIEnter_Battle_SuicidalFight
 ==================
 */
 void AIEnter_Battle_SuicidalFight(bot_state_t *bs, char *s) {
@@ -2978,6 +2984,11 @@ int AINode_Battle_Fight(bot_state_t *bs) {
 	//if the enemy is not visible
 	if (!BotEntityVisible(bs->entitynum, bs->eye, bs->viewangles, 360, bs->enemy)) {
 #ifndef SMOKINGUNS
+		if (bs->enemy == redobelisk.entitynum || bs->enemy == blueobelisk.entitynum) {
+			AIEnter_Battle_Chase(bs, "battle fight: obelisk out of sight");
+			return qfalse;
+		}
+#endif
 		if (BotWantsToChase(bs)) {
 			AIEnter_Battle_Chase(bs, "battle fight: enemy out of sight");
 			return qfalse;
@@ -2986,11 +2997,6 @@ int AINode_Battle_Fight(bot_state_t *bs) {
 			AIEnter_Seek_LTG(bs, "battle fight: enemy out of sight");
 			return qfalse;
 		}
-#else
-		// changed by spoon
-		AIEnter_Seek_LTG(bs, "battle fight: enemy out of sight");
-		return qfalse;
-#endif
 	}
 	//use holdable items
 	BotBattleUseItems(bs);

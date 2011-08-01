@@ -413,6 +413,7 @@ int BotValidChatPosition(bot_state_t *bs) {
 #ifndef SMOKINGUNS
 	//never start chatting with a powerup
 	if (bs->inventory[INVENTORY_QUAD] ||
+		bs->inventory[INVENTORY_ENVIRONMENTSUIT] ||
 		bs->inventory[INVENTORY_HASTE] ||
 		bs->inventory[INVENTORY_INVISIBILITY] ||
 		bs->inventory[INVENTORY_REGEN] ||

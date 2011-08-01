@@ -909,8 +909,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	if( g_gametype.integer == GT_SINGLE_PLAYER || trap_Cvar_VariableIntegerValue( "com_buildScript" ) ) {
 		G_ModelIndex( SP_PODIUM_MODEL );
-		G_SoundIndex( "sound/player/gurp1.wav" );
-		G_SoundIndex( "sound/player/gurp2.wav" );
 	}
 
 	if ( trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {
@@ -1422,14 +1420,14 @@ void MoveClientToIntermission( gentity_t *ent ) {
 		StopFollowing( ent );
 	}
 
-	// find the spot
 #ifdef SMOKINGUNS
 	if(g_gametype.integer == GT_DUEL && g_maxmapparts)
 		FindIntermissionPoint((rand()%g_maxmapparts)+1);
 	else
 		FindIntermissionPoint(0);
+#else
+	FindIntermissionPoint();
 #endif
-
 	// move to the spot
 	VectorCopy( level.intermission_origin, ent->s.origin );
 	VectorCopy( level.intermission_origin, ent->client->ps.origin );
@@ -1536,9 +1534,18 @@ void BeginIntermission( void ) {
 #endif
 
 	level.intermissiontime = level.time;
+	// move all clients to the intermission point
+	for (i=0 ; i< level.maxclients ; i++) {
+		client = g_entities + i;
+		if (!client->inuse)
+			continue;
+		// respawn if dead
+		if (client->health <= 0) {
+			ClientRespawn(client);
+		}
+		MoveClientToIntermission( client );
+	}
 #ifndef SMOKINGUNS
-	FindIntermissionPoint();
-
 #ifdef MISSIONPACK
 	if (g_singlePlayer.integer) {
 		trap_Cvar_Set("ui_singlePlayerActive", "0");
@@ -1551,21 +1558,7 @@ void BeginIntermission( void ) {
 		SpawnModelsOnVictoryPads();
 	}
 #endif
-#else
-	FindIntermissionPoint(0);
 #endif
-
-	// move all clients to the intermission point
-	for (i=0 ; i< level.maxclients ; i++) {
-		client = g_entities + i;
-		if (!client->inuse)
-			continue;
-		// respawn if dead
-		if (client->health <= 0) {
-			respawn(client);
-		}
-		MoveClientToIntermission( client );
-	}
 
 	// send the current scoring to all clients
 	SendScoreboardMessageToAllClients();

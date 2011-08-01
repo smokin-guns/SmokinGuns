@@ -673,6 +673,55 @@ static void CG_ItemPickup( int itemNum ) {
 
 }
 
+/*
+================
+CG_WaterLevel
+
+Returns waterlevel for entity origin
+================
+*/
+int CG_WaterLevel(centity_t *cent) {
+	vec3_t point;
+	int contents, sample1, sample2, anim, waterlevel;
+
+	// get waterlevel, accounting for ducking
+	waterlevel = 0;
+	VectorCopy(cent->lerpOrigin, point);
+	point[2] += MINS_Z + 1;
+	anim = cent->currentState.legsAnim & ~ANIM_TOGGLEBIT;
+
+#ifndef SMOKINGUNS
+	if (anim == LEGS_WALKCR || anim == LEGS_IDLECR) {
+#else
+	if (anim == LEGS_CROUCH_WALK || anim == LEGS_CROUCH_BACK || anim == LEGS_CROUCHED_IDLE) {
+#endif
+		point[2] += CROUCH_VIEWHEIGHT;
+	} else {
+		point[2] += DEFAULT_VIEWHEIGHT;
+	}
+
+	contents = CG_PointContents(point, -1);
+
+	if (contents & MASK_WATER) {
+		sample2 = point[2] - MINS_Z;
+		sample1 = sample2 / 2;
+		waterlevel = 1;
+		point[2] = cent->lerpOrigin[2] + MINS_Z + sample1;
+		contents = CG_PointContents(point, -1);
+
+		if (contents & MASK_WATER) {
+			waterlevel = 2;
+			point[2] = cent->lerpOrigin[2] + MINS_Z + sample2;
+			contents = CG_PointContents(point, -1);
+
+			if (contents & MASK_WATER) {
+				waterlevel = 3;
+			}
+		}
+	}
+
+	return waterlevel;
+}
 
 /*
 ================
@@ -698,9 +747,16 @@ void CG_PainEvent( centity_t *cent, int health ) {
 	} else {
 		snd = "*pain100_1.wav";
 	}
-	trap_S_StartSound( NULL, cent->currentState.number, CHAN_VOICE,
-		CG_CustomSound( cent->currentState.number, snd ) );
-
+	// play a gurp sound instead of a normal pain sound
+	if (CG_WaterLevel(cent) >= 1) {
+		if (rand()&1) {
+			trap_S_StartSound(NULL, cent->currentState.number, CHAN_VOICE, CG_CustomSound(cent->currentState.number, "sound/player/gurp1.wav"));
+		} else {
+			trap_S_StartSound(NULL, cent->currentState.number, CHAN_VOICE, CG_CustomSound(cent->currentState.number, "sound/player/gurp2.wav"));
+		}
+	} else {
+		trap_S_StartSound(NULL, cent->currentState.number, CHAN_VOICE, CG_CustomSound(cent->currentState.number, snd));
+	}
 	// save pain time for programitic twitch animation
 	cent->pe.painTime = cg.time;
 	cent->pe.painDirection ^= 1;
@@ -1877,9 +1933,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_DEATH1:
 	case EV_DEATH2:
 	case EV_DEATH3:
-		DEBUGNAME("EV_DEATHx");
-		trap_S_StartSound( NULL, es->number, CHAN_VOICE, 
-				CG_CustomSound( es->number, va("*death%i.wav", event - EV_DEATH1 + 1) ) );
 #else
 	case EV_DEATH_DEFAULT:
 	case EV_DEATH_HEAD:
@@ -1891,12 +1944,22 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_DEATH_LEG_R:
 	case EV_DEATH_FALL:
 	case EV_DEATH_FALL_BACK:
-
+#endif
 		DEBUGNAME("EV_DEATHx");
-		trap_S_StartSound( NULL, es->number, CHAN_VOICE,
-			cgs.media.snd_death[event-EV_DEATH_DEFAULT] );
+
+		if (CG_WaterLevel(cent) >= 1) {
+			trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, "*drown.wav"));
+		} else {
+#ifndef SMOKINGUNS
+			trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, va("*death%i.wav", event - EV_DEATH1 + 1)));
+#else
+			trap_S_StartSound(NULL, es->number, CHAN_VOICE, cgs.media.snd_death[event-EV_DEATH_DEFAULT]);
+#endif
+		}
+
 		break;
 
+#ifdef SMOKINGUNS
 	case EV_HIT_MESSAGE:
 		DEBUGNAME("EV_HIT_MESSAGE");
 		CG_Hit_Message( es );
