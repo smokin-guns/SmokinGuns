@@ -408,16 +408,7 @@ ifeq ($(PLATFORM),darwin)
     BASE_CFLAGS += -mstackrealign
   endif
   ifeq ($(ARCH),x86_64)
-    ARCH += i386
-    ARCH_STRING += i386
-    CC += /usr/bin/gcc-4.0.1 -m32
-    GCC += /usr/bin/gcc-4.0.1 -m32
-    COMPILE_ARCH += i386
-    TOOLS_CFLAGS += -m32
-    LDFLAGS += -m32
-    MACOSX_DEPLOYMENT_TARGET += 10.4
-    DARWIN_SDK += /Developer/SDKs/MacOSX10.4u.sdk
-    OPTIMIZEVM += -march=prescott -mfpmath=sse
+    OPTIMIZEVM += -mfpmath=sse
   endif
 
   BASE_CFLAGS += -m32 -fno-strict-aliasing -DMACOS_X -fno-common -pipe
