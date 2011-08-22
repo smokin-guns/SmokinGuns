@@ -66,7 +66,7 @@ cvar_t	*cl_nodelta;
 cvar_t	*cl_debugMove;
 
 cvar_t	*cl_noprint;
-#ifndef SMOKINGUNS
+#ifdef UPDATE_SERVER_NAME
 cvar_t	*cl_motd;
 #endif
 
@@ -132,6 +132,9 @@ cvar_t	*cl_consoleKeys;
 #ifdef SMOKINGUNS
 cvar_t	*cl_consoleType;
 cvar_t	*cl_consoleColor[4];
+
+#define MOTDMINDELAY 300000
+static int timeMotd = -MOTDMINDELAY;
 #endif
 
 clientActive_t		cl;
@@ -1548,12 +1551,17 @@ CL_RequestMotd
 ===================
 */
 void CL_RequestMotd( void ) {
+#ifdef UPDATE_SERVER_NAME
 	char		info[MAX_INFO_STRING];
 #ifdef SMOKINGUNS
 	cvar_t		*comment;
 	int			start, end;
 
 	start = Sys_Milliseconds();
+	if ( start - timeMotd < MOTDMINDELAY ) {
+		return;
+	}
+	timeMotd = start ;
 #else
 	if ( !cl_motd->integer ) {
 		return;
@@ -1605,6 +1613,7 @@ void CL_RequestMotd( void ) {
 	end = Sys_Milliseconds();
 	Com_Printf( "CL_RequestMotd: %i msec\n", end - start );
 #endif
+#endif // UPDATE_SERVER_NAME
 }
 
 /*
@@ -2480,6 +2489,7 @@ CL_MotdPacket
 ===================
 */
 void CL_MotdPacket( netadr_t from ) {
+#ifdef UPDATE_SERVER_NAME
 	char	*challenge;
 	char	*info;
 
@@ -2487,6 +2497,13 @@ void CL_MotdPacket( netadr_t from ) {
 	if ( !NET_CompareAdr( from, cls.updateServer ) ) {
 		return;
 	}
+
+#ifdef SMOKINGUNS
+	timeMotd = Sys_Milliseconds();
+	if ( !cl_motd->integer ) {
+		return;
+	}
+#endif
 
 	info = Cmd_Argv(1);
 
@@ -2500,6 +2517,7 @@ void CL_MotdPacket( netadr_t from ) {
 
 	Q_strncpyz( cls.updateInfoString, info, sizeof( cls.updateInfoString ) );
 	Cvar_Set( "cl_motdString", challenge );
+#endif
 }
 
 /*
@@ -3514,7 +3532,7 @@ void CL_Init( void ) {
 	// register our variables
 	//
 	cl_noprint = Cvar_Get( "cl_noprint", "0", 0 );
-#ifndef SMOKINGUNS
+#ifdef UPDATE_SERVER_NAME
 	cl_motd = Cvar_Get ("cl_motd", "1", 0);
 #endif
 
@@ -3870,6 +3888,11 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	int		prot;
 	char	*gamename;
 
+#ifdef SMOKINGUNS
+	// Try to fire a message off to the motd server if still not done
+	CL_RequestMotd();
+#endif
+
 	infoString = MSG_ReadString( msg );
 
 	// if this isn't the correct gamename, ignore it
@@ -4020,6 +4043,11 @@ int CL_ServerStatus( char *serverAddress, char *serverStatusString, int maxLen )
 	int i;
 	netadr_t	to;
 	serverStatus_t *serverStatus;
+
+#ifdef SMOKINGUNS
+	// Try to fire a message off to the motd server if still not done
+	CL_RequestMotd();
+#endif
 
 	// if no server address then reset all server status requests
 	if ( !serverAddress ) {
@@ -4285,6 +4313,11 @@ void CL_GlobalServers_f( void ) {
 	}
 
 	NET_OutOfBandPrint( NS_SERVER, to, "%s", command );
+
+#ifdef SMOKINGUNS
+	// Try to fire a message off to the motd server if still not done
+	CL_RequestMotd();
+#endif
 }
 
 

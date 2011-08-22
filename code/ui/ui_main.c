@@ -2326,10 +2326,18 @@ static void UI_DrawServerMOTD(rectDef_t *rect, float scale, vec4_t color) {
 		}
 
 		if (uiInfo.uiDC.realTime > uiInfo.serverStatus.motdTime) {
+#ifdef SMOKINGUNS
+			uiInfo.serverStatus.motdTime = uiInfo.uiDC.realTime + 20;
+#else
 			uiInfo.serverStatus.motdTime = uiInfo.uiDC.realTime + 10;
+#endif
 			if (uiInfo.serverStatus.motdPaintX <= rect->x + 2) {
 				if (uiInfo.serverStatus.motdOffset < uiInfo.serverStatus.motdLen) {
+#ifdef SMOKINGUNS
+					uiInfo.serverStatus.motdPaintX += Text_Width(&uiInfo.serverStatus.motd[uiInfo.serverStatus.motdOffset], scale, 1);
+#else
 					uiInfo.serverStatus.motdPaintX += Text_Width(&uiInfo.serverStatus.motd[uiInfo.serverStatus.motdOffset], scale, 1) - 1;
+#endif
 					uiInfo.serverStatus.motdOffset++;
 				} else {
 					uiInfo.serverStatus.motdOffset = 0;
@@ -2341,11 +2349,17 @@ static void UI_DrawServerMOTD(rectDef_t *rect, float scale, vec4_t color) {
 					uiInfo.serverStatus.motdPaintX2 = -1;
 				}
 			} else {
-				//serverStatus.motdPaintX--;
+#ifdef SMOKINGUNS
+				uiInfo.serverStatus.motdPaintX--;
+#else
 				uiInfo.serverStatus.motdPaintX -= 2;
+#endif
 				if (uiInfo.serverStatus.motdPaintX2 >= 0) {
-					//serverStatus.motdPaintX2--;
+#ifdef SMOKINGUNS
+					uiInfo.serverStatus.motdPaintX2--;
+#else
 					uiInfo.serverStatus.motdPaintX2 -= 2;
+#endif
 				}
 			}
 		}
@@ -4599,7 +4613,7 @@ static void UI_BuildServerDisplayList(qboolean force) {
 #ifndef SMOKINGUNS
 		strcpy(uiInfo.serverStatus.motd, "Welcome to Team Arena!");
 #else
-		strcpy(uiInfo.serverStatus.motd, PRODUCT_NAME);
+		strcpy(uiInfo.serverStatus.motd, "Welcome to " PRODUCT_NAME);
 #endif
 		len = strlen(uiInfo.serverStatus.motd);
 	}

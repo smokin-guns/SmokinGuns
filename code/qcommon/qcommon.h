@@ -261,10 +261,8 @@ PROTOCOL
 // NOTE: that stuff only works with two digits protocols
 extern int demo_protocols[];
 
-#ifndef SMOKINGUNS
+#if !defined UPDATE_SERVER_NAME && !defined STANDALONE
 #define	UPDATE_SERVER_NAME	"update.quake3arena.com"
-#else
-#define	UPDATE_SERVER_NAME	"update.smokin-guns.org"
 #endif
 // override on command line, config files etc.
 #ifndef MASTER_SERVER_NAME
@@ -286,6 +284,8 @@ extern int demo_protocols[];
     #ifndef PORT_AUTHORIZE
       #define	PORT_AUTHORIZE		27952
     #endif
+    // We support update server
+    #define	UPDATE_SERVER_NAME	"update.smokin-guns.org"
   #endif
 #endif
 
