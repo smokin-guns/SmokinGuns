@@ -3947,13 +3947,13 @@ void FS_Restart( int checksumFeed ) {
 /*
 =================
 FS_ConditionalRestart
-restart if necessary
+
+Restart if necessary
+Return qtrue if restarting due to game directory changed, qfalse otherwise
 =================
 */
 qboolean FS_ConditionalRestart(int checksumFeed, qboolean disconnect)
 {
-	int retval;
-	
 	if(fs_gamedirvar->modified)
 	{
 		if(FS_FilenameCompare(lastValidGame, fs_gamedirvar->string) &&
@@ -3964,13 +3964,8 @@ qboolean FS_ConditionalRestart(int checksumFeed, qboolean disconnect)
 			return qtrue;
 		}
 		else
-		{
 			fs_gamedirvar->modified = qfalse;
-			retval = qtrue;
-		}
 	}
-	else
-		retval = qfalse;
 	
 	if(checksumFeed != fs_checksumFeed)
 		FS_Restart(checksumFeed);
