@@ -246,7 +246,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &du_forcetrio, "du_forcetrio", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 
 	{ &br_teamrole, "br_teamrole", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
-	{ &g_moneyRespawn, "g_moneyRespawn", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+	{ &g_moneyRespawn, "g_moneyRespawn", "1", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 
 	{ &g_newShotgunPattern, "g_newShotgunPattern", "1", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 	{ &g_roundNoMoveTime, "g_roundNoMoveTime", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
