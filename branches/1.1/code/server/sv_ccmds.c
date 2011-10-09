@@ -1159,11 +1159,11 @@ static void SV_Status_f( void ) {
 #ifdef SMOKINGUNS
 /*
 ====================
-SV_PlayerID_f
+SV_ClientID_f
 Joe Kari: New admin command that provide usefull info to identify people.
 ====================
 */
-static void SV_PlayerID_f( void ) {
+static void SV_ClientID_f( void ) {
 	int			i, j, l;
 	client_t	*cl;
 	const char		*s;
@@ -1220,11 +1220,11 @@ static void SV_PlayerID_f( void ) {
 
 /*
 ====================
-SV_Playerstatus_f
+SV_ClientStatus_f
 Joe Kari: New admin command that provide tons of information about everyone.
 ====================
 */
-static void SV_PlayerStatus_f( void ) {
+static void SV_ClientStatus_f( void ) {
 	int			i;
 	client_t	*cl;
 	const char		*s;
@@ -1261,36 +1261,6 @@ static void SV_PlayerStatus_f( void ) {
 		s = Info_ValueForKey (cl->userinfo, "cl_guid");
 		if (Q_stricmp (s, "") == 0)  s = "<null>" ;
 		Com_Printf ("^3GUID^7:%s\n", s);
-		
-		// Score
-		Com_Printf ("^2S^7:%i  ", ps->persistant[PERS_SCORE]);
-		// Kill
-		//Com_Printf ("^2K^7:%i   ", ps->persistant[PERS_KILL]);
-		// Death
-		//Com_Printf ("^2D^7:%i  ", ps->persistant[PERS_KILLED]);
-		// Teamkill
-		//Com_Printf ("^2TK^7:%i  ", ps->persistant[PERS_TEAMKILL]);
-		// Selfkill
-		//Com_Printf ("^2SK^7:%i  ", ps->persistant[PERS_SELFKILL]);
-		// Money
-		Com_Printf ("^2$^7:%i  ", ps->stats[STAT_MONEY]);
-		// Health
-		Com_Printf ("^2HP^7:%i  ", ps->stats[STAT_HEALTH]);
-		// Team and robber
-		if ( ps->persistant[PERS_ROBBER] )  Com_Printf ("^2team^7:%i[R]  ", ps->persistant[PERS_TEAM]);
-		else  Com_Printf ("^2team^7:%i  ", ps->persistant[PERS_TEAM]);
-		// Handicap
-		s = Info_ValueForKey (cl->userinfo, "handicap");
-		Com_Printf ("^2hdcp^7:%s  ", s);
-		
-		Com_Printf ("\n");
-		
-		// Wins (does not work)
-		//Com_Printf ("^2wins^7: %i   ", ps->stats[STAT_WINS]);
-		// Spawn (not very usefull)
-		//Com_Printf ("^2spawn^7: %i   ", ps->persistant[PERS_SPAWN_COUNT]);
-		// Hits (does not work)
-		//Com_Printf ("^2hits^7: %i   ", ps->persistant[PERS_HITS]);
 		
 		// Ping
 		if (cl->state == CS_CONNECTED)
@@ -1505,8 +1475,8 @@ void SV_AddOperatorCommands( void ) {
 	{
 		Cmd_AddCommand ("banUser", SV_Ban_f);
 		Cmd_AddCommand ("banClient", SV_BanNum_f);
-		Cmd_AddCommand ("playerid", SV_PlayerID_f);
-		Cmd_AddCommand ("playerstatus", SV_PlayerStatus_f);
+		Cmd_AddCommand ("clientid", SV_ClientID_f);
+		Cmd_AddCommand ("clientstatus", SV_ClientStatus_f);
 	}
 #endif
 	Cmd_AddCommand ("clientkick", SV_KickNum_f);
