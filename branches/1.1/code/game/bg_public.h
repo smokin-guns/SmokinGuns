@@ -450,8 +450,7 @@ typedef enum {
 	PERS_GAUNTLET_FRAG_COUNT,		// kills with the guantlet
 	PERS_CAPTURES					// captures
 #else
-	//bank robbery
-	PERS_ROBBER
+	PERS_ROBBER				// 1 if the player can rob the bank
 #endif
 } persEnum_t;
 

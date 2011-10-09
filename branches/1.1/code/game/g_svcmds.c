@@ -702,6 +702,13 @@ qboolean	ConsoleCommand( void ) {
 		return qtrue;
 	}
 
+	// Tequila: New admin command to cancel a vote
+	// Joe Kari: Move it out of "if (g_dedicated.integer) {}"
+	if (Q_stricmp (cmd, "cancelvote") == 0) {
+		Svcmd_CancelVote_f();
+		return qtrue;
+	}
+	
 	// Tequila: New command to add a map entity for testing purpose
 	if (Q_stricmp (cmd, "addentity") == 0) {
 		Svcmd_AddEntity_f();
@@ -715,13 +722,6 @@ qboolean	ConsoleCommand( void ) {
 			trap_SendServerCommand( -1, va("print \"server: %s\"", ConcatArgs(1) ) );
 			return qtrue;
 		}
-#ifdef SMOKINGUNS
-		if (Q_stricmp (cmd, "cancelvote") == 0) {
-			// Tequila: New admin command to cancel a vote
-			Svcmd_CancelVote_f();
-			return qtrue;
-		}
-#endif
 		// everything else will also be printed as a say command
 		trap_SendServerCommand( -1, va("print \"server: %s\"", ConcatArgs(0) ) );
 		return qtrue;
