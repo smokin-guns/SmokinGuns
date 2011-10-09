@@ -1154,6 +1154,169 @@ static void SV_Status_f( void ) {
 	Com_Printf ("\n");
 }
 
+
+
+#ifdef SMOKINGUNS
+/*
+====================
+SV_PlayerID_f
+Joe Kari: New admin command that provide usefull info to identify people.
+====================
+*/
+static void SV_PlayerID_f( void ) {
+	int			i, j, l;
+	client_t	*cl;
+	const char		*s;
+
+	// make sure server is running
+	if ( !com_sv_running->integer ) {
+		Com_Printf( "Server is not running.\n" );
+		return;
+	}
+	
+	Com_Printf ("ID address         GUID                             name            \n");
+	Com_Printf ("-- --------------- -------------------------------- --------------- \n");
+	
+	for (i=0,cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++)
+	{
+		if (!cl->state)
+			continue;
+		
+		// ID
+		Com_Printf ("%2i ", i);
+		
+		// IP (or: loopback or bot)
+		s = NET_AdrToString( cl->netchan.remoteAddress );
+		Com_Printf ("%s", s);
+		l = 16 - strlen(s);
+		j = 0;
+		
+		do
+		{
+			Com_Printf(" ");
+			j++;
+		} while(j < l);
+		
+		// GUID
+		s = Info_ValueForKey (cl->userinfo, "cl_guid");
+		if (Q_stricmp (s, "") == 0)  s = "<null>" ;
+		Com_Printf ("%s", s);
+		l = 33 - strlen(s);
+		j = 0;
+		
+		do
+		{
+			Com_Printf(" ");
+			j++;
+		} while(j < l);
+		
+		// Name (should come last, easiest to parse it this way cause people may have all sort of char in her names)
+		Com_Printf ("%s^7\n", cl->name);
+	}
+	Com_Printf ("\n");
+}
+
+
+
+/*
+====================
+SV_Playerstatus_f
+Joe Kari: New admin command that provide tons of information about everyone.
+====================
+*/
+static void SV_PlayerStatus_f( void ) {
+	int			i;
+	client_t	*cl;
+	const char		*s;
+	playerState_t	*ps;
+	int			ping;
+	
+	// Move to g_svcmds.c
+
+	// make sure server is running
+	if ( !com_sv_running->integer ) {
+		Com_Printf( "Server is not running.\n" );
+		return;
+	}
+	
+	
+	for (i=0,cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++)
+	{
+		if (!cl->state)
+			continue;
+		
+		ps = SV_GameClientNum( i );
+		
+		Com_Printf ("\n");
+		
+		// ID
+		Com_Printf ("^5ID^7:%i  ", i);
+		// Name
+		Com_Printf ("^5name^7:%s^7\n", cl->name);
+		
+		// IP (or: loopback or bot)
+		s = NET_AdrToString( cl->netchan.remoteAddress );
+		Com_Printf ("^3IP^7:%s  ", s);
+		// GUID
+		s = Info_ValueForKey (cl->userinfo, "cl_guid");
+		if (Q_stricmp (s, "") == 0)  s = "<null>" ;
+		Com_Printf ("^3GUID^7:%s\n", s);
+		
+		// Score
+		Com_Printf ("^2S^7:%i  ", ps->persistant[PERS_SCORE]);
+		// Kill
+		//Com_Printf ("^2K^7:%i   ", ps->persistant[PERS_KILL]);
+		// Death
+		//Com_Printf ("^2D^7:%i  ", ps->persistant[PERS_KILLED]);
+		// Teamkill
+		//Com_Printf ("^2TK^7:%i  ", ps->persistant[PERS_TEAMKILL]);
+		// Selfkill
+		//Com_Printf ("^2SK^7:%i  ", ps->persistant[PERS_SELFKILL]);
+		// Money
+		Com_Printf ("^2$^7:%i  ", ps->stats[STAT_MONEY]);
+		// Health
+		Com_Printf ("^2HP^7:%i  ", ps->stats[STAT_HEALTH]);
+		// Team and robber
+		if ( ps->persistant[PERS_ROBBER] )  Com_Printf ("^2team^7:%i[R]  ", ps->persistant[PERS_TEAM]);
+		else  Com_Printf ("^2team^7:%i  ", ps->persistant[PERS_TEAM]);
+		// Handicap
+		s = Info_ValueForKey (cl->userinfo, "handicap");
+		Com_Printf ("^2hdcp^7:%s  ", s);
+		
+		Com_Printf ("\n");
+		
+		// Wins (does not work)
+		//Com_Printf ("^2wins^7: %i   ", ps->stats[STAT_WINS]);
+		// Spawn (not very usefull)
+		//Com_Printf ("^2spawn^7: %i   ", ps->persistant[PERS_SPAWN_COUNT]);
+		// Hits (does not work)
+		//Com_Printf ("^2hits^7: %i   ", ps->persistant[PERS_HITS]);
+		
+		// Ping
+		if (cl->state == CS_CONNECTED)
+			Com_Printf ("^6ping^7:CONNECTED  ");
+		else if (cl->state == CS_ZOMBIE)
+			Com_Printf ("^6ping^7:ZOMBIE  ");
+		else
+		{
+			ping = cl->ping < 9999 ? cl->ping : 9999;
+			Com_Printf ("^6ping^7:%i  ", ping);
+		}
+		
+		// Rate
+		Com_Printf ("^6rate^7:%i  ", cl->rate);
+		
+		// Port
+		Com_Printf ("^6port^7:%i\n", cl->netchan.qport);
+		
+		
+	}
+	Com_Printf ("\n");
+}
+#endif
+
+
+
 /*
 ==================
 SV_ConSay_f
@@ -1342,6 +1505,8 @@ void SV_AddOperatorCommands( void ) {
 	{
 		Cmd_AddCommand ("banUser", SV_Ban_f);
 		Cmd_AddCommand ("banClient", SV_BanNum_f);
+		Cmd_AddCommand ("playerid", SV_PlayerID_f);
+		Cmd_AddCommand ("playerstatus", SV_PlayerStatus_f);
 	}
 #endif
 	Cmd_AddCommand ("clientkick", SV_KickNum_f);
