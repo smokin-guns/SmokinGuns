@@ -60,11 +60,12 @@ Changes in SG 1.1
 - The console now log "teamkilled" in red letter rather than "killed" when this event occurs
 - New Minilog feature, for admin-bots usage. This is a small FIFO stack (64 entries). Older entries
 	will be overwritten if not pop'ed in time. The new commands:
-		- "pushlog" push an entry into the minilog
 		- "poponelog" pop an entry out of the minilog
 		- "poplog" pop all entries out of the minilog
 	ATM the game engine write into it the current events: MAP, CONNECT, DISCONNECT, JOIN, 
-	KILL, TEAMKILL, SELFKILL, ROB, SAY, SAYTEAM, SAYTELL.
+	KILL, TEAMKILL, SELFKILL, ROB, SAY, SAYTEAM, SAYTELL, SECRET.
+- New client command "secret" (no rcon needed) that add silently an entry "SECRET" to the minilog,
+	can be usefull for registering to a third party admin-bot, ...
 - New command: "mute <client ID>", that change anything that this client try to say into "(muted)", 
 	mute it twice and everything he says would be silently drop. Use "unmute <client ID>" 
 	to restore his voice.
