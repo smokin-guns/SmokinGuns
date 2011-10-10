@@ -525,7 +525,10 @@ int AAS_AreaReachability(int areanum)
 {
 	if (areanum < 0 || areanum >= aasworld.numareas)
 	{
+		// Joe Kari: added #ifdef DEBUG , so it will stop bugging users with such a recurring and flooding error.
+#ifdef DEBUG
 		AAS_Error("AAS_AreaReachability: areanum %d out of range", areanum);
+#endif
 		return 0;
 	} //end if
 	return aasworld.areasettings[areanum].numreachableareas;

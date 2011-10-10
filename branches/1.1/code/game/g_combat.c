@@ -732,6 +732,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			AddScore( attacker, self->r.currentOrigin, -1 );
 		} else if ( OnSameTeam (self, attacker) ) {
 			attacker->client->pers.teamkill ++ ;
+			ent->s.eFlags |= EF_SAME_TEAM; // Joe Kari: new flag to report teamkilling
 			AddScore( attacker, self->r.currentOrigin, -1 );
 		} else {
 			attacker->client->pers.kill ++ ;

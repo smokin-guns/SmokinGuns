@@ -462,6 +462,8 @@ typedef enum {
 #endif
 #define	EF_TELEPORT_BIT		0x00000004		// toggled every time the origin abruptly changes
 #define	EF_AWARD_EXCELLENT	0x00000008		// draw an excellent sprite
+#define EF_SAME_TEAM		0x00000008	// Joe Kari: EV_OBITUARY + EF_SAME_TEAM = TeamKilling
+						// Note that it is the same than EF_AWARD_EXCELLENT that is not use in SG
 #ifndef SMOKINGUNS
 #define EF_PLAYER_EVENT		0x00000010
 #endif
@@ -496,7 +498,7 @@ typedef enum {
 #define	EF_ACTIVATE			0x08000000
 
 // Tequila flags
-#define EF_ROTATING_DOOR	0x10000000		// Tequila: is a rotating door
+#define EF_ROTATING_DOOR	0x10000000	// Tequila: is a rotating door
 #endif
 
 
