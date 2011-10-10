@@ -1448,6 +1448,28 @@ static void Cmd_Tell_f( gentity_t *ent ) {
 }
 
 
+#ifdef SMOKINGUNS
+/*
+==================
+Cmd_Secret_f
+Joe Kari: add to the minilog a SECRET entry, allow user to register to third party admin-bot.
+==================
+*/
+static void Cmd_Secret_f( gentity_t *ent ) {
+	gentity_t	*target;
+	char		*str;
+
+	if ( trap_Argc () < 1 ) {
+		return;
+	}
+
+	str = ConcatArgs( 1 );
+	// Do not even log it with G_Printf(), this should be as discreet as it could...
+	PushMinilogf( "SECRET: %i > %s" , ent->s.number , str );
+}
+#endif
+
+
 static void G_VoiceTo( gentity_t *ent, gentity_t *other, int mode, const char *id, qboolean voiceonly ) {
 	int color;
 	char *cmd;
@@ -2583,6 +2605,10 @@ void ClientCommand( int clientNum ) {
 	}
 	if (Q_stricmp (cmd, "tell") == 0) {
 		Cmd_Tell_f ( ent );
+		return;
+	}
+	if (Q_stricmp (cmd, "secret") == 0) {
+		Cmd_Secret_f ( ent );
 		return;
 	}
 #ifndef SMOKINGUNS

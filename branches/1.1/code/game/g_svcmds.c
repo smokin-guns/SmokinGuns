@@ -708,8 +708,8 @@ Joe Kari: Mute or un-mute a client
 ====================
 */
 static void Svcmd_Mute_f( int muted ) {
-	char		str[MAX_TOKEN_CHARS];
-	int		i;
+	char		arg[MAX_TOKEN_CHARS];
+	int		clientNum;
 	gclient_t	*cl;
 
 	if ( trap_Argc() < 2 ) {
@@ -717,15 +717,15 @@ static void Svcmd_Mute_f( int muted ) {
 		return;
 	}
 
-	trap_Argv( 1, str, sizeof( str ) );
-	sscanf( str , "%i" , &i ) ;
+	trap_Argv( 1, arg, sizeof( arg ) );
+	clientNum = atoi( arg );
 	
-	if ( i >= level.maxclients || i < 0 ) {
+	if ( clientNum >= level.maxclients || clientNum < 0 ) {
 		G_Printf("client not found>\n");
 		return;
 	}
 		                
-	cl = &level.clients[ i ] ;
+	cl = &level.clients[ clientNum ] ;
 	
 	if ( muted )  cl->pers.muted += muted ;
 	else  cl->pers.muted = 0 ;
@@ -825,10 +825,6 @@ qboolean	ConsoleCommand( void ) {
 	}
 
 	// Joe Kari: Minilog feature, for admin-bot
-	if (Q_stricmp (cmd, "pushlog") == 0 ) {
-		Svcmd_PushMinilog_f();
-		return qtrue;
-	}
 	if (Q_stricmp (cmd, "poponelog") == 0 ) {
 		Svcmd_PopMinilog_f();
 		return qtrue;
@@ -837,6 +833,11 @@ qboolean	ConsoleCommand( void ) {
 		Svcmd_PopAllMinilog_f();
 		return qtrue;
 	}
+	// It is probably not a good idea to allow an user to push the minilog
+	//if (Q_stricmp (cmd, "pushlog") == 0 ) {
+	//	Svcmd_PushMinilog_f();
+	//	return qtrue;
+	//}
 
 	// Joe Kari: Mute command: change everything this client said to "(muted)"
 	if (Q_stricmp (cmd, "mute") == 0) {
