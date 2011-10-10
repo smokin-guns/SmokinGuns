@@ -374,6 +374,7 @@ typedef struct {
 	int			kill;
 	int			teamkill;			// different from TeamKillsCount which can be reset
 	int			selfkill;
+	int			rob;
 // Tequila: Help to handle delayed renaming
 	int			renameTime;
 	char		renameName[MAX_NETNAME];
@@ -650,6 +651,16 @@ typedef struct {
 //unlagged - backward reconciliation #4
 #endif
 } level_locals_t;
+
+
+#ifdef SMOKINGUNS
+#define MAX_MINILOG     64
+typedef struct {
+	char		entries[MAX_INFO_STRING][MAX_TOKEN_CHARS];
+	int		head;	// next index to pop
+	int		tail;	// next index to push
+} minilog_t;
+#endif
 
 
 //
@@ -1229,6 +1240,7 @@ extern	vmCvar_t	g_startingMoney;
 extern	vmCvar_t	m_maxreward;
 extern	vmCvar_t	m_teamwin;
 extern	vmCvar_t	m_teamlose;
+extern  minilog_t	g_minilog;
 #endif
 
 void	trap_Printf( const char *fmt );
@@ -1461,4 +1473,9 @@ void ClearDuelData(qboolean all);
 //new trap-functions
 void trap_Trace_New( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask );
 int trap_Trace_New2( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask );
+
+// Joe Kari: Minilog functions
+void PopMinilog( char *str ) ;
+void PushMinilog( char *str ) ;
+void PushMinilogf( const char *msg, ... ) ;
 #endif

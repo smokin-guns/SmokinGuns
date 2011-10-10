@@ -648,6 +648,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	int			i;
 	char		*killerName, *obit;
 #ifdef SMOKINGUNS
+	char		log[MAX_TOKEN_CHARS];
 	int fallanim = 0;
 #endif
 
@@ -728,14 +729,17 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 #ifdef SMOKINGUNS
 		if ( attacker == self ) {
-			attacker->client->pers.selfkill ++ ;
-			AddScore( attacker, self->r.currentOrigin, -1 );
+			self->client->pers.selfkill ++ ;
+			PushMinilogf( "SELFKILL: %i [%s]" , self->s.number , obit ) ;
+			AddScore( self, self->r.currentOrigin, -1 );
 		} else if ( OnSameTeam (self, attacker) ) {
 			attacker->client->pers.teamkill ++ ;
 			ent->s.eFlags |= EF_SAME_TEAM; // Joe Kari: new flag to report teamkilling
+			PushMinilogf( "TEAMKILL: %i => %i [%s]" , attacker->s.number , self->s.number , obit ) ;
 			AddScore( attacker, self->r.currentOrigin, -1 );
 		} else {
 			attacker->client->pers.kill ++ ;
+			PushMinilogf( "KILL: %i => %i [%s]" , attacker->s.number , self->s.number , obit ) ;
 			AddScore( attacker, self->r.currentOrigin, 1 );
 		}
 #else

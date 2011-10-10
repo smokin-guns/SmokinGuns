@@ -1281,6 +1281,9 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		G_LogPrintf( "say: %s: %s\n", ent->client->pers.netname, chatText );
 		Com_sprintf (name, sizeof(name), "%s%c%c"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 		color = COLOR_GREEN;
+#ifdef SMOKINGUNS
+		PushMinilogf( "SAY: %i > %s" , ent->s.number , chatText ) ;
+#endif
 		break;
 	case SAY_TEAM:
 		G_LogPrintf( "sayteam: %s: %s\n", ent->client->pers.netname, chatText );
@@ -1291,6 +1294,9 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 			Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC")"EC": ",
 				ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 		color = COLOR_CYAN;
+#ifdef SMOKINGUNS
+		PushMinilogf( "SAYTEAM: %i > %s" , ent->s.number , chatText ) ;
+#endif
 		break;
 	case SAY_TELL:
 		if (target && g_gametype.integer >= GT_TEAM &&
@@ -1300,6 +1306,11 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		else
 			Com_sprintf (name, sizeof(name), EC"[%s%c%c"EC"]"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 		color = COLOR_MAGENTA;
+#ifdef SMOKINGUNS
+		// Joe Kari: "tell" call G_Say() twice, one for the target and one for self... but we don't need to log twice.
+		if ( ent->s.number != target->s.number )
+			PushMinilogf( "SAYTELL: %i => %i > %s" , ent->s.number , target->s.number , chatText ) ;
+#endif
 		break;
 	}
 

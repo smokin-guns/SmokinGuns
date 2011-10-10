@@ -768,3 +768,74 @@ void G_UpdateWeaponConfigString( void ) {
 	}
 }
 #endif
+
+
+
+#ifdef SMOKINGUNS
+// Joe Kari: New minilog feature. A small stack of FIFO logs. When it is full, older entries are removed.
+// Please restrict its use to admin-bots oriented stuff.
+// Please respect the log format:
+// <event_name>: <subject_id> [=> <object_id>] ...
+// Example: client 1 killed client 3 with remington '58 will be:
+// KILL: 1 => 3 [MOD_REM58]
+
+/*
+=================
+PopMinilog
+Joe Kari: pop a string out of the minilog
+=================
+*/
+void PopMinilog( char *str )
+{
+	if ( g_minilog.tail == g_minilog.head )
+	{
+		str[ 0 ] = 0 ;
+		return ;
+	}
+	
+	Q_strncpyz( str , g_minilog.entries[ g_minilog.head ] , MAX_TOKEN_CHARS ) ;
+	str[ MAX_TOKEN_CHARS - 1 ] = 0 ;
+	
+	g_minilog.head ++ ;
+	if ( g_minilog.head >= MAX_MINILOG )  g_minilog.head = 0 ;
+}
+
+/*
+=================
+PushMinilog
+Joe Kari: push a string into the minilog
+=================
+*/
+void PushMinilog( char *str )
+{
+	Q_strncpyz( g_minilog.entries[ g_minilog.tail ] , str , MAX_TOKEN_CHARS ) ;
+	g_minilog.entries[ g_minilog.tail ][ MAX_TOKEN_CHARS - 1 ] = 0 ;
+	
+	g_minilog.tail ++ ;
+	if ( g_minilog.tail >= MAX_MINILOG )  g_minilog.tail = 0 ;
+	if ( g_minilog.tail == g_minilog.head )
+	{
+		g_minilog.head ++ ;
+		if ( g_minilog.head >= MAX_MINILOG )  g_minilog.head = 0 ;
+	}
+}
+
+/*
+=================
+PushMinilogf
+Joe Kari: push a formated string into of the minilog (similar than printf family function)
+=================
+*/
+void PushMinilogf( const char *msg, ... )
+{
+	va_list		argptr;
+	char		text[1024];
+
+	va_start (argptr, msg);
+	Q_vsnprintf (text, sizeof(text), msg, argptr);
+	va_end (argptr);
+	
+	PushMinilog(text);
+}
+#endif
+

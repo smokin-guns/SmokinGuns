@@ -575,6 +575,40 @@ void Svcmd_BigText_f(void) {
 
 /*
 ===================
+Svcmd_PushMinilog_f
+===================
+*/
+void Svcmd_PushMinilog_f(void) {
+	PushMinilog( ConcatArgs(1) ) ;
+}
+
+/*
+===================
+Svcmd_PopMinilog_f
+===================
+*/
+void Svcmd_PopMinilog_f(void) {
+	char		str[MAX_TOKEN_CHARS];
+	PopMinilog( str ) ;
+	Com_Printf( "%s\n" , str ) ;
+}
+
+/*
+=====================
+Svcmd_PopAllMinilog_f
+=====================
+*/
+void Svcmd_PopAllMinilog_f(void) {
+	char		str[MAX_TOKEN_CHARS];
+	while ( 1 ) {
+		PopMinilog( str ) ;
+		if ( str[ 0 ] != 0 )  Com_Printf( "%s\n" , str ) ;
+		else  break ;
+	} ;
+}
+
+/*
+===================
 Svcmd_SendAway_f
 Tequila: Replacement for kick command from server engine with sendaway one
 *
@@ -625,27 +659,27 @@ static void Svcmd_PlayerStatus_f( void ) {
 		if ( cl->pers.connected != CON_CONNECTED )
 			continue;
 		
-		Com_Printf ("\n");
-		
 		// ID
-		Com_Printf ("^5ID^7:%i  ", i);
+		Com_Printf ("^5*** ID^7:%i ", i);
 		// Name
 		Com_Printf ("^5name^7:%s^7\n", cl->pers.netname);
 		
 		// Score
-		Com_Printf ("^2S^7:%i  ", cl->ps.persistant[PERS_SCORE]);
+		Com_Printf ("^2S^7:%i ", cl->ps.persistant[PERS_SCORE]);
 		// Kill
-		Com_Printf ("^2K^7:%i   ", cl->pers.kill);
+		Com_Printf ("^2K^7:%i ", cl->pers.kill);
 		// Death
-		Com_Printf ("^2D^7:%i  ", cl->pers.death);
+		Com_Printf ("^2D^7:%i ", cl->pers.death);
 		// Teamkill
-		Com_Printf ("^2TK^7:%i  ", cl->pers.teamkill);
+		Com_Printf ("^2TK^7:%i ", cl->pers.teamkill);
 		// Selfkill
-		Com_Printf ("^2SK^7:%i  ", cl->pers.selfkill);
-		// Money
-		Com_Printf ("^2$^7:%i  ", cl->ps.stats[STAT_MONEY]);
+		Com_Printf ("^2SK^7:%i ", cl->pers.selfkill);
+		// Rob
+		Com_Printf ("^2RB^7:%i ", cl->pers.rob);
 		// Health/Max (handicap)
-		Com_Printf ("^2HP^7:%i/%i  ", cl->ps.stats[STAT_HEALTH], cl->pers.maxHealth);
+		Com_Printf ("^2HP^7:%i/%i ", cl->ps.stats[STAT_HEALTH], cl->pers.maxHealth);
+		// Money
+		Com_Printf ("^2$^7:%i ", cl->ps.stats[STAT_MONEY]);
 		// Team and robber
 		switch ( cl->ps.persistant[PERS_TEAM] )
 		{
@@ -656,13 +690,12 @@ static void Svcmd_PlayerStatus_f( void ) {
 			case 5 : s = "outlaw[D]" ; break ;
 			default: s = "-" ;
 		}
-		Com_Printf ("^2team^7:%s%s  ", s, cl->ps.persistant[PERS_ROBBER] ? "[R]" : "" );
+		Com_Printf ("^2TM^7:%s%s ", s, cl->ps.persistant[PERS_ROBBER] ? "[R]" : "" );
 		// Time
-		Com_Printf ("^2time^7:%i  ", (int)( level.time - cl->pers.enterTime ) / 1000 ) ;
+		Com_Printf ("^2T^7:%i ", (int)( level.time - cl->pers.enterTime ) / 1000 ) ;
 		
 		Com_Printf ("\n");
 	}
-	Com_Printf ("\n");
 }
 
 #endif
@@ -752,6 +785,22 @@ qboolean	ConsoleCommand( void ) {
 	// Tequila: Big text announcement command
 	if (Q_stricmp (cmd, "bigtext") == 0 || Q_stricmp (cmd, "cp") == 0) {
 		Svcmd_BigText_f();
+		return qtrue;
+	}
+
+	// Joe Kari: 
+	if (Q_stricmp (cmd, "push_minilog") == 0 ) {
+		Svcmd_PushMinilog_f();
+		return qtrue;
+	}
+	
+	if (Q_stricmp (cmd, "pop_minilog") == 0 ) {
+		Svcmd_PopMinilog_f();
+		return qtrue;
+	}
+
+	if (Q_stricmp (cmd, "pop_all_minilog") == 0 ) {
+		Svcmd_PopAllMinilog_f();
 		return qtrue;
 	}
 

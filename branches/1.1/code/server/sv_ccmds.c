@@ -1247,16 +1247,14 @@ static void SV_ClientStatus_f( void ) {
 		
 		ps = SV_GameClientNum( i );
 		
-		Com_Printf ("\n");
-		
 		// ID
-		Com_Printf ("^5ID^7:%i  ", i);
+		Com_Printf ("^5*** ID^7:%i  ", i);
 		// Name
 		Com_Printf ("^5name^7:%s^7\n", cl->name);
 		
 		// IP (or: loopback or bot)
 		s = NET_AdrToString( cl->netchan.remoteAddress );
-		Com_Printf ("^3IP^7:%s  ", s);
+		Com_Printf ("^3IP^7:%s ", s);
 		// GUID
 		s = Info_ValueForKey (cl->userinfo, "cl_guid");
 		if (Q_stricmp (s, "") == 0)  s = "<null>" ;
@@ -1264,24 +1262,21 @@ static void SV_ClientStatus_f( void ) {
 		
 		// Ping
 		if (cl->state == CS_CONNECTED)
-			Com_Printf ("^6ping^7:CONNECTED  ");
+			Com_Printf ("^6ping^7:CONNECTED ");
 		else if (cl->state == CS_ZOMBIE)
-			Com_Printf ("^6ping^7:ZOMBIE  ");
+			Com_Printf ("^6ping^7:ZOMBIE ");
 		else
 		{
 			ping = cl->ping < 9999 ? cl->ping : 9999;
-			Com_Printf ("^6ping^7:%i  ", ping);
+			Com_Printf ("^6ping^7:%i ", ping);
 		}
 		
 		// Rate
-		Com_Printf ("^6rate^7:%i  ", cl->rate);
+		Com_Printf ("^6rate^7:%i ", cl->rate);
 		
 		// Port
 		Com_Printf ("^6port^7:%i\n", cl->netchan.qport);
-		
-		
 	}
-	Com_Printf ("\n");
 }
 #endif
 

@@ -43,6 +43,11 @@ gclient_t		g_clients[MAX_CLIENTS];
 vmCvar_t	g_gametype;
 
 #ifdef SMOKINGUNS
+
+// Joe Kari: minilog init
+minilog_t	g_minilog;
+
+
 //hitdata
 hit_data_t	hit_data;
 
@@ -971,6 +976,7 @@ void QDECL Com_Printf( const char *msg, ... ) {
 
 	G_Printf ("%s", text);
 }
+
 
 /*
 ========================================================================
