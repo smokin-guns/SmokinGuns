@@ -1444,8 +1444,22 @@ void ClientUserinfoChanged( int clientNum ) {
 		}
 
 #ifdef SMOKINGUNS
-		if(client->sess.sessionTeam == TEAM_SPECTATOR)
+		if(client->sess.sessionTeam == TEAM_SPECTATOR) {
 			client->sess.sessionTeam = team;
+			switch ( team ) {
+				case TEAM_RED : 
+				case TEAM_RED_SPECTATOR : 
+					PushMinilogf( "JOIN: %i => lawmen" , clientNum ) ;
+					break ;
+				case TEAM_BLUE :
+				case TEAM_BLUE_SPECTATOR :
+					PushMinilogf( "JOIN: %i => outlaws" , clientNum ) ;
+					break ;
+				case TEAM_FREE :
+					PushMinilogf( "JOIN: %i => free" , clientNum ) ; 
+					break ;
+			}
+		}
 #endif
 	}
 	else {
@@ -1643,6 +1657,9 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 
 	client->pers.connected = CON_CONNECTING;
 
+#ifdef SMOKINGUNS
+	PushMinilogf( "CONNECT: %i" , clientNum ) ;
+#endif
 	// read or initialize the session data
 	if ( firstTime || level.newSession ) {
 #ifndef SMOKINGUNS
@@ -2461,6 +2478,9 @@ void ClientDisconnect( int clientNum ) {
 	}
 
 	G_LogPrintf( "ClientDisconnect: %i\n", clientNum );
+#ifdef SMOKINGUNS
+	PushMinilogf( "DISCONNECT: %i" , clientNum ) ;
+#endif
 
 	// if we are playing in tourney mode and losing, give a win to the other player
 #ifndef SMOKINGUNS

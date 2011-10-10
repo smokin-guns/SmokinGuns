@@ -375,6 +375,8 @@ typedef struct {
 	int			teamkill;			// different from TeamKillsCount which can be reset
 	int			selfkill;
 	int			rob;
+// Joe Kari: If a player is muted, it cannot chat anymore
+	int			muted;				// 1: muted
 // Tequila: Help to handle delayed renaming
 	int			renameTime;
 	char		renameName[MAX_NETNAME];

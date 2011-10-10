@@ -126,6 +126,11 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot ) {
 	clientSession_t	*sess;
 	const char		*value;
 
+#ifdef SMOKINGUNS
+	int			clientNum;
+	clientNum = client - level.clients;
+#endif
+
 	sess = &client->sess;
 
 	// initial team determination
@@ -136,10 +141,17 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot ) {
 #endif
 		if ( g_teamAutoJoin.integer ) {
 			sess->sessionTeam = PickTeam( -1 );
+#ifdef SMOKINGUNS
+			if ( sess->sessionTeam == TEAM_RED )  PushMinilogf( "JOIN: %i => lawmen" , clientNum ) ;
+			else if ( sess->sessionTeam == TEAM_BLUE )  PushMinilogf( "JOIN: %i => outlaws" , clientNum ) ;
+#endif
 			BroadcastTeamChange( client, -1 );
 		} else {
 			// always spawn as spectator in team games
 			sess->sessionTeam = TEAM_SPECTATOR;
+#ifdef SMOKINGUNS
+			PushMinilogf( "JOIN: %i => spec" , clientNum ) ;
+#endif
 		}
 	} else {
 		value = Info_ValueForKey( userinfo, "team" );
@@ -154,8 +166,14 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot ) {
 				if ( g_maxGameClients.integer > 0 &&
 					level.numNonSpectatorClients >= g_maxGameClients.integer ) {
 					sess->sessionTeam = TEAM_SPECTATOR;
+#ifdef SMOKINGUNS
+					PushMinilogf( "JOIN: %i => spec" , clientNum ) ;
+#endif
 				} else {
 					sess->sessionTeam = TEAM_FREE;
+#ifdef SMOKINGUNS
+					PushMinilogf( "JOIN: %i => free" , clientNum ) ;
+#endif
 				}
 				break;
 #ifndef SMOKINGUNS
@@ -175,6 +193,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot ) {
 				} else {
 					// always spawn as spectator in team games
 					sess->sessionTeam = TEAM_SPECTATOR;
+					PushMinilogf( "JOIN: %i => spec" , clientNum ) ;
 				}
 				break;
 			case GT_DUEL:
@@ -187,6 +206,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot ) {
 				}
 
 				sess->sessionTeam = TEAM_SPECTATOR;
+				PushMinilogf( "JOIN: %i => spec" , clientNum ) ;
 #endif
 				break;
 			}

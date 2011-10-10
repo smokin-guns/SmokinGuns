@@ -683,19 +683,55 @@ static void Svcmd_PlayerStatus_f( void ) {
 		// Team and robber
 		switch ( cl->ps.persistant[PERS_TEAM] )
 		{
+			// use only generic team name here (not real team name, it would confuse admin-bots)
 			case 1 : s = "lawmen" ; break ;
-			case 2 : s = "outlaw" ; break ;
+			case 2 : s = "outlaws" ; break ;
 			case 3 : s = "spec" ; break ;
 			case 4 : s = "lawmen[D]" ; break ;
-			case 5 : s = "outlaw[D]" ; break ;
-			default: s = "-" ;
+			case 5 : s = "outlaws[D]" ; break ;
+			default: s = "free" ;
 		}
 		Com_Printf ("^2TM^7:%s%s ", s, cl->ps.persistant[PERS_ROBBER] ? "[R]" : "" );
 		// Time
 		Com_Printf ("^2T^7:%i ", (int)( level.time - cl->pers.enterTime ) / 1000 ) ;
+		// Muted
+		Com_Printf ("^2M^7:%i ", cl->pers.muted);
 		
 		Com_Printf ("\n");
 	}
+}
+
+/*
+====================
+Svcmd_Mute_f
+Joe Kari: Mute or un-mute a client
+====================
+*/
+static void Svcmd_Mute_f( int muted ) {
+	char		str[MAX_TOKEN_CHARS];
+	int		i;
+	gclient_t	*cl;
+
+	if ( trap_Argc() < 2 ) {
+		G_Printf("Usage:  mute <client id>\n");
+		return;
+	}
+
+	trap_Argv( 1, str, sizeof( str ) );
+	sscanf( str , "%i" , &i ) ;
+	
+	if ( i >= level.maxclients || i < 0 ) {
+		G_Printf("client not found>\n");
+		return;
+	}
+		                
+	cl = &level.clients[ i ] ;
+	
+	if ( muted )  cl->pers.muted += muted ;
+	else  cl->pers.muted = 0 ;
+	
+	if ( cl->pers.muted > 2 )  cl->pers.muted = 2 ;
+	if ( cl->pers.muted < 0 )  cl->pers.muted = 0 ;
 }
 
 #endif
@@ -788,19 +824,27 @@ qboolean	ConsoleCommand( void ) {
 		return qtrue;
 	}
 
-	// Joe Kari: 
-	if (Q_stricmp (cmd, "push_minilog") == 0 ) {
+	// Joe Kari: Minilog feature, for admin-bot
+	if (Q_stricmp (cmd, "pushlog") == 0 ) {
 		Svcmd_PushMinilog_f();
 		return qtrue;
 	}
-	
-	if (Q_stricmp (cmd, "pop_minilog") == 0 ) {
+	if (Q_stricmp (cmd, "poponelog") == 0 ) {
 		Svcmd_PopMinilog_f();
 		return qtrue;
 	}
-
-	if (Q_stricmp (cmd, "pop_all_minilog") == 0 ) {
+	if (Q_stricmp (cmd, "poplog") == 0 ) {
 		Svcmd_PopAllMinilog_f();
+		return qtrue;
+	}
+
+	// Joe Kari: Mute command: change everything this client said to "(muted)"
+	if (Q_stricmp (cmd, "mute") == 0) {
+		Svcmd_Mute_f( 1 );
+		return qtrue;
+	}
+	if (Q_stricmp (cmd, "unmute") == 0) {
+		Svcmd_Mute_f( 0 );
 		return qtrue;
 	}
 

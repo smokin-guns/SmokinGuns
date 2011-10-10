@@ -920,10 +920,11 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		G_InitBots( restart );
 	}
 
-#ifndef SMOKINGUNS
+#ifdef SMOKINGUNS
+	PushMinilogf( "MAP: %s" , map ) ;
+#else
 	G_RemapTeamShaders();
 #endif
-
 }
 
 

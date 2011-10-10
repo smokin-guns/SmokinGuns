@@ -527,14 +527,34 @@ void Cmd_Kill_f( gentity_t *ent ) {
 
 /*
 =================
-BroadCastTeamChange
+BroadcastTeamChange
 
 Let everyone know about a team change
 =================
 */
 void BroadcastTeamChange( gclient_t *client, int oldTeam )
 {
-#ifndef SMOKINGUNS
+#ifdef SMOKINGUNS
+	// int		clientNum;
+	// clientNum = client - level.clients;
+
+	
+	if(g_gametype.integer == GT_DUEL)
+		return;
+
+	if(g_gametype.integer == GT_RTP)
+		return;
+
+	if ( client->sess.sessionTeam == TEAM_RED ) {
+		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined %s.\n\"", client->pers.netname, g_redteam.string) );
+	} else if ( client->sess.sessionTeam == TEAM_BLUE ) {
+		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined %s.\n\"", client->pers.netname, g_blueteam.string));
+	} else if ( client->sess.sessionTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR ) {
+		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the spectators.\n\"", client->pers.netname));
+	} else if ( client->sess.sessionTeam == TEAM_FREE ) {
+		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the game.\n\"", client->pers.netname));
+	}
+#else
 	if ( client->sess.sessionTeam == TEAM_RED ) {
 		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the red team.\n\"",
 			client->pers.netname) );
@@ -546,26 +566,6 @@ void BroadcastTeamChange( gclient_t *client, int oldTeam )
 		client->pers.netname));
 	} else if ( client->sess.sessionTeam == TEAM_FREE ) {
 		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the battle.\n\"",
-		client->pers.netname));
-	}
-#else
-	if(g_gametype.integer == GT_DUEL)
-		return;
-
-	if(g_gametype.integer == GT_RTP)
-		return;
-
-	if ( client->sess.sessionTeam == TEAM_RED ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined %s.\n\"",
-			client->pers.netname, g_redteam.string) );
-	} else if ( client->sess.sessionTeam == TEAM_BLUE ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined %s.\n\"",
-		client->pers.netname, g_blueteam.string));
-	} else if ( client->sess.sessionTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the spectators.\n\"",
-		client->pers.netname));
-	} else if ( client->sess.sessionTeam == TEAM_FREE ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the game.\n\"",
 		client->pers.netname));
 	}
 #endif
@@ -821,6 +821,21 @@ void SetTeam( gentity_t *ent, char *s ) {
 			CheckTeamLeader( oldTeam );
 	}
 
+#ifdef SMOKINGUNS
+	if ( team == TEAM_FREE && oldTeam != TEAM_FREE ) {
+		PushMinilogf( "JOIN: %i => free" , clientNum ) ;
+	}
+	else if ( team == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR ) {
+		PushMinilogf( "JOIN: %i => spec" , clientNum ) ;
+	}
+	else if ( ( team == TEAM_RED || team == TEAM_RED_SPECTATOR ) && ! ( oldTeam == TEAM_RED || oldTeam == TEAM_RED_SPECTATOR ) ) {
+		PushMinilogf( "JOIN: %i => lawmen" , clientNum ) ;
+	}
+	else if ( ( team == TEAM_BLUE || team == TEAM_BLUE_SPECTATOR ) && ! ( oldTeam == TEAM_BLUE || oldTeam == TEAM_BLUE_SPECTATOR ) ) {
+		PushMinilogf( "JOIN: %i => outlaws" , clientNum ) ;
+	}
+#endif
+	
 	BroadcastTeamChange( client, oldTeam );
 
 	// get and distribute relevent paramters
@@ -1274,7 +1289,17 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	if ( g_gametype.integer < GT_TEAM && mode == SAY_TEAM ) {
 		mode = SAY_ALL;
 	}
-
+	
+	
+#ifdef SMOKINGUNS
+	// Joe Kari: new feature that allow admin to mute someone
+	// It is probably more funny to display "(muted)" than turn it off completely ^^ 
+	if ( ent->client->pers.muted ) {
+		if ( ent->client->pers.muted > 1 )  return ;
+		chatText = "^9(muted)" ;
+	}
+#endif
+	
 	switch ( mode ) {
 	default:
 	case SAY_ALL:
