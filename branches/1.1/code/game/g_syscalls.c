@@ -116,7 +116,7 @@ void trap_LocateGameData( gentity_t *gEnts, int numGEntities, int sizeofGEntity_
 	syscall( G_LOCATE_GAME_DATA, gEnts, numGEntities, sizeofGEntity_t, clients, sizeofGClient );
 }
 
-void trap_DropClient( int clientNum, const char *reason ) {
+void trap_DropClient( int clientNum, char *reason ) {
 	syscall( G_DROP_CLIENT, clientNum, reason );
 }
 

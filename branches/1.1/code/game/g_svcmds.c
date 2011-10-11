@@ -28,6 +28,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 
 
+
+char	*ConcatArgs( int start );
+
 /*
 ==============================================================================
 
@@ -474,7 +477,6 @@ void	Svcmd_ForceTeam_f( void ) {
 	SetTeam( &g_entities[cl - level.clients], str );
 }
 
-char	*ConcatArgs( int start );
 
 #ifdef SMOKINGUNS
 void Svcmd_KickBots_f(void){
@@ -608,6 +610,62 @@ void Svcmd_PopAllMinilog_f(void) {
 }
 
 /*
+==================
+SV_KickNum_f
+Joe Kari: there was in server/sv_ccmds.c a note that mention "FIXME: move to game", so I move it to game...
+Additionnaly, you can now provide a reason for kicking someone.
+*
+kicknum <client number> [reasons]
+==================
+*/
+static void Svcmd_KickNum_f( void ) {
+	char		arg[MAX_TOKEN_CHARS];
+	int		clientNum;
+	gclient_t	*cl;
+	char		*reason;
+
+	if ( trap_Argc() < 2 ) {
+		G_Printf ( "Usage: kicknum <client number> [reasons]\n");
+		return;
+	}
+
+	trap_Argv( 1, arg, sizeof( arg ) );
+	clientNum = atoi( arg );
+	
+	if ( clientNum >= level.maxclients || clientNum < 0 ) {
+		Com_Printf("client not found\n");
+		return;
+	}
+		                
+	cl = &level.clients[ clientNum ] ;
+	if ( cl->pers.connected != CON_CONNECTED ) {
+		Com_Printf("client not found\n");
+		return;
+	}
+	
+	if ( cl->pers.localClient ) {
+		Com_Printf("Cannot kick host player\n");
+		return;
+	}
+	
+	if ( trap_Argc() > 2 ) {
+		Q_strncpyz ( arg, "was kicked: ", sizeof(arg));
+		reason = ConcatArgs( 2 ) ;
+		Q_strcat( arg, sizeof(arg), reason);
+		PushMinilogf( "KICK: %i > %s", clientNum, reason ) ;
+		trap_DropClient( clientNum, arg );
+	}
+	else {
+		PushMinilogf( "KICK: %i", clientNum ) ;
+		trap_DropClient( clientNum, "was kicked" );
+	}
+	
+	/* FIXME? adapt this part of the server code to the game code?
+	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
+	*/
+}
+
+/*
 ===================
 Svcmd_SendAway_f
 Tequila: Replacement for kick command from server engine with sendaway one
@@ -726,6 +784,10 @@ static void Svcmd_Mute_f( int muted ) {
 	}
 		                
 	cl = &level.clients[ clientNum ] ;
+	if ( cl->pers.connected != CON_CONNECTED ) {
+		Com_Printf("client not found>\n");
+		return;
+	}
 	
 	if ( muted )  cl->pers.muted += muted ;
 	else  cl->pers.muted = 0 ;
@@ -846,6 +908,12 @@ qboolean	ConsoleCommand( void ) {
 	}
 	if (Q_stricmp (cmd, "unmute") == 0) {
 		Svcmd_Mute_f( 0 );
+		return qtrue;
+	}
+
+	// Joe Kari: game version of clientkick
+	if (Q_stricmp (cmd, "kicknum") == 0) {
+		Svcmd_KickNum_f();
 		return qtrue;
 	}
 

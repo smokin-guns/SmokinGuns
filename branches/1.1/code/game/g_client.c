@@ -1345,12 +1345,13 @@ void ClientUserinfoChanged( int clientNum ) {
 			 */
 			if ( !client->pers.renameTime || !g_delayedRenaming.integer ||
 				( level.time - client->pers.renameTime >= g_delayedRenaming.integer*1000 ) ||
-				!( g_splitChat.integer && g_gametype.integer >= GT_RTP && client->sess.sessionTeam >= TEAM_SPECTATOR ) ) {
+				!( g_splitChat.integer && g_gametype.integer >= GT_RTP && client->sess.sessionTeam >= TEAM_SPECTATOR ) )
+			{
+				PushMinilogf( "RENAME: %i > %s", clientNum, client->pers.netname ) ;
 				trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname,
 					client->pers.netname) );
 				// Store when last renaming occured only if needed
-				if ( g_delayedRenaming.integer && g_splitChat.integer && g_gametype.integer >= GT_RTP &&
-					client->sess.sessionTeam >= TEAM_SPECTATOR )
+				if ( g_delayedRenaming.integer && g_splitChat.integer && g_gametype.integer >= GT_RTP && client->sess.sessionTeam >= TEAM_SPECTATOR )
 					client->pers.renameTime = level.time;
 
 			} else {
@@ -2478,9 +2479,6 @@ void ClientDisconnect( int clientNum ) {
 	}
 
 	G_LogPrintf( "ClientDisconnect: %i\n", clientNum );
-#ifdef SMOKINGUNS
-	PushMinilogf( "DISCONNECT: %i" , clientNum ) ;
-#endif
 
 	// if we are playing in tourney mode and losing, give a win to the other player
 #ifndef SMOKINGUNS
@@ -2525,6 +2523,8 @@ void ClientDisconnect( int clientNum ) {
 		trap_SendConsoleCommand( EXEC_APPEND , "vstr onEvent_playerDisconnect\n" ) ;
 		trap_SendConsoleCommand( EXEC_APPEND , va( "vstr onEvent_playerDownTo%i\n" , g_humancount ) ) ;
 	}
+	
+	PushMinilogf( "DISCONNECT: %i" , clientNum ) ;
 #endif
 }
 
