@@ -71,6 +71,8 @@ Changes in SG 1.1
 	to restore his voice.
 - New command "kicknum <client ID> [reason]", a replacement for clientkick (DEPRECATED). 
 	The reason is sent to the client.
+- New cvar g_allowVoteLevelTime: you can't call a vote before this time (in seconds) has passed.
+- New cvar g_allowVoteDelay: you have to wait this time after you called a vote to call another one.
 
 Changes in SG 1.1b4-20100116
 ******************
