@@ -63,7 +63,7 @@ Changes in SG 1.1
 		- "poponelog" pop an entry out of the minilog
 		- "poplog" pop all entries out of the minilog
 	ATM the game engine write into it the current events: MAP, CONNECT, DISCONNECT, JOIN, 
-	KILL, TEAMKILL, SELFKILL, ROB, SAY, SAYTEAM, SAYTELL, SECRET, KICK, RENAME.
+	KILL, TEAMKILL, SELFKILL, ROB, SAY, SAYTEAM, SAYTELL, SECRET, KICK, RENAME, CALLVOTE.
 - New client command "secret" (no rcon needed) that add silently an entry "SECRET" to the minilog,
 	can be usefull for registering to a third party admin-bot, ...
 - New command: "mute <client ID>", that change anything that this client try to say into "(muted)", 

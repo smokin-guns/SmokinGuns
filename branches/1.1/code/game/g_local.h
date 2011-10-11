@@ -1110,6 +1110,8 @@ extern	vmCvar_t	g_blood;
 extern	vmCvar_t	g_allowVote;
 #ifdef SMOKINGUNS
 extern	vmCvar_t	g_allowVoteKick;
+extern	vmCvar_t	g_allowVoteLevelTime;
+extern	vmCvar_t	g_allowVoteDelay;
 extern	vmCvar_t	g_delayedRenaming;
 #endif
 extern	vmCvar_t	g_teamAutoJoin;

@@ -1770,6 +1770,14 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		return;
 	}
 
+#ifdef SMOKINGUNS
+	// Joe Kari: a tips to avoid stOopid punk with fast computer to call a vote before anyone have time to join,
+	// allowing them to do everything they want... now you have to wait some time.
+	if ( level.time < ( g_allowVoteLevelTime.integer * 1000 ) ) {
+		trap_SendServerCommand( ent-g_entities, "print \"You can't call a vote so early! Try later...\n\"" );
+		return;
+	}
+#endif
 	if ( level.voteTime ) {
 		trap_SendServerCommand( ent-g_entities, "print \"A vote is already in progress.\n\"" );
 		return;
@@ -1781,11 +1789,11 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	}
 	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
 #else
-	// Tequila: g_allowVote can now be set to the number of seconds a player must wait between 2 votes
-	if ( level.time <= ent->client->pers.lastVoteTime + g_allowVote.integer * 1000 ) {
-		trap_SendServerCommand( ent-g_entities, va("print \"Only allowed to call a vote each %i seconds.\n\"",g_allowVote.integer) );
+	// Tequila: g_allowVoteDelay can now be set to the number of seconds a player must wait between 2 votes
+	if ( level.time <= ent->client->pers.lastVoteTime + g_allowVoteDelay.integer * 1000 ) {
+		trap_SendServerCommand( ent-g_entities, va("print \"Only allowed to call a vote each %i seconds.\n\"",g_allowVoteDelay.integer) );
 		trap_SendServerCommand( ent-g_entities, va("cp \"Wait %i seconds...\n\"",
-			(ent->client->pers.lastVoteTime + g_allowVote.integer * 1000 - level.time)/1000 ) );
+			(ent->client->pers.lastVoteTime + g_allowVoteDelay.integer * 1000 - level.time)/1000 ) );
 		return;
 	}
 	ent->client->pers.lastVoteTime = level.time;
@@ -1805,7 +1813,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			case '\n':
 			case '\r':
 			case ';':
-				trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
+				trap_SendServerCommand( ent-g_entities, va("print \"Invalid vote string argument: %s\n\"",arg2) );
 				return;
 			break;
 		}
@@ -1823,6 +1831,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else if ( !Q_stricmp( arg1, "fraglimit" ) ) {
 	} else {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
+		trap_SendServerCommand( ent-g_entities, va("print \"Invalid vote string command: %s\n\"",arg1) );
 		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>, g_doWarmup, timelimit <time>, fraglimit <frags>.\n\"" );
 		return;
 	}
@@ -1846,7 +1855,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else if ( !Q_stricmp( arg1, "fraglimit" ) && !strcmp(arg2,va("%i",atoi(arg2))) ) {
 	} else if ( !Q_stricmp( arg1, "mapcycle" ) ) {
 	} else {
-		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
+		trap_SendServerCommand( ent-g_entities, va("print \"Invalid vote string command: %s\n\"",arg1) );
 		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>, g_doWarmup <integer>, timelimit <time>, fraglimit <frags>, mapcycle <mapcyclename>.\n\"" );
 		// Tequila: Log failed callvote
 		G_LogPrintf( "Invalid callvote: %s: %s %s\n", ent->client->pers.netname, arg1, ConcatArgs(2) );
@@ -1871,10 +1880,11 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		i = atoi( arg2 );
 #ifndef SMOKINGUNS
 		if( i == GT_SINGLE_PLAYER || i < GT_FFA || i >= GT_MAX_GAME_TYPE) {
+			trap_SendServerCommand( ent-g_entities, "print \"Invalid gametype.\n\"" );
 #else
 		if( i == GT_SINGLE_PLAYER || i < GT_FFA || i > GT_RTP) {
+			trap_SendServerCommand( ent-g_entities, va("print \"Invalid gametype: %s\n\"",arg2) );
 #endif
-			trap_SendServerCommand( ent-g_entities, "print \"Invalid gametype.\n\"" );
 			return;
 		}
 
@@ -1948,11 +1958,12 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
 	}
 
-	trap_SendServerCommand( -1, va("print \"%s called a vote.\n\"", ent->client->pers.netname ) );
+	trap_SendServerCommand( -1, va("print %s called a vote.\n", ent->client->pers.netname ) );
 
 #ifdef SMOKINGUNS
 	// Tequila: Log the callvote string
 	G_LogPrintf( "callvote: %s: %s\n", ent->client->pers.netname, level.voteString );
+	PushMinilogf( "CALLVOTE: %i > %s", ent->s.number , level.voteString );
 #endif
 
 	// start the voting, the caller automatically votes yes
@@ -2037,6 +2048,14 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 		return;
 	}
 
+#ifdef SMOKINGUNS
+	// Joe Kari: a tips to avoid stOopid punk with fast computer to call a vote before anyone have time to join,
+	// allowing them to do everything they want... now you have to wait some time.
+	if ( level.time < ( g_allowVoteLevelTime.integer * 1000 ) ) {
+		trap_SendServerCommand( ent-g_entities, "print \"You can't call a vote so early! Try later...\n\"" );
+		return;
+	}
+#endif
 	if ( level.teamVoteTime[cs_offset] ) {
 		trap_SendServerCommand( ent-g_entities, "print \"A team vote is already in progress.\n\"" );
 		return;
@@ -2048,11 +2067,11 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 	}
 	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
 #else
-	// Tequila: g_allowVote can now be set to the number of seconds a player must wait between 2 votes
-	if ( level.time <= ent->client->pers.lastVoteTime + g_allowVote.integer * 1000 ) {
-		trap_SendServerCommand( ent-g_entities, va("print \"Only allowed to call a vote each %i seconds.\n\"",g_allowVote.integer) );
+	// Tequila: g_allowVoteDelay can now be set to the number of seconds a player must wait between 2 votes
+	if ( level.time <= ent->client->pers.lastVoteTime + g_allowVoteDelay.integer * 1000 ) {
+		trap_SendServerCommand( ent-g_entities, va("print \"Only allowed to call a vote each %i seconds.\n\"",g_allowVoteDelay.integer) );
 		trap_SendServerCommand( ent-g_entities, va("cp \"Wait %i seconds...\n\"",
-			(ent->client->pers.lastVoteTime + g_allowVote.integer * 1000 - level.time)/1000 ) );
+			(ent->client->pers.lastVoteTime + g_allowVoteDelay.integer * 1000 - level.time)/1000 ) );
 		return;
 	}
 	ent->client->pers.lastVoteTime = level.time;
