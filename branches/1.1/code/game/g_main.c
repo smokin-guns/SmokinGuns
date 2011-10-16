@@ -256,7 +256,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_moneyRespawn, "g_moneyRespawn", "1", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 
 	{ &g_newShotgunPattern, "g_newShotgunPattern", "1", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
-	{ &g_roundNoMoveTime, "g_roundNoMoveTime", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+	{ &g_roundNoMoveTime, "g_roundNoMoveTime", "3", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 #endif
 
 	{ &g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse  },
@@ -1932,8 +1932,13 @@ void CheckExitRules( void ) {
 #else
 	if ( g_timelimit.integer && (!level.warmupTime || g_gametype.integer >= GT_RTP)) {
 #endif
-		if ( level.time - level.startTime >= g_timelimit.integer*60000 ) {
+		
+		if ( ( level.time - level.startTime >= g_timelimit.integer * 60000 ) 
+			// Joe Kari: no Timelimit if the round has already begun (more than 15 seconds)
+			&& ( g_gametype.integer < GT_RTP || level.time < g_roundstarttime + 15000 || level.time > g_roundendtime ) )
+		{
 			trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"");
+			PushMinilog( "TIMELIMIT:" ) ;
 			LogExit( "Timelimit hit." );
 			return;
 		}
@@ -1971,6 +1976,7 @@ void CheckExitRules( void ) {
 
 			if ( cl->sess.losses >= g_duellimit.integer ) {
 				LogExit( "Duellimit hit." );
+				PushMinilogf( "DUELLIMIT: %i" , i ) ;
 				trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " hit the duellimit.\n\"",
 					cl->pers.netname ) );
 				return;
@@ -1982,12 +1988,14 @@ void CheckExitRules( void ) {
 		g_fraglimit.integer ) {
 		if ( level.teamScores[TEAM_RED] >= g_fraglimit.integer ) {
 			trap_SendServerCommand( -1, va("print \"%s won the game.\n\"", g_redteam.string) );
+			PushMinilog( "TEAMFRAGLIMIT: lawmen" ) ;
 			LogExit( "Fraglimit hit." );
 			return;
 		}
 
 		if ( level.teamScores[TEAM_BLUE] >= g_fraglimit.integer ) {
 			trap_SendServerCommand( -1, va("print \"%s won the game.\n\"", g_blueteam.string) );
+			PushMinilog( "TEAMFRAGLIMIT: outlaws" ) ;
 			LogExit( "Fraglimit hit." );
 			return;
 		}
@@ -2004,6 +2012,7 @@ void CheckExitRules( void ) {
 
 			if ( cl->ps.persistant[PERS_SCORE] >= g_fraglimit.integer ) {
 				LogExit( "Fraglimit hit." );
+				PushMinilogf( "FRAGLIMIT: %i" , i ) ;
 				trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " hit the fraglimit.\n\"",
 					cl->pers.netname ) );
 				return;
@@ -2032,6 +2041,7 @@ void CheckExitRules( void ) {
 		if ( level.teamScores[TEAM_RED] >= g_scorelimit.integer ) {
 			char	str[64];
 
+			PushMinilog( "SCORELIMIT: lawmen" ) ;
 			Com_sprintf(str, sizeof(str), "print \"%s hit the scorelimit.\n\"",
 				g_redteam.string);
 
@@ -2043,6 +2053,7 @@ void CheckExitRules( void ) {
 		if ( level.teamScores[TEAM_BLUE] >= g_scorelimit.integer ) {
 			char str[64];
 
+			PushMinilog( "SCORELIMIT: outlaws" ) ;
 			Com_sprintf(str, sizeof(str), "print \"%s hit the scorelimit.\n\"",
 				g_blueteam.string);
 
@@ -2051,10 +2062,6 @@ void CheckExitRules( void ) {
 			return;
 		}
 
-		// Joe Kari: don't check for Timelimit if the round has begun (more than 15 seconds)
-		if ( ( level.time > g_roundstarttime + 15000 ) && ( level.time < g_roundendtime ) ) {
-			return;
-		}
 
 	}
 #endif
@@ -2264,6 +2271,7 @@ void Setup_NewRound(void){
 	level.roundNoMoveTime = (int)(g_roundNoMoveTime.value * 1000);
 
 	G_LogPrintf( "ROUND: %i end.\n", (g_round));
+	if ( g_round > 0 ) { PushMinilogf( "ENDROUND: %i", (g_round)); }
 
 	SetSpawnPos( &sg_bluespawn, &sg_redspawn);
 
@@ -2312,6 +2320,7 @@ void Setup_NewRound(void){
 
 	G_LogPrintf( "ROUND: %i start.\n", (g_round));
 	G_Printf ( "Round %i\n", (g_round));
+	PushMinilogf( "NEWROUND: %i", (g_round));
 
 	// takedamage countdown
 	if(g_round){
@@ -2347,9 +2356,11 @@ static void BankRobbed( void ){
 	if(g_robteam == TEAM_BLUE){
 		trap_SendServerCommand( -1, va( "cp \"%s robbed the bank.\"",g_blueteam.string ) );
 		G_LogPrintf( "ROUND: Won: %s\n", g_blueteam.string);
+		PushMinilogf( "TEAMWON: outlaws => %i" , level.teamScores[ TEAM_BLUE ] );
 	} else {
 		trap_SendServerCommand( -1, va( "cp \"%s robbed the bank.\"", g_redteam.string ) );
 		G_LogPrintf( "ROUND: Won: %s\n", g_redteam.string);
+		PushMinilogf( "TEAMWON: lawmen => %i" , level.teamScores[ TEAM_RED ] );
 	}
 
 	//add won money
@@ -2560,17 +2571,21 @@ void CheckRound(void){
 					if(winner == TEAM_BLUE){
 						trap_SendServerCommand( -1, va( "cp \"%s won.\"",g_blueteam.string ) );
 						G_LogPrintf( "ROUND: Won: %s\n",g_blueteam.string);
+						PushMinilogf( "TEAMWON: outlaws => %i" , level.teamScores[ TEAM_BLUE ] );
 					} else {
 						trap_SendServerCommand( -1, va( "cp \"%s won.\"", g_redteam.string ) );
 						G_LogPrintf( "ROUND: Won: %s\n", g_redteam.string);
+						PushMinilogf( "TEAMWON: lawmen => %i" , level.teamScores[ TEAM_RED ] );
 					}
 				} else {
 					if(winner == TEAM_BLUE){
 						trap_SendServerCommand( -1, va( "cp \"%s defended the bank.\"",g_blueteam.string ) );
 						G_LogPrintf( "ROUND: Won: %s\n", g_blueteam.string);
+						PushMinilogf( "TEAMWON: outlaws => %i" , level.teamScores[ TEAM_BLUE ] );
 					} else {
 						trap_SendServerCommand( -1, va( "cp \"%s defended the bank.\"", g_redteam.string ) );
 						G_LogPrintf( "ROUND: Won: %s\n", g_redteam.string);
+						PushMinilogf( "TEAMWON: lawmen => %i" , level.teamScores[ TEAM_RED ] );
 					}
 				}
 				if(g_round%2){
@@ -2610,8 +2625,10 @@ void CheckRound(void){
 
 				if(level.time >= g_roundendtime && g_roundendtime){
 					trap_SendServerCommand( -1, "cp \"Time Out\"" );
+					PushMinilog( "TIED: timeout" );
 				} else {
 					trap_SendServerCommand( -1, "cp \"Round was tied!\"" );
+					PushMinilog( "TIED:" );
 				}
 
 				//add money
@@ -3407,13 +3424,14 @@ void CheckDuel( void ) {
 
 				// only one player with 5 stars -> winner
 				if(real_winner){
-					trap_SendServerCommand( -1, va("cp \"%s WON THE ROUND!\"",
-						g_entities[player].client->pers.netname));
+					trap_SendServerCommand( -1, va("cp \"%s WON THE ROUND!\"", g_entities[player].client->pers.netname));
+					PushMinilogf( "WON: %i" , g_entities[player].s.number );
 					// in Duel: losses mean round-wins
 					level.clients[player].sess.losses++;
 					ClientUserinfoChanged(player);
 				} else {
 					trap_SendServerCommand( -1, "cp \"ROUND WAS TIED!\"");
+					PushMinilog( "TIED:" );
 				}
 
 				ClearClients(qtrue);

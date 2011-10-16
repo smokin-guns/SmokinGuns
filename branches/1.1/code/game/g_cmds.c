@@ -1840,7 +1840,12 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	if ( !Q_stricmp( arg1, "map_restart" ) && (!strlen(arg2) || !strcmp(arg2,va("%i",atoi(arg2)))) ) {
 	} else if ( !Q_stricmp( arg1, "nextmap" ) ) {
 	// Validate argument, it must be an available map
-	} else if ( !Q_stricmp( arg1, "map" ) && strlen(arg2) && IsAvailableMap(arg2) ) {
+	} else if ( !Q_stricmp( arg1, "map" ) && strlen(arg2) ) {
+		if ( ! IsAvailableMap(arg2) ) {
+			trap_SendServerCommand( ent-g_entities, va("print \"map not found: %s\n\"", arg2 ) );
+			G_LogPrintf( "Invalid callvote: %s: %s %s\n", ent->client->pers.netname, arg1, ConcatArgs(2) );
+			return;
+		}
 	// Validate argument, it must be an integer
 	} else if ( !Q_stricmp( arg1, "g_gametype" ) && !strcmp(arg2,va("%i",atoi(arg2))) ) {
 	// Validate argument, it must be an existing player name or player number
@@ -1855,7 +1860,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else if ( !Q_stricmp( arg1, "fraglimit" ) && !strcmp(arg2,va("%i",atoi(arg2))) ) {
 	} else if ( !Q_stricmp( arg1, "mapcycle" ) ) {
 	} else {
-		trap_SendServerCommand( ent-g_entities, va("print \"Invalid vote string command: %s\n\"",arg1) );
+		trap_SendServerCommand( ent-g_entities, va("print \"Invalid vote string command: %s\n\"", ConcatArgs(1) ) );
 		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>, g_doWarmup <integer>, timelimit <time>, fraglimit <frags>, mapcycle <mapcyclename>.\n\"" );
 		// Tequila: Log failed callvote
 		G_LogPrintf( "Invalid callvote: %s: %s %s\n", ent->client->pers.netname, arg1, ConcatArgs(2) );
@@ -1958,7 +1963,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
 	}
 
-	trap_SendServerCommand( -1, va("print %s called a vote.\n", ent->client->pers.netname ) );
+	trap_SendServerCommand( -1, va("print \"%s called a vote.\n\"", ent->client->pers.netname ) );
 
 #ifdef SMOKINGUNS
 	// Tequila: Log the callvote string

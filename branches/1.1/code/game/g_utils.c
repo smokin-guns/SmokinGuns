@@ -829,7 +829,7 @@ Joe Kari: push a formated string into of the minilog (similar than printf family
 void PushMinilogf( const char *msg, ... )
 {
 	va_list		argptr;
-	char		text[1024];
+	char		text[MAX_TOKEN_CHARS];
 
 	va_start (argptr, msg);
 	Q_vsnprintf (text, sizeof(text), msg, argptr);
