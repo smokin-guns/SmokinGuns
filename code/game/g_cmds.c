@@ -1514,9 +1514,9 @@ static void G_VoiceTo( gentity_t *ent, gentity_t *other, int mode, const char *i
 	if ( mode == SAY_TEAM && !OnSameTeam(ent, other) ) {
 		return;
 	}
-	// no chatting to players in tournements
 #ifndef SMOKINGUNS
-	if ( (g_gametype.integer == GT_TOURNAMENT )) {
+	// no chatting to players in tournements
+	if ( g_gametype.integer == GT_TOURNAMENT ) {
 		return;
 	}
 #endif
