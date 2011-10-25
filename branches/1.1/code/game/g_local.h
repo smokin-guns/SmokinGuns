@@ -656,7 +656,7 @@ typedef struct {
 
 
 #ifdef SMOKINGUNS
-#define MAX_MINILOG     64
+#define MAX_MINILOG     128
 typedef struct {
 	char		entries[MAX_MINILOG][MAX_TOKEN_CHARS];
 	int		head;	// next index to pop

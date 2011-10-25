@@ -1905,9 +1905,25 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 					targ->s.number, targ->health, take, modNames[mod] , attacker->s.number );
 			}
 		}
-
+		
 		// Tequila fix: take is a float in SG so round it with a cast to got a real damage
 		targ->health = targ->health - (int)(take+.5);
+		
+		// Joe Kari: log damage to Minilog
+		if ( targ->client ) {
+			if ( attacker->client ) {
+				PushMinilogf( "HIT: %i => %i (%i) [%s] [%s]" , attacker->s.number , targ->s.number , (int)take ,
+					client->ps.weapon ? hit_info[client->lasthurt_location].forename : hit_info[client->lasthurt_location].backname ,
+					modNames[mod] ) ;
+				// FIXME: I should probably move others Minilog of type KILL/TEAMKILL/SELFKILL here
+			}
+			else {
+				PushMinilogf( "WORLDHIT: %i (%i) [%s]" , targ->s.number , (int)take , modNames[mod] ) ;
+				if ( targ->health <= 0 ) {
+					PushMinilogf( "WORLDKILL: %i [%s]" , targ->s.number , modNames[mod] ) ;
+				}
+			}
+		}
 #endif
 		if ( targ->client ) {
 			targ->client->ps.stats[STAT_HEALTH] = targ->health;
