@@ -1,6 +1,6 @@
 ########################################################################
 # Based on ioQuake3 commit see https://github.com/ioquake/ioq3
-IOQ3_GITHUB_COMMIT = 675e7a641a
+IOQ3_GITHUB_COMMIT = 7d570e693d
 ########################################################################
 ifeq ($(BUILD_CLIENT),)
   # Build client by default
@@ -34,8 +34,9 @@ endif
 BUILD_STANDALONE  = 1
 BUILD_MISSIONPACK = 0
 SDK_GAME          = Smokin' Guns
-SDK_GAMENAME      = smokinguns
-SDK_GAMENAME_DED  = smokinguns_dedicated
+BASENAME          = smokinguns
+EXENAME           = smokinguns
+DEDEXENAME        = smokinguns_dedicated
 # Comment USE_MP_UIDIR to use old ui code from code/q3_ui folder
 USE_MP_UIDIR      = 1
 # STANDALONE_CFLAGS should only contain -D options dedicated to the game to keep
@@ -75,104 +76,123 @@ SDK_OBJ_USING_SVN = \
 	$(B)/client/sys_main.o \
 	$(B)/client/sys_unix.o \
 	$(B)/client/sys_win32.o \
-	$(B)/$(SDK_GAMENAME)/game/g_main.o \
-	$(B)/$(SDK_GAMENAME)/game/g_main.asm \
-	$(B)/$(SDK_GAMENAME)/cgame/cg_main.o \
-	$(B)/$(SDK_GAMENAME)/cgame/cg_main.asm \
-	$(B)/$(SDK_GAMENAME)/ui/ui_main.o \
-	$(B)/$(SDK_GAMENAME)/ui/ui_main.asm
+	$(B)/$(BASENAME)/game/g_main.o \
+	$(B)/$(BASENAME)/game/g_main.asm \
+	$(B)/$(BASENAME)/cgame/cg_main.o \
+	$(B)/$(BASENAME)/cgame/cg_main.asm \
+	$(B)/$(BASENAME)/ui/ui_main.o \
+	$(B)/$(BASENAME)/ui/ui_main.asm
+
+#############################################################################
+## SMOKINGUNS EXE TUNING
+#############################################################################
+
+USE_Q3OBJ_ADDON = 0
+SDK_Q3OBJ_ADDON = 
+
+#############################################################################
+## SMOKINGUNS DEDICATED TUNING
+#############################################################################
+
+USE_Q3DOBJ_ADDON = 1
+SDK_Q3DOBJ_ADDON = \
+	$(B)/ded/md5.o
 
 #############################################################################
 ## SMOKINGUNS CGAME
 #############################################################################
 
+USE_SDK_Q3CGOBJ = 1
 SDK_Q3CGOBJ = \
-  $(B)/$(SDK_GAMENAME)/cgame/cg_main.o \
-  $(B)/$(SDK_GAMENAME)/cgame/bg_misc.o \
-  $(B)/$(SDK_GAMENAME)/cgame/bg_pmove.o \
-  $(B)/$(SDK_GAMENAME)/cgame/bg_slidemove.o \
-  $(B)/$(SDK_GAMENAME)/cgame/bg_lib.o \
-  $(B)/$(SDK_GAMENAME)/cgame/cg_consolecmds.o \
-  $(B)/$(SDK_GAMENAME)/cgame/cg_newdraw.o \
-  $(B)/$(SDK_GAMENAME)/cgame/cg_draw.o \
-  $(B)/$(SDK_GAMENAME)/cgame/cg_drawtools.o \
-  $(B)/$(SDK_GAMENAME)/cgame/cg_effects.o \
-  $(B)/$(SDK_GAMENAME)/cgame/cg_ents.o \
-  $(B)/$(SDK_GAMENAME)/cgame/cg_event.o \
-  $(B)/$(SDK_GAMENAME)/cgame/cg_info.o \
-  $(B)/$(SDK_GAMENAME)/cgame/cg_localents.o \
-  $(B)/$(SDK_GAMENAME)/cgame/cg_marks.o \
-  $(B)/$(SDK_GAMENAME)/cgame/cg_players.o \
-  $(B)/$(SDK_GAMENAME)/cgame/cg_playerstate.o \
-  $(B)/$(SDK_GAMENAME)/cgame/cg_predict.o \
-  $(B)/$(SDK_GAMENAME)/cgame/cg_servercmds.o \
-  $(B)/$(SDK_GAMENAME)/cgame/cg_snapshot.o \
-  $(B)/$(SDK_GAMENAME)/cgame/cg_view.o \
-  $(B)/$(SDK_GAMENAME)/cgame/cg_weapons.o \
-  $(B)/$(SDK_GAMENAME)/ui/ui_shared.o \
+  $(B)/$(BASENAME)/cgame/cg_main.o \
+  $(B)/$(BASENAME)/cgame/bg_misc.o \
+  $(B)/$(BASENAME)/cgame/bg_pmove.o \
+  $(B)/$(BASENAME)/cgame/bg_slidemove.o \
+  $(B)/$(BASENAME)/cgame/bg_lib.o \
+  $(B)/$(BASENAME)/cgame/cg_consolecmds.o \
+  $(B)/$(BASENAME)/cgame/cg_newdraw.o \
+  $(B)/$(BASENAME)/cgame/cg_draw.o \
+  $(B)/$(BASENAME)/cgame/cg_drawtools.o \
+  $(B)/$(BASENAME)/cgame/cg_effects.o \
+  $(B)/$(BASENAME)/cgame/cg_ents.o \
+  $(B)/$(BASENAME)/cgame/cg_event.o \
+  $(B)/$(BASENAME)/cgame/cg_info.o \
+  $(B)/$(BASENAME)/cgame/cg_localents.o \
+  $(B)/$(BASENAME)/cgame/cg_marks.o \
+  $(B)/$(BASENAME)/cgame/cg_players.o \
+  $(B)/$(BASENAME)/cgame/cg_playerstate.o \
+  $(B)/$(BASENAME)/cgame/cg_predict.o \
+  $(B)/$(BASENAME)/cgame/cg_servercmds.o \
+  $(B)/$(BASENAME)/cgame/cg_snapshot.o \
+  $(B)/$(BASENAME)/cgame/cg_view.o \
+  $(B)/$(BASENAME)/cgame/cg_weapons.o \
+  $(B)/$(BASENAME)/ui/ui_shared.o \
   \
-  $(B)/$(SDK_GAMENAME)/qcommon/q_math.o \
-  $(B)/$(SDK_GAMENAME)/qcommon/q_shared.o \
+  $(B)/$(BASENAME)/qcommon/q_math.o \
+  $(B)/$(BASENAME)/qcommon/q_shared.o \
   \
-  $(B)/$(SDK_GAMENAME)/cgame/cg_sg_utils.o \
-  $(B)/$(SDK_GAMENAME)/cgame/cg_unlagged.o
+  $(B)/$(BASENAME)/cgame/cg_sg_utils.o \
+  $(B)/$(BASENAME)/cgame/cg_unlagged.o
 
 #############################################################################
 ## SMOKINGUNS GAME
 #############################################################################
 
+USE_SDK_Q3GOBJ = 1
 SDK_Q3GOBJ = \
-  $(B)/$(SDK_GAMENAME)/game/g_main.o \
-  $(B)/$(SDK_GAMENAME)/game/ai_chat.o \
-  $(B)/$(SDK_GAMENAME)/game/ai_cmd.o \
-  $(B)/$(SDK_GAMENAME)/game/ai_dmnet.o \
-  $(B)/$(SDK_GAMENAME)/game/ai_dmq3.o \
-  $(B)/$(SDK_GAMENAME)/game/ai_main.o \
-  $(B)/$(SDK_GAMENAME)/game/ai_team.o \
-  $(B)/$(SDK_GAMENAME)/game/ai_vcmd.o \
-  $(B)/$(SDK_GAMENAME)/game/bg_misc.o \
-  $(B)/$(SDK_GAMENAME)/game/bg_pmove.o \
-  $(B)/$(SDK_GAMENAME)/game/bg_slidemove.o \
-  $(B)/$(SDK_GAMENAME)/game/bg_lib.o \
-  $(B)/$(SDK_GAMENAME)/game/g_active.o \
-  $(B)/$(SDK_GAMENAME)/game/g_bot.o \
-  $(B)/$(SDK_GAMENAME)/game/g_client.o \
-  $(B)/$(SDK_GAMENAME)/game/g_cmds.o \
-  $(B)/$(SDK_GAMENAME)/game/g_combat.o \
-  $(B)/$(SDK_GAMENAME)/game/g_items.o \
-  $(B)/$(SDK_GAMENAME)/game/g_mem.o \
-  $(B)/$(SDK_GAMENAME)/game/g_misc.o \
-  $(B)/$(SDK_GAMENAME)/game/g_missile.o \
-  $(B)/$(SDK_GAMENAME)/game/g_mover.o \
-  $(B)/$(SDK_GAMENAME)/game/g_session.o \
-  $(B)/$(SDK_GAMENAME)/game/g_spawn.o \
-  $(B)/$(SDK_GAMENAME)/game/g_svcmds.o \
-  $(B)/$(SDK_GAMENAME)/game/g_target.o \
-  $(B)/$(SDK_GAMENAME)/game/g_team.o \
-  $(B)/$(SDK_GAMENAME)/game/g_trigger.o \
-  $(B)/$(SDK_GAMENAME)/game/g_utils.o \
-  $(B)/$(SDK_GAMENAME)/game/g_weapon.o \
+  $(B)/$(BASENAME)/game/g_main.o \
+  $(B)/$(BASENAME)/game/ai_chat.o \
+  $(B)/$(BASENAME)/game/ai_cmd.o \
+  $(B)/$(BASENAME)/game/ai_dmnet.o \
+  $(B)/$(BASENAME)/game/ai_dmq3.o \
+  $(B)/$(BASENAME)/game/ai_main.o \
+  $(B)/$(BASENAME)/game/ai_team.o \
+  $(B)/$(BASENAME)/game/ai_vcmd.o \
+  $(B)/$(BASENAME)/game/bg_misc.o \
+  $(B)/$(BASENAME)/game/bg_pmove.o \
+  $(B)/$(BASENAME)/game/bg_slidemove.o \
+  $(B)/$(BASENAME)/game/bg_lib.o \
+  $(B)/$(BASENAME)/game/g_active.o \
+  $(B)/$(BASENAME)/game/g_bot.o \
+  $(B)/$(BASENAME)/game/g_client.o \
+  $(B)/$(BASENAME)/game/g_cmds.o \
+  $(B)/$(BASENAME)/game/g_combat.o \
+  $(B)/$(BASENAME)/game/g_items.o \
+  $(B)/$(BASENAME)/game/g_mem.o \
+  $(B)/$(BASENAME)/game/g_misc.o \
+  $(B)/$(BASENAME)/game/g_missile.o \
+  $(B)/$(BASENAME)/game/g_mover.o \
+  $(B)/$(BASENAME)/game/g_session.o \
+  $(B)/$(BASENAME)/game/g_spawn.o \
+  $(B)/$(BASENAME)/game/g_svcmds.o \
+  $(B)/$(BASENAME)/game/g_target.o \
+  $(B)/$(BASENAME)/game/g_team.o \
+  $(B)/$(BASENAME)/game/g_trigger.o \
+  $(B)/$(BASENAME)/game/g_utils.o \
+  $(B)/$(BASENAME)/game/g_weapon.o \
   \
-  $(B)/$(SDK_GAMENAME)/qcommon/q_math.o \
-  $(B)/$(SDK_GAMENAME)/qcommon/q_shared.o \
+  $(B)/$(BASENAME)/qcommon/q_math.o \
+  $(B)/$(BASENAME)/qcommon/q_shared.o \
   \
-  $(B)/$(SDK_GAMENAME)/game/g_sg_utils.o \
-  $(B)/$(SDK_GAMENAME)/game/g_hit.o \
-  $(B)/$(SDK_GAMENAME)/game/g_unlagged.o
+  $(B)/$(BASENAME)/game/g_sg_utils.o \
+  $(B)/$(BASENAME)/game/g_hit.o \
+  $(B)/$(BASENAME)/game/g_unlagged.o
 
 #############################################################################
 ## SMOKINGUNS UI
 #############################################################################
 
+
+USE_SDK_Q3UIOBJ = 1
 SDK_Q3UIOBJ = \
-  $(B)/$(SDK_GAMENAME)/ui/ui_main.o \
-  $(B)/$(SDK_GAMENAME)/ui/ui_atoms.o \
-  $(B)/$(SDK_GAMENAME)/ui/ui_gameinfo.o \
-  $(B)/$(SDK_GAMENAME)/ui/ui_players.o \
-  $(B)/$(SDK_GAMENAME)/ui/ui_shared.o \
+  $(B)/$(BASENAME)/ui/ui_main.o \
+  $(B)/$(BASENAME)/ui/ui_atoms.o \
+  $(B)/$(BASENAME)/ui/ui_gameinfo.o \
+  $(B)/$(BASENAME)/ui/ui_players.o \
+  $(B)/$(BASENAME)/ui/ui_shared.o \
   \
-  $(B)/$(SDK_GAMENAME)/ui/bg_misc.o \
-  $(B)/$(SDK_GAMENAME)/ui/bg_lib.o \
+  $(B)/$(BASENAME)/ui/bg_misc.o \
+  $(B)/$(BASENAME)/ui/bg_lib.o \
   \
-  $(B)/$(SDK_GAMENAME)/qcommon/q_math.o \
-  $(B)/$(SDK_GAMENAME)/qcommon/q_shared.o
+  $(B)/$(BASENAME)/qcommon/q_math.o \
+  $(B)/$(BASENAME)/qcommon/q_shared.o

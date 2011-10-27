@@ -37,3 +37,34 @@ endif
 #
 -include Makefile.smokinguns
 #-include Makefile.SGMod
+
+# Moved some controls from Makefile from here to keep stuffs separated from
+# ioQuake3 upstream
+
+ifndef FRAMEBUFFER_AND_GLSL_SUPPORT
+  FRAMEBUFFER_AND_GLSL_SUPPORT=0
+endif
+
+ifndef BUILD_SDK_DIFF
+  SDK_DIFF=0
+endif
+
+ifndef USE_Q3OBJ_ADDON
+  USE_Q3OBJ_ADDON = 0
+endif
+
+ifndef USE_Q3DOBJ_ADDON
+  USE_Q3DOBJ_ADDON = 0
+endif
+
+ifndef USE_SDK_Q3CGOBJ
+  USE_SDK_Q3CGOBJ = 0
+endif
+
+ifndef USE_SDK_Q3GOBJ
+  USE_SDK_Q3GOBJ = 0
+endif
+
+ifndef USE_SDK_Q3UIOBJ
+  USE_SDK_Q3UIOBJ = 0
+endif
