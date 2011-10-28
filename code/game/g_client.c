@@ -1639,7 +1639,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	if ( !isBot && g_checkClients.integer ) {
 		value = Info_ValueForKey (userinfo, "cl_version");
 		if (!*value)
-			return "Please download " PRODUCT_NAME " " XSTRING(PRODUCT_VERSION) " from " PRODUCT_URL ;
+			return "Please download " PRODUCT_NAME " " PRODUCT_VERSION " from " PRODUCT_URL ;
 	}
 #endif
 

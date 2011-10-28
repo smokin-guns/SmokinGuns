@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2012 Smokin' Guns
+Copyright (C) 2005-2013 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -6107,8 +6107,8 @@ UI_Init
 void _UI_Init( qboolean inGameLoad ) {
 	const char *menuSet;
 
-#if defined SMOKINGUNS && defined Q3_VERSION
-	Com_Printf( "UI version: %s, %d, %s\n", Q3_VERSION, SG_RELEASE, __TIME__ );
+#ifdef SMOKINGUNS
+	Com_Printf( "UI version: %s, %s, %s\n", Q3_VERSION, PRODUCT_RELEASE, __TIME__ );
 #endif
 	//uiInfo.inGameLoad = inGameLoad;
 

@@ -1,25 +1,8 @@
-ifeq ($(BUILD_CLIENT),)
-  # Build client by default
-  BUILD_CLIENT     = 1
-endif
-ifeq ($(BUILD_SERVER),)
-  # Build server by default
-  BUILD_SERVER     = 1
-endif
-ifeq ($(BUILD_GAME_SO),)
-  # Don't build binary game by default
-  BUILD_GAME_SO    = 0
-endif
-ifeq ($(BUILD_GAME_QVM),)
-  # Build QVM game by default
-  BUILD_GAME_QVM   = 1
-endif
-
-# Here some convenient defaults
-ifndef COPYDIR
-  COPYDIR           = ./install
-endif
-
+# This Makefile.local is for official Smokin'Guns
+#
+# If you are using this SDK to create your own Smokin'Guns mod, you should
+# include your own Makefile setting SGMod to your_mod_name next to this file.
+#
 # Packagers can uncomment and change DEFAULT_BASEDIR to define a system
 # installation path for the game. Otherwise, you can start the game with
 # a script setting SG_BASEPATH environment to the path you would prefer
@@ -29,17 +12,11 @@ endif
 #STANDALONE_CFLAGS += -DFS_FOPENI
 #STANDALONE_CFLAGS += -DFS_MISSING -DFS_FOPENI
 
-# This Makefile.local is for official Smokin'Guns
-#
-# If you are using this SDK to create your own Smokin'Guns mod, you should
-# uncomment last line, rename SGMod to your_mod_name and create the related
-# Makefile.your_mod_name file next to this file.
-#
 -include Makefile.smokinguns
 #-include Makefile.SGMod
 
-# Moved some controls from Makefile from here to keep stuffs separated from
-# ioQuake3 upstream
+# Moved some checks out of Makefile to here, so we keep more stuffs separated
+# from ioQuake3 upstream commits
 
 ifndef FRAMEBUFFER_AND_GLSL_SUPPORT
   FRAMEBUFFER_AND_GLSL_SUPPORT=0
@@ -67,4 +44,22 @@ endif
 
 ifndef USE_SDK_Q3UIOBJ
   USE_SDK_Q3UIOBJ = 0
+endif
+
+ifndef USE_UIDIR
+  USE_UIDIR = 0
+endif
+
+ifeq ($(FRAMEBUFFER_AND_GLSL_SUPPORT),1)
+  CLIENT_CFLAGS += -DFRAMEBUFFER_AND_GLSL_SUPPORT
+endif
+
+ifneq ($(BUILD_SDK_DIFF),0)
+  ifndef SDK_DIFF
+    SDK_DIFF = $(shell misc/sdk/sdk_diff.sh build/sdk_diff.h 2>/dev/null)
+    ifneq ($(SDK_DIFF),0)
+      CLIENT_CFLAGS += -DSDK_DIFF=\\\"$(SDK_DIFF)\\\"
+      SERVER_CFLAGS += -DSDK_DIFF=\\\"$(SDK_DIFF)\\\"
+    endif
+  endif
 endif

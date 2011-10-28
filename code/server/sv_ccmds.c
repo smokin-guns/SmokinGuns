@@ -1830,11 +1830,11 @@ void SV_AddOperatorCommands( void ) {
 		Cmd_AddCommand ("say", SV_ConSay_f);
 #ifdef SMOKINGUNS
 		Cmd_AddCommand ("tell", SV_ConTell_f);
+		Cmd_AddCommand("record", SVCL_Record_f);
+		Cmd_AddCommand("stoprecord", SVCL_StopRecord_f);
+		Cmd_AddCommand("saverecord", SVCL_SaveRecord_f);
 #endif
 	}
- 	Cmd_AddCommand("record", SVCL_Record_f);
- 	Cmd_AddCommand("stoprecord", SVCL_StopRecord_f);
- 	Cmd_AddCommand("saverecord", SVCL_SaveRecord_f);
 	Cmd_AddCommand("rehashbans", SV_RehashBans_f);
 	Cmd_AddCommand("listbans", SV_ListBans_f);
 	Cmd_AddCommand("banaddr", SV_BanAddr_f);

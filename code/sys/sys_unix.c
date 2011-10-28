@@ -128,7 +128,7 @@ const char *Sys_GetSystemInstallPath(const char *path)
 // MacOSX has already figured this out, so we will just return the path
 	const char *p[]= {
 
-// Packagers: change PREFIX here to your favourite location.
+// Packagers: change PREFIX here to your favorite location.
 // Or change DEFAULT_BASEDIR in Makefile.local
 #ifndef PREFIX
 #define PREFIX /usr/share/games

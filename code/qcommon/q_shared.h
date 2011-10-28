@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2013 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -63,8 +63,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #define PRODUCT_VERSION "1.36"
 #endif
 
-#define Q3_VERSION PRODUCT_NAME " " PRODUCT_VERSION
-
 #else
   // Tequila: Smokin' Guns defines update
   // MISSIONPACK must be kept out, we are STANDALONE now
@@ -100,21 +98,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
   // PRODUCT_VERSION will be used for sg_version cvar
   #ifndef PRODUCT_VERSION
-    #define PRODUCT_VERSION	"1.2"
+    #define PRODUCT_VERSION	"1.2dev"
   #endif
-  #ifndef SG_RELEASE
-    #define SG_RELEASE	20130106
+  #ifndef PRODUCT_RELEASE
+    #define PRODUCT_RELEASE	__DATE__
   #endif
-
-  #ifndef XSTRING
-  #define XSTRING(x)				STRING(x)
-  #define STRING(x)					#x
-  #endif
-
-  #define Q3_VERSION PRODUCT_NAME " " XSTRING(PRODUCT_VERSION)
-  // We should undefine it as it is redefined later by ioQ3 sources
-  #undef XSTRING
-  #undef STRING
 
   //unlagged - lag simulation #2
   #define MAX_LATENT_CMDS 64
@@ -128,6 +116,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #define SMOKINGUNS_MOD
   #endif
 #endif
+
+#define Q3_VERSION PRODUCT_NAME " " PRODUCT_VERSION
 
 #define MAX_TEAMNAME		32
 #define MAX_MASTER_SERVERS      5	// number of supported master servers

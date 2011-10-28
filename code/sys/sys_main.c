@@ -537,7 +537,7 @@ void Sys_ParseArgs( int argc, char **argv )
 #else
 			fprintf( stdout, Q3_VERSION " client (%s, %s)\n", date, time );
 #endif
-			fprintf( stdout, "Release: " XSTRING(SG_RELEASE) "\n" );
+			fprintf( stdout, "Release: " PRODUCT_RELEASE "\n" );
 			fprintf( stdout, "Flavour: " OS_STRING " " ARCH_STRING "\n\n" );
 			Sys_BinaryEngineComment();
 #else
@@ -599,6 +599,7 @@ Sys_BinaryEngineComment
 #ifdef SMOKINGUNS
 void Sys_BinaryEngineComment( void ) {
 	const char *version = Q3_VERSION;
+	const char *release = PRODUCT_RELEASE;
 	const char *platform = PLATFORM_STRING;
 	const char *date = __DATE__;
 	const char *time = __TIME__;
@@ -606,12 +607,12 @@ void Sys_BinaryEngineComment( void ) {
 	const char *contact = SDK_CONTACT;
 	char *sum;
 	char string[MAX_STRING_CHARS] = "";
-	Com_sprintf(string,sizeof(string),"%s, %s %s, %s", version, date, time, platform);
+	Com_sprintf(string,sizeof(string),"%s (%s - %s %s), %s", version, release, date, time, platform);
 	if (strlen(comment))
 		Q_strcat(string,sizeof(string),va("\ncomment: %s",comment));
 	if (strlen(contact))
 		Q_strcat(string,sizeof(string),va("\ncontact: %s",contact));
-	fprintf( stdout, "engine: %s\n", string);
+	fprintf( stdout, "engine : %s\n", string);
 #ifndef SDK_DIFF
 	sum = Com_MD5Text(string,strlen(string),NULL,0);
 #else
@@ -623,11 +624,11 @@ void Sys_BinaryEngineComment( void ) {
 		return;
 	Cvar_Set ("cl_md5", va("%s",sum));
 #ifndef SDK_DIFF
-	Cvar_Set("sdk_engine_comment",va("\\version\\%s\\platform\\%s\\date\\%s %s\\md5\\%s\\comment\\%s\\contact\\%s",
-		version, platform, date, time, sum, comment, contact));
+	Cvar_Set("sdk_engine_comment",va("\\version\\%s\\release\\%s\\platform\\%s\\date\\%s %s\\md5\\%s\\comment\\%s\\contact\\%s",
+		version, release, platform, date, time, sum, comment, contact));
 #else
-	Cvar_Set("sdk_engine_comment",va("\\version\\%s\\platform\\%s\\date\\%s %s\\md5\\%s\\diff\\%i\\comment\\%s\\contact\\%s",
-		version, platform, date, time, sum, sdk_diff_format, comment, contact));
+	Cvar_Set("sdk_engine_comment",va("\\version\\%s\\release\\%s\\platform\\%s\\date\\%s %s\\md5\\%s\\diff\\%i\\comment\\%s\\contact\\%s",
+		version, release, platform, date, time, sum, sdk_diff_format, comment, contact));
 #endif
 }
 #endif

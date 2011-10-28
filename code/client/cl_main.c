@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2013 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -3668,7 +3668,7 @@ void CL_Init( void ) {
 #ifndef SMOKINGUNS
 	Cvar_Get ("cl_anonymous", "0", CVAR_USERINFO | CVAR_ARCHIVE );
 #else
-	Cvar_Get ("cl_version", XSTRING(PRODUCT_VERSION) " " XSTRING(SG_RELEASE), CVAR_ROM | CVAR_USERINFO );
+	Cvar_Get ("cl_version", PRODUCT_VERSION " " PRODUCT_RELEASE, CVAR_ROM | CVAR_USERINFO );
 	Cvar_Get ("sdk_engine_comment", "", CVAR_ROM);
 	Cvar_Get ("cl_md5", "", CVAR_ROM | CVAR_USERINFO );
 	Sys_BinaryEngineComment();

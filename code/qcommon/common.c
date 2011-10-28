@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2013 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -2712,7 +2712,11 @@ void Com_Init( char *commandLine ) {
 	char	*s;
 	int	qport;
 
+#ifndef SMOKINGUNS
 	Com_Printf( "%s %s %s\n", Q3_VERSION, PLATFORM_STRING, __DATE__ );
+#else
+	Com_Printf( "%s %s %s\n", Q3_VERSION, PLATFORM_STRING, PRODUCT_RELEASE );
+#endif
 
 	if ( setjmp (abortframe) ) {
 		Sys_Error ("Error during initialization");
@@ -2836,7 +2840,7 @@ void Com_Init( char *commandLine ) {
 #ifndef SMOKINGUNS
 	s = va("%s %s %s", Q3_VERSION, PLATFORM_STRING, __DATE__ );
 #else
-	s = va("%s %i %s", XSTRING(PRODUCT_VERSION), SG_RELEASE, PLATFORM_STRING );
+	s = va("%s %s %s", PRODUCT_VERSION, PRODUCT_RELEASE, PLATFORM_STRING );
 #endif
 	com_version = Cvar_Get ("version", s, CVAR_ROM | CVAR_SERVERINFO );
 	com_gamename = Cvar_Get("com_gamename", GAMENAME_FOR_MASTER, CVAR_SERVERINFO | CVAR_INIT);

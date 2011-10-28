@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2012 Smokin' Guns
+Copyright (C) 2005-2013 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -382,7 +382,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &m_teamwin, "m_teamwin", ROUND_WIN_MONEY, CVAR_CHEAT, 0, qtrue },
 	{ &m_teamlose, "m_teamlose", ROUND_LOSE_MONEY, CVAR_CHEAT, 0, qtrue },
 
-	{ &g_version, "sg_version", XSTRING(PRODUCT_VERSION) " " XSTRING(SG_RELEASE), CVAR_ROM | CVAR_SERVERINFO , 0, qtrue },
+	{ &g_version, "sg_version", PRODUCT_VERSION " " PRODUCT_RELEASE, CVAR_ROM | CVAR_SERVERINFO , 0, qtrue },
 	{ &g_checkClients, "g_checkClients", "1", CVAR_ARCHIVE, 0, qfalse  },
 
 	// If g_breakspawndelay == 0, use BREAK_RESPAWN_TIME instead in g_mover.c
@@ -729,9 +729,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	char				map2[64];
 	char				serverinfo[MAX_INFO_STRING];
 	int					prefix_gametype;
-#ifdef Q3_VERSION
-	G_Printf( "QAgame version: %s, %d, %s\n", Q3_VERSION, SG_RELEASE, __TIME__ );
-#endif
+
+	G_Printf( "QAgame version: %s, %s, %s\n", Q3_VERSION, PRODUCT_RELEASE, __TIME__ );
 #endif
 
 	G_Printf ("------- Game Initialization -------\n");
