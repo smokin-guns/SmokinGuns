@@ -776,6 +776,10 @@ static void CG_DamageBlendBlob( void ) {
 	int			maxTime;
 	refEntity_t		ent;
 
+	if (!cg_blood.integer) {
+		return;
+	}
+
 	if ( !cg.damageValue ) {
 		return;
 	}
