@@ -1,0 +1,16 @@
+
+Every dev should put here what he want to code in SG.
+Be realistic ;) 
+
+
+
+*** Joe Kari's Todo list ***
+
+Lots of game rcon command:
+/slap		slightly hurt someone, as a warning instead of kicking it
+/forcespec	force someone to go to spec, usefull to prevent AFK in round-based game
+/forceteam	force someone to go to a specific team
+/adjustmoney	give or take money: intended for third party rcon script special game (bounty hunter, poker, ...)
+
+
+

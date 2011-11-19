@@ -30,7 +30,7 @@ Changes in SG 1.1
   This command is based on the UrbanTerror 4.1 implementation, thanks guys.
   See http://www.urbanterror.net
 - Added ui_farclip cvar to be used as farclip management facility for UI part
-- Fixed another bad prediction case when cg_boostfps is set, thanks again to Joe Kari for the reporting
+- Fixed another bad prediction case when cg_boostfps is set
 - Fixed old minor OpenGL error which prevented to debug easily FBO enhancement
 - Added rotating feature to func_train
 - Added sine "pendulum style" rotation to func_rotating
@@ -84,12 +84,12 @@ Changes in SG 1.1b4-20100116
 - Player will be kicked if he is trying to rename when he was proposed to be kicked
 - Enhanced callvote command security
 - Player names are now colorized in lists like "callvote kick" list to avoid name confusion
-- Fixed a bad prediction case when cg_boostfps is set, thanks to Joe Kari for the reporting
+- Fixed a bad prediction case when cg_boostfps is set
 - Fixed simultaneous reloading bug in akimbo mode
 - Added new command 'addentity', it can be used to test misc_externalentity or any map entity
 - Added support for misc_externalmodel map entity, thanks to World Of Padman project
 - Fixed bug where having a scoped Sharps in your inventory caused double spread for the other rifles, and the gatling.
-- Added close clipping feature for mappers, thanks to Joe Kari
+- Added close clipping feature for mappers
 - Update & authorize servers are now served by smokin-guns.net domain, thanks to L3th4l
 - Added support to in-game lagometer setting cg_lagometer to 2
 - Enhanced Smokin'Guns motd support
@@ -192,7 +192,7 @@ Changes in SG 1.1b1-20091019
 - new "cancelvote" server side command, can only be used by admins
 - support for more crosshair
 *** CHANGES ***
-- Reloading bug fixed by Joe Kari
+- Reloading bug fixed
 - Fix game crash during game load when using cgame binary library
 - Fix server not hitting time limit when only bots are playing (thanks to ioQ3 code engine)
 - Fix cinematic rendering with wide screens (thanks to ioQ3 code engine), intro is now visible in wide screen mode
