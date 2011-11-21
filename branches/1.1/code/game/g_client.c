@@ -1027,9 +1027,15 @@ PickTeam
 team_t PickTeam( int ignoreClientNum ) {
 	int		counts[TEAM_NUM_TEAMS];
 
+#ifndef SMOKINGUNS
 	counts[TEAM_BLUE] = TeamCount( ignoreClientNum, TEAM_BLUE );
 	counts[TEAM_RED] = TeamCount( ignoreClientNum, TEAM_RED );
-
+#else
+	// Joe Kari: TeamCount ignore TEAM_X_SPECTATOR if called for TEAM_X
+	counts[TEAM_BLUE] = TeamCount( ignoreClientNum, TEAM_BLUE ) + TeamCount( ignoreClientNum, TEAM_BLUE_SPECTATOR ) ;
+	counts[TEAM_RED] = TeamCount( ignoreClientNum, TEAM_RED ) + TeamCount( ignoreClientNum, TEAM_RED_SPECTATOR ) ;
+#endif
+	
 	if ( counts[TEAM_BLUE] > counts[TEAM_RED] ) {
 		return TEAM_RED;
 	}

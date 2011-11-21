@@ -1912,10 +1912,21 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		// Joe Kari: log damage to Minilog
 		if ( targ->client ) {
 			if ( attacker->client ) {
-				PushMinilogf( "HIT: %i => %i (%i) [%s] [%s]" , attacker->s.number , targ->s.number , (int)take ,
-					client->ps.weapon ? hit_info[client->lasthurt_location].forename : hit_info[client->lasthurt_location].backname ,
-					modNames[mod] ) ;
-				// FIXME: I should probably move others Minilog of type KILL/TEAMKILL/SELFKILL here
+				
+				if ( attacker == targ ) {
+					PushMinilogf( "SELFHIT: %i (%i) [%s] [%s]" , targ->s.number , (int)take ,
+						client->ps.weapon ? hit_info[client->lasthurt_location].forename : hit_info[client->lasthurt_location].backname ,
+						modNames[mod] ) ;
+				} else if ( OnSameTeam (targ, attacker) ) {
+					PushMinilogf( "TEAMHIT: %i => %i (%i) [%s] [%s]" , attacker->s.number , targ->s.number , (int)take ,
+						client->ps.weapon ? hit_info[client->lasthurt_location].forename : hit_info[client->lasthurt_location].backname ,
+						modNames[mod] ) ;
+				} else {
+					PushMinilogf( "HIT: %i => %i (%i) [%s] [%s]" , attacker->s.number , targ->s.number , (int)take ,
+						client->ps.weapon ? hit_info[client->lasthurt_location].forename : hit_info[client->lasthurt_location].backname ,
+						modNames[mod] ) ;
+				}
+				
 			}
 			else {
 				PushMinilogf( "WORLDHIT: %i (%i) [%s]" , targ->s.number , (int)take , modNames[mod] ) ;

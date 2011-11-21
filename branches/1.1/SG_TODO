@@ -6,11 +6,12 @@ Be realistic ;)
 
 *** Joe Kari's Todo list ***
 
-Lots of game rcon command:
+Rcon command:
 /slap		slightly hurt someone, as a warning instead of kicking it
-/forcespec	force someone to go to spec, usefull to prevent AFK in round-based game
-/forceteam	force someone to go to a specific team
-/adjustmoney	give or take money: intended for third party rcon script special game (bounty hunter, poker, ...)
 
+Minilog events:
+INACTIVE	when someone is inactive for more than X seconds, it reports it
 
+Misc:
+Patch bad physics with rotating mover
 

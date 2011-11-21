@@ -63,9 +63,9 @@ Changes in SG 1.1
 		- "poponelog" pop an entry out of the minilog
 		- "poplog" pop all entries out of the minilog
 	ATM the game engine write into it the current events: MAP, CONNECT, DISCONNECT, JOIN, HIT, 
-	WORLDHIT, KILL, TEAMKILL, SELFKILL, WORLDKILL, ROB, SAY, SAYTEAM, SAYTELL, SECRET, KICK, 
-	RENAME, CALLVOTE, WON, TIED, TEAMWON, ENDROUND, NEWROUND, TIMELIMIT, DUELLIMIT, FRAGLIMIT, 
-	TEAMFRAGLIMIT, SCORELIMIT.
+	TEAMHIT, SELFHIT, WORLDHIT, KILL, TEAMKILL, SELFKILL, WORLDKILL, ROB, SAY, SAYTEAM, SAYTELL, 
+	SECRET, KICK, RENAME, CALLVOTE, WON, TIED, TEAMWON, ENDROUND, NEWROUND, TIMELIMIT, DUELLIMIT, 
+	FRAGLIMIT, TEAMFRAGLIMIT, SCORELIMIT.
 - New client command "secret" (no rcon needed) that add silently an entry "SECRET" to the minilog,
 	can be usefull for registering to a third party admin-bot, ...
 - New command: "mute <client ID>", that change anything that this client try to say into "(muted)", 
@@ -73,6 +73,15 @@ Changes in SG 1.1
 	to restore his voice.
 - New command "kicknum <client ID> [reason]", a replacement for clientkick (DEPRECATED). 
 	The reason is sent to the client.
+- New command "givemoney <client ID> <amount>" that give someone some gold, can be usefull for 
+	third party RCON script.
+- New command "giveitem <client ID> <item classname>" that give someone some item, can be usefull for 
+	third party RCON script.
+- New command "forceteamnum <client ID> <team>", same than "forceteam" except it accept a client ID
+	rather than a name, it's more reliable and more usefull for RCON script, also, it doesn't
+	allow you to do silly things, like "forceteam" does. Team can be red/lawmen (the 1st team),
+	blue/outlaws (the 2nd team), spec/spectator, or join/auto (to force auto-team).
+- Fixed bug of auto-team (dead spectators now count as part of the team)
 - New cvar g_allowVoteLevelTime: you can't call a vote before this time (in seconds) has passed.
 - New cvar g_allowVoteDelay: you have to wait this time after you called a vote to call another one.
 

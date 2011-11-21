@@ -550,9 +550,11 @@ void BroadcastTeamChange( gclient_t *client, int oldTeam )
 	} else if ( client->sess.sessionTeam == TEAM_BLUE ) {
 		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined %s.\n\"", client->pers.netname, g_blueteam.string));
 	} else if ( client->sess.sessionTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the spectators.\n\"", client->pers.netname));
+		// Joe Kari: no need to shout, especially if I want to spec someone suspicious, I don't want to get caught.
+		//trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the spectators.\n\"", client->pers.netname));
+		trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " joined the spectators.\n\"", client->pers.netname));
 	} else if ( client->sess.sessionTeam == TEAM_FREE ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the game.\n\"", client->pers.netname));
+		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the gunfight.\n\"", client->pers.netname));
 	}
 #else
 	if ( client->sess.sessionTeam == TEAM_RED ) {
@@ -643,7 +645,7 @@ void SetTeam( gentity_t *ent, char *s ) {
 			team = TEAM_BLUE;
 #ifdef SMOKINGUNS
 			client->ps.stats[STAT_MONEY] = client->pers.savedMoney;
-		}else if ( !Q_stricmp( s, "bluespec" ) || !Q_stricmp( s, "sb") ) {
+		}else if ( !Q_stricmp( s, "bluespec" ) || !Q_stricmp( s, "bs") ) {
 			team = TEAM_BLUE_SPECTATOR;
 			if ( oldTeam == TEAM_SPECTATOR ) {
 				client->pers.savedMoney = 0;
@@ -652,6 +654,17 @@ void SetTeam( gentity_t *ent, char *s ) {
 			}
 		} else if ( !Q_stricmp( s, "redspec" ) || !Q_stricmp( s, "rs") ) {
 			team = TEAM_RED_SPECTATOR;
+			if ( oldTeam == TEAM_SPECTATOR ) {
+				client->pers.savedMoney = 0;
+			} else {
+				client->pers.savedMoney = client->ps.stats[STAT_MONEY];
+			}
+		} else if ( !Q_stricmp( s, "auto" ) || !Q_stricmp( s, "join") ) {
+			
+			team = PickTeam( clientNum );
+			if ( team == TEAM_RED )  team = TEAM_RED_SPECTATOR ;
+			else if ( team == TEAM_BLUE )  team = TEAM_BLUE_SPECTATOR ;
+			
 			if ( oldTeam == TEAM_SPECTATOR ) {
 				client->pers.savedMoney = 0;
 			} else {

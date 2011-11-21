@@ -479,6 +479,246 @@ void	Svcmd_ForceTeam_f( void ) {
 
 
 #ifdef SMOKINGUNS
+/*
+===================
+Svcmd_ForceTeamNum_f
+Joe Kari: same than Svcmd_ForceTeam_f() except it accepts a client ID rather than its name. Usefull for RCON script bots.
+Also, it prevent user from setting it to anything. Old Svcmd_ForceTeam_f() can lead to some bug.
+*
+forceteamnum <num> <team>
+===================
+*/
+void Svcmd_ForceTeamNum_f( void ) {
+	char		arg[MAX_TOKEN_CHARS];
+	gclient_t	*cl;
+	int		clientNum;
+
+	trap_Argv( 1, arg, sizeof( arg ) );
+	clientNum = atoi( arg );
+	
+	if ( clientNum >= level.maxclients || clientNum < 0 ) {
+		Com_Printf("client not found\n");
+		return;
+	}
+		                
+	cl = &level.clients[ clientNum ] ;
+	if ( cl->pers.connected != CON_CONNECTED ) {
+		Com_Printf("client not found\n");
+		return;
+	}
+	
+	// set the team
+	trap_Argv( 2, arg, sizeof( arg ) );
+	
+	if ( !Q_stricmp( arg, "lawmen" ) || !Q_stricmp( arg, "red" ) || !Q_stricmp( arg, "r" ) ) {
+		SetTeam( &g_entities[cl - level.clients], "rs" );
+	}
+	else if ( !Q_stricmp( arg, "outlaws" ) || !Q_stricmp( arg, "blue" ) || !Q_stricmp( arg, "b" ) ) {
+		SetTeam( &g_entities[cl - level.clients], "bs" );
+	}
+	else if ( !Q_stricmp( arg, "spectator" ) || !Q_stricmp( arg, "spec" ) || !Q_stricmp( arg, "s" ) ) {
+		SetTeam( &g_entities[cl - level.clients], "s" );
+	}
+	else if ( !Q_stricmp( arg, "join" ) || !Q_stricmp( arg, "auto" ) ) {
+		SetTeam( &g_entities[cl - level.clients], "join" );
+	}
+	else {
+		Com_Printf("bad team name\n");
+	}
+}
+
+
+
+/*
+==================
+Svcmd_GiveMoney_f
+Joe Kari: Give money to a client, usefull for third party RCON script (I planned to write a poker RCON script).
+*
+givemoney <num> <amount>
+==================
+*/
+void Svcmd_GiveMoney_f ()
+{
+	char		arg[MAX_TOKEN_CHARS];
+	gclient_t	*cl;
+	int		clientNum;
+	int		amount;
+	int		saved_money;
+
+	if ( trap_Argc() < 2 ) {
+		G_Printf ( "Usage: givemoney <client number> <amount>\n");
+		return;
+	}
+	
+	trap_Argv( 1, arg, sizeof( arg ) );
+	clientNum = atoi( arg );
+	
+	if ( clientNum >= level.maxclients || clientNum < 0 ) {
+		Com_Printf("client not found\n");
+		return;
+	}
+		                
+	cl = &level.clients[ clientNum ] ;
+	if ( cl->pers.connected != CON_CONNECTED ) {
+		Com_Printf("client not found\n");
+		return;
+	}
+	
+	trap_Argv( 2, arg, sizeof( arg ) );
+	amount = atoi( arg );
+	
+	saved_money = cl->ps.stats[STAT_MONEY] ;
+	cl->ps.stats[STAT_MONEY] += amount;
+	
+	if ( cl->ps.stats[STAT_MONEY] > MAX_MONEY )  cl->ps.stats[STAT_MONEY] = MAX_MONEY ;
+	else if ( cl->ps.stats[STAT_MONEY] < 0 )  cl->ps.stats[STAT_MONEY] = 0 ;
+	
+	amount = cl->ps.stats[STAT_MONEY] - saved_money ;
+	
+	// Joe Kari: it's important to advertise here, to prevent abuser (yes, admins can be cheaters too)
+	if ( amount > 0 ) {
+		trap_SendServerCommand( -1, va( "print \"%s^7 ^2earned %i$ !^7\n\"", cl->pers.netname , amount ) );
+	}
+	else if ( amount < 0 ) {
+		trap_SendServerCommand( -1, va( "print \"%s^7 ^1lost %i$ !^7\n\"", cl->pers.netname , - amount ) );
+	}
+	
+	// RCON script needs to know how many money was given/taken.
+	Com_Printf ("%i$\n", amount);
+}
+
+
+/*
+==================
+Svcmd_GiveItem_f
+Joe Kari: Give an item to a client, usefull for third party RCON script.
+Mostly a copy and paste of Cmd_BuyItem_f() from g_cmds.c
+*
+giveitem <num> <item classname>
+==================
+*/
+void Svcmd_GiveItem_f ()
+{
+	char		arg[MAX_TOKEN_CHARS];
+	gclient_t	*cl;
+	int		clientNum;
+	gitem_t		*item;
+	gentity_t	*ent;
+	gentity_t	*item_ent;
+	int		weapon;
+	int		clip;
+	int		clipAmmo;
+	int		maxAmmo;
+	//int		quantity;
+	int		bitmask;
+
+	if ( trap_Argc() < 2 ) {
+		G_Printf ( "Usage: giveitem <client number> <item_code>\n");
+		return;
+	}
+	
+	trap_Argv( 1, arg, sizeof( arg ) );
+	clientNum = atoi( arg );
+	
+	if ( clientNum >= level.maxclients || clientNum < 0 ) {
+		Com_Printf("client not found\n");
+		return;
+	}
+	
+	cl = &level.clients[ clientNum ] ;
+	if ( cl->pers.connected != CON_CONNECTED ) {
+		Com_Printf("client not found\n");
+		return;
+	}
+	
+	if(cl->ps.stats[STAT_HEALTH] <= 0) {
+		Com_Printf("client is dead\n");
+		return;
+	}
+	
+	if(cl->sess.sessionTeam >= TEAM_SPECTATOR) {
+		Com_Printf("client is a spectator\n");
+		return;
+	}
+	
+	ent = &g_entities[ clientNum ];
+	
+	trap_Argv( 2, arg, sizeof( arg ) );
+	item = BG_FindItemForClassname( arg );
+	
+	if(!item) {
+		Com_Printf("Item not found\n");
+		return;
+	}
+	
+	// item->giTag item->giType
+	switch( item->giType )
+	{
+		case IT_WEAPON :
+			weapon = item->giTag ;
+			bitmask = 1 << weapon ;
+			
+			clip = bg_weaponlist[weapon].clip ;
+			maxAmmo = bg_weaponlist[weapon].maxAmmo ;
+			clipAmmo = bg_weaponlist[weapon].clipAmmo ;
+			
+			// He already have the weapon
+			if ( ent->client->ps.stats[STAT_WEAPONS] & bitmask ) {
+				if ( item->weapon_sort != WS_PISTOL )  return ;
+				if ( cl->ps.stats[STAT_FLAGS] & SF_SEC_PISTOL )  return ;
+				cl->ps.stats[STAT_FLAGS] |= SF_SEC_PISTOL ;
+				
+				// load it
+				cl->ps.ammo[WP_AKIMBO] = clipAmmo ;
+			} else {
+				// add weapon
+				ent->client->ps.stats[STAT_WEAPONS] |= bitmask ;
+				// load it
+				cl->ps.ammo[weapon] = clipAmmo ;
+			}
+			
+			//give ammo
+			if ( clip ) {
+				if ( cl->ps.ammo[clip] < maxAmmo )  cl->ps.ammo[clip] = maxAmmo ;
+			} else {
+				cl->ps.ammo[weapon] = maxAmmo ;
+			}
+			
+			break ;
+		
+		case IT_POWERUP :
+			if ( item->giTag == PW_BELT ) {
+				cl->ps.ammo[WP_BULLETS_CLIP] = bg_weaponlist[WP_REM58].maxAmmo * 2 ;
+				cl->ps.ammo[WP_SHELLS_CLIP] = bg_weaponlist[WP_REMINGTON_GAUGE].maxAmmo * 2 ;
+				cl->ps.ammo[WP_CART_CLIP] = bg_weaponlist[WP_WINCHESTER66].maxAmmo * 2 ;
+				cl->ps.ammo[WP_GATLING_CLIP] = bg_weaponlist[WP_GATLING].maxAmmo * 2 ;
+				cl->ps.ammo[WP_SHARPS_CLIP] = bg_weaponlist[WP_SHARPS].maxAmmo * 2 ;
+			}
+			else if ( cl->ps.powerups[item->giTag] ) {
+				return ;
+			}
+			
+			cl->ps.powerups[item->giTag] = 1 ;
+			
+			break ;
+		
+		case IT_ARMOR :
+			if ( /* cl->ps.powerups[item->giTag] && */ cl->ps.stats[STAT_ARMOR] >= BOILER_PLATE )  return ;
+			//cl->ps.powerups[item->giTag] = 1 ;
+			cl->ps.stats[STAT_ARMOR] = BOILER_PLATE ;
+			break ;
+		
+		default :
+			return ;
+	}
+	
+	                        
+	
+	// Joe Kari: it's important to advertise here, to prevent abuser (yes, admins can be cheaters too)
+	trap_SendServerCommand( -1, va( "print \"%s^7 ^2earned a %s !^7\n\"", cl->pers.netname , item->pickup_name ) );
+}
+
+
 void Svcmd_KickBots_f(void){
 	int i;
 	gentity_t *ent;
@@ -611,7 +851,7 @@ void Svcmd_PopAllMinilog_f(void) {
 
 /*
 ==================
-SV_KickNum_f
+Svcmd_KickNum_f
 Joe Kari: there was in server/sv_ccmds.c a note that mention "FIXME: move to game", so I move it to game...
 Additionnaly, you can now provide a reason for kicking someone.
 *
@@ -895,7 +1135,7 @@ qboolean	ConsoleCommand( void ) {
 		Svcmd_PopAllMinilog_f();
 		return qtrue;
 	}
-	// It is probably not a good idea to allow an user to push the minilog
+	// It is probably not a good idea to allow an user to push the minilog, it would interfer with game log
 	//if (Q_stricmp (cmd, "pushlog") == 0 ) {
 	//	Svcmd_PushMinilog_f();
 	//	return qtrue;
@@ -908,6 +1148,24 @@ qboolean	ConsoleCommand( void ) {
 	}
 	if (Q_stricmp (cmd, "unmute") == 0) {
 		Svcmd_Mute_f( 0 );
+		return qtrue;
+	}
+
+	// Joe Kari: give some money to a client
+	if ( Q_stricmp (cmd, "givemoney") == 0 ) {
+		Svcmd_GiveMoney_f();
+		return qtrue;
+	}
+
+	// Joe Kari: give some money to a client
+	if ( Q_stricmp (cmd, "giveitem") == 0 ) {
+		Svcmd_GiveItem_f();
+		return qtrue;
+	}
+
+	// Joe Kari: replacement for forceteam, using client ID instead of name
+	if ( Q_stricmp (cmd, "forceteamnum") == 0 ) {
+		Svcmd_ForceTeamNum_f();
 		return qtrue;
 	}
 
