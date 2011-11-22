@@ -1064,7 +1064,8 @@ extern	vmCvar_t	g_maxGameClients;		// allow this many active
 extern	vmCvar_t	g_restarted;
 
 #ifdef SMOKINGUNS
-extern	vmCvar_t	g_moneyRespawn;
+extern	vmCvar_t	g_moneyRespawn;			// 1: enable new money system
+extern	vmCvar_t	g_maxMoney;			// the maximum money
 extern	vmCvar_t	g_newShotgunPattern;
 extern	vmCvar_t	g_roundNoMoveTime;
 extern	vmCvar_t	g_duellimit;

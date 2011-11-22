@@ -109,7 +109,7 @@ MONEY_SYSTEM-VALUES
 by Spoon
 -----------------------
 */
-#define MAX_MONEY				200.00
+//#define MAX_MONEY				200.00	// now, it is stored in the cvar g_maxMoney
 #define	MIN_MONEY				"20"
 #define DU_MIN_MONEY			20.00
 #define SOCIAL_MONEY			28.00
@@ -1609,4 +1609,19 @@ typedef struct shaderInfo_s {
 
 extern	shaderInfo_t shaderInfo[MAX_BRUSHSIDES];
 extern	int	shaderInfoNum;
+
+#ifdef QAGAME
+extern	vmCvar_t	g_maxMoney;
+#define BG_MAX_MONEY() (g_maxMoney.integer)
+#else
+#ifdef CGAME
+extern	vmCvar_t	cg_maxMoney;
+#define BG_MAX_MONEY() (cg_maxMoney.integer)
+#else
+// Because bg_* are also shared with UI VM... but we don't care about it, let's give it the default maxMoney value
+#define BG_MAX_MONEY() (200)
+#endif
+#endif
+
+
 #endif

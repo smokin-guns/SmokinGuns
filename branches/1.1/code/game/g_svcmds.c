@@ -570,7 +570,7 @@ void Svcmd_GiveMoney_f ()
 	saved_money = cl->ps.stats[STAT_MONEY] ;
 	cl->ps.stats[STAT_MONEY] += amount;
 	
-	if ( cl->ps.stats[STAT_MONEY] > MAX_MONEY )  cl->ps.stats[STAT_MONEY] = MAX_MONEY ;
+	if ( cl->ps.stats[STAT_MONEY] > g_maxMoney.integer )  cl->ps.stats[STAT_MONEY] = g_maxMoney.integer ;
 	else if ( cl->ps.stats[STAT_MONEY] < 0 )  cl->ps.stats[STAT_MONEY] = 0 ;
 	
 	amount = cl->ps.stats[STAT_MONEY] - saved_money ;
@@ -610,6 +610,7 @@ void Svcmd_GiveItem_f ()
 	int		clipAmmo;
 	int		maxAmmo;
 	//int		quantity;
+	int		belt;
 	int		bitmask;
 
 	if ( trap_Argc() < 2 ) {
@@ -651,6 +652,8 @@ void Svcmd_GiveItem_f ()
 		return;
 	}
 	
+	if(cl->ps.powerups[PW_BELT])  belt = 2;
+	
 	// item->giTag item->giType
 	switch( item->giType )
 	{
@@ -662,27 +665,51 @@ void Svcmd_GiveItem_f ()
 			maxAmmo = bg_weaponlist[weapon].maxAmmo ;
 			clipAmmo = bg_weaponlist[weapon].clipAmmo ;
 			
-			// He already have the weapon
-			if ( ent->client->ps.stats[STAT_WEAPONS] & bitmask ) {
+			if ( ! clip ) {
+				// Weapons such as dynamite, bowie knifes, etc...
+				// We give half of the max ammo value.
+				if ( cl->ps.ammo[weapon] >= maxAmmo )  return ;
+				cl->ps.ammo[weapon] += (int)( maxAmmo / 2 ) ;
+				if ( cl->ps.ammo[weapon] > maxAmmo )  cl->ps.ammo[weapon] = maxAmmo ;
+			} else if ( ent->client->ps.stats[STAT_WEAPONS] & bitmask ) {
+				// He already have the weapon
 				if ( item->weapon_sort != WS_PISTOL )  return ;
 				if ( cl->ps.stats[STAT_FLAGS] & SF_SEC_PISTOL )  return ;
 				cl->ps.stats[STAT_FLAGS] |= SF_SEC_PISTOL ;
 				
 				// load it
 				cl->ps.ammo[WP_AKIMBO] = clipAmmo ;
+				//give ammo
+				if ( cl->ps.ammo[clip] < maxAmmo )  cl->ps.ammo[clip] = maxAmmo ;
 			} else {
 				// add weapon
 				ent->client->ps.stats[STAT_WEAPONS] |= bitmask ;
 				// load it
 				cl->ps.ammo[weapon] = clipAmmo ;
+				//give ammo
+				if ( cl->ps.ammo[clip] < maxAmmo )  cl->ps.ammo[clip] = maxAmmo ;
 			}
 			
-			//give ammo
-			if ( clip ) {
-				if ( cl->ps.ammo[clip] < maxAmmo )  cl->ps.ammo[clip] = maxAmmo ;
+			break ;
+		
+		case IT_AMMO :
+			if (item->giTag == WP_BULLETS_CLIP) {
+				item = BG_FindItemForAmmo(WP_BULLETS_CLIP);
+				weapon = WP_PEACEMAKER;
 			} else {
-				cl->ps.ammo[weapon] = maxAmmo ;
+				if ( cl->ps.stats[STAT_GATLING_MODE] )  weapon = WP_GATLING;
+				else  weapon = BG_FindPlayerWeapon(WP_WINCHESTER66, WP_DYNAMITE, &cl->ps);
+				
+				if ( weapon )  item = BG_FindItemForAmmo(bg_weaponlist[weapon].clip);
+				else  return;
 			}
+			
+			if( cl->ps.ammo[item->giTag] >= belt * bg_weaponlist[weapon].maxAmmo)  return;
+			
+			cl->ps.ammo[item->giTag] += bg_weaponlist[weapon].maxAmmo ;
+			
+			if( cl->ps.ammo[item->giTag] >= belt * bg_weaponlist[weapon].maxAmmo)
+				cl->ps.ammo[item->giTag] = belt * bg_weaponlist[weapon].maxAmmo ;
 			
 			break ;
 		
@@ -715,7 +742,7 @@ void Svcmd_GiveItem_f ()
 	                        
 	
 	// Joe Kari: it's important to advertise here, to prevent abuser (yes, admins can be cheaters too)
-	trap_SendServerCommand( -1, va( "print \"%s^7 ^2earned a %s !^7\n\"", cl->pers.netname , item->pickup_name ) );
+	trap_SendServerCommand( -1, va( "print \"%s^7 ^2earned some %s !^7\n\"", cl->pers.netname , item->pickup_name ) );
 }
 
 

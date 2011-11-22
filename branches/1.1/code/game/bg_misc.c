@@ -2473,8 +2473,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 				if(!ps->persistant[PERS_ROBBER])
 					return qfalse;
 			} else {
-				if(ps->stats[STAT_MONEY] >= MAX_MONEY)
-					return qfalse;
+				if(ps->stats[STAT_MONEY] >= BG_MAX_MONEY() )  return qfalse;
 			}
 		}
 #endif

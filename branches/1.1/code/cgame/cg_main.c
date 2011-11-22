@@ -301,6 +301,7 @@ vmCvar_t		cg_mapLOD;
 
 // experimental
 vmCvar_t		cg_newShotgunPattern;
+vmCvar_t		cg_maxMoney;
 //vmCvar_t		cg_availablePlaylist;
 vmCvar_t		cg_roundNoMoveTime;
 
@@ -461,6 +462,7 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_mapLOD, "cg_mapLOD", "2", CVAR_ARCHIVE},
 
 	{ &cg_newShotgunPattern, "cg_newShotgunPattern", "0", CVAR_ROM},
+	{ &cg_maxMoney, "cg_maxMoney", "0", CVAR_ROM},
 //	{ &cg_availablePlaylist, "cg_availablePlaylist", "0", CVAR_ROM},
 	{ &cg_roundNoMoveTime, "cg_roundNoMoveTime", "3", CVAR_ROM},
 #endif

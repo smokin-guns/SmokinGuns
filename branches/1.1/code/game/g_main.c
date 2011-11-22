@@ -64,6 +64,7 @@ int			g_session;
 int		g_humancount;	// human connected (playing or spectating)
 
 vmCvar_t	g_moneyRespawn;
+vmCvar_t	g_maxMoney;
 
 // bank robbery
 qboolean	g_goldescaped;
@@ -254,6 +255,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &br_teamrole, "br_teamrole", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 	{ &g_moneyRespawn, "g_moneyRespawn", "1", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+	{ &g_maxMoney, "g_maxMoney", "200", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 
 	{ &g_newShotgunPattern, "g_newShotgunPattern", "1", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 	{ &g_roundNoMoveTime, "g_roundNoMoveTime", "3", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
@@ -2383,10 +2385,10 @@ static void BankRobbed( void ){
 			client->pers.savedMoney += m_teamlose.integer;
 		}
 
-		if(client->ps.stats[STAT_MONEY] > MAX_MONEY)
-				client->ps.stats[STAT_MONEY] = MAX_MONEY;
-		if(client->pers.savedMoney > MAX_MONEY)
-							client->pers.savedMoney = MAX_MONEY;
+		if(client->ps.stats[STAT_MONEY] > g_maxMoney.integer)
+				client->ps.stats[STAT_MONEY] = g_maxMoney.integer;
+		if(client->pers.savedMoney > g_maxMoney.integer)
+							client->pers.savedMoney = g_maxMoney.integer;
 	}
 
 	//the bank was robbed
@@ -2615,10 +2617,10 @@ void CheckRound(void){
 
 					}
 
-					if(client->ps.stats[STAT_MONEY] > MAX_MONEY)
-							client->ps.stats[STAT_MONEY] = MAX_MONEY;
-					if(client->pers.savedMoney > MAX_MONEY)
-						client->pers.savedMoney = MAX_MONEY;
+					if(client->ps.stats[STAT_MONEY] > g_maxMoney.integer)
+							client->ps.stats[STAT_MONEY] = g_maxMoney.integer;
+					if(client->pers.savedMoney > g_maxMoney.integer)
+						client->pers.savedMoney = g_maxMoney.integer;
 				}
 
 			} else {
@@ -2644,10 +2646,10 @@ void CheckRound(void){
 						client->pers.savedMoney += m_teamlose.integer;
 					}
 
-					if(client->ps.stats[STAT_MONEY] > MAX_MONEY)
-							client->ps.stats[STAT_MONEY] = MAX_MONEY;
-					if(client->pers.savedMoney > MAX_MONEY)
-							client->pers.savedMoney = MAX_MONEY;
+					if(client->ps.stats[STAT_MONEY] > g_maxMoney.integer)
+							client->ps.stats[STAT_MONEY] = g_maxMoney.integer;
+					if(client->pers.savedMoney > g_maxMoney.integer)
+							client->pers.savedMoney = g_maxMoney.integer;
 				}
 
 				G_LogPrintf( "ROUND: Tied.\n" );

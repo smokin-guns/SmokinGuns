@@ -324,7 +324,7 @@ void Cmd_Give_f (gentity_t *ent)
 	}
 #else
 	if (give_all || Q_stricmp(name, "money") == 0)
-		ent->client->ps.stats[STAT_MONEY] = MAX_MONEY;
+		ent->client->ps.stats[STAT_MONEY] = g_maxMoney.integer;
 
 	//give powerups
 	if (give_all || !Q_stricmp( name, "powerups")){

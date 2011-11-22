@@ -1082,8 +1082,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 			assaulter->client->ps.stats[STAT_MONEY] += amount;
 
-			if(assaulter->client->ps.stats[STAT_MONEY] > MAX_MONEY)
-				assaulter->client->ps.stats[STAT_MONEY] = MAX_MONEY;
+			if(assaulter->client->ps.stats[STAT_MONEY] > g_maxMoney.integer)
+				assaulter->client->ps.stats[STAT_MONEY] = g_maxMoney.integer;
 		}
 
 		victim->client->deaths++;
@@ -1093,8 +1093,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			victim->client->ps.stats[STAT_MONEY] += SOCIAL_MONEY;
 		}
 
-		if(victim->client->ps.stats[STAT_MONEY] > MAX_MONEY)
-			victim->client->ps.stats[STAT_MONEY] = MAX_MONEY;
+		if(victim->client->ps.stats[STAT_MONEY] > g_maxMoney.integer)
+			victim->client->ps.stats[STAT_MONEY] = g_maxMoney.integer;
 
 		if(0)
 			G_Printf("Rank: %i, Amount: %i\n", rank, amount);

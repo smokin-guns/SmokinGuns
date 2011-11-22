@@ -84,6 +84,7 @@ Changes in SG 1.1
 - Fixed bug of auto-team (dead spectators now count as part of the team)
 - New cvar g_allowVoteLevelTime: you can't call a vote before this time (in seconds) has passed.
 - New cvar g_allowVoteDelay: you have to wait this time after you called a vote to call another one.
+- New cvar g_maxMoney: customize the maximum money (default value: 200)
 
 Changes in SG 1.1b4-20100116
 ******************
