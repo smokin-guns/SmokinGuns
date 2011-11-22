@@ -652,6 +652,7 @@ void Svcmd_GiveItem_f ()
 		return;
 	}
 	
+	belt = 1;
 	if(cl->ps.powerups[PW_BELT])  belt = 2;
 	
 	// item->giTag item->giType
