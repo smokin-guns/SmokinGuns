@@ -75,7 +75,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib advapi32.lib winmm.lib wsock32.lib ws2_32.lib OpenAL32.lib SDLmain.lib SDL.lib OpenGL32.lib psapi.lib"
+				AdditionalDependencies="user32.lib advapi32.lib winmm.lib wsock32.lib ws2_32.lib SDLmain.lib SDL.lib OpenGL32.lib OpenAL32.lib psapi.lib dxguid.lib gdi32.lib"
 				OutputFile="$(OutDir)\smokinguns.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -176,7 +176,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib advapi32.lib winmm.lib wsock32.lib ws2_32.lib SDLmain.lib SDL.lib OpenGL32.lib msvcrt.lib psapi.lib"
+				AdditionalDependencies="user32.lib advapi32.lib winmm.lib wsock32.lib ws2_32.lib SDLmain.lib SDL.lib OpenGL32.lib OpenAL32.lib psapi.lib dxguid.lib gdi32.lib"
 				OutputFile="$(OutDir)\smokinguns.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -277,7 +277,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib advapi32.lib winmm.lib wsock32.lib ws2_32.lib SDLmain.lib SDL.lib OpenGL32.lib msvcrt.lib psapi.lib"
+				AdditionalDependencies="user32.lib advapi32.lib winmm.lib wsock32.lib ws2_32.lib SDLmain.lib SDL.lib OpenGL32.lib OpenAL32.lib psapi.lib dxguid.lib gdi32.lib"
 				OutputFile="$(OutDir)\smokinguns.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -383,7 +383,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib advapi32.lib winmm.lib wsock32.lib ws2_32.lib OpenAL32.lib SDLmain.lib SDL.lib OpenGL32.lib psapi.lib"
+				AdditionalDependencies="user32.lib advapi32.lib winmm.lib wsock32.lib ws2_32.lib SDLmain.lib SDL.lib OpenGL32.lib OpenAL32.lib psapi.lib dxguid.lib gdi32.lib"
 				OutputFile="$(OutDir)\smokinguns.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -1608,6 +1608,99 @@
 			<File
 				RelativePath="..\..\..\code\zlib\zutil.c"
 				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Assembly Files"
+			Filter="asm"
+			>
+			<File
+				RelativePath="..\..\..\code\asm\ftola.asm"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Assembling..."
+						CommandLine="msvc10-ml  -c -Zi -Fl&quot;$(IntDir)/$(InputName).lst&quot; -Fo&quot;$(IntDir)/$(InputName).obj&quot; &quot;$(InputPath)&quot;"
+						Outputs="&quot;$(Intdir)/$(InputName).obj&quot;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release SSE|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Assembling..."
+						CommandLine="msvc10-ml  -c -Zi -Fl&quot;$(IntDir)/$(InputName).lst&quot; -Fo&quot;$(IntDir)/$(InputName).obj&quot; &quot;$(InputPath)&quot;"
+						Outputs="&quot;$(Intdir)/$(InputName).obj&quot;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release SSE2|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Assembling..."
+						CommandLine="msvc10-ml  -c -Zi -Fl&quot;$(IntDir)/$(InputName).lst&quot; -Fo&quot;$(IntDir)/$(InputName).obj&quot; &quot;$(InputPath)&quot;"
+						Outputs="&quot;$(Intdir)/$(InputName).obj&quot;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Assembling..."
+						CommandLine="msvc10-ml  -c -Zi -Fl&quot;$(IntDir)/$(InputName).lst&quot; -Fo&quot;$(IntDir)/$(InputName).obj&quot; &quot;$(InputPath)&quot;"
+						Outputs="&quot;$(Intdir)/$(InputName).obj&quot;"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\code\asm\snapvector.asm"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Assembling..."
+						CommandLine="msvc10-ml  -c -Zi -Fl&quot;$(IntDir)/$(InputName).lst&quot; -Fo&quot;$(IntDir)/$(InputName).obj&quot; &quot;$(InputPath)&quot;"
+						Outputs="&quot;$(Intdir)/$(InputName).obj&quot;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release SSE|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Assembling..."
+						CommandLine="msvc10-ml  -c -Zi -Fl&quot;$(IntDir)/$(InputName).lst&quot; -Fo&quot;$(IntDir)/$(InputName).obj&quot; &quot;$(InputPath)&quot;"
+						Outputs="&quot;$(Intdir)/$(InputName).obj&quot;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release SSE2|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Assembling..."
+						CommandLine="msvc10-ml  -c -Zi -Fl&quot;$(IntDir)/$(InputName).lst&quot; -Fo&quot;$(IntDir)/$(InputName).obj&quot; &quot;$(InputPath)&quot;"
+						Outputs="&quot;$(Intdir)/$(InputName).obj&quot;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Assembling..."
+						CommandLine="msvc10-ml  -c -Zi -Fl&quot;$(IntDir)/$(InputName).lst&quot; -Fo&quot;$(IntDir)/$(InputName).obj&quot; &quot;$(InputPath)&quot;"
+						Outputs="&quot;$(Intdir)/$(InputName).obj&quot;"
+					/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 	</Files>
