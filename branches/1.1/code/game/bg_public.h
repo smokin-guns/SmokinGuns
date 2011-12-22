@@ -181,7 +181,6 @@ by Spoon
 #define	CS_ITEMS				27		// string of 0's and 1's that tell which items are present
 
 #ifdef SMOKINGUNS
-#define	CS_WEAPON_INFO			28		// spread, damage, and range for each weapon
 #define	CS_MAPCYCLES			29		// for the map cycle vote menu
 #endif
 
@@ -1244,9 +1243,9 @@ typedef enum {
 #ifdef SMOKINGUNS
 typedef struct wpinfo_s {
 	animation_t	animations[NUM_WP_ANIMATIONS];
-	float	spread;
-	float	damage;
-	int		range;
+	const	float	spread;
+	const	float	damage;
+	const	int		range;
 	const	int		addTime;
 	const	int		count;
 	const	int		clipAmmo;	//ammo that fits in the weapon
@@ -1588,8 +1587,6 @@ void BG_EntityStateToDirs(entityState_t *es, vec3_t bottledirs[ALC_COUNT]);
 
 qboolean CheckPistols(playerState_t *ps, int *weapon);
 int BG_MapPrefix(char *map, int gametype);
-
-void BG_ParseWeaponInfo( const char *info );
 
 extern vec3_t	playerMins;
 extern vec3_t	playerMaxs;

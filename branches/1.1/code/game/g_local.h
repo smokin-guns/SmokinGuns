@@ -756,7 +756,6 @@ void AddRemap(const char *oldShader, const char *newShader, float timeOffset);
 const char *BuildShaderStateConfig( void );
 #else
 qboolean G_IsAnyClientWithinRadius( const vec3_t org, float rad, int ignoreTeam );
-void G_UpdateWeaponConfigString( void );
 #endif
 
 //
@@ -1161,9 +1160,6 @@ extern	vmCvar_t	g_bulletDamageAlert;
 extern	vmCvar_t	g_bulletDamageALDRmidrangefactor;
 extern	vmCvar_t	g_bulletDamageALDRmidpointfactor;
 extern	vmCvar_t	g_bulletDamageALDRminifactor;
-
-// for storing the weapon properties config string
-extern	vmCvar_t	g_weaponInfo;
 
 // shows current version (make sure the game was updated correctly)
 extern	vmCvar_t	g_version;
