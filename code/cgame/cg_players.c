@@ -828,10 +828,10 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 #else
 static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelName, const char *skinName ) {
 #endif
-	char	filename[MAX_QPATH*2];
+	char	filename[MAX_QPATH];
 #ifndef SMOKINGUNS
 	const char		*headName;
-	char newTeamName[MAX_QPATH*2];
+	char newTeamName[MAX_QPATH];
 
 	if ( headModelName[0] == '\0' ) {
 		headName = modelName;
