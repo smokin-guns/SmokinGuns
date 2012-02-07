@@ -568,16 +568,19 @@ ifeq ($(PLATFORM),mingw32)
                       $(LIBSDIR)/win32/libSDL.dll.a
     RENDERER_LIBS += $(LIBSDIR)/win32/libSDLmain.a \
                       $(LIBSDIR)/win32/libSDL.dll.a
+    SDLDLL=SDL.dll
     else
     CLIENT_LIBS += $(LIBSDIR)/win64/libSDLmain.a \
                       $(LIBSDIR)/win64/libSDL64.dll.a
     RENDERER_LIBS += $(LIBSDIR)/win64/libSDLmain.a \
                       $(LIBSDIR)/win64/libSDL64.dll.a
+    SDLDLL=SDL64.dll
     endif
   else
     CLIENT_CFLAGS += $(SDL_CFLAGS)
     CLIENT_LIBS += $(SDL_LIBS)
     RENDERER_LIBS += $(SDL_LIBS)
+    SDLDLL=SDL.dll
   endif
 
   BUILD_CLIENT_SMP = 0
@@ -2573,7 +2576,14 @@ distclean: clean toolsclean
 
 installer: release
 ifeq ($(PLATFORM),mingw32)
-	@$(MAKE) VERSION=$(VERSION) -C $(NSISDIR) V=$(V)
+	@$(MAKE) VERSION=$(VERSION) -C $(NSISDIR) V=$(V) \
+		SDLDLL=$(SDLDLL) \
+		USE_RENDERER_DLOPEN=$(USE_RENDERER_DLOPEN) \
+		USE_OPENAL_DLOPEN=$(USE_OPENAL_DLOPEN) \
+		USE_CURL_DLOPEN=$(USE_CURL_DLOPEN) \
+		USE_INTERNAL_SPEEX=$(USE_INTERNAL_SPEEX) \
+		USE_INTERNAL_ZLIB=$(USE_INTERNAL_ZLIB) \
+		USE_INTERNAL_JPEG=$(USE_INTERNAL_JPEG)
 else
 	@if [ -d "$(LOKISETUPDIR)" ]; then $(MAKE) VERSION=$(VERSION) -C $(LOKISETUPDIR) V=$(V) ; fi
 endif
