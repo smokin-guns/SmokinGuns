@@ -735,36 +735,75 @@ qboolean G_IsAnyClientWithinRadius( const vec3_t org, float rad, int ignoreTeam 
 
 	return qfalse;
 }
+#endif
+
+
+
+#ifdef SMOKINGUNS
+// Joe Kari: New minilog feature. A small stack of FIFO logs. When it is full, older entries are removed.
+// Please restrict its use to admin-bots oriented stuff.
+// Please respect the log format:
+// <event_name>: <subject_id> [=> <object_id>] ...
+// Example: client 1 killed client 3 with remington '58 will be:
+// KILL: 1 => 3 [MOD_REM58]
 
 /*
-================
-G_UpdateWeaponConfigString
-
-Updates the CS_WEAPON_INFO config string, based on bg_weaponlist.
-Also sets the value of the g_weaponInfo cvar.
-================
+=================
+PopMinilog
+Joe Kari: pop a string out of the minilog
+=================
 */
-void G_UpdateWeaponConfigString( void ) {
-	char		buf[MAX_INFO_STRING];
-	char		*p;
-	int			i;
-	static const int max = sizeof( buf ) / WP_NUM_WEAPONS;
-
-	p = buf;
-	for ( i = 1; i < WP_NUM_WEAPONS; i++ ) {
-		Com_sprintf( p, max, "%d\\%.1f %.1f %d\\", i, bg_weaponlist[i].spread,
-			                     bg_weaponlist[i].damage, bg_weaponlist[i].range );
-		p += strlen( p );
+void PopMinilog( char *str )
+{
+	if ( g_minilog.tail == g_minilog.head )
+	{
+		str[ 0 ] = 0 ;
+		return ;
 	}
+	
+	Q_strncpyz( str , g_minilog.entries[ g_minilog.head ] , MAX_TOKEN_CHARS ) ;
+	str[ MAX_TOKEN_CHARS - 1 ] = 0 ;
+	
+	g_minilog.head ++ ;
+	if ( g_minilog.head >= MAX_MINILOG )  g_minilog.head = 0 ;
+}
 
-	if ( p > buf ) {
-#ifndef Q3_VM
-		assert( p[-1] == '\\' );
-#endif
-		p[-1] = '\0';  // remove the last backslash
-
-		trap_SetConfigstring( CS_WEAPON_INFO, buf );
-		trap_Cvar_Set( "g_weaponInfo", buf );
+/*
+=================
+PushMinilog
+Joe Kari: push a string into the minilog
+=================
+*/
+void PushMinilog( char *str )
+{
+	Q_strncpyz( g_minilog.entries[ g_minilog.tail ] , str , MAX_TOKEN_CHARS ) ;
+	g_minilog.entries[ g_minilog.tail ][ MAX_TOKEN_CHARS - 1 ] = 0 ;
+	
+	g_minilog.tail ++ ;
+	if ( g_minilog.tail >= MAX_MINILOG )  g_minilog.tail = 0 ;
+	if ( g_minilog.tail == g_minilog.head )
+	{
+		g_minilog.head ++ ;
+		if ( g_minilog.head >= MAX_MINILOG )  g_minilog.head = 0 ;
 	}
 }
+
+/*
+=================
+PushMinilogf
+Joe Kari: push a formated string into of the minilog (similar than printf family function)
+=================
+*/
+void PushMinilogf( const char *msg, ... )
+{
+	va_list		argptr;
+	char		text[MAX_TOKEN_CHARS];
+
+	va_start (argptr, msg);
+	Q_vsnprintf (text, sizeof(text), msg, argptr);
+	va_end (argptr);
+	
+	PushMinilog(text);
+}
 #endif
+

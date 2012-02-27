@@ -130,6 +130,9 @@ void Touch_Escape( gentity_t *self, gentity_t *other, trace_t *trace ){
 	reward = g_robberReward.integer ;
 	if ( reward < MIN_POINT_ROBBER_REWARD )  reward = MIN_POINT_ROBBER_REWARD ;
 	else if ( reward > MAX_POINT_ROBBER_REWARD )  reward = MAX_POINT_ROBBER_REWARD ;
+	
+	other->client->pers.rob ++ ;
+	PushMinilogf( "ROB: %i" , other->s.number ) ;
 	AddScore( other , other->r.currentOrigin , reward ) ;
 }
 
