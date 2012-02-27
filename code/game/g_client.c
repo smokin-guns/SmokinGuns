@@ -1027,9 +1027,15 @@ PickTeam
 team_t PickTeam( int ignoreClientNum ) {
 	int		counts[TEAM_NUM_TEAMS];
 
+#ifndef SMOKINGUNS
 	counts[TEAM_BLUE] = TeamCount( ignoreClientNum, TEAM_BLUE );
 	counts[TEAM_RED] = TeamCount( ignoreClientNum, TEAM_RED );
-
+#else
+	// Joe Kari: TeamCount ignore TEAM_X_SPECTATOR if called for TEAM_X
+	counts[TEAM_BLUE] = TeamCount( ignoreClientNum, TEAM_BLUE ) + TeamCount( ignoreClientNum, TEAM_BLUE_SPECTATOR ) ;
+	counts[TEAM_RED] = TeamCount( ignoreClientNum, TEAM_RED ) + TeamCount( ignoreClientNum, TEAM_RED_SPECTATOR ) ;
+#endif
+	
 	if ( counts[TEAM_BLUE] > counts[TEAM_RED] ) {
 		return TEAM_RED;
 	}
@@ -1345,12 +1351,13 @@ void ClientUserinfoChanged( int clientNum ) {
 			 */
 			if ( !client->pers.renameTime || !g_delayedRenaming.integer ||
 				( level.time - client->pers.renameTime >= g_delayedRenaming.integer*1000 ) ||
-				!( g_splitChat.integer && g_gametype.integer >= GT_RTP && client->sess.sessionTeam >= TEAM_SPECTATOR ) ) {
+				!( g_splitChat.integer && g_gametype.integer >= GT_RTP && client->sess.sessionTeam >= TEAM_SPECTATOR ) )
+			{
+				PushMinilogf( "RENAME: %i > %s", clientNum, client->pers.netname ) ;
 				trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname,
 					client->pers.netname) );
 				// Store when last renaming occured only if needed
-				if ( g_delayedRenaming.integer && g_splitChat.integer && g_gametype.integer >= GT_RTP &&
-					client->sess.sessionTeam >= TEAM_SPECTATOR )
+				if ( g_delayedRenaming.integer && g_splitChat.integer && g_gametype.integer >= GT_RTP && client->sess.sessionTeam >= TEAM_SPECTATOR )
 					client->pers.renameTime = level.time;
 
 			} else {
@@ -1444,8 +1451,22 @@ void ClientUserinfoChanged( int clientNum ) {
 		}
 
 #ifdef SMOKINGUNS
-		if(client->sess.sessionTeam == TEAM_SPECTATOR)
+		if(client->sess.sessionTeam == TEAM_SPECTATOR) {
 			client->sess.sessionTeam = team;
+			switch ( team ) {
+				case TEAM_RED : 
+				case TEAM_RED_SPECTATOR : 
+					PushMinilogf( "JOIN: %i => lawmen" , clientNum ) ;
+					break ;
+				case TEAM_BLUE :
+				case TEAM_BLUE_SPECTATOR :
+					PushMinilogf( "JOIN: %i => outlaws" , clientNum ) ;
+					break ;
+				case TEAM_FREE :
+					PushMinilogf( "JOIN: %i => free" , clientNum ) ; 
+					break ;
+			}
+		}
 #endif
 	}
 	else {
@@ -1643,6 +1664,9 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 
 	client->pers.connected = CON_CONNECTING;
 
+#ifdef SMOKINGUNS
+	PushMinilogf( "CONNECT: %i" , clientNum ) ;
+#endif
 	// read or initialize the session data
 	if ( firstTime || level.newSession ) {
 #ifndef SMOKINGUNS
@@ -2505,6 +2529,8 @@ void ClientDisconnect( int clientNum ) {
 		trap_SendConsoleCommand( EXEC_APPEND , "vstr onEvent_playerDisconnect\n" ) ;
 		trap_SendConsoleCommand( EXEC_APPEND , va( "vstr onEvent_playerDownTo%i\n" , g_humancount ) ) ;
 	}
+	
+	PushMinilogf( "DISCONNECT: %i" , clientNum ) ;
 #endif
 }
 

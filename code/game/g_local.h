@@ -374,6 +374,9 @@ typedef struct {
 	int			kill;
 	int			teamkill;			// different from TeamKillsCount which can be reset
 	int			selfkill;
+	int			rob;
+// Joe Kari: If a player is muted, it cannot chat anymore
+	int			muted;				// 1: muted
 // Tequila: Help to handle delayed renaming
 	int			renameTime;
 	char		renameName[MAX_NETNAME];
@@ -652,6 +655,16 @@ typedef struct {
 } level_locals_t;
 
 
+#ifdef SMOKINGUNS
+#define MAX_MINILOG     128
+typedef struct {
+	char		entries[MAX_MINILOG][MAX_TOKEN_CHARS];
+	int		head;	// next index to pop
+	int		tail;	// next index to push
+} minilog_t;
+#endif
+
+
 //
 // g_spawn.c
 //
@@ -743,7 +756,6 @@ void AddRemap(const char *oldShader, const char *newShader, float timeOffset);
 const char *BuildShaderStateConfig( void );
 #else
 qboolean G_IsAnyClientWithinRadius( const vec3_t org, float rad, int ignoreTeam );
-void G_UpdateWeaponConfigString( void );
 #endif
 
 //
@@ -1051,7 +1063,8 @@ extern	vmCvar_t	g_maxGameClients;		// allow this many active
 extern	vmCvar_t	g_restarted;
 
 #ifdef SMOKINGUNS
-extern	vmCvar_t	g_moneyRespawn;
+extern	vmCvar_t	g_moneyRespawn;			// 1: enable new money system
+extern	vmCvar_t	g_maxMoney;			// the maximum money
 extern	vmCvar_t	g_newShotgunPattern;
 extern	vmCvar_t	g_roundNoMoveTime;
 extern	vmCvar_t	g_duellimit;
@@ -1097,6 +1110,8 @@ extern	vmCvar_t	g_blood;
 extern	vmCvar_t	g_allowVote;
 #ifdef SMOKINGUNS
 extern	vmCvar_t	g_allowVoteKick;
+extern	vmCvar_t	g_allowVoteLevelTime;
+extern	vmCvar_t	g_allowVoteDelay;
 extern	vmCvar_t	g_delayedRenaming;
 #endif
 extern	vmCvar_t	g_teamAutoJoin;
@@ -1145,9 +1160,6 @@ extern	vmCvar_t	g_bulletDamageAlert;
 extern	vmCvar_t	g_bulletDamageALDRmidrangefactor;
 extern	vmCvar_t	g_bulletDamageALDRmidpointfactor;
 extern	vmCvar_t	g_bulletDamageALDRminifactor;
-
-// for storing the weapon properties config string
-extern	vmCvar_t	g_weaponInfo;
 
 // shows current version (make sure the game was updated correctly)
 extern	vmCvar_t	g_version;
@@ -1229,6 +1241,7 @@ extern	vmCvar_t	g_startingMoney;
 extern	vmCvar_t	m_maxreward;
 extern	vmCvar_t	m_teamwin;
 extern	vmCvar_t	m_teamlose;
+extern  minilog_t	g_minilog;
 #endif
 
 void	trap_Printf( const char *fmt );
@@ -1252,7 +1265,7 @@ int		trap_Cvar_VariableIntegerValue( const char *var_name );
 float	trap_Cvar_VariableValue( const char *var_name );
 void	trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize );
 void	trap_LocateGameData( gentity_t *gEnts, int numGEntities, int sizeofGEntity_t, playerState_t *gameClients, int sizeofGameClient );
-void	trap_DropClient( int clientNum, const char *reason );
+void	trap_DropClient( int clientNum, char *reason );
 void	trap_SendServerCommand( int clientNum, const char *text );
 void	trap_SetConfigstring( int num, const char *string );
 void	trap_GetConfigstring( int num, char *buffer, int bufferSize );
@@ -1461,4 +1474,9 @@ void ClearDuelData(qboolean all);
 //new trap-functions
 void trap_Trace_New( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask );
 int trap_Trace_New2( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask );
+
+// Joe Kari: Minilog functions
+void PopMinilog( char *str ) ;
+void PushMinilog( char *str ) ;
+void PushMinilogf( const char *msg, ... ) ;
 #endif

@@ -324,7 +324,7 @@ void Cmd_Give_f (gentity_t *ent)
 	}
 #else
 	if (give_all || Q_stricmp(name, "money") == 0)
-		ent->client->ps.stats[STAT_MONEY] = MAX_MONEY;
+		ent->client->ps.stats[STAT_MONEY] = g_maxMoney.integer;
 
 	//give powerups
 	if (give_all || !Q_stricmp( name, "powerups")){
@@ -527,14 +527,36 @@ void Cmd_Kill_f( gentity_t *ent ) {
 
 /*
 =================
-BroadCastTeamChange
+BroadcastTeamChange
 
 Let everyone know about a team change
 =================
 */
 void BroadcastTeamChange( gclient_t *client, int oldTeam )
 {
-#ifndef SMOKINGUNS
+#ifdef SMOKINGUNS
+	// int		clientNum;
+	// clientNum = client - level.clients;
+
+	
+	if(g_gametype.integer == GT_DUEL)
+		return;
+
+	if(g_gametype.integer == GT_RTP)
+		return;
+
+	if ( client->sess.sessionTeam == TEAM_RED ) {
+		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined %s.\n\"", client->pers.netname, g_redteam.string) );
+	} else if ( client->sess.sessionTeam == TEAM_BLUE ) {
+		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined %s.\n\"", client->pers.netname, g_blueteam.string));
+	} else if ( client->sess.sessionTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR ) {
+		// Joe Kari: no need to shout, especially if I want to spec someone suspicious, I don't want to get caught.
+		//trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the spectators.\n\"", client->pers.netname));
+		trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " joined the spectators.\n\"", client->pers.netname));
+	} else if ( client->sess.sessionTeam == TEAM_FREE ) {
+		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the gunfight.\n\"", client->pers.netname));
+	}
+#else
 	if ( client->sess.sessionTeam == TEAM_RED ) {
 		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the red team.\n\"",
 			client->pers.netname) );
@@ -546,26 +568,6 @@ void BroadcastTeamChange( gclient_t *client, int oldTeam )
 		client->pers.netname));
 	} else if ( client->sess.sessionTeam == TEAM_FREE ) {
 		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the battle.\n\"",
-		client->pers.netname));
-	}
-#else
-	if(g_gametype.integer == GT_DUEL)
-		return;
-
-	if(g_gametype.integer == GT_RTP)
-		return;
-
-	if ( client->sess.sessionTeam == TEAM_RED ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined %s.\n\"",
-			client->pers.netname, g_redteam.string) );
-	} else if ( client->sess.sessionTeam == TEAM_BLUE ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined %s.\n\"",
-		client->pers.netname, g_blueteam.string));
-	} else if ( client->sess.sessionTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the spectators.\n\"",
-		client->pers.netname));
-	} else if ( client->sess.sessionTeam == TEAM_FREE ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the game.\n\"",
 		client->pers.netname));
 	}
 #endif
@@ -643,7 +645,7 @@ void SetTeam( gentity_t *ent, char *s ) {
 			team = TEAM_BLUE;
 #ifdef SMOKINGUNS
 			client->ps.stats[STAT_MONEY] = client->pers.savedMoney;
-		}else if ( !Q_stricmp( s, "bluespec" ) || !Q_stricmp( s, "sb") ) {
+		}else if ( !Q_stricmp( s, "bluespec" ) || !Q_stricmp( s, "bs") ) {
 			team = TEAM_BLUE_SPECTATOR;
 			if ( oldTeam == TEAM_SPECTATOR ) {
 				client->pers.savedMoney = 0;
@@ -652,6 +654,17 @@ void SetTeam( gentity_t *ent, char *s ) {
 			}
 		} else if ( !Q_stricmp( s, "redspec" ) || !Q_stricmp( s, "rs") ) {
 			team = TEAM_RED_SPECTATOR;
+			if ( oldTeam == TEAM_SPECTATOR ) {
+				client->pers.savedMoney = 0;
+			} else {
+				client->pers.savedMoney = client->ps.stats[STAT_MONEY];
+			}
+		} else if ( !Q_stricmp( s, "auto" ) || !Q_stricmp( s, "join") ) {
+			
+			team = PickTeam( clientNum );
+			if ( team == TEAM_RED )  team = TEAM_RED_SPECTATOR ;
+			else if ( team == TEAM_BLUE )  team = TEAM_BLUE_SPECTATOR ;
+			
 			if ( oldTeam == TEAM_SPECTATOR ) {
 				client->pers.savedMoney = 0;
 			} else {
@@ -821,6 +834,21 @@ void SetTeam( gentity_t *ent, char *s ) {
 			CheckTeamLeader( oldTeam );
 	}
 
+#ifdef SMOKINGUNS
+	if ( team == TEAM_FREE && oldTeam != TEAM_FREE ) {
+		PushMinilogf( "JOIN: %i => free" , clientNum ) ;
+	}
+	else if ( team == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR ) {
+		PushMinilogf( "JOIN: %i => spec" , clientNum ) ;
+	}
+	else if ( ( team == TEAM_RED || team == TEAM_RED_SPECTATOR ) && ! ( oldTeam == TEAM_RED || oldTeam == TEAM_RED_SPECTATOR ) ) {
+		PushMinilogf( "JOIN: %i => lawmen" , clientNum ) ;
+	}
+	else if ( ( team == TEAM_BLUE || team == TEAM_BLUE_SPECTATOR ) && ! ( oldTeam == TEAM_BLUE || oldTeam == TEAM_BLUE_SPECTATOR ) ) {
+		PushMinilogf( "JOIN: %i => outlaws" , clientNum ) ;
+	}
+#endif
+	
 	BroadcastTeamChange( client, oldTeam );
 
 	// get and distribute relevent paramters
@@ -1274,13 +1302,26 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	if ( g_gametype.integer < GT_TEAM && mode == SAY_TEAM ) {
 		mode = SAY_ALL;
 	}
-
+	
+	
+#ifdef SMOKINGUNS
+	// Joe Kari: new feature that allow admin to mute someone
+	// It is probably more funny to display "(muted)" than turn it off completely ^^ 
+	if ( ent->client->pers.muted ) {
+		if ( ent->client->pers.muted > 1 )  return ;
+		chatText = "^9(muted)" ;
+	}
+#endif
+	
 	switch ( mode ) {
 	default:
 	case SAY_ALL:
 		G_LogPrintf( "say: %s: %s\n", ent->client->pers.netname, chatText );
 		Com_sprintf (name, sizeof(name), "%s%c%c"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 		color = COLOR_GREEN;
+#ifdef SMOKINGUNS
+		PushMinilogf( "SAY: %i > %s" , ent->s.number , chatText ) ;
+#endif
 		break;
 	case SAY_TEAM:
 		G_LogPrintf( "sayteam: %s: %s\n", ent->client->pers.netname, chatText );
@@ -1291,6 +1332,9 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 			Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC")"EC": ",
 				ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 		color = COLOR_CYAN;
+#ifdef SMOKINGUNS
+		PushMinilogf( "SAYTEAM: %i > %s" , ent->s.number , chatText ) ;
+#endif
 		break;
 	case SAY_TELL:
 		if (target && g_gametype.integer >= GT_TEAM &&
@@ -1300,6 +1344,11 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		else
 			Com_sprintf (name, sizeof(name), EC"[%s%c%c"EC"]"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 		color = COLOR_MAGENTA;
+#ifdef SMOKINGUNS
+		// Joe Kari: "tell" call G_Say() twice, one for the target and one for self... but we don't need to log twice.
+		if ( ent->s.number != target->s.number )
+			PushMinilogf( "SAYTELL: %i => %i > %s" , ent->s.number , target->s.number , chatText ) ;
+#endif
 		break;
 	}
 
@@ -1410,6 +1459,28 @@ static void Cmd_Tell_f( gentity_t *ent ) {
 		G_Say( ent, ent, SAY_TELL, p );
 	}
 }
+
+
+#ifdef SMOKINGUNS
+/*
+==================
+Cmd_Secret_f
+Joe Kari: add to the minilog a SECRET entry, allow user to register to third party admin-bot.
+==================
+*/
+static void Cmd_Secret_f( gentity_t *ent ) {
+	gentity_t	*target;
+	char		*str;
+
+	if ( trap_Argc () < 1 ) {
+		return;
+	}
+
+	str = ConcatArgs( 1 );
+	// Do not even log it with G_Printf(), this should be as discreet as it could...
+	PushMinilogf( "SECRET: %i > %s" , ent->s.number , str );
+}
+#endif
 
 
 static void G_VoiceTo( gentity_t *ent, gentity_t *other, int mode, const char *id, qboolean voiceonly ) {
@@ -1712,6 +1783,14 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		return;
 	}
 
+#ifdef SMOKINGUNS
+	// Joe Kari: a tips to avoid stOopid punk with fast computer to call a vote before anyone have time to join,
+	// allowing them to do everything they want... now you have to wait some time.
+	if ( level.time < ( g_allowVoteLevelTime.integer * 1000 ) ) {
+		trap_SendServerCommand( ent-g_entities, "print \"You can't call a vote so early! Try later...\n\"" );
+		return;
+	}
+#endif
 	if ( level.voteTime ) {
 		trap_SendServerCommand( ent-g_entities, "print \"A vote is already in progress.\n\"" );
 		return;
@@ -1723,11 +1802,11 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	}
 	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
 #else
-	// Tequila: g_allowVote can now be set to the number of seconds a player must wait between 2 votes
-	if ( level.time <= ent->client->pers.lastVoteTime + g_allowVote.integer * 1000 ) {
-		trap_SendServerCommand( ent-g_entities, va("print \"Only allowed to call a vote each %i seconds.\n\"",g_allowVote.integer) );
+	// Tequila: g_allowVoteDelay can now be set to the number of seconds a player must wait between 2 votes
+	if ( level.time <= ent->client->pers.lastVoteTime + g_allowVoteDelay.integer * 1000 ) {
+		trap_SendServerCommand( ent-g_entities, va("print \"Only allowed to call a vote each %i seconds.\n\"",g_allowVoteDelay.integer) );
 		trap_SendServerCommand( ent-g_entities, va("cp \"Wait %i seconds...\n\"",
-			(ent->client->pers.lastVoteTime + g_allowVote.integer * 1000 - level.time)/1000 ) );
+			(ent->client->pers.lastVoteTime + g_allowVoteDelay.integer * 1000 - level.time)/1000 ) );
 		return;
 	}
 	ent->client->pers.lastVoteTime = level.time;
@@ -1747,7 +1826,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			case '\n':
 			case '\r':
 			case ';':
-				trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
+				trap_SendServerCommand( ent-g_entities, va("print \"Invalid vote string argument: %s\n\"",arg2) );
 				return;
 			break;
 		}
@@ -1765,6 +1844,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else if ( !Q_stricmp( arg1, "fraglimit" ) ) {
 	} else {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
+		trap_SendServerCommand( ent-g_entities, va("print \"Invalid vote string command: %s\n\"",arg1) );
 		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>, g_doWarmup, timelimit <time>, fraglimit <frags>.\n\"" );
 		return;
 	}
@@ -1773,7 +1853,12 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	if ( !Q_stricmp( arg1, "map_restart" ) && (!strlen(arg2) || !strcmp(arg2,va("%i",atoi(arg2)))) ) {
 	} else if ( !Q_stricmp( arg1, "nextmap" ) ) {
 	// Validate argument, it must be an available map
-	} else if ( !Q_stricmp( arg1, "map" ) && strlen(arg2) && IsAvailableMap(arg2) ) {
+	} else if ( !Q_stricmp( arg1, "map" ) && strlen(arg2) ) {
+		if ( ! IsAvailableMap(arg2) ) {
+			trap_SendServerCommand( ent-g_entities, va("print \"map not found: %s\n\"", arg2 ) );
+			G_LogPrintf( "Invalid callvote: %s: %s %s\n", ent->client->pers.netname, arg1, ConcatArgs(2) );
+			return;
+		}
 	// Validate argument, it must be an integer
 	} else if ( !Q_stricmp( arg1, "g_gametype" ) && !strcmp(arg2,va("%i",atoi(arg2))) ) {
 	// Validate argument, it must be an existing player name or player number
@@ -1788,7 +1873,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else if ( !Q_stricmp( arg1, "fraglimit" ) && !strcmp(arg2,va("%i",atoi(arg2))) ) {
 	} else if ( !Q_stricmp( arg1, "mapcycle" ) ) {
 	} else {
-		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
+		trap_SendServerCommand( ent-g_entities, va("print \"Invalid vote string command: %s\n\"", ConcatArgs(1) ) );
 		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>, g_doWarmup <integer>, timelimit <time>, fraglimit <frags>, mapcycle <mapcyclename>.\n\"" );
 		// Tequila: Log failed callvote
 		G_LogPrintf( "Invalid callvote: %s: %s %s\n", ent->client->pers.netname, arg1, ConcatArgs(2) );
@@ -1813,10 +1898,11 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		i = atoi( arg2 );
 #ifndef SMOKINGUNS
 		if( i == GT_SINGLE_PLAYER || i < GT_FFA || i >= GT_MAX_GAME_TYPE) {
+			trap_SendServerCommand( ent-g_entities, "print \"Invalid gametype.\n\"" );
 #else
 		if( i == GT_SINGLE_PLAYER || i < GT_FFA || i > GT_RTP) {
+			trap_SendServerCommand( ent-g_entities, va("print \"Invalid gametype: %s\n\"",arg2) );
 #endif
-			trap_SendServerCommand( ent-g_entities, "print \"Invalid gametype.\n\"" );
 			return;
 		}
 
@@ -1895,6 +1981,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 #ifdef SMOKINGUNS
 	// Tequila: Log the callvote string
 	G_LogPrintf( "callvote: %s: %s\n", ent->client->pers.netname, level.voteString );
+	PushMinilogf( "CALLVOTE: %i > %s", ent->s.number , level.voteString );
 #endif
 
 	// start the voting, the caller automatically votes yes
@@ -1979,6 +2066,14 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 		return;
 	}
 
+#ifdef SMOKINGUNS
+	// Joe Kari: a tips to avoid stOopid punk with fast computer to call a vote before anyone have time to join,
+	// allowing them to do everything they want... now you have to wait some time.
+	if ( level.time < ( g_allowVoteLevelTime.integer * 1000 ) ) {
+		trap_SendServerCommand( ent-g_entities, "print \"You can't call a vote so early! Try later...\n\"" );
+		return;
+	}
+#endif
 	if ( level.teamVoteTime[cs_offset] ) {
 		trap_SendServerCommand( ent-g_entities, "print \"A team vote is already in progress.\n\"" );
 		return;
@@ -1990,11 +2085,11 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 	}
 	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
 #else
-	// Tequila: g_allowVote can now be set to the number of seconds a player must wait between 2 votes
-	if ( level.time <= ent->client->pers.lastVoteTime + g_allowVote.integer * 1000 ) {
-		trap_SendServerCommand( ent-g_entities, va("print \"Only allowed to call a vote each %i seconds.\n\"",g_allowVote.integer) );
+	// Tequila: g_allowVoteDelay can now be set to the number of seconds a player must wait between 2 votes
+	if ( level.time <= ent->client->pers.lastVoteTime + g_allowVoteDelay.integer * 1000 ) {
+		trap_SendServerCommand( ent-g_entities, va("print \"Only allowed to call a vote each %i seconds.\n\"",g_allowVoteDelay.integer) );
 		trap_SendServerCommand( ent-g_entities, va("cp \"Wait %i seconds...\n\"",
-			(ent->client->pers.lastVoteTime + g_allowVote.integer * 1000 - level.time)/1000 ) );
+			(ent->client->pers.lastVoteTime + g_allowVoteDelay.integer * 1000 - level.time)/1000 ) );
 		return;
 	}
 	ent->client->pers.lastVoteTime = level.time;
@@ -2547,6 +2642,10 @@ void ClientCommand( int clientNum ) {
 	}
 	if (Q_stricmp (cmd, "tell") == 0) {
 		Cmd_Tell_f ( ent );
+		return;
+	}
+	if (Q_stricmp (cmd, "secret") == 0) {
+		Cmd_Secret_f ( ent );
 		return;
 	}
 #ifndef SMOKINGUNS

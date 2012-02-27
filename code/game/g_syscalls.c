@@ -116,9 +116,20 @@ void trap_LocateGameData( gentity_t *gEnts, int numGEntities, int sizeofGEntity_
 	syscall( G_LOCATE_GAME_DATA, gEnts, numGEntities, sizeofGEntity_t, clients, sizeofGClient );
 }
 
+#ifdef SMOKINGUNS
+// Joe Kari: It is needed to change type of "reason" from const char * to char * if you want custom user reason
+char	trap_DropClient_string[MAX_TOKEN_CHARS];
+
+void trap_DropClient( int clientNum, char *reason ) {
+	Q_strncpyz( trap_DropClient_string, reason, sizeof( trap_DropClient_string ) );
+	trap_DropClient_string[MAX_TOKEN_CHARS - 1] = 0 ;	// to prevent some nasty bugs
+	syscall( G_DROP_CLIENT, clientNum, trap_DropClient_string );
+}
+#else
 void trap_DropClient( int clientNum, const char *reason ) {
 	syscall( G_DROP_CLIENT, clientNum, reason );
 }
+#endif
 
 void trap_SendServerCommand( int clientNum, const char *text ) {
 	syscall( G_SEND_SERVER_COMMAND, clientNum, text );
