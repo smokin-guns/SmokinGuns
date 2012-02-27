@@ -1,0 +1,120 @@
+#include "ui/menudef.h"
+
+{
+\\ SETUP MENU \\
+
+menuDef {
+    	name "player_menu"
+    	visible 0
+    	fullscreen 0
+	rect 0 50 640 371
+    	focusColor 1 .75 0 1
+    	style 1
+    	border 1
+	onClose {
+	    uiScript saveControls
+	}
+	onOpen { }
+	onEsc { close player_menu ; close setup_menu ; open main }
+
+
+itemDef {
+	name window
+	group grpControlbutton
+	rect 2 2 632 371	
+	style WINDOW_STYLE_FILLED
+	border 1
+	bordercolor .5 .5 .5 .5
+	forecolor 1 1 1 1
+	backcolor 0 0 0 .5
+	visible 1
+	decoration
+	}
+
+itemDef {
+   	name namefield
+	group "playersettinggroup"
+   	type ITEM_TYPE_EDITFIELD
+	style 0
+	text "Name:"
+	cvar "name"
+	maxchars 26
+   	rect 100 100 256 20
+   	textalign ITEM_ALIGN_LEFT
+   	textalignx 10
+   	textaligny 18
+	textscale .27        
+   	outlinecolor 1 .5 .5 .5
+   	backcolor 0 0 0 0
+   	forecolor 1 1 1 1
+   	border 0
+   	bordercolor 0 0 0 0
+   	visible 1 
+}
+
+itemDef {
+      	name handicapfield
+	group "playersettinggroup"
+      	style 0	
+	text "Handicap:"
+	ownerdraw UI_HANDICAP
+	rect 100 120 256 20
+      	textalign ITEM_ALIGN_LEFT		
+      	textalignx 10
+      	textaligny 18
+	textscale .27    
+      	outlinecolor 1 .5 .5 .5
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 1 
+    	}
+
+
+itemDef {
+	name headlist
+      	rect 67 160 281 50
+	type ITEM_TYPE_LISTBOX
+	style WINDOW_STYLE_FILLED
+	elementwidth 32
+	elementheight 32
+	elementtype LISTBOX_IMAGE
+	feeder FEEDER_Q3HEADS
+	horizontalscroll
+	backcolor .5 .5 .5 .5
+	border 1
+	bordercolor .5 .5 .5 1
+	forecolor 1 1 1 1
+	visible 1
+	mouseenter {  }
+	mouseexit {  }
+	}
+
+itemDef {
+	name window
+	group grpControlbutton
+	rect 425 30 150 330	
+	style WINDOW_STYLE_FILLED
+	border 1
+	bordercolor 1 1 1 .5
+	forecolor 1 1 1 1
+	backcolor 1 1 1 .2
+	visible 1
+	decoration
+	}
+
+itemDef {
+	name modelselection
+	ownerdraw UI_PLAYERMODEL
+	rect 350 50 330 330
+	style 1
+	decoration 
+	visible 1
+    	}
+
+}
+
+}
+
+}

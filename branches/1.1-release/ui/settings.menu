@@ -1,0 +1,516 @@
+#include "ui/menudef.h"
+
+{
+\\ SETUP MENU \\
+
+menuDef {
+    	name "setup_menu"
+    	visible 0
+    	fullscreen 1
+    	rect 186 0 454 480
+	background "ui/bg/settings.tga"
+    	focusColor 1 .75 0 1
+    	style 1
+    	border 1
+	onOpen {
+		setitemcolor fadebox backcolor 0 0 0 1 ; 
+		fadeout fadebox ;
+		hide back_alt ;
+		show back ;
+		hide grpmessage }
+	onEsc { close setup_menu ; open main }
+
+
+//	top bar	//
+  itemDef {
+      	name topbar
+      	style 2
+      	rect 0 5 640 40 
+      	style 2
+      	//border 4
+      	//bordercolor 0.5 0.5 0.5 0.5
+      	//bordersize 2
+	backcolor 1 .75 0.35 .5
+      	visible 1 
+      	decoration 
+    }
+
+
+
+// Control	//
+
+
+
+
+itemDef {
+	name controls
+	text "Controls"
+	textscale .3
+	style WINDOW_STYLE_FILLED
+	background "ui/wq3_assets/button.tga"
+	type 1
+	textstyle 6
+	rect 28 15 105 26
+	textalign 1 
+	textalignx 52 	
+       	textaligny 20        
+	backcolor 1 1 1 1
+	forecolor 1 1 1 1
+	visible 1 
+	action { play "sound/misc/menu3.wav" ; 
+	close control_menu ; 
+	close system_menu ;
+	close options_menu ; 
+	close cdkey_menu ;
+	close default_menu ;   
+	close resetscore_menu ;  
+	close player_menu;   
+	open control_menu }
+	mouseenter { show message_controls; show controls_alt }
+	mouseexit { hide message_controls; hide controls_alt }
+	}
+itemDef {
+      	name controls_alt
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/wq3_assets/button_selected.tga"
+ 	rect 28 15 105 26
+      	visible 0
+	decoration	  
+    	}
+	
+
+// 	System		//
+
+itemDef {
+      	name system
+      	text "System"
+	textscale .3
+      	style WINDOW_STYLE_FILLED
+	background "ui/wq3_assets/button.tga"
+	type 1
+	textstyle 6
+	rect 148 15 105 26
+	textalign 1 
+	textalignx 52 	
+       	textaligny 20        
+	backcolor 1 1 1 1
+      	forecolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu3.wav" ; 
+	close control_menu ; 
+	close system_menu ;
+	close options_menu ; 
+	close default_menu ;   
+	close player_menu;   
+	open system_menu }	
+	mouseenter { show message_system; show system_alt }
+	mouseexit { hide message_system; hide system_alt }	
+	}
+itemDef {
+      	name system_alt
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/wq3_assets/button_selected.tga"
+ 	rect 148 15 105 26
+      	visible 0
+	decoration	  
+    	}
+
+
+
+// Game Options	//
+
+itemDef {
+      	name gameoptions
+      	text "Game Options"
+	textscale .3
+      	style WINDOW_STYLE_FILLED
+	background "ui/wq3_assets/button.tga"
+	type 1
+	textstyle 6
+	rect 268 15 105 26
+	textalign 1 
+	textalignx 52 	
+       	textaligny 20        
+	backcolor 1 1 1 1
+      	forecolor 1 1 1 1
+	visible 1 
+	action { play "sound/misc/menu3.wav" ; 
+	close control_menu ; 
+	close system_menu ;
+	close options_menu ; 
+	close default_menu ;     
+	close player_menu;  
+	open options_menu }	
+	mouseenter { show message_gameoptions; show gameoptions_alt }
+	mouseexit { hide message_gameoptions; hide gameoptions_alt }
+	}
+itemDef {
+      	name gameoptions_alt
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/wq3_assets/button_selected.tga"
+ 	rect 268 15 105 26
+      	visible 0
+	decoration	  
+    	}
+
+// Player Settings	//
+itemDef {
+      	name player
+      	text "Player"
+      	style WINDOW_STYLE_FILLED
+	textscale .3
+	background "ui/wq3_assets/button.tga"
+	type 1
+	textstyle 6
+	rect 388 15 105 26
+	textalign 1 
+	textalignx 52 	
+       	textaligny 20        
+	backcolor 1 1 1 1   
+	forecolor 1 1 1 1
+	visible 1 
+	mouseenter { show message_player; show player_alt }
+	mouseexit { hide message_player; hide player_alt }
+	action { play "sound/misc/menu3.wav" ; 
+	close control_menu ; 
+	close system_menu ;
+	close options_menu ; 
+	close default_menu ;
+	close player_menu;   
+	open player_menu }
+	}
+itemDef {
+      	name player_alt
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/wq3_assets/button_selected.tga"
+ 	rect 388 15 105 26
+      	visible 0
+	decoration	  
+    	}
+
+
+
+// Reset Defaults	//
+
+itemDef {
+      	name defaults
+      	text "Defaults"
+      	style WINDOW_STYLE_FILLED
+	textscale .3
+	background "ui/wq3_assets/button.tga"
+	type 1
+	textstyle 6
+	rect 508 15 105 26
+	textalign 1 
+	textalignx 52 	
+       	textaligny 20        
+	backcolor 1 1 1 1   
+	forecolor 1 1 1 1
+	visible 1 
+	mouseenter { show message_default; show defaults_alt }
+	mouseexit { hide message_default; hide defaults_alt }
+	action { play "sound/misc/menu3.wav" ; 
+	close control_menu ; 
+	close system_menu ;
+	close options_menu ; 
+	close default_menu ;   
+	close player_menu;    
+	open default_menu }
+	}
+itemDef {
+      	name defaults_alt
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/wq3_assets/button_selected.tga"
+ 	rect 508 15 105 26
+      	visible 0
+	decoration	  
+    	}
+
+
+
+// BACK BAR	//
+
+
+itemDef {
+      	name gotobar
+      	style 2
+      	rect 0 430 640 30 
+      	textscale 0.4
+      	textalign 0		// center
+      	textalignx 60        	// x alignment point for text
+                            	// use it to offset left/right text from the edge 
+                            	// or to center the text on a different point
+      	textaligny 21        
+      	style 2
+      	border 4
+      	//bordercolor 0.5 0.5 0.5 0.5
+      	//bordersize 2
+      	backcolor 1 .75 .35 0.5
+      	visible 1 
+      	//mouseEnter { setcolor backcolor .75 0 0 .5 }
+      	//mouseExit { setcolor backcolor 0 0 .75 .5 }
+      	decoration 
+    	}
+
+
+itemDef {
+      	name back
+	style 3
+      	background "ui/wq3_assets/menu_back.tga"
+	rect 16 427 100 40 
+      	visible 1 
+      	action { close setup_menu ; open main }
+	mouseEnter { hide back ; show back_alt ; show message_back }
+    	}
+
+itemDef {
+      	name back_alt
+      	style WINDOW_STYLE_SHADER
+	background "ui/wq3_assets/menu_back_h.tga"
+	rect 16 427 100 40 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	visible 0
+	type ITEM_TYPE_BUTTON
+	action { hide grpControls ; 
+	close control_menu ; 
+	close setup_menu ; 
+	close system_menu ;
+	close options_menu ; 
+	close default_menu ; 
+	close player_menu ;
+	open main }  
+      	mouseExit { hide back_alt ; show back ; hide message_back }	  
+    	}
+
+
+//	MESSAGES	//
+
+itemDef {
+	name message_back
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textstyle 3
+	textalign 1
+	textalignx 0
+	textaligny 25
+	textscale .3
+	text "Exit to Main Menu"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_accept
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 3
+	textalignx 0
+	textaligny 25
+	textscale .3
+	text "Refresh Video"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_controls
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 3
+	textalignx 0
+	textaligny 25
+	textscale .3
+	text "Select to Edit Game Controls"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_nowork
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 3
+	textalignx 0
+	textaligny 25
+	textscale .3
+	text "Selection Isn't Implemented"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_look
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 3
+	textalignx 0
+	textaligny 25
+	textscale .3
+	text "Select to Edit View Controls"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_move
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 3
+	textalignx 0
+	textaligny 25
+	textscale .3
+	text "Select to Edit Movement Controls"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_shoot
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 3
+	textalignx 0
+	textaligny 25
+	textscale .3
+	text "Select to Edit Firing and Weapon Selection"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_misc
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 3
+	textalignx 0
+	textaligny 25
+	textscale .3
+	text "Select to Edit Chat and Mouse Functions"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_system
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 3
+	textalignx 0
+	textaligny 25
+	textscale .3
+	text "Edit System Settings"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_gameoptions
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 3
+	textalignx 0
+	textaligny 25
+	textscale .3
+	text "Edit Game Options"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_cdkey
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 3
+	textalignx 0
+	textaligny 25
+	textscale .3
+	text "Enter Encryption Key"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_default
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 3
+	textalignx 0
+	textaligny 25
+	textscale .3
+	text "Reset to Default Settings"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_scores
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 3
+	textalignx 0
+	textaligny 25
+	textscale .3
+	text "Clear High Scores to Zero"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_player
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 3
+	textalignx 0
+	textaligny 25
+	textscale .3
+	text "Player Settings"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+
+}
+
+
+}
