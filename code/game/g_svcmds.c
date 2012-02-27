@@ -606,6 +606,65 @@ void Svcmd_CancelVote_f( void ) {
 		trap_SendServerCommand( -1, "print \"server: Vote cancelled.\"" );
 	}
 }
+
+
+
+/*
+====================
+Svcmd_PlayerStatus_f
+Joe Kari: New admin command that provide usefull info to identify people.
+====================
+*/
+static void Svcmd_PlayerStatus_f( void ) {
+	int		i, j, l;
+	gclient_t	*cl;
+	const char	*s;
+	
+	for ( i = 0 , cl = level.clients ; i < level.maxclients ; i ++ , cl ++ )
+	{
+		if ( cl->pers.connected != CON_CONNECTED )
+			continue;
+		
+		Com_Printf ("\n");
+		
+		// ID
+		Com_Printf ("^5ID^7:%i  ", i);
+		// Name
+		Com_Printf ("^5name^7:%s^7\n", cl->pers.netname);
+		
+		// Score
+		Com_Printf ("^2S^7:%i  ", cl->ps.persistant[PERS_SCORE]);
+		// Kill
+		Com_Printf ("^2K^7:%i   ", cl->pers.kill);
+		// Death
+		Com_Printf ("^2D^7:%i  ", cl->pers.death);
+		// Teamkill
+		Com_Printf ("^2TK^7:%i  ", cl->pers.teamkill);
+		// Selfkill
+		Com_Printf ("^2SK^7:%i  ", cl->pers.selfkill);
+		// Money
+		Com_Printf ("^2$^7:%i  ", cl->ps.stats[STAT_MONEY]);
+		// Health/Max (handicap)
+		Com_Printf ("^2HP^7:%i/%i  ", cl->ps.stats[STAT_HEALTH], cl->pers.maxHealth);
+		// Team and robber
+		switch ( cl->ps.persistant[PERS_TEAM] )
+		{
+			case 1 : s = "lawmen" ; break ;
+			case 2 : s = "outlaw" ; break ;
+			case 3 : s = "spec" ; break ;
+			case 4 : s = "lawmen[D]" ; break ;
+			case 5 : s = "outlaw[D]" ; break ;
+			default: s = "-" ;
+		}
+		Com_Printf ("^2team^7:%s%s  ", s, cl->ps.persistant[PERS_ROBBER] ? "[R]" : "" );
+		// Time
+		Com_Printf ("^2time^7:%i  ", (int)( level.time - cl->pers.enterTime ) / 1000 ) ;
+		
+		Com_Printf ("\n");
+	}
+	Com_Printf ("\n");
+}
+
 #endif
 
 /*
@@ -702,6 +761,18 @@ qboolean	ConsoleCommand( void ) {
 		return qtrue;
 	}
 
+	// Tequila: New admin command to cancel a vote
+	// Joe Kari: Move it out of "if (g_dedicated.integer) {}"
+	if (Q_stricmp (cmd, "cancelvote") == 0) {
+		Svcmd_CancelVote_f();
+		return qtrue;
+	}
+	
+	if (Q_stricmp (cmd, "playerstatus") == 0) {
+		Svcmd_PlayerStatus_f();
+		return qtrue;
+	}
+	
 	// Tequila: New command to add a map entity for testing purpose
 	if (Q_stricmp (cmd, "addentity") == 0) {
 		Svcmd_AddEntity_f();
@@ -715,13 +786,6 @@ qboolean	ConsoleCommand( void ) {
 			trap_SendServerCommand( -1, va("print \"server: %s\"", ConcatArgs(1) ) );
 			return qtrue;
 		}
-#ifdef SMOKINGUNS
-		if (Q_stricmp (cmd, "cancelvote") == 0) {
-			// Tequila: New admin command to cancel a vote
-			Svcmd_CancelVote_f();
-			return qtrue;
-		}
-#endif
 		// everything else will also be printed as a say command
 		trap_SendServerCommand( -1, va("print \"server: %s\"", ConcatArgs(0) ) );
 		return qtrue;

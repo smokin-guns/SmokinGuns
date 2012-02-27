@@ -369,6 +369,11 @@ typedef struct {
 // Tequila: TeamKill management inspired by Conq patch
 	int			lastTeamKillTime;
 	int			TeamKillsCount;
+// Joe Kari: Some usefull stat
+	int			death;
+	int			kill;
+	int			teamkill;			// different from TeamKillsCount which can be reset
+	int			selfkill;
 // Tequila: Help to handle delayed renaming
 	int			renameTime;
 	char		renameName[MAX_NETNAME];
