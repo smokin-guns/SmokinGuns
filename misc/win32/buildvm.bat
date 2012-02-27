@@ -144,7 +144,6 @@ ECHO Building cgame ...
     CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_players.asm %PATH_CGAME%/cg_players.c
     CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_playerstate.asm %PATH_CGAME%/cg_playerstate.c
     CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_predict.asm %PATH_CGAME%/cg_predict.c
-    CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_scoreboard.asm %PATH_CGAME%/cg_scoreboard.c
     CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_servercmds.asm %PATH_CGAME%/cg_servercmds.c
     CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_snapshot.asm %PATH_CGAME%/cg_snapshot.c
     CALL :compile_it %CC_CGAME% %PATH_CGAME_BUILT%\cg_view.asm %PATH_CGAME%/cg_view.c
@@ -174,7 +173,6 @@ ECHO linking cgame ...
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_players
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_playerstate
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_predict
-    SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_scoreboard
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_servercmds
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_snapshot
     SET Q3ASM_ARGS=%Q3ASM_ARGS% %PATH_CGAME_BUILT%\cg_view

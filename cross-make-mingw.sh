@@ -1,26 +1,41 @@
 #!/bin/sh
 
-COMPILE_PLATFORM=`uname|sed -e s/_.*//|tr '[:upper:]' '[:lower:]'`
+#CMD_PREFIX="i686-pc-mingw32 i586-mingw32msvc i686-w64-mingw32 i386-mingw32msvc mingw32";
+CMD_PREFIX="i586-mingw32msvc";
 
-MAKE=make
-export PLATFORM=mingw32 ARCH=x86
-
-if [ "$COMPILE_PLATFORM" = "darwin" ]; then
-	export CC=i386-mingw32msvc-gcc
-	export WINDRES=i386-mingw32msvc-windres
-
-elif [ "$COMPILE_PLATFORM" = "freebsd" ]; then
-	export CC=mingw32-gcc
-	export WINDRES=mingw32-windres
-	MAKE=gmake
-
-elif [ -e "/etc/redhat-release" ]; then
-	export CC=i686-pc-mingw32-gcc
-	export WINDRES=i686-pc-mingw32-windres
-
-else
-	export CC=i586-mingw32msvc-gcc
-	export WINDRES=i586-mingw32msvc-windres
+if [ "X$CC" = "X" ]; then
+	for check in $CMD_PREFIX; 
+	do
+		full_check="${check}-gcc"
+		if [ ! $(which "$full_check" 2>/dev/null) = "" ]; then
+			export CC="$full_check"
+			break
+		fi
+	done
 fi
 
-exec $MAKE $*
+if [ "X$WINDRES" = "X" ]; then
+	for check in $CMD_PREFIX
+	do
+		full_check="${check}-windres"
+		if [ ! $(which "$full_check" 2>/dev/null) = "" ]; then
+			export WINDRES="$full_check"
+			break
+		fi
+	done
+fi
+
+if [ "X$WINDRES" = "X" -o "X$CC" = "X" ]; then
+	echo "Error: Must define or find WINDRES and CC"
+	exit 1
+fi
+
+export PLATFORM=mingw32
+export ARCH=x86
+
+COMPILE_PLATFORM=`uname|sed -e s/_.*//|tr '[:upper:]' '[:lower:]'`
+if [ "$COMPILE_PLATFORM" = "freebsd" ]; then
+	exec gmake $*
+else
+	exec make $*
+fi
