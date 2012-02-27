@@ -2881,7 +2881,7 @@ void CG_Turret( centity_t *cent ){
 	refEntity_t		barrel;
 	refEntity_t		crank;
 	refEntity_t		mag;
-	const int renderfx = 0;
+	const int		renderfx = 0;
 	vec3_t			viewangles;
 	vec3_t			angles;
 	int				time = cg.time;
@@ -2889,6 +2889,9 @@ void CG_Turret( centity_t *cent ){
 	int				eFlags = 0;
 	qboolean		thisplayer= qfalse;
 	qboolean		reload = qfalse;
+
+	VectorCopy (vec3_origin, viewangles);
+	VectorCopy (vec3_origin, angles);
 
 	// Tequila comment: eventParm is set to -1 when gatling is free
 	if (cent->currentState.eventParm >= 0 && cent->currentState.eventParm < cgs.maxclients) {
