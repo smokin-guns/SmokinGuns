@@ -1262,9 +1262,8 @@ int ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, qbo
 			spread_dist = ( current_spread_circle + Q_random( &seed ) ) / max_spread_circle * bg_weaponlist[ent->client->ps.weapon].spread * 16 ;
 			// spread adjustement to keep the same spread feeling:
 			// spread_dist *= 1.4f ; // 1.4 only adjust from homogenous to radial homogenous
-			// You need to multiply this value by sqrt(4/PI), so finale value is 
-			// sqrt(2) * sqrt(4/PI) = 1.595769... cut it to 1.59
-			spread_dist *= 1.59f ;
+			// Adding an extra 0.05 because the spread is now circular instead of square
+			spread_dist *= 1.45f ;
 
 			spread_angle = current_angle_shift + ( (float)current_spread_cell + Q_random( &seed ) ) * M_PI * 2.0f / (float)current_pellet_per_circle ;
 

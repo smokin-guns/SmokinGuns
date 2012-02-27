@@ -648,6 +648,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	int			i;
 	char		*killerName, *obit;
 #ifdef SMOKINGUNS
+	char		log[MAX_TOKEN_CHARS];
 	int fallanim = 0;
 #endif
 
@@ -728,14 +729,17 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 #ifdef SMOKINGUNS
 		if ( attacker == self ) {
-			attacker->client->pers.selfkill ++ ;
-			AddScore( attacker, self->r.currentOrigin, -1 );
+			self->client->pers.selfkill ++ ;
+			PushMinilogf( "SELFKILL: %i [%s]" , self->s.number , obit ) ;
+			AddScore( self, self->r.currentOrigin, -1 );
 		} else if ( OnSameTeam (self, attacker) ) {
 			attacker->client->pers.teamkill ++ ;
 			ent->s.eFlags |= EF_SAME_TEAM; // Joe Kari: new flag to report teamkilling
+			PushMinilogf( "TEAMKILL: %i => %i [%s]" , attacker->s.number , self->s.number , obit ) ;
 			AddScore( attacker, self->r.currentOrigin, -1 );
 		} else {
 			attacker->client->pers.kill ++ ;
+			PushMinilogf( "KILL: %i => %i [%s]" , attacker->s.number , self->s.number , obit ) ;
 			AddScore( attacker, self->r.currentOrigin, 1 );
 		}
 #else
@@ -1078,8 +1082,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 			assaulter->client->ps.stats[STAT_MONEY] += amount;
 
-			if(assaulter->client->ps.stats[STAT_MONEY] > MAX_MONEY)
-				assaulter->client->ps.stats[STAT_MONEY] = MAX_MONEY;
+			if(assaulter->client->ps.stats[STAT_MONEY] > g_maxMoney.integer)
+				assaulter->client->ps.stats[STAT_MONEY] = g_maxMoney.integer;
 		}
 
 		victim->client->deaths++;
@@ -1089,8 +1093,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			victim->client->ps.stats[STAT_MONEY] += SOCIAL_MONEY;
 		}
 
-		if(victim->client->ps.stats[STAT_MONEY] > MAX_MONEY)
-			victim->client->ps.stats[STAT_MONEY] = MAX_MONEY;
+		if(victim->client->ps.stats[STAT_MONEY] > g_maxMoney.integer)
+			victim->client->ps.stats[STAT_MONEY] = g_maxMoney.integer;
 
 		if(0)
 			G_Printf("Rank: %i, Amount: %i\n", rank, amount);
@@ -1901,9 +1905,36 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 					targ->s.number, targ->health, take, modNames[mod] , attacker->s.number );
 			}
 		}
-
+		
 		// Tequila fix: take is a float in SG so round it with a cast to got a real damage
 		targ->health = targ->health - (int)(take+.5);
+		
+		// Joe Kari: log damage to Minilog
+		if ( targ->client ) {
+			if ( attacker->client ) {
+				
+				if ( attacker == targ ) {
+					PushMinilogf( "SELFHIT: %i (%i) [%s] [%s]" , targ->s.number , (int)take ,
+						client->ps.weapon ? hit_info[client->lasthurt_location].forename : hit_info[client->lasthurt_location].backname ,
+						modNames[mod] ) ;
+				} else if ( OnSameTeam (targ, attacker) ) {
+					PushMinilogf( "TEAMHIT: %i => %i (%i) [%s] [%s]" , attacker->s.number , targ->s.number , (int)take ,
+						client->ps.weapon ? hit_info[client->lasthurt_location].forename : hit_info[client->lasthurt_location].backname ,
+						modNames[mod] ) ;
+				} else {
+					PushMinilogf( "HIT: %i => %i (%i) [%s] [%s]" , attacker->s.number , targ->s.number , (int)take ,
+						client->ps.weapon ? hit_info[client->lasthurt_location].forename : hit_info[client->lasthurt_location].backname ,
+						modNames[mod] ) ;
+				}
+				
+			}
+			else {
+				PushMinilogf( "WORLDHIT: %i (%i) [%s]" , targ->s.number , (int)take , modNames[mod] ) ;
+				if ( targ->health <= 0 ) {
+					PushMinilogf( "WORLDKILL: %i [%s]" , targ->s.number , modNames[mod] ) ;
+				}
+			}
+		}
 #endif
 		if ( targ->client ) {
 			targ->client->ps.stats[STAT_HEALTH] = targ->health;

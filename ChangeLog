@@ -30,7 +30,7 @@ Changes in SG 1.1
   This command is based on the UrbanTerror 4.1 implementation, thanks guys.
   See http://www.urbanterror.net
 - Added ui_farclip cvar to be used as farclip management facility for UI part
-- Fixed another bad prediction case when cg_boostfps is set, thanks again to Joe Kari for the reporting
+- Fixed another bad prediction case when cg_boostfps is set
 - Fixed old minor OpenGL error which prevented to debug easily FBO enhancement
 - Added rotating feature to func_train
 - Added sine "pendulum style" rotation to func_rotating
@@ -52,6 +52,39 @@ Changes in SG 1.1
 	- up to 5 deformVertex (was 3)
 	- up to 5 tcMod (was 4)
 	- up to 24 animMap image (was 8)
+- Added new command for admins and admin-bot: 
+	- "clientid" display a table with ID, IP, GUID and name for all player
+	- "clientstatus" the same but more verbose (ping, rate, ...), client related info
+	- "playerstatus" list all players with various game related info (ID, name, Score, 
+		Kill, Death, TeamKill, SelfKill, RoB, HitPoint, $money$, TeaM, Time, Muted)
+- The console now log "teamkilled" in red letter rather than "killed" when this event occurs
+- New Minilog feature, for admin-bots usage. This is a small FIFO stack (128 entries). Older entries
+	will be overwritten if not pop'ed in time. The new commands:
+		- "poponelog" pop an entry out of the minilog
+		- "poplog" pop all entries out of the minilog
+	ATM the game engine write into it the current events: MAP, CONNECT, DISCONNECT, JOIN, HIT, 
+	TEAMHIT, SELFHIT, WORLDHIT, KILL, TEAMKILL, SELFKILL, WORLDKILL, ROB, SAY, SAYTEAM, SAYTELL, 
+	SECRET, KICK, RENAME, CALLVOTE, WON, TIED, TEAMWON, ENDROUND, NEWROUND, TIMELIMIT, DUELLIMIT, 
+	FRAGLIMIT, TEAMFRAGLIMIT, SCORELIMIT.
+- New client command "secret" (no rcon needed) that add silently an entry "SECRET" to the minilog,
+	can be usefull for registering to a third party admin-bot, ...
+- New command: "mute <client ID>", that change anything that this client try to say into "(muted)", 
+	mute it twice and everything he says would be silently drop. Use "unmute <client ID>" 
+	to restore his voice.
+- New command "kicknum <client ID> [reason]", a replacement for clientkick (DEPRECATED). 
+	The reason is sent to the client.
+- New command "givemoney <client ID> <amount>" that give someone some gold, can be usefull for 
+	third party RCON script.
+- New command "giveitem <client ID> <item classname>" that give someone some item, can be usefull for 
+	third party RCON script.
+- New command "forceteamnum <client ID> <team>", same than "forceteam" except it accept a client ID
+	rather than a name, it's more reliable and more usefull for RCON script, also, it doesn't
+	allow you to do silly things, like "forceteam" does. Team can be red/lawmen (the 1st team),
+	blue/outlaws (the 2nd team), spec/spectator, or join/auto (to force auto-team).
+- Fixed bug of auto-team (dead spectators now count as part of the team)
+- New cvar g_allowVoteLevelTime: you can't call a vote before this time (in seconds) has passed.
+- New cvar g_allowVoteDelay: you have to wait this time after you called a vote to call another one.
+- New cvar g_maxMoney: customize the maximum money (default value: 200)
 
 Changes in SG 1.1b4-20100116
 ******************
@@ -61,12 +94,12 @@ Changes in SG 1.1b4-20100116
 - Player will be kicked if he is trying to rename when he was proposed to be kicked
 - Enhanced callvote command security
 - Player names are now colorized in lists like "callvote kick" list to avoid name confusion
-- Fixed a bad prediction case when cg_boostfps is set, thanks to Joe Kari for the reporting
+- Fixed a bad prediction case when cg_boostfps is set
 - Fixed simultaneous reloading bug in akimbo mode
 - Added new command 'addentity', it can be used to test misc_externalentity or any map entity
 - Added support for misc_externalmodel map entity, thanks to World Of Padman project
 - Fixed bug where having a scoped Sharps in your inventory caused double spread for the other rifles, and the gatling.
-- Added close clipping feature for mappers, thanks to Joe Kari
+- Added close clipping feature for mappers
 - Update & authorize servers are now served by smokin-guns.net domain, thanks to L3th4l
 - Added support to in-game lagometer setting cg_lagometer to 2
 - Enhanced Smokin'Guns motd support
@@ -169,7 +202,7 @@ Changes in SG 1.1b1-20091019
 - new "cancelvote" server side command, can only be used by admins
 - support for more crosshair
 *** CHANGES ***
-- Reloading bug fixed by Joe Kari
+- Reloading bug fixed
 - Fix game crash during game load when using cgame binary library
 - Fix server not hitting time limit when only bots are playing (thanks to ioQ3 code engine)
 - Fix cinematic rendering with wide screens (thanks to ioQ3 code engine), intro is now visible in wide screen mode

@@ -1549,6 +1549,7 @@ typedef struct {
 
 #ifdef SMOKINGUNS
 	int				newShotgunPattern;
+	int				maxMoney;
 	int				roundNoMoveTime;
 
 	qboolean		specsareflies;
@@ -1796,6 +1797,7 @@ extern	vmCvar_t		cg_farclipZoomValue;
 
 extern	vmCvar_t		cg_mapLOD;
 
+extern	vmCvar_t		cg_maxMoney;
 extern	vmCvar_t		cg_newShotgunPattern;
 extern	vmCvar_t		cg_roundNoMoveTime;
 

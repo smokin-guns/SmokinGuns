@@ -139,8 +139,8 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 		other->client->ps.powerups[ent->item->giTag] = 1;
 	}
 	
-	if(other->client->ps.stats[STAT_MONEY] > MAX_MONEY)
-			other->client->ps.stats[STAT_MONEY] = MAX_MONEY;
+	if(other->client->ps.stats[STAT_MONEY] > g_maxMoney.integer)
+			other->client->ps.stats[STAT_MONEY] = g_maxMoney.integer;
 
 	if(ent->item->giTag == PW_GOLD && g_gametype.integer == GT_BR)
 		return 0;
