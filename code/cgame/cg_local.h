@@ -2200,14 +2200,6 @@ void CG_LoadingStage( int amount);
 #endif
 
 //
-// cg_scoreboard.c
-//
-#ifndef SMOKINGUNS
-qboolean CG_DrawOldScoreboard( void );
-void CG_DrawOldTourneyScoreboard( void );
-#endif
-
-//
 // cg_consolecmds.c
 //
 qboolean CG_ConsoleCommand( void );
