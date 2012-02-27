@@ -721,16 +721,29 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	self->enemy = attacker;
 
 	self->client->ps.persistant[PERS_KILLED]++;
+	self->client->pers.death ++ ;
 
 	if (attacker && attacker->client) {
 		attacker->client->lastkilled_client = self->s.number;
 
+#ifdef SMOKINGUNS
+		if ( attacker == self ) {
+			attacker->client->pers.selfkill ++ ;
+			AddScore( attacker, self->r.currentOrigin, -1 );
+		} else if ( OnSameTeam (self, attacker) ) {
+			attacker->client->pers.teamkill ++ ;
+			ent->s.eFlags |= EF_SAME_TEAM; // Joe Kari: new flag to report teamkilling
+			AddScore( attacker, self->r.currentOrigin, -1 );
+		} else {
+			attacker->client->pers.kill ++ ;
+			AddScore( attacker, self->r.currentOrigin, 1 );
+		}
+#else
 		if ( attacker == self || OnSameTeam (self, attacker ) ) {
 			AddScore( attacker, self->r.currentOrigin, -1 );
 		} else {
 			AddScore( attacker, self->r.currentOrigin, 1 );
 
-#ifndef SMOKINGUNS
 			if( meansOfDeath == MOD_GAUNTLET ) {
 
 				// play humiliation on player
@@ -757,9 +770,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 				attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 			}
 			attacker->client->lastKillTime = level.time;
+		}
 #endif
 
-		}
 	} else {
 		AddScore( self, self->r.currentOrigin, -1 );
 	}
@@ -1005,7 +1018,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		//the attacker gets the reward ;) by Spoon
 		rank = 1;
 
-		//if he didn't kill a mate ;)
+		//if he kill a mate
 		if(victim->client->sess.sessionTeam == assaulter->client->sess.sessionTeam && g_gametype.integer >= GT_TEAM) {
 
 			assaulter->client->ps.stats[STAT_MONEY] -= 2*LOSE_MONEY;

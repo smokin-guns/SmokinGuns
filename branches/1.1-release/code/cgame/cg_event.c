@@ -573,7 +573,10 @@ static void CG_Obituary( entityState_t *ent ) {
 			weapon = mod;
 
 		if(weapon){
-			CG_Printf("%s killed %s with %s.\n", attackerName, targetName, bg_weaponlist[weapon].name );
+			if ( ent->eFlags & EF_SAME_TEAM )
+				CG_Printf("%s ^1teamkilled^7 %s with %s.\n", attackerName, targetName, bg_weaponlist[weapon].name );
+			else
+				CG_Printf("%s killed %s with %s.\n", attackerName, targetName, bg_weaponlist[weapon].name );
 			return;
 		}
 	}
@@ -1897,7 +1900,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	case EV_HIT_MESSAGE:
 		DEBUGNAME("EV_HIT_MESSAGE");
-		CG_Hit_Message( es);
+		CG_Hit_Message( es );
 #endif
 		break;
 
