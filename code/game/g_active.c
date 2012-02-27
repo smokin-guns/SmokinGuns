@@ -1934,7 +1934,7 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 						savedScore = ent->client->ps.persistant[PERS_SCORE];
 						ClientBegin( ent->client - level.clients );
 						ent->client->ps.persistant[PERS_SCORE] = savedScore;
-
+						
 						/*trap_SendServerCommand(-1,
 							va("print \"DEBUG: %s " S_COLOR_WHITE "'s score (%i) has been kept\n\"",
 							ent->client->pers.netname, savedScore));*/
