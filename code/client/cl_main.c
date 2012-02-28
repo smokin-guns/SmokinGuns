@@ -3411,6 +3411,7 @@ void CL_Init( void ) {
 	Cmd_AddCommand ("reconnect", CL_Reconnect_f);
 	Cmd_AddCommand ("localservers", CL_LocalServers_f);
 	Cmd_AddCommand ("globalservers", CL_GlobalServers_f);
+	Cmd_AddCommand ("globalserversallmaster", CL_GlobalServersAllMaster_f);
 	Cmd_AddCommand ("rcon", CL_Rcon_f);
 	Cmd_SetCommandCompletionFunc( "rcon", CL_CompleteRcon );
 	Cmd_AddCommand ("ping", CL_Ping_f );
@@ -3479,6 +3480,7 @@ void CL_Shutdown( char *finalmsg ) {
 	Cmd_RemoveCommand ("connect");
 	Cmd_RemoveCommand ("localservers");
 	Cmd_RemoveCommand ("globalservers");
+	Cmd_RemoveCommand ("globalserversallmaster");
 	Cmd_RemoveCommand ("rcon");
 	Cmd_RemoveCommand ("ping");
 	Cmd_RemoveCommand ("serverstatus");
@@ -3954,6 +3956,79 @@ void CL_GlobalServers_f( void ) {
 	}
 
 	NET_OutOfBandPrint( NS_SERVER, to, "%s", command );
+}
+
+
+/*
+==================
+CL_GlobalServersAllMaster_f
+Joe Kari: attempt to have a command that get a list form *ALL* master server available.
+==================
+*/
+void CL_GlobalServersAllMaster_f( void ) {
+	netadr_t	to;
+	int			count, i, masterNum;
+	char		command[1024], *masteraddress;
+	
+	if ((count = Cmd_Argc()) < 2 )
+	{
+		Com_Printf("usage: globalserversallmaster <protocol> [keywords]\n");
+		return;
+	}
+	
+	for ( masterNum = 0 ; masterNum < MAX_MASTER_SERVERS ; masterNum ++ )
+	{
+		sprintf(command, "sv_master%d", masterNum + 1);
+		masteraddress = Cvar_VariableString(command);
+
+		if(!*masteraddress)
+			continue;
+
+		// reset the list, waiting for response
+		// -1 is used to distinguish a "no response"
+
+		i = NET_StringToAdr(masteraddress, &to, NA_UNSPEC);
+
+		if(!i)
+			continue;
+		else if(i == 2)  
+			to.port = BigShort(PORT_MASTER);
+
+		Com_Printf("Requesting servers from master %s...\n", masteraddress);
+
+		cls.numglobalservers = -1;
+		cls.pingUpdateSource = AS_GLOBAL;
+
+		// Use the extended query for IPv6 masters
+		if (to.type == NA_IP6 || to.type == NA_MULTICAST6)
+		{
+			int v4enabled = Cvar_VariableIntegerValue("net_enabled") & NET_ENABLEV4;
+			
+			if(v4enabled)
+			{
+				Com_sprintf(command, sizeof(command), "getserversExt %s %s ipv6",
+					cl_gamename->string, Cmd_Argv(1));
+			}
+			else
+			{
+				Com_sprintf(command, sizeof(command), "getserversExt %s %s",
+					cl_gamename->string, Cmd_Argv(1));
+			}
+
+			// TODO: test if we only have an IPv6 connection. If it's the case,
+			//       request IPv6 servers only by appending " ipv6" to the command
+		}
+		else
+			Com_sprintf(command, sizeof(command), "getservers %s", Cmd_Argv(1));
+
+		for (i=2; i < count; i++)
+		{
+			Q_strcat(command, sizeof(command), " ");
+			Q_strcat(command, sizeof(command), Cmd_Argv(i));
+		}
+
+		NET_OutOfBandPrint( NS_SERVER, to, "%s", command );
+	}
 }
 
 
