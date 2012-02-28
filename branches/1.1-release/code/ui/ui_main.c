@@ -7117,10 +7117,14 @@ static void UI_StartServerRefresh(qboolean full)
 
 		ptr = UI_Cvar_VariableString("debug_protocol");
 		if (strlen(ptr)) {
-			trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers 0 %s full empty\n", ptr));
+			// Joe Kari: trying to get the list from all master server
+			//trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers 0 %s full empty\n", ptr));
+			trap_Cmd_ExecuteText( EXEC_NOW, va( "globalserversallmaster %s full empty\n", ptr));
 		}
 		else {
-			trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers 0 %d full empty\n", (int)trap_Cvar_VariableValue( "protocol" ) ) );
+			// Joe Kari: trying to get the list from all master server
+			//trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers 0 %d full empty\n", (int)trap_Cvar_VariableValue( "protocol" ) ) );
+			trap_Cmd_ExecuteText( EXEC_NOW, va( "globalserversallmaster %d full empty\n", (int)trap_Cvar_VariableValue( "protocol" ) ) );
 		}
 	}
 }
