@@ -1335,11 +1335,8 @@ static void SV_ConSay_f(void) {
 /*
 ==================
 SV_ConTell_f
-
-Based on Urban Terror implementation
 ==================
 */
-#ifdef SMOKINGUNS
 static void SV_ConTell_f(void) {
 	char	*p;
 	char	text[1024];
@@ -1373,7 +1370,7 @@ static void SV_ConTell_f(void) {
 
 	SV_SendServerCommand(cl, "chat \"%s\"", text);
 }
-#endif
+
 
 /*
 ==================
@@ -1828,8 +1825,8 @@ void SV_AddOperatorCommands( void ) {
 	Cmd_AddCommand ("killserver", SV_KillServer_f);
 	if( com_dedicated->integer ) {
 		Cmd_AddCommand ("say", SV_ConSay_f);
-#ifdef SMOKINGUNS
 		Cmd_AddCommand ("tell", SV_ConTell_f);
+#ifdef SMOKINGUNS
 		Cmd_AddCommand("record", SVCL_Record_f);
 		Cmd_AddCommand("stoprecord", SVCL_StopRecord_f);
 		Cmd_AddCommand("saverecord", SVCL_SaveRecord_f);
