@@ -1299,7 +1299,10 @@ void BotCheckBlocked(bot_movestate_t *ms, vec3_t dir, int checkbottom, bot_mover
 	VectorMA(ms->origin, 3, dir, end);
 	trace = AAS_Trace(ms->origin, mins, maxs, end, ms->entitynum, CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BODY);
 	//if not started in solid and not hitting the world entity
-	if (!trace.startsolid && (trace.ent != ENTITYNUM_WORLD && trace.ent != ENTITYNUM_NONE) )
+	
+	// Joe Kari: applying the patch of The Doctor: http://forum.smokin-guns.org/viewtopic.php?f=28&t=3075
+	//if (!trace.startsolid && (trace.ent != ENTITYNUM_WORLD && trace.ent != ENTITYNUM_NONE) )
+	if ( trace.ent != ENTITYNUM_WORLD && trace.ent != ENTITYNUM_NONE )
 	{
 		result->blocked = qtrue;
 		result->blockentity = trace.ent;
@@ -1314,7 +1317,10 @@ void BotCheckBlocked(bot_movestate_t *ms, vec3_t dir, int checkbottom, bot_mover
 		AAS_PresenceTypeBoundingBox(ms->presencetype, mins, maxs);
 		VectorMA(ms->origin, -3, up, end);
 		trace = AAS_Trace(ms->origin, mins, maxs, end, ms->entitynum, CONTENTS_SOLID|CONTENTS_PLAYERCLIP);
-		if (!trace.startsolid && (trace.ent != ENTITYNUM_WORLD && trace.ent != ENTITYNUM_NONE) )
+		
+		// Joe Kari: again, applying the patch of The Doctor: http://forum.smokin-guns.org/viewtopic.php?f=28&t=3075
+		//if (!trace.startsolid && (trace.ent != ENTITYNUM_WORLD && trace.ent != ENTITYNUM_NONE) )
+		if ( trace.ent != ENTITYNUM_WORLD && trace.ent != ENTITYNUM_NONE )
 		{
 			result->blocked = qtrue;
 			result->blockentity = trace.ent;
