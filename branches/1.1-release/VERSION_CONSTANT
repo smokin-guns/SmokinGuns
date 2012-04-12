@@ -14,7 +14,7 @@ in qcommon/q_shared.h:
 
 
 
-in ui/main.menu (content repository):
+in ui/main.menu (content repository or engine repository???):
 
 itemDef {
           name modtext
