@@ -94,7 +94,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
   // PRODUCT_VERSION will be used for sg_version cvar
   #ifndef PRODUCT_VERSION
-    #define PRODUCT_VERSION	1.1
+    #define PRODUCT_VERSION	"1.1 RC1"
   #endif
   #ifndef SG_RELEASE
     #define SG_RELEASE	20120417
