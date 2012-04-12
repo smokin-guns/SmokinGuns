@@ -5,9 +5,27 @@
 
 List of all version number and name string to change when releasing SG.
 
-qcommon/q_shared.h:
+
+
+in qcommon/q_shared.h:
+
 #define SG_RELEASE		date
 #define PRODUCT_VERSION		version number
 
 
+
+in ui/main.menu (content repository):
+
+itemDef {
+          name modtext
+          text "Smokin' Guns version 1.1 RC1 (c) 2005-2012 Smokin' Guns Productions"
+          style 0
+          textscale .2
+          rect 270 435 640 40
+//        textalign 1   
+          textaligny 32
+          textalignx 10
+          visible 1
+          decoration
+}
 
