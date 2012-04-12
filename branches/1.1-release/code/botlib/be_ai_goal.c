@@ -1307,7 +1307,7 @@ int BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 		areanum = gs->lastreachabilityarea;
 #else
 		// Bugfix by The Doctor
-		// http://www.smokin-guns.net/viewtopic.php?t=2382&start=15
+		// http://www.smokin-guns.org/viewtopic.php?t=2382&start=15
 		if (gs->lastreachabilityarea>0) {
 			areanum = gs->lastreachabilityarea;
 		}

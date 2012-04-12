@@ -393,7 +393,8 @@ void G_TouchTriggers( gentity_t *ent ) {
 				(ent->client->oldbuttons & BUTTON_ACTIVATE)) &&
 
 				(!(ent->r.svFlags & SVF_BOT) ||
-				hit->moverState != MOVER_POS1) ) // bots dont need to press down activate
+				(hit->moverState != MOVER_POS1 && hit->moverState != MOVER_POS2) ) ) //  bots dont need to press down activate, but sometimes they need to close doors in order to re-open them outwards
+				
 				continue;
 
 			if(hit->s.apos.trType != TR_STATIONARY ||
