@@ -4135,7 +4135,7 @@ void BotCheckBuy(bot_state_t *bs){
 	
 	
 	// Bugfix hinted by The Doctor
-	// http://www.smokin-guns.net/viewtopic.php?t=2382&start=15
+	// http://www.smokin-guns.org/viewtopic.php?t=2382&start=15
 	if ( bought ) {
 		bs->buytime = level.time + 3000 + rand() % 4000 ;
 	}

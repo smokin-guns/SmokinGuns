@@ -257,7 +257,7 @@ extern int demo_protocols[];
 #endif
 // override on command line, config files etc.
 #ifndef MASTER_SERVER_NAME
-#define MASTER_SERVER_NAME	"master.smokinguns.fr"
+#define MASTER_SERVER_NAME	"master.smokin-guns.org"
 #endif
 
 #ifndef STANDALONE
@@ -270,7 +270,7 @@ extern int demo_protocols[];
 #else
   #ifdef SMOKINGUNS
     #ifndef AUTHORIZE_SERVER_NAME
-      #define	AUTHORIZE_SERVER_NAME	"authorize.smokin-guns.net"
+      #define	AUTHORIZE_SERVER_NAME	"authorize.smokin-guns.org"
     #endif
     #ifndef PORT_AUTHORIZE
       #define	PORT_AUTHORIZE		27952
