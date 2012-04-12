@@ -1,0 +1,13 @@
+
+==========
+ REMINDER
+==========
+
+List of all version number and name string to change when releasing SG.
+
+qcommon/q_shared.h:
+#define SG_RELEASE		date
+#define PRODUCT_VERSION		version number
+
+
+
