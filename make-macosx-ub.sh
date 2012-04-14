@@ -1,5 +1,5 @@
 #!/bin/bash
-CC=gcc4.0
+CC=gcc-4.0
 APPBUNDLE="Smokin' Guns.app"
 BINARY=smokinguns.ub
 DEDBIN=smokinguns_dedicated.ub
