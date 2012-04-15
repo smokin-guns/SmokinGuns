@@ -1250,7 +1250,7 @@ void Info_SetValueForKey( char *s, const char *key, const char *value ) {
 
 	if (strlen(newi) + strlen(s) >= MAX_INFO_STRING)
 	{
-		Com_Printf ("Info string length exceeded\n");
+		Com_Printf (S_COLOR_YELLOW "Info string length exceeded, can't add %s = %s\n", key, value);
 		return;
 	}
 
@@ -1271,7 +1271,7 @@ void Info_SetValueForKey_Big( char *s, const char *key, const char *value ) {
 	const char* blacklist = "\\;\"";
 
 	if ( strlen( s ) >= BIG_INFO_STRING ) {
-		Com_Error( ERR_DROP, "Info_SetValueForKey: oversize infostring" );
+		Com_Error( ERR_DROP, "Info_SetValueForKey_Big: oversize BIG infostring" );
 	}
 
 	for(; *blacklist; ++blacklist)
@@ -1291,7 +1291,7 @@ void Info_SetValueForKey_Big( char *s, const char *key, const char *value ) {
 
 	if (strlen(newi) + strlen(s) >= BIG_INFO_STRING)
 	{
-		Com_Printf ("BIG Info string length exceeded\n");
+		Com_Printf (S_COLOR_YELLOW "BIG Info string length exceeded, can't add %s = %s\n", key, value);
 		return;
 	}
 

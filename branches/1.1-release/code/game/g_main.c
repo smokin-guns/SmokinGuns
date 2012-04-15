@@ -250,8 +250,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &du_enabletrio, "du_enabletrio", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 	{ &du_forcetrio, "du_forcetrio", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 
-	{ &br_teamrole, "br_teamrole", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
-	{ &g_moneyRespawn, "g_moneyRespawn", "1", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+	{ &br_teamrole, "br_teamrole", "0", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+	{ &g_moneyRespawn, "g_moneyRespawn", "1", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 	{ &g_maxMoney, "g_maxMoney", "200", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 
 	{ &g_newShotgunPattern, "g_newShotgunPattern", "1", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
@@ -319,8 +319,8 @@ static cvarTable_t		gameCvarTable[] = {
 #else
 	{ &g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
 	{ &g_allowVoteKick, "g_allowVoteKick", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
-	{ &g_allowVoteLevelTime, "g_allowVoteLevelTime", "30", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
-	{ &g_allowVoteDelay, "g_allowVoteDelay", "30", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
+	{ &g_allowVoteLevelTime, "g_allowVoteLevelTime", "30", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_allowVoteDelay, "g_allowVoteDelay", "30", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_delayedRenaming, "g_delayedRenaming", "20", CVAR_ARCHIVE, 0, qfalse },
 #endif
 	{ &g_listEntity, "g_listEntity", "0", 0, 0, qfalse },
@@ -365,12 +365,12 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_chaseonly, "g_chaseonly", "0", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qtrue  },
 	{ &g_specsareflies, "g_specsareflies", "1", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qtrue  },
 
-	{ &g_splitChat, "g_splitChat", "1", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qtrue  },
+	{ &g_splitChat, "g_splitChat", "1", CVAR_ARCHIVE, 0, qtrue  },
 
 	{ &g_redteamcount, "g_redteamcount", "0", CVAR_SERVERINFO, 0, qfalse  },
 	{ &g_blueteamcount, "g_blueteamcount", "0", CVAR_SERVERINFO, 0, qfalse  },
 
-	{ &g_robberReward, "g_robberReward", "2", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qfalse  },
+	{ &g_robberReward, "g_robberReward", "2", CVAR_ARCHIVE, 0, qfalse  },
 
 	{ &g_redteamscore, "g_redteamscore", "0", CVAR_SERVERINFO, 0, qfalse  },
 	{ &g_blueteamscore, "g_blueteamscore", "0", CVAR_SERVERINFO, 0, qfalse  },
@@ -386,8 +386,8 @@ static cvarTable_t		gameCvarTable[] = {
 	// If g_breakspawndelay == 0, use BREAK_RESPAWN_TIME instead in g_mover.c
 	{ &g_breakspawndelay, "g_breakspawndelay", "0", 0, 0, qtrue },
 	{ &g_forcebreakrespawn, "g_forcebreakrespawn", "0", 0, 0, qtrue },
-	{ &g_startingWeapon, "g_startingWeapon", "2", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
-	{ &g_bulletDamageMode, "g_bulletDamageMode", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
+	{ &g_startingWeapon, "g_startingWeapon", "2", CVAR_ARCHIVE , 0, qtrue },
+	{ &g_bulletDamageMode, "g_bulletDamageMode", "0", CVAR_ARCHIVE , 0, qtrue },
 	{ &g_bulletDamageAlert, "g_bulletDamageAlert", "25", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_bulletDamageALDRmidrangefactor, "g_bulletDamageALDRmidrangefactor", "2", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_bulletDamageALDRmidpointfactor, "g_bulletDamageALDRmidpointfactor", "0.66", CVAR_ARCHIVE, 0, qtrue },
