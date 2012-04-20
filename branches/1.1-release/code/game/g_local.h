@@ -317,7 +317,6 @@ typedef struct {
 
 //
 #define MAX_NETNAME			36
-#define	MAX_VOTE_COUNT		3
 
 #ifdef SMOKINGUNS
 //unlagged - true ping
@@ -337,10 +336,12 @@ typedef struct {
 	char		netname[MAX_NETNAME];
 	int			maxHealth;			// for handicapping
 	int			enterTime;			// level.time the client entered the game
-	playerTeamState_t teamState;	// status in teamplay games
+	playerTeamState_t teamState;		// status in teamplay games
+	
+	int			voteCount;	// to prevent people from constantly calling votes
+						// in SG, vote and teamvote increase the same counter
 #ifndef SMOKINGUNS
 	// Tequila: Bugged stuff as it is not updated when voting
-	int			voteCount;			// to prevent people from constantly calling votes
 	int			teamVoteCount;		// to prevent people from constantly calling votes
 #endif
 	qboolean	teamInfo;			// send team overlay updates?
@@ -1110,8 +1111,9 @@ extern	vmCvar_t	g_blood;
 extern	vmCvar_t	g_allowVote;
 #ifdef SMOKINGUNS
 extern	vmCvar_t	g_allowVoteKick;
-extern	vmCvar_t	g_allowVoteLevelTime;
-extern	vmCvar_t	g_allowVoteDelay;
+extern	vmCvar_t	g_voteMinLevelTime;
+extern	vmCvar_t	g_voteDelay;
+extern	vmCvar_t	g_maxVote;
 extern	vmCvar_t	g_delayedRenaming;
 #endif
 extern	vmCvar_t	g_teamAutoJoin;
