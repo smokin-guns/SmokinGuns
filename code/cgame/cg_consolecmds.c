@@ -148,12 +148,14 @@ void CG_BuyMenu (void) {
 	if(!(cg.snap->ps.stats[STAT_FLAGS] & SF_CANBUY) && (cgs.gametype >= GT_RTP))
 		return;
 
+	/* as suggested by The Doctor, this test shouldn't be done in cgame, it is already done in game, it removes a bug
 	// if it's to late to buy
 	if(cg.time - cg.roundstarttime > BUY_TIME && cgs.gametype >= GT_RTP){
 		CG_Printf("60 seconds have passed ... you can't buy anything\n");
 		return;
 	}
-
+	*/
+	
 	// if we're throwing away the gatling and it's being used, abort
 	/*if(cg.snap->ps.weapon == WP_GATLING && cg.snap->ps.stats[STAT_GATLING_MODE])
 		return;*/ // weapon change isn't activated anymore when buying and having a gatling
