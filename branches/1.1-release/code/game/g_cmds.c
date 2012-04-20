@@ -226,7 +226,7 @@ int ClientNumberFromString( gentity_t *to, char *s ) {
 ClientNumberFromCleanName
 
 Joe Kari: A replacement for ClientNumberFromString() who is failing by design.
-Now it is just a utility function, no "print" cmd sent to an entity, not mixing number and name.
+Now it is just an utility function, no "print" cmd sent to an entity, no more mixing number (ID) and name.
 
 Returns a player number for a clean name string
 Returns -1 if invalid
@@ -1809,56 +1809,63 @@ Cmd_CallVote_f
 */
 void Cmd_CallVote_f( gentity_t *ent ) {
 	char*	c;
-	int		i;
+	int	i;
 	char	arg1[MAX_STRING_TOKENS];
 	char	arg2[MAX_STRING_TOKENS];
 	int	diff;
 	int	clientnum;
-	char*	clientname;
+	char*	arg_str;
 
 	if ( !g_allowVote.integer ) {
 		trap_SendServerCommand( ent-g_entities, "print \"Voting is not allowed here.\n\"" );
-		trap_SendServerCommand( ent-g_entities, "cp \"Voting is not allowed here.\n\"" );
+		trap_SendServerCommand( ent-g_entities, "cp \"Voting is not allowed here\n\"" );
 		return;
 	}
 
 #ifdef SMOKINGUNS
+	// Joe Kari: muted player can't callvote... hihihi ^^ 
+	if ( ent->client->pers.muted ) {
+		trap_SendServerCommand( ent-g_entities, "print \"You try to call a vote, but nobody can hear your voice.\n\"" );
+		trap_SendServerCommand( ent-g_entities, "cp \"...\n\"" );
+		return;
+	}
+	
 	// Joe Kari: a tips to avoid stOopid punk with fast computer to call a vote before anyone have time to join,
 	// allowing them to do everything they want... now you have to wait some time.
 	if ( level.time < ( g_voteMinLevelTime.integer * 1000 ) ) {
 		diff = ( g_voteMinLevelTime.integer * 1000 - level.time ) / 1000 ;
 		trap_SendServerCommand( ent-g_entities, va("print \"This level has just begun, wait %i seconds before calling a vote...\n\"", diff ) );
-		trap_SendServerCommand( ent-g_entities, va("cp \"Level has just begun, wait %i seconds...\n\"", diff ) );
+		trap_SendServerCommand( ent-g_entities, va("cp \"Level has just begun, wait %i seconds\n\"", diff ) );
 		return;
 	}
 #endif
 	if ( level.voteTime ) {
 		trap_SendServerCommand( ent-g_entities, "print \"A vote is already in progress.\n\"" );
-		trap_SendServerCommand( ent-g_entities, "cp \"A vote is already in progress.\n\"" );
+		trap_SendServerCommand( ent-g_entities, "cp \"A vote is already in progress\n\"" );
+		return;
+	}
+	
+	if ( ent->client->pers.voteCount >= g_maxVote.integer ) {
+		trap_SendServerCommand( ent-g_entities, "print \"You have reached your maximum number of votes.\n\"" );
+		trap_SendServerCommand( ent-g_entities, "cp \"Maximum number of votes reached\n\"" );
 		return;
 	}
 	
 #ifndef SMOKINGUNS
-	if ( ent->client->pers.voteCount >= g_maxVote.integer ) {
-		trap_SendServerCommand( ent-g_entities, "print \"You have called the maximum number of votes.\n\"" );
-		trap_SendServerCommand( ent-g_entities, "cp \"You have called the maximum number of votes.\n\"" );
-		return;
-	}
-	
 	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
 #else
 	// Tequila: g_voteDelay can now be set to the number of seconds a player must wait between 2 votes
 	if ( ent->client->pers.lastVoteTime > 0 && level.time < ent->client->pers.lastVoteTime + g_voteDelay.integer * 1000 ) {
 		diff = ( ent->client->pers.lastVoteTime + g_voteDelay.integer * 1000 - level.time ) / 1000 ;
-		trap_SendServerCommand( ent-g_entities, va("print \"You can't call too many vote, wait %i seconds.\n\"", diff ) ) ;
-		trap_SendServerCommand( ent-g_entities, va("cp \"Can't call too many vote, wait %i seconds...\n\"", diff ) ) ;
+		trap_SendServerCommand( ent-g_entities, va("print \"You can't call too many vote, wait %i seconds...\n\"", diff ) ) ;
+		trap_SendServerCommand( ent-g_entities, va("cp \"Can't call too many vote, wait %i seconds\n\"", diff ) ) ;
 		return;
 	}
 	
 	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR && (g_gametype.integer != GT_DUEL || ent->client->realspec)) {
 #endif
 		trap_SendServerCommand( ent-g_entities, "print \"Can't call a vote as spectator.\n\"" );
-		trap_SendServerCommand( ent-g_entities, "cp \"Can't call a vote as spectator.\n\"" );
+		trap_SendServerCommand( ent-g_entities, "cp \"Can't call a vote as spectator\n\"" );
 		return;
 	}
 
@@ -1891,7 +1898,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
 		trap_SendServerCommand( ent-g_entities, va("print \"Invalid vote string command: %s\n\"",arg1) );
-		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, mute <player>, mutenum <clientnum>, kick <player>, clientkick <clientnum>, g_doWarmup, timelimit <time>, fraglimit <frags>.\n\"" );
+		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>, g_doWarmup, timelimit <time>, fraglimit <frags>.\n\"" );
 		return;
 	}
 #else
@@ -1915,6 +1922,8 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else if ( !Q_stricmp( arg1, "kick" ) && strlen(arg2) ) {
 	// Validate argument, it must be an integer
 	} else if ( !Q_stricmp( arg1, "kicknum" ) && !strcmp(arg2,va("%i",atoi(arg2))) ) {
+	// Validate argument, it must be an integer (DEPRECATED)
+	} else if ( !Q_stricmp( arg1, "clientkick" ) && !strcmp(arg2,va("%i",atoi(arg2))) ) {
 	// Validate argument, it must be an integer
 	} else if ( !Q_stricmp( arg1, "g_doWarmup" ) && !strcmp(arg2,va("%i",atoi(arg2))) ) {
 	// Validate argument, it must be an integer
@@ -1924,15 +1933,16 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else if ( !Q_stricmp( arg1, "mapcycle" ) ) {
 	} else {
 		trap_SendServerCommand( ent-g_entities, va("print \"Invalid vote string command: %s\n\"", ConcatArgs(1) ) );
-		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, mute <player>, unmute <player>, kick <player>, kicknum <clientnum>, g_doWarmup <integer>, timelimit <time>, fraglimit <frags>, mapcycle <mapcyclename>.\n\"" );
+		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, mute <player>, unmute <player>, kick <player>, kicknum <client id> [reason], g_doWarmup <integer>, timelimit <time>, fraglimit <frags>, mapcycle <mapcyclename>.\n\"" );
 		// Tequila: Log failed callvote
 		G_LogPrintf( "Invalid callvote: %s: %s %s\n", ent->client->pers.netname, arg1, ConcatArgs(2) );
 		return;
 	}
 
-	if ( ( !Q_stricmp( arg1, "kick" ) || !Q_stricmp( arg1, "kicknum" ) )
+	if ( ( !Q_stricmp( arg1, "kick" ) || !Q_stricmp( arg1, "kicknum" ) | !Q_stricmp( arg1, "clientkick" ) )
 	&& !g_allowVoteKick.integer ) {
 		trap_SendServerCommand( ent-g_entities, "print \"Not allowed to vote kick here.\n\"" );
+		trap_SendServerCommand( ent-g_entities, "cp \"No vote kick here\n\"" );
 		return;
 	}
 #endif
@@ -2011,32 +2021,36 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		//Com_sprintf( level.voteString, sizeof( level.voteString ), "sendaway \"%s\"", ConcatArgs(2) );
 		
 		// Joe Kari: use of more standard kicknum command instead
-		clientname = ConcatArgs(2) ;
-		clientnum = ClientNumberFromCleanName( clientname );
+		arg_str = ConcatArgs(2) ;
+		clientnum = ClientNumberFromCleanName( arg_str );
 		if ( clientnum < 0 ) {
-			trap_SendServerCommand( ent-g_entities, va("print \"%s not found.\n\"", clientname ) );
+			trap_SendServerCommand( ent-g_entities, va("print \"%s not found.\n\"", arg_str ) );
 			return;
 		}
 		Com_sprintf( level.voteString, sizeof( level.voteString ), "kicknum %i \"Kicked by vote.\"", clientnum );
-		Com_sprintf( level.voteDisplayString, sizeof( level.voteString ), "kick \"%s\"", clientname );
+		Com_sprintf( level.voteDisplayString, sizeof( level.voteString ), "kick \"%s\"", arg_str );
+	} else if ( !Q_stricmp( arg1, "kicknum" ) ) {
+		arg_str = ConcatArgs(3) ;
+		Com_sprintf( level.voteString, sizeof( level.voteString ), "kicknum %s %s", arg2, arg_str );
+		Com_sprintf( level.voteDisplayString, sizeof( level.voteString ), "kicknum %s %s", arg2 , arg_str );
 	} else if ( !Q_stricmp( arg1, "mute" ) ) {
-		clientname = ConcatArgs(2) ;
-		clientnum = ClientNumberFromCleanName( clientname );
+		arg_str = ConcatArgs(2) ;
+		clientnum = ClientNumberFromCleanName( arg_str );
 		if ( clientnum < 0 ) {
-			trap_SendServerCommand( ent-g_entities, va("print \"%s not found.\n\"", clientname ) );
+			trap_SendServerCommand( ent-g_entities, va("print \"%s not found.\n\"", arg_str ) );
 			return;
 		}
 		Com_sprintf( level.voteString, sizeof( level.voteString ), "mute %i", clientnum );
-		Com_sprintf( level.voteDisplayString, sizeof( level.voteString ), "mute \"%s\"", clientname );
+		Com_sprintf( level.voteDisplayString, sizeof( level.voteString ), "mute \"%s\"", arg_str );
 	} else if ( !Q_stricmp( arg1, "unmute" ) ) {
-		clientname = ConcatArgs(2) ;
-		clientnum = ClientNumberFromCleanName( clientname );
+		arg_str = ConcatArgs(2) ;
+		clientnum = ClientNumberFromCleanName( arg_str );
 		if ( clientnum < 0 ) {
-			trap_SendServerCommand( ent-g_entities, va("print \"%s not found.\n\"", clientname ) );
+			trap_SendServerCommand( ent-g_entities, va("print \"%s not found.\n\"", arg_str ) );
 			return;
 		}
 		Com_sprintf( level.voteString, sizeof( level.voteString ), "unmute %i", clientnum );
-		Com_sprintf( level.voteDisplayString, sizeof( level.voteString ), "unmute \"%s\"", clientname );
+		Com_sprintf( level.voteDisplayString, sizeof( level.voteString ), "unmute \"%s\"", arg_str );
 #endif
 	} else if ( !Q_stricmp( arg1, "nextmap" ) ) {
 		char	s[MAX_STRING_CHARS];
@@ -2057,7 +2071,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 
 #ifdef SMOKINGUNS
 	// Tequila: Log the callvote string
-	G_LogPrintf( "callvote: %s: %s\n", ent->client->pers.netname, level.voteString );
+	G_LogPrintf( "callvote: %s : %s\n", ent->client->pers.netname, level.voteString);
 	PushMinilogf( "CALLVOTE: %i > %s", ent->s.number , level.voteString );
 #endif
 
@@ -2143,30 +2157,37 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 		return;
 
 	if ( !g_allowVote.integer ) {
-		trap_SendServerCommand( ent-g_entities, "print \"Voting not allowed here.\n\"" );
-		trap_SendServerCommand( ent-g_entities, "cp \"Voting not allowed here.\n\"" );
+		trap_SendServerCommand( ent-g_entities, "print \"Voting is not allowed here.\n\"" );
+		trap_SendServerCommand( ent-g_entities, "cp \"Voting is not allowed here\n\"" );
 		return;
 	}
 
 #ifdef SMOKINGUNS
+	// Joe Kari: muted player can't callvote... hihihi ^^ 
+	if ( ent->client->pers.muted ) {
+		trap_SendServerCommand( ent-g_entities, "print \"You try to call a vote, but nobody can hear your voice.\n\"" );
+		trap_SendServerCommand( ent-g_entities, "cp \"...\n\"" );
+		return;
+	}
+	
 	// Joe Kari: a tips to avoid stOopid punk with fast computer to call a vote before anyone have time to join,
 	// allowing them to do everything they want... now you have to wait some time.
 	if ( level.time < ( g_voteMinLevelTime.integer * 1000 ) ) {
 		diff = ( g_voteMinLevelTime.integer * 1000 - level.time ) / 1000 ;
 		trap_SendServerCommand( ent-g_entities, va("print \"This level has just begun, wait %i seconds before calling a vote...\n\"", diff ) );
-		trap_SendServerCommand( ent-g_entities, va("cp \"Level has just begun, wait %i seconds...\n\"", diff ) );
+		trap_SendServerCommand( ent-g_entities, va("cp \"Level has just begun, wait %i seconds\n\"", diff ) );
 		return;
 	}
 #endif
 	if ( level.teamVoteTime[cs_offset] ) {
 		trap_SendServerCommand( ent-g_entities, "print \"A team vote is already in progress.\n\"" );
-		trap_SendServerCommand( ent-g_entities, "cp \"A team vote is already in progress.\n\"" );
+		trap_SendServerCommand( ent-g_entities, "cp \"A team vote is already in progress\n\"" );
 		return;
 	}
 	
 	if ( ent->client->pers.voteCount >= g_maxVote.integer ) {
-		trap_SendServerCommand( ent-g_entities, "print \"You have called the maximum number of team votes.\n\"" );
-		trap_SendServerCommand( ent-g_entities, "cp \"You have called the maximum number of team votes.\n\"" );
+		trap_SendServerCommand( ent-g_entities, "print \"You have reached your maximum number of votes.\n\"" );
+		trap_SendServerCommand( ent-g_entities, "cp \"Maximum number of votes reached\n\"" );
 		return;
 	}
 	
@@ -2176,14 +2197,14 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 	// Tequila: g_voteDelay can now be set to the number of seconds a player must wait between 2 votes
 	if ( level.time <= ent->client->pers.lastVoteTime + g_voteDelay.integer * 1000 ) {
 		diff = ( ent->client->pers.lastVoteTime + g_voteDelay.integer * 1000 - level.time ) / 1000 ;
-		trap_SendServerCommand( ent-g_entities, va("print \"You can't call too many vote, wait %i seconds.\n\"", diff ) ) ;
-		trap_SendServerCommand( ent-g_entities, va("cp \"Can't call too many vote, wait %i seconds...\n\"", diff ) ) ;
+		trap_SendServerCommand( ent-g_entities, va("print \"You can't call too many vote, wait %i seconds...\n\"", diff ) ) ;
+		trap_SendServerCommand( ent-g_entities, va("cp \"Can't call too many vote, wait %i seconds\n\"", diff ) ) ;
 		return;
 	}
 	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR && (g_gametype.integer != GT_DUEL || ent->client->realspec)) {
 #endif
 		trap_SendServerCommand( ent-g_entities, "print \"Can't call a vote as spectator.\n\"" );
-		trap_SendServerCommand( ent-g_entities, "cp \"Can't call a vote as spectator.\n\"" );
+		trap_SendServerCommand( ent-g_entities, "cp \"Can't call a vote as spectator\n\"" );
 		return;
 	}
 
@@ -2402,8 +2423,8 @@ void Cmd_DropWeapon_f( gentity_t *ent, int weapon ) {
 
 	// Don't drop anything if the player is a spectator
 	//G_Printf( "ent->client->sess.spectatorState: %d\n" , ent->client->sess.spectatorState ) ;
-	// Joe Kari : it looks like using sess.spectatorState is buggy, a playing player have a value of SPECTATOR_FREE instead of SPECTATOR_NOT
-	// so I will use sess.sessionTeam instead
+	// Joe Kari : it looks like using sess.spectatorState is buggy, a playing player have a value 
+	// of SPECTATOR_FREE instead of SPECTATOR_NOT, so I will use sess.sessionTeam instead
 	switch ( ent->client->sess.sessionTeam ) {
 		case TEAM_SPECTATOR :
 		case TEAM_RED_SPECTATOR :
