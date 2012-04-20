@@ -71,7 +71,7 @@ Changes in SG 1.1
 - New command: "mute <client ID>", that change anything that this client try to say into "(muted)", 
 	mute it twice and everything he says would be silently drop. Use "unmute <client ID>" 
 	to restore his voice.
-- New command "kicknum <client ID> [reason]", a replacement for clientkick (DEPRECATED). 
+- New command "kicknum <client ID> [reason]", a replacement for clientkick.
 	The reason is sent to the client.
 - New command "givemoney <client ID> <amount>" that give someone some gold, can be usefull for 
 	third party RCON script.
@@ -82,9 +82,16 @@ Changes in SG 1.1
 	allow you to do silly things, like "forceteam" does. Team can be red/lawmen (the 1st team),
 	blue/outlaws (the 2nd team), spec/spectator, or join/auto (to force auto-team).
 - Fixed bug of auto-team (dead spectators now count as part of the team)
-- New cvar g_allowVoteLevelTime: you can't call a vote before this time (in seconds) has passed.
-- New cvar g_allowVoteDelay: you have to wait this time after you called a vote to call another one.
+- New cvar g_voteMinLevelTime: you can't call a vote before this time (in seconds) has passed.
+- New cvar g_voteDelay: you have to wait this time after you called a vote to call another one.
+- New cvar g_maxVote: maximum number of vote someone could call.
 - New cvar g_maxMoney: customize the maximum money (default value: 200)
+- "/callvote kick" should not be bugged anymore, since it is converted to a /kicknum internally.
+- You cannot use "/callvote clientkick <client ID>" anymore, this is replaced by kicknum:
+	"/callvote kicknum <client ID> [reason]" instead.
+- You can now use "/callvote mute <player name>" and "/callvote unmute <player name>", note that 
+	unlike /mute and /unmute, it use the player's name, not the client's ID (but it is converted
+	in ID internally, so renaming wont allow one to escape).
 
 Changes in SG 1.1b4-20100116
 ******************

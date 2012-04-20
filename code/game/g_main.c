@@ -153,8 +153,9 @@ vmCvar_t	g_podiumDrop;
 vmCvar_t	g_allowVote;
 #ifdef SMOKINGUNS
 vmCvar_t	g_allowVoteKick;
-vmCvar_t	g_allowVoteLevelTime;
-vmCvar_t	g_allowVoteDelay;
+vmCvar_t	g_voteMinLevelTime;
+vmCvar_t	g_voteDelay;
+vmCvar_t	g_maxVote;
 vmCvar_t	g_delayedRenaming;
 #endif
 vmCvar_t	g_teamAutoJoin;
@@ -319,8 +320,9 @@ static cvarTable_t		gameCvarTable[] = {
 #else
 	{ &g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
 	{ &g_allowVoteKick, "g_allowVoteKick", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
-	{ &g_allowVoteLevelTime, "g_allowVoteLevelTime", "30", CVAR_ARCHIVE, 0, qfalse },
-	{ &g_allowVoteDelay, "g_allowVoteDelay", "30", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_voteMinLevelTime, "g_voteMinLevelTime", "40", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_voteDelay, "g_voteDelay", "60", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_maxVote, "g_maxVote", "4", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_delayedRenaming, "g_delayedRenaming", "20", CVAR_ARCHIVE, 0, qfalse },
 #endif
 	{ &g_listEntity, "g_listEntity", "0", 0, 0, qfalse },
