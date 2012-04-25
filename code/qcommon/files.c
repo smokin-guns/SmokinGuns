@@ -3025,6 +3025,9 @@ static void FS_Startup( const char *gameName )
 	fs_sdk_basegame = Cvar_Get ("fs_sdk_basegame", SDK_BASEGAME, CVAR_INIT );
 	if (fs_sdk_basegame->string[0]) {
 		FS_AddGameDirectory( fs_basepath->string, fs_sdk_basegame->string );
+		
+		// Bugfix by /dev/random
+		FS_AddGameDirectory( fs_homepath->string, fs_sdk_basegame->string );
 	}
 #endif
 
