@@ -86,12 +86,12 @@ Changes in SG 1.1
 - New cvar g_voteDelay: you have to wait this time after you called a vote to call another one.
 - New cvar g_maxVote: maximum number of vote someone could call.
 - New cvar g_maxMoney: customize the maximum money (default value: 200)
-- "/callvote kick" should not be bugged anymore, since it is converted to a /kicknum internally.
-- You cannot use "/callvote clientkick <client ID>" anymore, this is replaced by kicknum:
-	"/callvote kicknum <client ID> [reason]" instead.
+- "/callvote kick" should not be bugged anymore, since it is converted to /kicknum internally.
+- "/callvote clientkick <client ID>" is deprecated, use "/callvote kicknum <client ID> [reason]" instead.
 - You can now use "/callvote mute <player name>" and "/callvote unmute <player name>", note that 
 	unlike /mute and /unmute, it use the player's name, not the client's ID (but it is converted
 	in ID internally, so renaming wont allow one to escape).
+- Muted player cannot call a vote
 
 Changes in SG 1.1b4-20100116
 ******************
