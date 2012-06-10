@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -20,7 +20,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-// cg_wq_utils.c -- SG functions
+// cg_sg_utils.c -- SG functions
 
 #include "cg_local.h"
 
@@ -45,7 +45,7 @@ localEntity_t *CG_CreateBulletHole( vec3_t origin, vec3_t dir, int surfaceFlags,
 
 	localEntity_t	*le;
 	refEntity_t		*re;
-	int num, j;
+	int num=0, j;
 	vec3_t angles;
 
 	for(j=0; j<NUM_PREFIXINFO; j++){
@@ -428,8 +428,8 @@ void CG_LaunchDefault( vec3_t mins, vec3_t maxs, int surfaceFlags, int shaderNum
 				(surfaceFlags & SURF_SAND) ||
 				(surfaceFlags & SURF_PLANT)){
 				qhandle_t shader;
-				int surfaceNum;
-				float radius, weight;
+				int surfaceNum=0;
+				float radius=0.0f, weight=0.0f;
 				int j;
 				vec3_t newdir;
 				localEntity_t *le;
@@ -507,7 +507,7 @@ void CG_LaunchDefault( vec3_t mins, vec3_t maxs, int surfaceFlags, int shaderNum
 	}
 }
 
-void WQ_CG_LaunchFuncBreakable( centity_t *cent) {
+void CG_LaunchFuncBreakable( centity_t *cent) {
 	int surfaceFlags;
 	int shaderNum;
 
@@ -712,15 +712,15 @@ void CG_LaunchImpactParticle( vec3_t origin, vec3_t dir, int surfaceFlags
 	int i,j;
 	vec3_t			spawnpoint;
 	qhandle_t		shader;
-	float			radius;
-	float			weight;
-	int				num;
-	int				surfaceNum;
+	float			radius=0.0f;
+	float			weight=0.0f;
+	int				num=0;
+	int				surfaceNum=0;
 	vec3_t			newdir;
 
 	//impactsound
-	if(!flesh && (weapon != WP_SAWEDOFF && weapon != WP_REMINGTON_GAUGE &&
-		weapon != WP_WINCH97) || !(rand()%3)){
+	if(!flesh && ((weapon != WP_SAWEDOFF && weapon != WP_REMINGTON_GAUGE &&
+		weapon != WP_WINCH97) || !(rand()%3)) ){
 		if(surfaceFlags & SURF_WOOD){
 			trap_S_StartSound( origin, ENTITYNUM_WORLD, CHAN_AUTO,cgs.media.impact[IMPACT_WOOD][rand()%3]);
 		} else if(surfaceFlags & SURF_METAL){
@@ -1080,17 +1080,6 @@ void BuildHitModel(hit_data_t *data, vec3_t origin,
 }
 #endif
 
-static void CheckIfInSolid(vec3_t v, vec3_t view){
-	trace_t	trace;
-
-	CG_Trace(&trace, v, vec3_origin, vec3_origin, v , -1, CONTENTS_SOLID);
-
-	if(trace.startsolid){
-		CG_Trace(&trace, v, vec3_origin, vec3_origin, view, -1, CONTENTS_SOLID);
-		VectorCopy(trace.endpos, v);
-	}
-}
-
 
 #define SCREEN_SIZE 100
 #define PLAYER_SIZE_RIGHT 13
@@ -1138,7 +1127,7 @@ qboolean CG_CheckPlayerVisible(vec3_t view, vec3_t player){
 }
 
 void CG_PlayReloadSound(int weapon, centity_t *cent, qboolean sec){
-	sfxHandle_t sfx;
+	sfxHandle_t sfx=0;
 
 	//Com_Printf("reloading %s\n", bg_weaponlist[weapon].name);
 
@@ -1238,7 +1227,7 @@ Function that triggers the talk sound when chatting/voting etc .
 Does nothing if cg_talksound cvar is set to "0".
 ===============
 */
-void CG_PlayTalkSound() {
+void CG_PlayTalkSound( void ) {
 
 	switch (cg_talksound.integer) {
 	case 0: /* Do nothing */
@@ -1377,7 +1366,6 @@ Returns CULL_IN, CULL_CLIP, or CULL_OUT
 int CG_CullBoundingBox(vec3_t box_vertex[8]) {
 	int		i, j;
 	float	dists[8];
-	vec3_t	v;
 	cplane_t	*frust;
 	int			anyBack;
 	int			front, back;
@@ -1492,9 +1480,8 @@ qboolean CG_IsEntityVisible(centity_t *cent, vec_t max_sight) {
 	vec3_t origin;
 	vec3_t box_vertex[8];
 	vec_t distance;
-	qboolean visible;
+	qboolean visible=qtrue;
 	vec_t radius;
-	int i;
 
 	if (cent->visibleTime == cg.time && !max_sight)
 		return cent->visible;	// Return the previous result
@@ -1511,7 +1498,17 @@ qboolean CG_IsEntityVisible(centity_t *cent, vec_t max_sight) {
 	if (max_sight > 0.0 && distance > max_sight)
 		return qfalse;	// The spot is too far away
 
-	if (hasBounds) {
+	if (cent->currentState.number == cg.predictedPlayerState.groundEntityNum)
+		// Keep current player ground entity visible to avoid player fall prediction
+		// even if it is not really visible as player ground entity can only be
+		// well predicted if it is visible (traces will only detect visible entities
+		// when cg_boostfps is set)
+		visible = qtrue;
+	else if (distance < FORCE_VISIBILITY_RANGE)
+		// Btw keep too closed entities as visible to avoid prediction error
+		// when moving over it and not being in the fov
+		visible = qtrue;
+	else if (hasBounds) {
 		radius = Distance(box_vertex[5], box_vertex[3]) * 0.5f;
 		cent->radius = radius;	// Keep its radius
 
@@ -1686,18 +1683,6 @@ static void CG_ColorByEntityType(int eType, byte colors[4]) {
 		colors[2] = 64;
 		colors[3] = 255;
 		break;
-	case ET_GRAPPLE:
-		colors[0] = 255;
-		colors[1] = 255;
-		colors[2] = 0;
-		colors[3] = 255;
-		break;
-	case ET_TEAM:
-		colors[0] = 192;
-		colors[1] = 192;
-		colors[2] = 0;
-		colors[3] = 255;
-		break;
 	case ET_BREAKABLE:
 		colors[0] = 128;
 		colors[1] = 128;
@@ -1784,7 +1769,7 @@ qboolean CG_EntityVectors(centity_t *cent, vec3_t origin, vec3_t box_vertex[8]) 
 	vec3_t bmaxs, bmins;
 	entityState_t *ent;
 	clipHandle_t cmodel;
-	vec3_t angles, r, vertex, rotate_origin, median, ext_xyz;
+	vec3_t angles, r, vertex, rotate_origin={ 0.0f, 0.0f, 0.0f }, median, ext_xyz;
 	vec3_t matrix[3], transpose[3];
 	int i, x, zd, zu;
 	qboolean rotate = qfalse;
@@ -2007,37 +1992,13 @@ or qfalse if the entity should be add to the scene
 =================
 */
 
-// function pointer array
+qboolean CG_Farclip_None( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist ) {
+	return qfalse ;
+}
 
-qboolean ( * CG_Farclip_Tester[] )( vec3_t , vec3_t , float , float ) = {
-        NULL ,
-        CG_Farclip_Sphere ,
-        CG_Farclip_Ellipse_X ,
-        CG_Farclip_Ellipse_Y ,
-        CG_Farclip_Ellipse_Z ,
-        CG_Farclip_Cylinder_X ,
-        CG_Farclip_Cylinder_Y ,
-        CG_Farclip_Cylinder_Z ,
-        CG_Farclip_Cube ,
-        CG_Farclip_Box_X ,
-        CG_Farclip_Box_Y ,
-        CG_Farclip_Box_Z ,
-        CG_Farclip_Cone_X ,
-        CG_Farclip_Cone_Y ,
-        CG_Farclip_Cone_Z ,
-        CG_Farclip_Pyramid_X ,
-        CG_Farclip_Pyramid_Y ,
-        CG_Farclip_Pyramid_Z ,
-        CG_Farclip_Circle_Infinite_X ,
-        CG_Farclip_Circle_Infinite_Y ,
-        CG_Farclip_Circle_Infinite_Z ,
-        CG_Farclip_Square_Infinite_X ,
-        CG_Farclip_Square_Infinite_Y ,
-        CG_Farclip_Square_Infinite_Z
-} ;
-
-int CG_Farclip_Tester_Table_Size = sizeof( CG_Farclip_Tester ) / sizeof( void* );
-
+qboolean CG_Farclip_Always( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist ) {
+	return qtrue ;
+}
 
 qboolean CG_Farclip_Sphere( vec3_t entite_vec3 , vec3_t camera_vec3 , float farclip_dist , float farclip_alt_dist )
 {
@@ -2248,7 +2209,34 @@ qboolean CG_Farclip_Pyramid_Y( vec3_t entite_vec3 , vec3_t camera_vec3 , float f
 	return qfalse ;
 }
 
+// function pointer array
 
+qboolean ( * CG_Farclip_Tester[] )( vec3_t , vec3_t , float , float ) = {
+        CG_Farclip_None ,
+        CG_Farclip_Always ,
+        CG_Farclip_Sphere ,
+        CG_Farclip_Ellipse_X ,
+        CG_Farclip_Ellipse_Y ,
+        CG_Farclip_Ellipse_Z ,
+        CG_Farclip_Cylinder_X ,
+        CG_Farclip_Cylinder_Y ,
+        CG_Farclip_Cylinder_Z ,
+        CG_Farclip_Cube ,
+        CG_Farclip_Box_X ,
+        CG_Farclip_Box_Y ,
+        CG_Farclip_Box_Z ,
+        CG_Farclip_Cone_X ,
+        CG_Farclip_Cone_Y ,
+        CG_Farclip_Cone_Z ,
+        CG_Farclip_Pyramid_X ,
+        CG_Farclip_Pyramid_Y ,
+        CG_Farclip_Pyramid_Z ,
+        CG_Farclip_Circle_Infinite_X ,
+        CG_Farclip_Circle_Infinite_Y ,
+        CG_Farclip_Circle_Infinite_Z ,
+        CG_Farclip_Square_Infinite_X ,
+        CG_Farclip_Square_Infinite_Y ,
+        CG_Farclip_Square_Infinite_Z
+} ;
 
-
-
+int CG_Farclip_Tester_Table_Size = ARRAY_LEN( CG_Farclip_Tester );

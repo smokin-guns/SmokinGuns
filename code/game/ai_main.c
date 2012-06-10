@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 
 /*****************************************************************************
  * name:		ai_main.c
@@ -33,16 +34,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 #include "g_local.h"
-#include "q_shared.h"
-#include "botlib.h"		//bot lib interface
-#include "be_aas.h"
-#include "be_ea.h"
-#include "be_ai_char.h"
-#include "be_ai_chat.h"
-#include "be_ai_gen.h"
-#include "be_ai_goal.h"
-#include "be_ai_move.h"
-#include "be_ai_weap.h"
+#include "../qcommon/q_shared.h"
+#include "../botlib/botlib.h"		//bot lib interface
+#include "../botlib/be_aas.h"
+#include "../botlib/be_ea.h"
+#include "../botlib/be_ai_char.h"
+#include "../botlib/be_ai_chat.h"
+#include "../botlib/be_ai_gen.h"
+#include "../botlib/be_ai_goal.h"
+#include "../botlib/be_ai_move.h"
+#include "../botlib/be_ai_weap.h"
 //
 #include "ai_main.h"
 #include "ai_dmq3.h"
@@ -56,7 +57,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "inv.h"
 #include "syn.h"
 
+#ifndef MAX_PATH
 #define MAX_PATH		144
+#endif
 
 
 //bot states
@@ -98,7 +101,7 @@ void QDECL BotAI_Print(int type, char *fmt, ...) {
 	va_list ap;
 
 	va_start(ap, fmt);
-	vsprintf(str, fmt, ap);
+	Q_vsnprintf(str, sizeof(str), fmt, ap);
 	va_end(ap);
 
 	switch(type) {
@@ -138,7 +141,11 @@ BotAI_Trace
 void BotAI_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask) {
 	trace_t trace;
 
+#ifndef SMOKINGUNS
+	trap_Trace(&trace, start, mins, maxs, end, passent, contentmask);
+#else
 	trap_Trace_New(&trace, start, mins, maxs, end, passent, contentmask);
+#endif
 	//copy the trace information
 	bsptrace->allsolid = trace.allsolid;
 	bsptrace->startsolid = trace.startsolid;
@@ -152,7 +159,11 @@ void BotAI_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, 
 	bsptrace->ent = trace.entityNum;
 	bsptrace->exp_dist = 0;
 	bsptrace->sidenum = 0;
+#ifndef SMOKINGUNS
+	bsptrace->contents = 0;
+#else
 	bsptrace->contents = trace.contents;
+#endif
 }
 
 /*
@@ -283,6 +294,7 @@ void BotReportStatus(bot_state_t *bs) {
 	if (Q_stricmp(netname, bs->teamleader) == 0) leader = "L";
 	else leader = " ";
 
+#ifndef SMOKINGUNS
 	strcpy(flagstatus, "  ");
 	if (gametype == GT_CTF) {
 		if (BotCTFCarryingFlag(bs)) {
@@ -290,6 +302,21 @@ void BotReportStatus(bot_state_t *bs) {
 			else strcpy(flagstatus, S_COLOR_BLUE"F ");
 		}
 	}
+#ifdef MISSIONPACK
+	else if (gametype == GT_1FCTF) {
+		if (Bot1FCTFCarryingFlag(bs)) {
+			if (BotTeam(bs) == TEAM_RED) strcpy(flagstatus, S_COLOR_RED"F ");
+			else strcpy(flagstatus, S_COLOR_BLUE"F ");
+		}
+	}
+	else if (gametype == GT_HARVESTER) {
+		if (BotHarvesterCarryingCubes(bs)) {
+			if (BotTeam(bs) == TEAM_RED) Com_sprintf(flagstatus, sizeof(flagstatus), S_COLOR_RED"%2d", bs->inventory[INVENTORY_REDCUBE]);
+			else Com_sprintf(flagstatus, sizeof(flagstatus), S_COLOR_BLUE"%2d", bs->inventory[INVENTORY_BLUECUBE]);
+		}
+	}
+#endif
+#endif
 
 	switch(bs->ltgtype) {
 		case LTG_TEAMHELP:
@@ -419,12 +446,27 @@ void BotSetInfoConfigString(bot_state_t *bs) {
 	if (Q_stricmp(netname, bs->teamleader) == 0) leader = "L";
 	else leader = " ";
 
+#ifndef SMOKINGUNS
 	strcpy(carrying, "  ");
 	if (gametype == GT_CTF) {
 		if (BotCTFCarryingFlag(bs)) {
 			strcpy(carrying, "F ");
 		}
 	}
+#ifdef MISSIONPACK
+	else if (gametype == GT_1FCTF) {
+		if (Bot1FCTFCarryingFlag(bs)) {
+			strcpy(carrying, "F ");
+		}
+	}
+	else if (gametype == GT_HARVESTER) {
+		if (BotHarvesterCarryingCubes(bs)) {
+			if (BotTeam(bs) == TEAM_RED) Com_sprintf(carrying, sizeof(carrying), "%2d", bs->inventory[INVENTORY_REDCUBE]);
+			else Com_sprintf(carrying, sizeof(carrying), "%2d", bs->inventory[INVENTORY_BLUECUBE]);
+		}
+	}
+#endif
+#endif
 
 	switch(bs->ltgtype) {
 		case LTG_TEAMHELP:
@@ -627,8 +669,13 @@ void BotInterbreeding(void) {
 	trap_Cvar_Update(&bot_interbreedchar);
 	if (!strlen(bot_interbreedchar.string)) return;
 	//make sure we are in tournament mode
+#ifndef SMOKINGUNS
+	if (gametype != GT_TOURNAMENT) {
+		trap_Cvar_Set("g_gametype", va("%d", GT_TOURNAMENT));
+#else
 	if (gametype != GT_DUEL) {
 		trap_Cvar_Set("g_gametype", va("%i", GT_DUEL));
+#endif
 		ExitLevel();
 		return;
 	}
@@ -789,7 +836,11 @@ void BotChangeViewAngles(bot_state_t *bs, float thinktime) {
 BotInputToUserCommand
 ==============
 */
+#ifndef SMOKINGUNS
+void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3], int time) {
+#else
 void BotInputToUserCommand(bot_state_t *bs, bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3], int time) {
+#endif
 	vec3_t angles, forward, right;
 	short temp;
 	int j;
@@ -808,21 +859,26 @@ void BotInputToUserCommand(bot_state_t *bs, bot_input_t *bi, usercmd_t *ucmd, in
 	//set the buttons
 	if (bi->actionflags & ACTION_RESPAWN) ucmd->buttons = BUTTON_ATTACK;
 	if (bi->actionflags & ACTION_ATTACK) ucmd->buttons |= BUTTON_ATTACK;
+#ifdef SMOKINGUNS
 	if (bs->flags & BFL_ATTACK) ucmd->buttons |= BUTTON_ATTACK;
 	if (bs->flags & BFL_ATTACK2) ucmd->buttons |= BUTTON_ALT_ATTACK;
+#endif
 
 	if (bi->actionflags & ACTION_TALK) ucmd->buttons |= BUTTON_TALK;
 	if (bi->actionflags & ACTION_GESTURE) ucmd->buttons |= BUTTON_GESTURE;
 	if (bi->actionflags & ACTION_USE) ucmd->buttons |= BUTTON_USE_HOLDABLE;
 	if (bi->actionflags & ACTION_WALK) ucmd->buttons |= BUTTON_WALKING;
+#ifndef SMOKINGUNS
 	if (bi->actionflags & ACTION_AFFIRMATIVE) ucmd->buttons |= BUTTON_AFFIRMATIVE;
 	if (bi->actionflags & ACTION_NEGATIVE) ucmd->buttons |= BUTTON_NEGATIVE;
 	if (bi->actionflags & ACTION_GETFLAG) ucmd->buttons |= BUTTON_GETFLAG;
 	if (bi->actionflags & ACTION_GUARDBASE) ucmd->buttons |= BUTTON_GUARDBASE;
 	if (bi->actionflags & ACTION_PATROL) ucmd->buttons |= BUTTON_PATROL;
 	if (bi->actionflags & ACTION_FOLLOWME) ucmd->buttons |= BUTTON_FOLLOWME;
+#endif
 
 	// reloading
+#ifdef SMOKINGUNS
 	if (bs->flags & BFL_RELOAD){
 		ucmd->buttons |= BUTTON_RELOAD;
 
@@ -840,9 +896,14 @@ void BotInputToUserCommand(bot_state_t *bs, bot_input_t *bi, usercmd_t *ucmd, in
 	if(bs->flags & BFL_ACT_BUTTON){
 		ucmd->buttons |= BUTTON_ACTIVATE;
 	}
+#endif
 
 	//
-	ucmd->weapon = bs->cmdweapon; //bi->weapon;
+#ifndef SMOKINGUNS
+	ucmd->weapon = bi->weapon;
+#else
+	ucmd->weapon = bs->cmdweapon;
+#endif
 	//set the view angles
 	//NOTE: the ucmd->angles are the angles WITHOUT the delta angles
 	ucmd->angles[PITCH] = ANGLE2SHORT(bi->viewangles[PITCH]);
@@ -910,7 +971,11 @@ void BotUpdateInput(bot_state_t *bs, int time, int elapsed_time) {
 		if (bs->lastucmd.buttons & BUTTON_ATTACK) bi.actionflags &= ~(ACTION_RESPAWN|ACTION_ATTACK);
 	}
 	//convert the bot input to a usercmd
+#ifndef SMOKINGUNS
+	BotInputToUserCommand(&bi, &bs->lastucmd, bs->cur_ps.delta_angles, time);
+#else
 	BotInputToUserCommand(bs, &bi, &bs->lastucmd, bs->cur_ps.delta_angles, time);
+#endif
 	//subtract the delta angles
 	for (j = 0; j < 3; j++) {
 		bs->viewangles[j] = AngleMod(bs->viewangles[j] - SHORT2ANGLE(bs->cur_ps.delta_angles[j]));
@@ -1003,8 +1068,7 @@ int BotAI(int client, float thinktime) {
 			args[strlen(args)-1] = '\0';
 			trap_BotQueueConsoleMessage(bs->cs, CMS_CHAT, args);
 		}
-#if 0
-//#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 		else if (!Q_stricmp(buf, "vchat")) {
 			BotVoiceChatCommand(bs, SAY_ALL, args);
 		}
@@ -1038,9 +1102,11 @@ int BotAI(int client, float thinktime) {
 	//the real AI
 	BotDeathmatchAI(bs, thinktime);
 	//set the weapon selection every AI frame
+#ifndef SMOKINGUNS
+	trap_EA_SelectWeapon(bs->client, bs->weaponnum);
+#else
 	bs->cmdweapon = bs->weaponnum;
-	//trap_EA_SelectWeapon(bs->client, bs->weaponnum);
-
+#endif
 	//subtract the delta angles
 	for (j = 0; j < 3; j++) {
 		bs->viewangles[j] = AngleMod(bs->viewangles[j] - SHORT2ANGLE(bs->cur_ps.delta_angles[j]));
@@ -1263,7 +1329,7 @@ int BotAIShutdownClient(int client, qboolean restart) {
 	}
 
 	trap_BotFreeMoveState(bs->ms);
-	//free the goal state`
+	//free the goal state
 	trap_BotFreeGoalState(bs->gs);
 	//free the chat file
 	trap_BotFreeChatState(bs->cs);
@@ -1365,8 +1431,7 @@ int BotAILoadMap( int restart ) {
 	return qtrue;
 }
 
-#if 0
-//#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 void ProximityMine_Trigger( gentity_t *trigger, gentity_t *other, trace_t *trace );
 #endif
 
@@ -1412,7 +1477,6 @@ int BotAIStartFrame(int time) {
 			if( g_entities[i].client->pers.connected != CON_CONNECTED ) {
 				continue;
 			}
-
 			botstates[i]->lastucmd.forwardmove = 0;
 			botstates[i]->lastucmd.rightmove = 0;
 			botstates[i]->lastucmd.upmove = 0;
@@ -1420,7 +1484,6 @@ int BotAIStartFrame(int time) {
 			botstates[i]->lastucmd.serverTime = time;
 			trap_BotUserCommand(botstates[i]->client, &botstates[i]->lastucmd);
 		}
-
 		return qtrue;
 	}
 
@@ -1476,7 +1539,11 @@ int BotAIStartFrame(int time) {
 				continue;
 			}
 			// do not update missiles
-			if (ent->s.eType == ET_MISSILE/* && ent->s.weapon != WP_GRAPPLING_HOOK*/) {
+#ifndef SMOKINGUNS
+			if (ent->s.eType == ET_MISSILE && ent->s.weapon != WP_GRAPPLING_HOOK) {
+#else
+			if (ent->s.eType == ET_MISSILE) {
+#endif
 				trap_BotLibUpdateEntity(i, NULL);
 				continue;
 			}
@@ -1485,6 +1552,15 @@ int BotAIStartFrame(int time) {
 				trap_BotLibUpdateEntity(i, NULL);
 				continue;
 			}
+#ifndef SMOKINGUNS
+			// never link prox mine triggers
+			if (ent->r.contents == CONTENTS_TRIGGER) {
+				if (ent->touch == ProximityMine_Trigger) {
+					trap_BotLibUpdateEntity(i, NULL);
+					continue;
+				}
+			}
+#endif
 			//
 			memset(&state, 0, sizeof(bot_entitystate_t));
 			//
@@ -1585,10 +1661,11 @@ int BotInitLibrary(void) {
 	trap_BotLibVarSet("g_gametype", buf);
 	//bot developer mode and log file
 	trap_BotLibVarSet("bot_developer", bot_developer.string);
+	trap_Cvar_VariableStringBuffer("logfile", buf, sizeof(buf));
 	trap_BotLibVarSet("log", buf);
 	//no chatting
 	trap_Cvar_VariableStringBuffer("bot_nochat", buf, sizeof(buf));
-	if (strlen(buf)) trap_BotLibVarSet("nochat", "0");
+	if (strlen(buf)) trap_BotLibVarSet("nochat", buf);
 	//visualize jump pads
 	trap_Cvar_VariableStringBuffer("bot_visualizejumppads", buf, sizeof(buf));
 	if (strlen(buf)) trap_BotLibVarSet("bot_visualizejumppads", buf);
@@ -1617,12 +1694,11 @@ int BotInitLibrary(void) {
 	//game directory
 	trap_Cvar_VariableStringBuffer("fs_game", buf, sizeof(buf));
 	if (strlen(buf)) trap_BotLibVarSet("gamedir", buf);
-	//cd directory
-	trap_Cvar_VariableStringBuffer("fs_cdpath", buf, sizeof(buf));
-	if (strlen(buf)) trap_BotLibVarSet("cddir", buf);
+	//home directory
+	trap_Cvar_VariableStringBuffer("fs_homepath", buf, sizeof(buf));
+	if (strlen(buf)) trap_BotLibVarSet("homedir", buf);
 	//
-#if 0
-//#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 	trap_BotLibDefine("MISSIONPACK");
 #endif
 	//setup the bot library

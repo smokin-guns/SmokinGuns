@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -33,10 +33,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "snd_local.h"
 #include "snd_codec.h"
 #include "client.h"
-
-void S_Play_f(void);
-void S_SoundList_f(void);
-void S_Music_f(void);
 
 void S_Update_( void );
 void S_Base_StopAllSounds(void);
@@ -104,10 +100,6 @@ void S_Base_SoundInfo(void) {
 	if (!s_soundStarted) {
 		Com_Printf ("sound system not started\n");
 	} else {
-		if ( s_soundMuted ) {
-			Com_Printf ("sound system is muted\n");
-		}
-
 		Com_Printf("%5d stereo\n", dma.channels - 1);
 		Com_Printf("%5d samples\n", dma.samples);
 		Com_Printf("%5d samplebits\n", dma.samplebits);
@@ -125,6 +117,38 @@ void S_Base_SoundInfo(void) {
 }
 
 
+#ifdef USE_VOIP
+static
+void S_Base_StartCapture( void )
+{
+	// !!! FIXME: write me.
+}
+
+static
+int S_Base_AvailableCaptureSamples( void )
+{
+	// !!! FIXME: write me.
+	return 0;
+}
+
+static
+void S_Base_Capture( int samples, byte *data )
+{
+	// !!! FIXME: write me.
+}
+
+static
+void S_Base_StopCapture( void )
+{
+	// !!! FIXME: write me.
+}
+
+static
+void S_Base_MasterGain( float val )
+{
+	// !!! FIXME: write me.
+}
+#endif
 
 
 
@@ -157,13 +181,15 @@ void S_Base_SoundList( void ) {
 	S_DisplayFreeMemory();
 }
 
+
+
 void S_ChannelFree(channel_t *v) {
 	v->thesfx = NULL;
 	*(channel_t **)v = freelist;
 	freelist = (channel_t*)v;
 }
 
-channel_t*	S_ChannelMalloc() {
+channel_t*	S_ChannelMalloc( void ) {
 	channel_t *v;
 	if (freelist == NULL) {
 		return NULL;
@@ -174,7 +200,7 @@ channel_t*	S_ChannelMalloc() {
 	return v;
 }
 
-void S_ChannelSetup() {
+void S_ChannelSetup( void ) {
 	channel_t *p, *q;
 
 	// clear all the sounds so they don't
@@ -234,10 +260,10 @@ static sfx_t *S_FindName( const char *name ) {
 	sfx_t	*sfx;
 
 	if (!name) {
-		Com_Error (ERR_FATAL, "S_FindName: NULL\n");
+		Com_Error (ERR_FATAL, "S_FindName: NULL");
 	}
 	if (!name[0]) {
-		Com_Error (ERR_FATAL, "S_FindName: empty name\n");
+		Com_Error (ERR_FATAL, "S_FindName: empty name");
 	}
 
 	if (strlen(name) >= MAX_QPATH) {
@@ -887,7 +913,7 @@ void S_ByteSwapRawSamples( int samples, int width, int s_channels, const byte *d
 
 /*
 ============
-S_RawSamples
+S_Base_RawSamples
 
 Music streaming
 ============
@@ -908,10 +934,13 @@ void S_Base_RawSamples( int stream, int samples, int rate, int width, int s_chan
 	}
 	rawsamples = s_rawsamples[stream];
 
-	intVolume = 256 * volume;
+	if(s_muted->integer)
+		intVolume = 0;
+	else
+		intVolume = 256 * volume * s_volume->value;
 
 	if ( s_rawend[stream] < s_soundtime ) {
-		Com_DPrintf( "S_RawSamples: resetting minimum: %i < %i\n", s_rawend[stream], s_soundtime );
+		Com_DPrintf( "S_Base_RawSamples: resetting minimum: %i < %i\n", s_rawend[stream], s_soundtime );
 		s_rawend[stream] = s_soundtime;
 	}
 
@@ -989,7 +1018,7 @@ void S_Base_RawSamples( int stream, int samples, int rate, int width, int s_chan
 	}
 
 	if ( s_rawend[stream] > s_soundtime + MAX_RAW_SAMPLES ) {
-		Com_DPrintf( "S_RawSamples: overflowed %i > %i\n", s_rawend[stream], s_soundtime );
+		Com_DPrintf( "S_Base_RawSamples: overflowed %i > %i\n", s_rawend[stream], s_soundtime );
 	}
 }
 
@@ -1144,6 +1173,12 @@ void S_GetSoundtime(void)
 
 	fullsamples = dma.samples / dma.channels;
 
+	if( CL_VideoRecording( ) )
+	{
+		s_soundtime += (int)ceil( dma.speed / cl_aviFrameRate->value );
+		return;
+	}
+
 	// it is possible to miscount buffers if it has wrapped twice between
 	// calls to S_Update.  Oh well.
 	samplepos = SNDDMA_GetDMAPos();
@@ -1277,14 +1312,16 @@ void S_Base_StartBackgroundTrack( const char *intro, const char *loop ){
 	}
 	Com_DPrintf( "S_StartBackgroundTrack( %s, %s )\n", intro, loop );
 
-	if ( !intro[0] ) {
+	if(!*intro)
+	{
+		S_Base_StopBackgroundTrack();
 		return;
 	}
 
 	if( !loop ) {
 		s_backgroundLoop[0] = 0;
 	} else {
-	Q_strncpyz( s_backgroundLoop, loop, sizeof( s_backgroundLoop ) );
+		Q_strncpyz( s_backgroundLoop, loop, sizeof( s_backgroundLoop ) );
 	}
 
 	// close the background track, but DON'T reset s_rawend
@@ -1318,17 +1355,13 @@ void S_UpdateBackgroundTrack( void ) {
 	byte	raw[30000];		// just enough to fit in a mac stack frame
 	int		fileBytes;
 	int		r;
-	static	float	musicVolume = 0.5f;
 
 	if(!s_backgroundStream) {
 		return;
 	}
 
-	// graeme see if this is OK
-	musicVolume = (musicVolume + (s_musicVolume->value * 2))/4.0f;
-
 	// don't bother playing anything if musicvolume is 0
-	if ( musicVolume <= 0 ) {
+	if ( s_musicVolume->value <= 0 ) {
 		return;
 	}
 
@@ -1342,6 +1375,9 @@ void S_UpdateBackgroundTrack( void ) {
 
 		// decide how much data needs to be read from the file
 		fileSamples = bufferSamples * s_backgroundStream->info.rate / dma.speed;
+
+		if (!fileSamples)
+			return;
 
 		// our max buffer size
 		fileBytes = fileSamples * (s_backgroundStream->info.width * s_backgroundStream->info.channels);
@@ -1360,9 +1396,9 @@ void S_UpdateBackgroundTrack( void ) {
 
 		if(r > 0)
 		{
-		// add to raw buffer
+			// add to raw buffer
 			S_Base_RawSamples( 0, fileSamples, s_backgroundStream->info.rate,
-				s_backgroundStream->info.width, s_backgroundStream->info.channels, raw, musicVolume );
+				s_backgroundStream->info.width, s_backgroundStream->info.channels, raw, s_musicVolume->value );
 		}
 		else
 		{
@@ -1374,13 +1410,14 @@ void S_UpdateBackgroundTrack( void ) {
 				S_Base_StartBackgroundTrack( s_backgroundLoop, s_backgroundLoop );
 				if(!s_backgroundStream)
 					return;
-				}
+			}
 			else
 			{
 				S_Base_StopBackgroundTrack();
 				return;
 			}
 		}
+
 	}
 }
 
@@ -1391,7 +1428,7 @@ S_FreeOldestSound
 ======================
 */
 
-void S_FreeOldestSound() {
+void S_FreeOldestSound( void ) {
 	int	i, oldest, used;
 	sfx_t	*sfx;
 	sndBuffer	*buffer, *nbuffer;
@@ -1492,6 +1529,14 @@ qboolean S_Base_Init( soundInterface_t *si ) {
 	si->ClearSoundBuffer = S_Base_ClearSoundBuffer;
 	si->SoundInfo = S_Base_SoundInfo;
 	si->SoundList = S_Base_SoundList;
+
+#ifdef USE_VOIP
+	si->StartCapture = S_Base_StartCapture;
+	si->AvailableCaptureSamples = S_Base_AvailableCaptureSamples;
+	si->Capture = S_Base_Capture;
+	si->StopCapture = S_Base_StopCapture;
+	si->MasterGain = S_Base_MasterGain;
+#endif
 
 	return qtrue;
 }

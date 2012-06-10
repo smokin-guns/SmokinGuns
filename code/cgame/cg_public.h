@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -21,6 +21,8 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
+
 
 #define	CMD_BACKUP			64
 #define	CMD_MASK			(CMD_BACKUP - 1)
@@ -182,12 +184,17 @@ typedef enum {
 	CG_CEIL,
 	CG_TESTPRINTINT,
 	CG_TESTPRINTFLOAT,
+#ifndef SMOKINGUNS
+	CG_ACOS
+#else
 	CG_ACOS,
 
 	/// Smokin' Guns specific syscalls
 	CG_R_CULL_BBOX = 150,
 	CG_R_CULL_SPHERE,
-	CG_R_FRUSTUM_PLANE
+	CG_R_FRUSTUM_PLANE,
+	CG_GETENV
+#endif
 } cgameImport_t;
 
 
@@ -242,7 +249,7 @@ typedef enum {
 
 //----------------------------------------------
 // hika comments: this part Spoon added is only for the mod
-#if defined SMOKINGUNS_SO || defined Q3_VM
+#ifdef SMOKINGUNS
 
 //mapinfo ny Spoon
 
@@ -258,14 +265,7 @@ typedef struct trackInfo_s {
 extern int trackInfoNum;
 extern trackInfo_t	trackInfo[MAX_TRACKS];
 
-typedef struct shaderInfo_s {
-	int			surfaceFlags;
-	vec4_t		color;
-} shaderInfo_t;
-
-extern	shaderInfo_t shaderInfo[MAX_BRUSHSIDES];
 extern	int	texInfoNum;
-extern	int	shaderInfoNum;
 
 qboolean CG_ParseTexFile(const char *filename);
 qboolean CG_ParseMusicFile(void);
@@ -279,8 +279,6 @@ int	trap_CM_TransformedBoxTrace_New( trace_t *results, const vec3_t start, const
 int	trap_CM_BoxTrace_New( trace_t *results, const vec3_t start, const vec3_t end,
 						  const vec3_t mins, const vec3_t maxs,
 						  clipHandle_t model, int brushmask );
-//unused q3-function
-//int CG_LightVerts( const vec3_t normal, int numVerts, polyVert_t *verts );
 
 //enables/disables hit-data-calculation on client
 //#define	HIT_DATA

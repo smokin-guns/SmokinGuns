@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 #ifndef __UI_PUBLIC_H__
 #define __UI_PUBLIC_H__
 
@@ -152,6 +153,9 @@ typedef enum {
 #define SORT_CLIENTS		2
 #define SORT_GAME			3
 #define SORT_PING			4
+#ifndef SMOKINGUNS
+#define SORT_PUNKBUSTER		5
+#endif
 
 typedef enum {
 	UI_GETAPIVERSION = 0,	// system reserved

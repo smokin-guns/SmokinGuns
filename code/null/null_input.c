@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -20,7 +20,6 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-#include "../client/client.h"
 
 void IN_Init( void ) {
 }
@@ -29,6 +28,9 @@ void IN_Frame (void) {
 }
 
 void IN_Shutdown( void ) {
+}
+
+void IN_Restart( void ) {
 }
 
 void Sys_SendKeyEvents (void) {

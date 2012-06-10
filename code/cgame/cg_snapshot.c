@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // cg_snapshot.c -- things that happen on snapshot transition,
 // not necessarily every single rendered frame
 
@@ -34,9 +35,11 @@ CG_ResetEntity
 ==================
 */
 static void CG_ResetEntity( centity_t *cent ) {
-	// if an event is set, assume it is new enough to use
-	// if the event had timed out, it would have been cleared
-	cent->previousEvent = 0;
+	// if the previous snapshot this entity was updated in is at least
+	// an event window back in time then we can reset the previous event
+	if ( cent->snapShotTime < cg.time - EVENT_VALID_MSEC ) {
+		cent->previousEvent = 0;
+	}
 
 	cent->trailTime = cg.snap->serverTime;
 
@@ -54,9 +57,13 @@ CG_TransitionEntity
 cent->nextState is moved to cent->currentState and events are fired
 ===============
 */
+#ifndef SMOKINGUNS
+static void CG_TransitionEntity( centity_t *cent ) {
+#else
 //unlagged - early transitioning
 // used to be static, now needed to transition entities from within cg_ents.c
 void CG_TransitionEntity( centity_t *cent ) {
+#endif
 	cent->currentState = cent->nextState;
 	cent->currentValid = qtrue;
 
@@ -94,7 +101,11 @@ void CG_SetInitialSnapshot( snapshot_t *snap ) {
 	BG_PlayerStateToEntityState( &snap->ps, &cg_entities[ snap->ps.clientNum ].currentState, qfalse );
 
 	// sort out solid entities
+#ifndef SMOKINGUNS
+	CG_BuildSolidList();
+#else
 	CG_BuildSolidList(qfalse);
+#endif
 
 	CG_ExecuteNewServerCommands( snap->serverCommandSequence );
 
@@ -161,6 +172,9 @@ static void CG_TransitionSnapshot( void ) {
 	for ( i = 0 ; i < cg.snap->numEntities ; i++ ) {
 		cent = &cg_entities[ cg.snap->entities[ i ].number ];
 		CG_TransitionEntity( cent );
+
+		// remember time of snapshot this entity was last updated in
+		cent->snapShotTime = cg.snap->serverTime;
 	}
 
 	cg.nextSnap = NULL;
@@ -178,7 +192,11 @@ static void CG_TransitionSnapshot( void ) {
 
 		// if we are not doing client side movement prediction for any
 		// reason, then the client events and view changes will be issued now
+#ifndef SMOKINGUNS
+		if ( cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_FOLLOW)
+#else
 		if ( cg.demoPlayback || ((cg.snap->ps.pm_flags & PMF_FOLLOW) && !(cg.snap->ps.pm_type == PM_CHASECAM))
+#endif
 			|| cg_nopredict.integer || cg_synchronousClients.integer ) {
 			CG_TransitionPlayerState( ps, ops );
 		}
@@ -214,7 +232,7 @@ static void CG_SetNextSnap( snapshot_t *snap ) {
 
 		// if this frame is a teleport, or the entity wasn't in the
 		// previous frame, don't interpolate
-		if ( !cent->currentValid || ( ( cent->currentState.eFlags ^ es->eFlags ) & EF_TELEPORT_BIT )  ) {
+		if ( !cent->currentValid || ( ( cent->currentState.eFlags ^ es->eFlags ) & EF_TELEPORT_BIT ) ) {
 			cent->interpolate = qfalse;
 		} else {
 			cent->interpolate = qtrue;
@@ -240,7 +258,11 @@ static void CG_SetNextSnap( snapshot_t *snap ) {
 	}
 
 	// sort out solid entities
+#ifndef SMOKINGUNS
+	CG_BuildSolidList();
+#else
 	CG_BuildSolidList(qfalse);
+#endif
 }
 
 
@@ -258,10 +280,12 @@ static snapshot_t *CG_ReadNextSnapshot( void ) {
 	qboolean	r;
 	snapshot_t	*dest;
 
+#ifndef SMOKINGUNS
 	if ( cg.latestSnapshotNum > cgs.processedSnapshotNum + 1000 ) {
-		//CG_Printf( "WARNING: CG_ReadNextSnapshot: way out of range, %i > %i",
-		//	cg.latestSnapshotNum, cgs.processedSnapshotNum );
+		CG_Printf( "WARNING: CG_ReadNextSnapshot: way out of range, %i > %i\n", 
+			cg.latestSnapshotNum, cgs.processedSnapshotNum );
 	}
+#endif
 
 	while ( cgs.processedSnapshotNum < cg.latestSnapshotNum ) {
 		// decide which of the two slots to load it into
@@ -275,6 +299,7 @@ static snapshot_t *CG_ReadNextSnapshot( void ) {
 		cgs.processedSnapshotNum++;
 		r = trap_GetSnapshot( cgs.processedSnapshotNum, dest );
 
+#ifdef SMOKINGUNS
 //unlagged - lag simulation #1
 		// the client wants latent snaps and the just-read snapshot is valid
 		if ( cg_latentSnaps.integer && r ) {
@@ -292,6 +317,7 @@ static snapshot_t *CG_ReadNextSnapshot( void ) {
 			}
 		}
 //unlagged - lag simulation #1
+#endif
 
 		// FIXME: why would trap_GetSnapshot return a snapshot with the same server time
 		if ( cg.snap && r && dest->serverTime == cg.snap->serverTime ) {
@@ -349,15 +375,19 @@ void CG_ProcessSnapshots( void ) {
 	if ( n != cg.latestSnapshotNum ) {
 		if ( n < cg.latestSnapshotNum ) {
 			// this should never happen
+#ifndef SMOKINGUNS
+			CG_Error( "CG_ProcessSnapshots: n < cg.latestSnapshotNum" );
+#else
 //unlagged - lag simulation #1
 			// this may actually happen with lag simulation going on
 			if ( cg_latentSnaps.integer ) {
 				CG_Printf( "WARNING: CG_ProcessSnapshots: n < cg.latestSnapshotNum\n" );
 			}
 			else {
-			CG_Error( "CG_ProcessSnapshots: n < cg.latestSnapshotNum" );
-		}
+				CG_Error( "CG_ProcessSnapshots: n < cg.latestSnapshotNum" );
+			}
 //unlagged - lag simulation #1
+#endif
 		}
 		cg.latestSnapshotNum = n;
 	}
@@ -398,6 +428,9 @@ void CG_ProcessSnapshots( void ) {
 
 			// if time went backwards, we have a level restart
 			if ( cg.nextSnap->serverTime < cg.snap->serverTime ) {
+#ifndef SMOKINGUNS
+				CG_Error( "CG_ProcessSnapshots: Server time went backwards" );
+#else
 //unlagged - lag simulation #1
 				// this may actually happen with lag simulation going on
 				if ( cg_latentSnaps.integer ) {
@@ -407,6 +440,7 @@ void CG_ProcessSnapshots( void ) {
 				CG_Error( "CG_ProcessSnapshots: Server time went backwards" );
 				}
 //unlagged - lag simulation #1
+#endif
 			}
 		}
 

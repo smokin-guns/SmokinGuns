@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 *
 *****************************************************************************/
 
-#include "../game/q_shared.h"
+#include "../qcommon/q_shared.h"
 #include "l_log.h"
 #include "l_memory.h"
 #include "l_script.h"
@@ -38,8 +38,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "l_precomp.h"
 #include "l_struct.h"
 #include "aasfile.h"
-#include "../game/botlib.h"
-#include "../game/be_aas.h"
+#include "botlib.h"
+#include "be_aas.h"
 #include "be_aas_funcs.h"
 #include "be_aas_def.h"
 
@@ -525,7 +525,10 @@ int AAS_AreaReachability(int areanum)
 {
 	if (areanum < 0 || areanum >= aasworld.numareas)
 	{
+		// Joe Kari: added #ifdef DEBUG , so it will stop bugging users with such a recurring and flooding error.
+#ifdef DEBUG
 		AAS_Error("AAS_AreaReachability: areanum %d out of range", areanum);
+#endif
 		return 0;
 	} //end if
 	return aasworld.areasettings[areanum].numreachableareas;
@@ -1068,8 +1071,8 @@ int AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge(int area1num, int area2
 	float length, ground_bestlength, water_bestlength, ground_bestdist, water_bestdist;
 	vec3_t v1, v2, v3, v4, tmpv, p1area1, p1area2, p2area1, p2area2;
 	vec3_t normal, ort, edgevec, start, end, dir;
-	vec3_t ground_beststart, ground_bestend, ground_bestnormal;
-	vec3_t water_beststart, water_bestend, water_bestnormal;
+	vec3_t ground_beststart = {0, 0, 0}, ground_bestend = {0, 0, 0}, ground_bestnormal = {0, 0, 0};
+	vec3_t water_beststart = {0, 0, 0}, water_bestend = {0, 0, 0}, water_bestnormal = {0, 0, 0};
 	vec3_t invgravity = {0, 0, 1};
 	vec3_t testpoint;
 	aas_plane_t *plane;
@@ -1557,7 +1560,7 @@ int AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge(int area1num, int area2
 					if (AAS_PointAreaNum(trace.endpos) == area2num)
 					{
 						//if not going through a cluster portal
-						numareas = AAS_TraceAreas(start, end, areas, NULL, sizeof(areas) / sizeof(int));
+						numareas = AAS_TraceAreas(start, end, areas, NULL, ARRAY_LEN(areas));
 						for (i = 0; i < numareas; i++)
 							if (AAS_AreaClusterPortal(areas[i]))
 								break;
@@ -2312,7 +2315,7 @@ int AAS_Reachability_Jump(int area1num, int area2num)
 			//because the predicted jump could have rushed through the area
 			VectorMA(move.endpos, -64, dir, teststart);
 			teststart[2] += 1;
-			numareas = AAS_TraceAreas(move.endpos, teststart, areas, NULL, sizeof(areas) / sizeof(int));
+			numareas = AAS_TraceAreas(move.endpos, teststart, areas, NULL, ARRAY_LEN(areas));
 			for (j = 0; j < numareas; j++)
 			{
 				if (areas[j] == area2num)
@@ -2380,15 +2383,15 @@ int AAS_Reachability_Jump(int area1num, int area2num)
 //===========================================================================
 int AAS_Reachability_Ladder(int area1num, int area2num)
 {
-	int i, j, k, l, edge1num, edge2num, sharededgenum, lowestedgenum;
-	int face1num, face2num, ladderface1num, ladderface2num;
+	int i, j, k, l, edge1num, edge2num, sharededgenum = 0, lowestedgenum = 0;
+	int face1num, face2num, ladderface1num = 0, ladderface2num = 0;
 	int ladderface1vertical, ladderface2vertical, firstv;
-	float face1area, face2area, bestface1area, bestface2area;
+	float face1area, face2area, bestface1area = -9999, bestface2area = -9999;
 	float phys_jumpvel, maxjumpheight;
 	vec3_t area1point, area2point, v1, v2, up = {0, 0, 1};
-	vec3_t mid, lowestpoint, start, end, sharededgevec, dir;
+	vec3_t mid, lowestpoint = {0, 0}, start, end, sharededgevec, dir;
 	aas_area_t *area1, *area2;
-	aas_face_t *face1, *face2, *ladderface1, *ladderface2;
+	aas_face_t *face1, *face2, *ladderface1 = NULL, *ladderface2 = NULL;
 	aas_plane_t *plane1, *plane2;
 	aas_edge_t *sharededge, *edge1;
 	aas_lreachability_t *lreach;
@@ -2402,16 +2405,7 @@ int AAS_Reachability_Ladder(int area1num, int area2num)
 
 	area1 = &aasworld.areas[area1num];
 	area2 = &aasworld.areas[area2num];
-	//
-	ladderface1 = NULL;
-	ladderface2 = NULL;
-	ladderface1num = 0; //make compiler happy
-	ladderface2num = 0; //make compiler happy
-	bestface1area = -9999;
-	bestface2area = -9999;
-	sharededgenum = 0; //make compiler happy
-	lowestedgenum = 0; //make compiler happy
-	//
+	
 	for (i = 0; i < area1->numfaces; i++)
 	{
 		face1num = aasworld.faceindex[area1->firstface + i];
@@ -3945,6 +3939,7 @@ void AAS_SetWeaponJumpAreaFlags(void)
 	{
 		if (!AAS_ValueForBSPEpairKey(ent, "classname", classname, MAX_EPAIRKEY)) continue;
 		if (
+#ifndef SMOKINGUNS
 			!strcmp(classname, "item_armor_body") ||
 			!strcmp(classname, "item_armor_combat") ||
 			!strcmp(classname, "item_health_mega") ||
@@ -3957,6 +3952,25 @@ void AAS_SetWeaponJumpAreaFlags(void)
 			!strcmp(classname, "item_quad") ||
 			!strcmp(classname, "item_regen") ||
 			!strcmp(classname, "item_invulnerability"))
+#else
+			!strcmp(classname, "item_boiler_plate") ||
+			!strcmp(classname, "item_money") ||
+			!strcmp(classname, "item_scope") ||
+			!strcmp(classname, "item_belt") ||
+			!strcmp(classname, "weapon_winch66") ||
+			!strcmp(classname, "weapon_sharps") ||
+			!strcmp(classname, "weapon_lightning") ||
+			!strcmp(classname, "weapon_gatling") ||
+			!strcmp(classname, "weapon_remington58") ||
+			!strcmp(classname, "weapon_schofield") ||
+			!strcmp(classname, "weapon_peacemaker") ||
+			!strcmp(classname, "weapon_dynamite") ||
+			!strcmp(classname, "weapon_molotov") ||
+			!strcmp(classname, "weapon_knife") ||
+			!strcmp(classname, "weapon_shotgun") ||
+			!strcmp(classname, "weapon_sawedoff") ||
+			!strcmp(classname, "weapon_winch97"))
+#endif
 		{
 			if (AAS_VectorForBSPEpairKey(ent, "origin", origin))
 			{
@@ -4264,7 +4278,7 @@ void AAS_Reachability_WalkOffLedge(int areanum)
 							break;
 						} //end if
 						//if not going through a cluster portal
-						numareas = AAS_TraceAreas(mid, testend, areas, NULL, sizeof(areas) / sizeof(int));
+						numareas = AAS_TraceAreas(mid, testend, areas, NULL, ARRAY_LEN(areas));
 						for (p = 0; p < numareas; p++)
 							if (AAS_AreaClusterPortal(areas[p]))
 								break;

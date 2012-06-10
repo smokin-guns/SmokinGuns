@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -21,13 +21,6 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-//===========================================================================
-//
-// Name:			chars.h
-// Function:		bot characteristics
-// Tab Size:		4 (real tabs)
-//===========================================================================
-
 
 //========================================================
 //========================================================
@@ -138,6 +131,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CHARACTERISTIC_EASY_FRAGGER					45	//float [0, 1]
 //how alert the bot is (view distance)
 #define CHARACTERISTIC_ALERTNESS					46	//float [0, 1]
-//how much the bot fires it's weapon
+//how much the bot fires its weapon
 #define CHARACTERISTIC_FIRETHROTTLE					47	//float [0, 1]
 

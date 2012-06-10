@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // cg_predict.c -- this file generates cg.predictedPlayerState by either
 // interpolating between snapshots from the server or locally predicting
 // ahead the client's movement.
@@ -34,8 +35,10 @@ static	int			cg_numSolidEntities;
 static	centity_t	*cg_solidEntities[MAX_ENTITIES_IN_SNAPSHOT];
 static	int			cg_numTriggerEntities;
 static	centity_t	*cg_triggerEntities[MAX_ENTITIES_IN_SNAPSHOT];
+#ifdef SMOKINGUNS
 static	int			cg_numVisibleSolidEntities;
 static	centity_t	*cg_VisibleSolidEntities[MAX_ENTITIES_IN_SNAPSHOT];
+#endif
 
 /*
 ====================
@@ -46,19 +49,25 @@ of the entities that are actually solid, to make for more
 efficient collision detection
 ====================
 */
+#ifndef SMOKINGUNS
+void CG_BuildSolidList( void ) {
+#else
 // if light is set to 1, movers will be taken into recognition when being a spectator
 void CG_BuildSolidList( qboolean light ) {
+#endif
 	int			i;
 	centity_t	*cent;
 	snapshot_t	*snap;
 	entityState_t	*ent;
 
+#ifdef SMOKINGUNS
 	if (cg_boostfps.integer) {
 // FPS Optimization ?
 		CG_BuildVisibleSolidList(light);
 		return;
 // FPS Optimization ?
 	}
+#endif
 
 	cg_numSolidEntities = 0;
 	cg_numTriggerEntities = 0;
@@ -73,11 +82,15 @@ void CG_BuildSolidList( qboolean light ) {
 		cent = &cg_entities[ snap->entities[ i ].number ];
 		ent = &cent->currentState;
 
+#ifndef SMOKINGUNS
+		if ( ent->eType == ET_ITEM || ent->eType == ET_PUSH_TRIGGER || ent->eType == ET_TELEPORT_TRIGGER ) {
+#else
 		if ( ent->eType == ET_ITEM || ent->eType == ET_PUSH_TRIGGER || ent->eType == ET_TELEPORT_TRIGGER
 			|| ent->eType == ET_ESCAPE ||
 			// also disable doors and breakables if the player is spectator
 			((ent->eType == ET_MOVER || ent->eType == ET_BREAKABLE) &&
 			cg.snap->ps.persistant[PERS_TEAM] >= TEAM_SPECTATOR && !light)) {
+#endif
 			cg_triggerEntities[cg_numTriggerEntities] = cent;
 			cg_numTriggerEntities++;
 			continue;
@@ -101,6 +114,7 @@ Same as CG_BuildSolidList, except that only visible entities are computed.
 ====================
 */
 // if light is set to 1, movers will be taken into recognition when being a spectator
+#ifdef SMOKINGUNS
 void CG_BuildVisibleSolidList( qboolean light ) {
 	int			i;
 	centity_t	*cent;
@@ -250,7 +264,6 @@ static void CG_ClipMoveToNearEntities( const vec3_t start, const vec3_t mins, co
 	trace_t		trace;
 	entityState_t	*ent;
 	centity_t	*cent;
-	vec_t radius;
 
 	for ( i = 0 ; i < cg_numVisibleSolidEntities ; i++ ) {
 		cent = cg_VisibleSolidEntities[ i ];
@@ -279,6 +292,7 @@ static void CG_ClipMoveToNearEntities( const vec3_t start, const vec3_t mins, co
 		}
 	}
 }
+#endif
 
 /*
 ====================
@@ -297,12 +311,14 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 	centity_t	*cent;
 
 
+#ifdef SMOKINGUNS
 	if (cg_boostfps.integer) {
 // FPS Optimization ?
 		CG_ClipMoveToVisibleEntities(start, mins, maxs, end, skipNumber, mask, tr,	0.0);
 		return;
 // FPS Optimization ?
 	}
+#endif
 
 	for ( i = 0 ; i < cg_numSolidEntities ; i++ ) {
 		cent = cg_solidEntities[ i ];
@@ -312,15 +328,12 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 			continue;
 		}
 
-
 		if ( ent->solid == SOLID_BMODEL ) {
-
 			// special value for bmodel
 			cmodel = trap_CM_InlineModel( ent->modelindex );
 			VectorCopy( cent->lerpAngles, angles );
 			BG_EvaluateTrajectory( &cent->currentState.pos, cg.physicsTime, origin );
 		} else {
-
 			// encoded bbox
 			x = (ent->solid & 255);
 			zd = ((ent->solid>>8) & 255);
@@ -336,7 +349,12 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 			VectorCopy( cent->lerpOrigin, origin );
 		}
 
+
+#ifndef SMOKINGUNS
+		trap_CM_TransformedBoxTrace ( &trace, start, end,
+#else
 		trap_CM_TransformedBoxTrace_New ( &trace, start, end,
+#endif
 			mins, maxs, cmodel,  mask, origin, angles);
 
 		if (trace.allsolid || trace.fraction < tr->fraction) {
@@ -357,6 +375,7 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 CG_Trace_New
 ================
 */
+#ifdef SMOKINGUNS
 int	CG_Trace_New( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
 					 int skipNumber, int mask ) {
 	trace_t	t;
@@ -371,6 +390,7 @@ int	CG_Trace_New( trace_t *result, const vec3_t start, const vec3_t mins, const 
 
 	return shaderNum;
 }
+#endif
 
 /*
 ================
@@ -381,7 +401,11 @@ void	CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec
 					 int skipNumber, int mask ) {
 	trace_t	t;
 
+#ifndef SMOKINGUNS
+	trap_CM_BoxTrace ( &t, start, end, mins, maxs, 0, mask);
+#else
 	trap_CM_BoxTrace_New ( &t, start, end, mins, maxs, 0, mask);
+#endif
 	t.entityNum = t.fraction != 1.0 ? ENTITYNUM_WORLD : ENTITYNUM_NONE;
 	// check all other solid models
 	CG_ClipMoveToEntities (start, mins, maxs, end, skipNumber, mask, &t);
@@ -400,6 +424,7 @@ Ignore all solid entities that are farther than the given "max_distance".
 If "max_distance" == 0, the parameter is ignored
 ================
 */
+#ifdef SMOKINGUNS
 int CG_Trace_Visible( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
 					 int skipNumber, int mask, vec_t max_distance ) {
 	trace_t	t;
@@ -516,6 +541,7 @@ int		CG_PointContentsVisible( const vec3_t point, int passEntityNum ) {
 
 	return contents;
 }
+#endif
 
 /*
 ================
@@ -529,11 +555,13 @@ int		CG_PointContents( const vec3_t point, int passEntityNum ) {
 	clipHandle_t cmodel;
 	int			contents;
 
+#ifdef SMOKINGUNS
 	if (cg_boostfps.integer) {
 // FPS Optimization ?
 		return CG_PointContentsVisible(point, passEntityNum);
 // FPS Optimization ?
 	}
+#endif
 
 	contents = trap_CM_PointContents (point, 0);
 
@@ -630,15 +658,12 @@ CG_TouchItem
 static void CG_TouchItem( centity_t *cent ) {
 	gitem_t		*item;
 
-
 	if ( !cg_predictItems.integer ) {
 		return;
 	}
 	if ( !BG_PlayerTouchesItem( &cg.predictedPlayerState, &cent->currentState, cg.time ) ) {
 		return;
 	}
-	/*if(1)
-		return;*/
 
 	// never pick an item up twice in a prediction
 	if ( cent->miscTime == cg.time ) {
@@ -651,6 +676,27 @@ static void CG_TouchItem( centity_t *cent ) {
 
 	item = &bg_itemlist[ cent->currentState.modelindex ];
 
+#ifndef SMOKINGUNS
+	// Special case for flags.  
+	// We don't predict touching our own flag
+#ifdef MISSIONPACK
+	if( cgs.gametype == GT_1FCTF ) {
+		if( item->giTag != PW_NEUTRALFLAG ) {
+			return;
+		}
+	}
+	if( cgs.gametype == GT_CTF || cgs.gametype == GT_HARVESTER ) {
+#else
+	if( cgs.gametype == GT_CTF ) {
+#endif
+		if (cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_RED &&
+			item->giTag == PW_REDFLAG)
+			return;
+		if (cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_BLUE &&
+			item->giTag == PW_BLUEFLAG)
+			return;
+	}
+#else
 	if(item->giType == IT_POWERUP && item->giTag == PW_GOLD){
 		float dist1, dist2;
 		vec3_t		muzzle;
@@ -668,24 +714,18 @@ static void CG_TouchItem( centity_t *cent ) {
 		if(dist2>dist1)
 			return;
 	}
-
-	// Special case for flags.
-	// We don't predict touching our own flag
-	/*if( cgs.gametype == GT_CTF ) {
-		if (cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_RED &&
-			item->giTag == PW_REDFLAG)
-			return;
-		if (cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_BLUE &&
-			item->giTag == PW_BLUEFLAG)
-			return;
-	}*/
+#endif
 
 	// grab it
+#ifndef SMOKINGUNS
+	BG_AddPredictableEventToPlayerstate( EV_ITEM_PICKUP, cent->currentState.modelindex , &cg.predictedPlayerState);
+#else
 	if(Q_stricmp(item->classname, "pickup_money")){
 		BG_AddPredictableEventToPlayerstate( EV_ITEM_PICKUP, cent->currentState.modelindex , &cg.predictedPlayerState);
 	} else {
 		BG_AddPredictableEventToPlayerstate( EV_MONEY_PICKUP, cent->currentState.time2 , &cg.predictedPlayerState);
 	}
+#endif
 
 	// remove it from the frame so it won't be drawn
 	cent->currentState.eFlags |= EF_NODRAW;
@@ -693,7 +733,7 @@ static void CG_TouchItem( centity_t *cent ) {
 	// don't touch it again this prediction
 	cent->miscTime = cg.time;
 
-	// if its a weapon, give them some predicted ammo so the autoswitch will work
+	// if it's a weapon, give them some predicted ammo so the autoswitch will work
 	if ( item->giType == IT_WEAPON ) {
 		cg.predictedPlayerState.stats[ STAT_WEAPONS ] |= 1 << item->giTag;
 		if ( !cg.predictedPlayerState.ammo[ item->giTag ] ) {
@@ -747,27 +787,36 @@ static void CG_TouchTriggerPrediction( void ) {
 			continue;
 		}
 
+#ifndef SMOKINGUNS
+		trap_CM_BoxTrace( &trace, cg.predictedPlayerState.origin, cg.predictedPlayerState.origin, 
+#else
 		trap_CM_BoxTrace_New( &trace, cg.predictedPlayerState.origin, cg.predictedPlayerState.origin,
+#endif
 			cg_pmove.mins, cg_pmove.maxs, cmodel, -1 );
 
 		if ( !trace.startsolid ) {
 			continue;
 		}
 
+#ifndef SMOKINGUNS
 		if ( ent->eType == ET_TELEPORT_TRIGGER ) {
 			cg.hyperspace = qtrue;
 		} else if ( ent->eType == ET_PUSH_TRIGGER ) {
 			BG_TouchJumpPad( &cg.predictedPlayerState, ent );
 		}
+#endif
 	}
 
 	// if we didn't touch a jump pad this pmove frame
-	/*if ( cg.predictedPlayerState.jumppad_frame != cg.predictedPlayerState.pmove_framecount ) {
+#ifndef SMOKINGUNS
+	if ( cg.predictedPlayerState.jumppad_frame != cg.predictedPlayerState.pmove_framecount ) {
 		cg.predictedPlayerState.jumppad_frame = 0;
 		cg.predictedPlayerState.jumppad_ent = 0;
-	}*/
+	}
+#endif
 }
 
+#ifdef SMOKINGUNS
 //unlagged - optimized prediction
 #define ABS(x) ((x) < 0 ? (-(x)) : (x))
 
@@ -866,7 +915,10 @@ static int IsUnacceptableError( playerState_t *ps, playerState_t *pps ) {
 
 	for ( i = 0; i < MAX_STATS; i++ ) {
 		if ( pps->stats[i] != ps->stats[i] ) {
-			return 15;
+			// Tequila comment:
+			// IDLE_TIMER is only used to handle WP_ANIM_IDLE, so that's acceptable
+			if ( i != IDLE_TIMER )
+				return 15;
 		}
 	}
 
@@ -897,6 +949,7 @@ static int IsUnacceptableError( playerState_t *ps, playerState_t *pps ) {
 	return 0;
 }
 //unlagged - optimized prediction
+#endif
 
 /*
 =================
@@ -930,10 +983,13 @@ void CG_PredictPlayerState( void ) {
 	qboolean	moved;
 	usercmd_t	oldestCmd;
 	usercmd_t	latestCmd;
+
+#ifdef SMOKINGUNS
 //unlagged - optimized prediction
-	int stateIndex, predictCmd;
+	int stateIndex = 0, predictCmd;
 	int numPredicted = 0, numPlayedBack = 0; // debug code
 //unlagged - optimized prediction
+#endif
 
 	cg.hyperspace = qfalse;	// will be set if touching a trigger_teleport
 
@@ -947,8 +1003,12 @@ void CG_PredictPlayerState( void ) {
 
 
 	// demo playback just copies the moves
+#ifndef SMOKINGUNS
+	if ( cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
+#else
 	if ( cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_SUICIDE)
 	            || ((cg.snap->ps.pm_flags & PMF_FOLLOW)  && !(cg.snap->ps.pm_type == PM_CHASECAM)) ) {
+#endif
 		CG_InterpolatePlayerState( qfalse );
 		return;
 	}
@@ -969,7 +1029,11 @@ void CG_PredictPlayerState( void ) {
 	else {
 		cg_pmove.tracemask = MASK_PLAYERSOLID;
 	}
+#ifndef SMOKINGUNS
+	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
+#else
 	if ( cg.snap->ps.persistant[PERS_TEAM] >= TEAM_SPECTATOR ) {
+#endif
 		cg_pmove.tracemask &= ~CONTENTS_BODY;	// spectators can fly through bodies
 	}
 	cg_pmove.noFootsteps = ( cgs.dmflags & DF_NO_FOOTSTEPS ) > 0;
@@ -977,7 +1041,7 @@ void CG_PredictPlayerState( void ) {
 	// save the state before the pmove so we can detect transitions
 	oldPlayerState = cg.predictedPlayerState;
 
-	current = trap_GetCurrentCmdNumber();
+	predictCmd = current = trap_GetCurrentCmdNumber();
 
 	// if we don't have the commands right after the snapshot, we
 	// can't accurately predict a current position, so just freeze at
@@ -1017,6 +1081,7 @@ void CG_PredictPlayerState( void ) {
 	cg_pmove.pmove_fixed = pmove_fixed.integer;// | cg_pmove_fixed.integer;
 	cg_pmove.pmove_msec = pmove_msec.integer;
 
+#ifdef SMOKINGUNS
 //unlagged - optimized prediction
 	// Like the comments described above, a player's state is entirely
 	// re-predicted from the last valid snapshot every client frame, which
@@ -1103,12 +1168,15 @@ void CG_PredictPlayerState( void ) {
 		stateIndex = cg.stateHead;
 	}
 //unlagged - optimized prediction
+#endif
 
 	// run cmds
 	moved = qfalse;
 	for ( cmdNum = current - CMD_BACKUP + 1 ; cmdNum <= current ; cmdNum++ ) {
 
+#ifdef SMOKINGUNS
 		cg_pmove.ps->oldbuttons = cg_pmove.cmd.buttons;
+#endif
 
 		// get the command
 		trap_GetUserCmd( cmdNum, &cg_pmove.cmd );
@@ -1147,6 +1215,17 @@ void CG_PredictPlayerState( void ) {
 				vec3_t	adjusted;
 				CG_AdjustPositionForMover( cg.predictedPlayerState.origin,
 					cg.predictedPlayerState.groundEntityNum, cg.physicsTime, cg.oldTime, adjusted );
+
+#ifdef SMOKINGUNS
+				// If ground entity has changed and cg_boostfps is set, be sure it is in visible entity list
+				if ( cg_boostfps.integer && oldPlayerState.groundEntityNum != cg.predictedPlayerState.groundEntityNum ) {
+					centity_t *cent = &cg_entities[ cg.predictedPlayerState.groundEntityNum ];
+					if (!cent->visible) {
+						cg_VisibleSolidEntities[cg_numVisibleSolidEntities] = cent;
+						cg_numVisibleSolidEntities++;
+					}
+				}
+#endif
 
 				if ( cg_showmiss.integer ) {
 					if (!VectorCompare( oldPlayerState.origin, adjusted )) {
@@ -1189,6 +1268,7 @@ void CG_PredictPlayerState( void ) {
 			cg_pmove.cmd.serverTime = ((cg_pmove.cmd.serverTime + pmove_msec.integer-1) / pmove_msec.integer) * pmove_msec.integer;
 		}
 
+#ifdef SMOKINGUNS
 		if(cg.introend >= cg.time && cgs.gametype == GT_DUEL &&
 			cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_FREE){
 			// delete all movement and cmd stats
@@ -1205,7 +1285,7 @@ void CG_PredictPlayerState( void ) {
 			cg.markedweapon = 0;
 			cg_pmove.ps->stats[STAT_OLDWEAPON] = 0;
 		}
-		else if ( ( cgs.gametype >= GT_RTP ) && ( cg.time < cg.roundstarttime + ROUND_NOMOVE_TIME ) 
+		else if ( ( cgs.gametype >= GT_RTP ) && ( cg.time < cg.roundstarttime + cgs.roundNoMoveTime ) 
 			&& (cg.predictedPlayerState.persistant[PERS_TEAM] < TEAM_SPECTATOR ) )  {
 			// added by Joe Kari: delete all movement and cmd stats until the end of the countdown in RTP and BR gametype
 			cg_pmove.ps->speed = 0;
@@ -1239,7 +1319,11 @@ void CG_PredictPlayerState( void ) {
 		if(cg.predictedPlayerState.persistant[PERS_SPAWN_COUNT] != oldPlayerState.persistant[PERS_SPAWN_COUNT]){
 			cg_pmove.ps->pm_flags |= PMF_RESPAWNED;
 		}
+#endif
 
+#ifndef SMOKINGUNS
+		Pmove (&cg_pmove);
+#else
 //unlagged - optimized prediction
 		// we check for cg_latentCmds because it'll mess up the optimization
 		if ( cg_optimizePrediction.integer && !cg_latentCmds.integer ) {
@@ -1285,6 +1369,7 @@ void CG_PredictPlayerState( void ) {
 			numPredicted++; // debug code
 		}
 //unlagged - optimized prediction
+#endif
 
 		moved = qtrue;
 
@@ -1295,6 +1380,7 @@ void CG_PredictPlayerState( void ) {
 		//CG_CheckChangedPredictableEvents(&cg.predictedPlayerState);
 	}
 
+#ifdef SMOKINGUNS
 //unlagged - optimized prediction
 	// do a /condump after a few seconds of this
 	//CG_Printf("cg.time: %d, numPredicted: %d, numPlayedBack: %d\n", cg.time, numPredicted, numPlayedBack); // debug code
@@ -1303,6 +1389,7 @@ void CG_PredictPlayerState( void ) {
 	// you should see other values for numPredicted after IsUnacceptableError
 	// returns nonzero, and that's it
 //unlagged - optimized prediction
+#endif
 
 	if ( cg_showmiss.integer > 1 ) {
 		CG_Printf( "[%i : %i] ", cg_pmove.cmd.serverTime, cg.time );
@@ -1337,6 +1424,7 @@ void CG_PredictPlayerState( void ) {
 	}
 
 	// predict weaponanims
+#ifdef SMOKINGUNS
 	cg.weapon2AnimOld = cg.weapon2Anim;
 	cg.weaponAnimOld = cg.weaponAnim;
 	cg.weaponold = cg.weapon;
@@ -1353,6 +1441,7 @@ void CG_PredictPlayerState( void ) {
 		cg.gatlingmodeOld = cg.gatlingmode;
 		cg.gatlingmode = cg.predictedPlayerState.stats[STAT_GATLING_MODE];
 	}
+#endif
 }
 
 

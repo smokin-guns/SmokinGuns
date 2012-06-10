@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -119,7 +119,7 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 	renderCommandList_t	*cmdList;
 
 	cmdList = &backEndData[tr.smpFrame]->commands;
-	assert(cmdList); // bk001205
+	assert(cmdList);
 	// add an end-of-list command
 	*(int *)(cmdList->cmds + cmdList->used) = RC_END_OF_LIST;
 
@@ -145,7 +145,7 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 	}
 
 	// at this point, the back end thread is idle, so it is ok
-	// to look at it's performance counters
+	// to look at its performance counters
 	if ( runPerformanceCounters ) {
 		R_PerformanceCounters();
 	}
@@ -196,6 +196,7 @@ void *R_GetCommandBuffer( int bytes ) {
 	renderCommandList_t	*cmdList;
 
 	cmdList = &backEndData[tr.smpFrame]->commands;
+	bytes = PAD(bytes, sizeof(void *));
 
 	// always leave room for the end of list command
 	if ( cmdList->used + bytes + 4 > MAX_RENDER_COMMANDS ) {
@@ -294,6 +295,38 @@ void RE_StretchPic ( float x, float y, float w, float h,
 	cmd->t2 = t2;
 }
 
+#define MODE_RED_CYAN	1
+#define MODE_RED_BLUE	2
+#define MODE_RED_GREEN	3
+#define MODE_MAX	MODE_RED_GREEN
+
+void R_SetColorMode(GLboolean *rgba, stereoFrame_t stereoFrame, int colormode)
+{
+	rgba[0] = rgba[1] = rgba[2] = rgba[3] = GL_TRUE;
+	
+	if(colormode > MODE_MAX)
+	{
+		if(stereoFrame == STEREO_LEFT)
+			stereoFrame = STEREO_RIGHT;
+		else if(stereoFrame == STEREO_RIGHT)
+			stereoFrame = STEREO_LEFT;
+		
+		colormode -= MODE_MAX;
+	}
+	
+	if(stereoFrame == STEREO_LEFT)
+		rgba[1] = rgba[2] = GL_FALSE;
+	else if(stereoFrame == STEREO_RIGHT)
+	{
+		rgba[0] = GL_FALSE;
+		
+		if(colormode == MODE_RED_BLUE)
+			rgba[1] = GL_FALSE;
+		else if(colormode == MODE_RED_GREEN)
+			rgba[2] = GL_FALSE;
+	}
+}
+
 
 /*
 ====================
@@ -304,7 +337,8 @@ for each RE_EndFrame
 ====================
 */
 void RE_BeginFrame( stereoFrame_t stereoFrame ) {
-	drawBufferCommand_t	*cmd;
+	drawBufferCommand_t	*cmd = NULL;
+	colorMaskCommand_t *colcmd = NULL;
 
 	if ( !tr.registered ) {
 		return;
@@ -371,26 +405,22 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		R_SetColorMappings();
 	}
 
-    // check for errors
-    if ( !r_ignoreGLErrors->integer ) {
-        int	err;
+	// check for errors
+	if ( !r_ignoreGLErrors->integer )
+	{
+		int	err;
 
 		R_SyncRenderThread();
-        if ( ( err = qglGetError() ) != GL_NO_ERROR ) {
-            ri.Error( ERR_FATAL, "RE_BeginFrame() - glGetError() failed (0x%x)!\n", err );
-        }
-    }
-
-	//
-	// draw buffer stuff
-	//
-	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
-	if ( !cmd ) {
-		return;
+		if ((err = qglGetError()) != GL_NO_ERROR)
+			ri.Error(ERR_FATAL, "RE_BeginFrame() - glGetError() failed (0x%x)!", err);
 	}
-	cmd->commandId = RC_DRAW_BUFFER;
 
-	if ( glConfig.stereoEnabled ) {
+	if (glConfig.stereoEnabled) {
+		if( !(cmd = R_GetCommandBuffer(sizeof(*cmd))) )
+			return;
+
+		cmd->commandId = RC_DRAW_BUFFER;
+
 		if ( stereoFrame == STEREO_LEFT ) {
 			cmd->buffer = (int)GL_BACK_LEFT;
 		} else if ( stereoFrame == STEREO_RIGHT ) {
@@ -398,16 +428,78 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		} else {
 			ri.Error( ERR_FATAL, "RE_BeginFrame: Stereo is enabled, but stereoFrame was %i", stereoFrame );
 		}
-	} else {
-		if ( stereoFrame != STEREO_CENTER ) {
-			ri.Error( ERR_FATAL, "RE_BeginFrame: Stereo is disabled, but stereoFrame was %i", stereoFrame );
+	}
+	else
+	{
+		if(r_anaglyphMode->integer)
+		{
+			if(r_anaglyphMode->modified)
+			{
+				// clear both, front and backbuffer.
+				qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+				qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+				
+				qglDrawBuffer(GL_FRONT);
+				qglClear(GL_COLOR_BUFFER_BIT);
+				qglDrawBuffer(GL_BACK);
+				qglClear(GL_COLOR_BUFFER_BIT);
+				
+				r_anaglyphMode->modified = qfalse;
+			}
+			
+			if(stereoFrame == STEREO_LEFT)
+			{
+				if( !(cmd = R_GetCommandBuffer(sizeof(*cmd))) )
+					return;
+				
+				if( !(colcmd = R_GetCommandBuffer(sizeof(*colcmd))) )
+					return;
+			}
+			else if(stereoFrame == STEREO_RIGHT)
+			{
+				clearDepthCommand_t *cldcmd;
+				
+				if( !(cldcmd = R_GetCommandBuffer(sizeof(*cldcmd))) )
+					return;
+
+				cldcmd->commandId = RC_CLEARDEPTH;
+
+				if( !(colcmd = R_GetCommandBuffer(sizeof(*colcmd))) )
+					return;
+			}
+			else
+				ri.Error( ERR_FATAL, "RE_BeginFrame: Stereo is enabled, but stereoFrame was %i", stereoFrame );
+
+			R_SetColorMode(colcmd->rgba, stereoFrame, r_anaglyphMode->integer);
+			colcmd->commandId = RC_COLORMASK;
 		}
-		if ( !Q_stricmp( r_drawBuffer->string, "GL_FRONT" ) ) {
-			cmd->buffer = (int)GL_FRONT;
-		} else {
-			cmd->buffer = (int)GL_BACK;
+		else
+		{
+			if(stereoFrame != STEREO_CENTER)
+				ri.Error( ERR_FATAL, "RE_BeginFrame: Stereo is disabled, but stereoFrame was %i", stereoFrame );
+
+			if( !(cmd = R_GetCommandBuffer(sizeof(*cmd))) )
+				return;
+		}
+
+		if(cmd)
+		{
+			cmd->commandId = RC_DRAW_BUFFER;
+
+			if(r_anaglyphMode->modified)
+			{
+				qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+				r_anaglyphMode->modified = qfalse;
+			}
+
+			if (!Q_stricmp(r_drawBuffer->string, "GL_FRONT"))
+				cmd->buffer = (int)GL_FRONT;
+			else
+				cmd->buffer = (int)GL_BACK;
 		}
 	}
+
+	tr.refdef.stereoFrame = stereoFrame;
 }
 
 
@@ -446,3 +538,30 @@ void RE_EndFrame( int *frontEndMsec, int *backEndMsec ) {
 	backEnd.pc.msec = 0;
 }
 
+/*
+=============
+RE_TakeVideoFrame
+=============
+*/
+void RE_TakeVideoFrame( int width, int height,
+		byte *captureBuffer, byte *encodeBuffer, qboolean motionJpeg )
+{
+	videoFrameCommand_t	*cmd;
+
+	if( !tr.registered ) {
+		return;
+	}
+
+	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
+	if( !cmd ) {
+		return;
+	}
+
+	cmd->commandId = RC_VIDEOFRAME;
+
+	cmd->width = width;
+	cmd->height = height;
+	cmd->captureBuffer = captureBuffer;
+	cmd->encodeBuffer = encodeBuffer;
+	cmd->motionJpeg = motionJpeg;
+}

@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // g_utils.c -- misc utility functions for game module
 
 #include "g_local.h"
@@ -33,7 +34,8 @@ typedef struct {
 
 #define MAX_SHADER_REMAPS 128
 
-/*int remapCount = 0;
+#ifndef SMOKINGUNS
+int remapCount = 0;
 shaderRemap_t remappedShaders[MAX_SHADER_REMAPS];
 
 void AddRemap(const char *oldShader, const char *newShader, float timeOffset) {
@@ -53,10 +55,10 @@ void AddRemap(const char *oldShader, const char *newShader, float timeOffset) {
 		remappedShaders[remapCount].timeOffset = timeOffset;
 		remapCount++;
 	}
-}*/
+}
 
-/*const char *BuildShaderStateConfig() {
-	static char	buff[MAX_STRING_CHARS];
+const char *BuildShaderStateConfig(void) {
+	static char	buff[MAX_STRING_CHARS*4];
 	char out[(MAX_QPATH * 2) + 5];
 	int i;
 
@@ -66,7 +68,8 @@ void AddRemap(const char *oldShader, const char *newShader, float timeOffset) {
 		Q_strcat( buff, sizeof( buff ), out);
 	}
 	return buff;
-}*/
+}
+#endif
 
 /*
 =========================================================================
@@ -240,11 +243,13 @@ void G_UseTargets( gentity_t *ent, gentity_t *activator ) {
 		return;
 	}
 
-	/*if (ent->targetShaderName && ent->targetShaderNewName) {
+#ifndef SMOKINGUNS
+	if (ent->targetShaderName && ent->targetShaderNewName) {
 		float f = level.time * 0.001;
 		AddRemap(ent->targetShaderName, ent->targetShaderNewName, f);
 		trap_SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
-	}*/
+	}
+#endif
 
 	if ( !ent->target ) {
 		return;
@@ -257,8 +262,10 @@ void G_UseTargets( gentity_t *ent, gentity_t *activator ) {
 		} else {
 			if ( t->use ) {
 				// disable triggering when using activatable doors
+#ifdef SMOKINGUNS
 				if(t->s.eType == ET_MOVER && t->s.angles2[0] == -1000){
 				} else
+#endif
 					t->use (t, ent, activator);
 			}
 		}
@@ -342,7 +349,9 @@ void G_SetMovedir( vec3_t angles, vec3_t movedir ) {
 	} else {
 		AngleVectors (angles, movedir, NULL, NULL);
 	}
+#ifdef SMOKINGUNS
 	VectorNormalize(movedir);
+#endif
 	VectorClear( angles );
 }
 
@@ -374,10 +383,6 @@ void G_InitGentity( gentity_t *e ) {
 	e->classname = "noclass";
 	e->s.number = e - g_entities;
 	e->r.ownerNum = ENTITYNUM_NONE;
-	// Tequila comment: Force BROADCAST server flag for client entity as it seems missed
-	// by at least entity 0 and other clients could not show that entity (invisibility bug)
-	if ( e->s.number < MAX_CLIENTS )
-		e->r.svFlags |= SVF_BROADCAST ;
 }
 
 /*
@@ -504,7 +509,7 @@ gentity_t *G_TempEntity( vec3_t origin, int event ) {
 	e->freeAfterEvent = qtrue;
 
 	VectorCopy( origin, snapped );
-	//SnapVector( snapped );		// save network bandwidth
+	SnapVector( snapped );		// save network bandwidth
 	G_SetOrigin( e, snapped );
 
 	// find cluster for PVS
@@ -541,16 +546,34 @@ void G_KillBox (gentity_t *ent) {
 	VectorAdd( ent->client->ps.origin, ent->r.maxs, maxs );
 	num = trap_EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
 
+#ifdef SMOKINGUNS
+	// Tequila: Always reset the Telefrag case
+	ent->client->dontTelefrag = qfalse ;
+#endif
+
 	for (i=0 ; i<num ; i++) {
 		hit = &g_entities[touch[i]];
 		if ( !hit->client ) {
 			continue;
 		}
 
+#ifndef SMOKINGUNS
 		// nail it
-
 		G_Damage ( hit, ent, ent, NULL, NULL,
 			100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG);
+#else
+		// G_Printf(S_COLOR_YELLOW "G_KillBox: Found %s in %s's killbox\n",hit->client->pers.netname,ent->client->pers.netname);
+
+		// Tequila comment: If the client is being respawned, we would prefer authorize the client
+		// to share the spawnpoint for a short time... So just notice we are in a Telefrag case
+		if (ent->client->ps.pm_flags & PMF_RESPAWNED)
+			ent->client->dontTelefrag = qtrue ;
+		else
+			// Better kill attacker
+			G_Damage ( ent, ent, ent, NULL, NULL, 100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG);
+
+		return ;
+#endif
 	}
 
 }
@@ -685,6 +708,7 @@ ignoreTeam can be TEAM_RED or TEAM_BLUE for team games that use
 spawnpoints that are spread out (unlike CTF), or -1 otherwise.
 ================
 */
+#ifdef SMOKINGUNS
 qboolean G_IsAnyClientWithinRadius( const vec3_t org, float rad, int ignoreTeam ) {
 	int length, i, j;
 	float radSqr;
@@ -711,3 +735,75 @@ qboolean G_IsAnyClientWithinRadius( const vec3_t org, float rad, int ignoreTeam 
 
 	return qfalse;
 }
+#endif
+
+
+
+#ifdef SMOKINGUNS
+// Joe Kari: New minilog feature. A small stack of FIFO logs. When it is full, older entries are removed.
+// Please restrict its use to admin-bots oriented stuff.
+// Please respect the log format:
+// <event_name>: <subject_id> [=> <object_id>] ...
+// Example: client 1 killed client 3 with remington '58 will be:
+// KILL: 1 => 3 [MOD_REM58]
+
+/*
+=================
+PopMinilog
+Joe Kari: pop a string out of the minilog
+=================
+*/
+void PopMinilog( char *str )
+{
+	if ( g_minilog.tail == g_minilog.head )
+	{
+		str[ 0 ] = 0 ;
+		return ;
+	}
+	
+	Q_strncpyz( str , g_minilog.entries[ g_minilog.head ] , MAX_TOKEN_CHARS ) ;
+	str[ MAX_TOKEN_CHARS - 1 ] = 0 ;
+	
+	g_minilog.head ++ ;
+	if ( g_minilog.head >= MAX_MINILOG )  g_minilog.head = 0 ;
+}
+
+/*
+=================
+PushMinilog
+Joe Kari: push a string into the minilog
+=================
+*/
+void PushMinilog( char *str )
+{
+	Q_strncpyz( g_minilog.entries[ g_minilog.tail ] , str , MAX_TOKEN_CHARS ) ;
+	g_minilog.entries[ g_minilog.tail ][ MAX_TOKEN_CHARS - 1 ] = 0 ;
+	
+	g_minilog.tail ++ ;
+	if ( g_minilog.tail >= MAX_MINILOG )  g_minilog.tail = 0 ;
+	if ( g_minilog.tail == g_minilog.head )
+	{
+		g_minilog.head ++ ;
+		if ( g_minilog.head >= MAX_MINILOG )  g_minilog.head = 0 ;
+	}
+}
+
+/*
+=================
+PushMinilogf
+Joe Kari: push a formated string into of the minilog (similar than printf family function)
+=================
+*/
+void PushMinilogf( const char *msg, ... )
+{
+	va_list		argptr;
+	char		text[MAX_TOKEN_CHARS];
+
+	va_start (argptr, msg);
+	Q_vsnprintf (text, sizeof(text), msg, argptr);
+	va_end (argptr);
+	
+	PushMinilog(text);
+}
+#endif
+

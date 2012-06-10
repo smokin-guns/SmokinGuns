@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // sv_bot.c
 
 #include "server.h"
-#include "../game/botlib.h"
+#include "../botlib/botlib.h"
 
 typedef struct bot_debugpoly_s
 {
@@ -134,13 +134,13 @@ void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, float *poin
 BotImport_Print
 ==================
 */
-void QDECL BotImport_Print(int type, char *fmt, ...)
+static void QDECL BotImport_Print(int type, char *fmt, ...)
 {
 	char str[2048];
 	va_list ap;
 
 	va_start(ap, fmt);
-	vsprintf(str, fmt, ap);
+	Q_vsnprintf(str, sizeof(str), fmt, ap);
 	va_end(ap);
 
 	switch(type) {
@@ -176,7 +176,7 @@ void QDECL BotImport_Print(int type, char *fmt, ...)
 BotImport_Trace
 ==================
 */
-void BotImport_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask) {
+static void BotImport_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask) {
 	trace_t trace;
 
 	SV_Trace(&trace, start, mins, maxs, end, passent, contentmask, qfalse);
@@ -201,7 +201,7 @@ void BotImport_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t ma
 BotImport_EntityTrace
 ==================
 */
-void BotImport_EntityTrace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int entnum, int contentmask) {
+static void BotImport_EntityTrace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int entnum, int contentmask) {
 	trace_t trace;
 
 	SV_ClipToEntity(&trace, start, mins, maxs, end, entnum, contentmask, qfalse);
@@ -227,7 +227,7 @@ void BotImport_EntityTrace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec
 BotImport_PointContents
 ==================
 */
-int BotImport_PointContents(vec3_t point) {
+static int BotImport_PointContents(vec3_t point) {
 	return SV_PointContents(point, -1);
 }
 
@@ -236,7 +236,7 @@ int BotImport_PointContents(vec3_t point) {
 BotImport_inPVS
 ==================
 */
-int BotImport_inPVS(vec3_t p1, vec3_t p2) {
+static int BotImport_inPVS(vec3_t p1, vec3_t p2) {
 	return SV_inPVS (p1, p2);
 }
 
@@ -245,7 +245,7 @@ int BotImport_inPVS(vec3_t p1, vec3_t p2) {
 BotImport_BSPEntityData
 ==================
 */
-char *BotImport_BSPEntityData(void) {
+static char *BotImport_BSPEntityData(void) {
 	return CM_EntityString();
 }
 
@@ -254,7 +254,7 @@ char *BotImport_BSPEntityData(void) {
 BotImport_BSPModelMinsMaxsOrigin
 ==================
 */
-void BotImport_BSPModelMinsMaxsOrigin(int modelnum, vec3_t angles, vec3_t outmins, vec3_t outmaxs, vec3_t origin) {
+static void BotImport_BSPModelMinsMaxsOrigin(int modelnum, vec3_t angles, vec3_t outmins, vec3_t outmaxs, vec3_t origin) {
 	clipHandle_t h;
 	vec3_t mins, maxs;
 	float max;
@@ -282,7 +282,7 @@ void BotImport_BSPModelMinsMaxsOrigin(int modelnum, vec3_t angles, vec3_t outmin
 BotImport_GetMemory
 ==================
 */
-void *BotImport_GetMemory(int size) {
+static void *BotImport_GetMemory(int size) {
 	void *ptr;
 
 	ptr = Z_TagMalloc( size, TAG_BOTLIB );
@@ -294,7 +294,7 @@ void *BotImport_GetMemory(int size) {
 BotImport_FreeMemory
 ==================
 */
-void BotImport_FreeMemory(void *ptr) {
+static void BotImport_FreeMemory(void *ptr) {
 	Z_Free(ptr);
 }
 
@@ -303,9 +303,9 @@ void BotImport_FreeMemory(void *ptr) {
 BotImport_HunkAlloc
 =================
 */
-void *BotImport_HunkAlloc( int size ) {
+static void *BotImport_HunkAlloc( int size ) {
 	if( Hunk_CheckMark() ) {
-		Com_Error( ERR_DROP, "SV_Bot_HunkAlloc: Alloc with marks already set\n" );
+		Com_Error( ERR_DROP, "SV_Bot_HunkAlloc: Alloc with marks already set" );
 	}
 	return Hunk_Alloc( size, h_high );
 }
@@ -342,7 +342,7 @@ int BotImport_DebugPolygonCreate(int color, int numPoints, vec3_t *points) {
 BotImport_DebugPolygonShow
 ==================
 */
-void BotImport_DebugPolygonShow(int id, int color, int numPoints, vec3_t *points) {
+static void BotImport_DebugPolygonShow(int id, int color, int numPoints, vec3_t *points) {
 	bot_debugpoly_t *poly;
 
 	if (!debugpolygons) return;
@@ -369,7 +369,7 @@ void BotImport_DebugPolygonDelete(int id)
 BotImport_DebugLineCreate
 ==================
 */
-int BotImport_DebugLineCreate(void) {
+static int BotImport_DebugLineCreate(void) {
 	vec3_t points[1];
 	return BotImport_DebugPolygonCreate(0, 0, points);
 }
@@ -379,7 +379,7 @@ int BotImport_DebugLineCreate(void) {
 BotImport_DebugLineDelete
 ==================
 */
-void BotImport_DebugLineDelete(int line) {
+static void BotImport_DebugLineDelete(int line) {
 	BotImport_DebugPolygonDelete(line);
 }
 
@@ -388,7 +388,7 @@ void BotImport_DebugLineDelete(int line) {
 BotImport_DebugLineShow
 ==================
 */
-void BotImport_DebugLineShow(int line, vec3_t start, vec3_t end, int color) {
+static void BotImport_DebugLineShow(int line, vec3_t start, vec3_t end, int color) {
 	vec3_t points[4], dir, cross, up = {0, 0, 1};
 	float dot;
 
@@ -421,7 +421,7 @@ void BotImport_DebugLineShow(int line, vec3_t start, vec3_t end, int color) {
 SV_BotClientCommand
 ==================
 */
-void BotClientCommand( int client, char *command ) {
+static void BotClientCommand( int client, char *command ) {
 	SV_ExecuteClientCommand( &svs.clients[client], command, qtrue );
 }
 
@@ -519,10 +519,6 @@ SV_BotInitBotLib
 void SV_BotInitBotLib(void) {
 	botlib_import_t	botlib_import;
 
-	if ( !Cvar_VariableValue("fs_restrict") && !Sys_CheckCD() ) {
-		Com_Error( ERR_NEED_CD, "Game CD not in drive" );
-	}
-
 	if (debugpolygons) Z_Free(debugpolygons);
 	bot_maxdebugpolys = Cvar_VariableIntegerValue("bot_maxdebugpolys");
 	debugpolygons = Z_Malloc(sizeof(bot_debugpoly_t) * bot_maxdebugpolys);
@@ -559,7 +555,7 @@ void SV_BotInitBotLib(void) {
 	botlib_import.DebugPolygonDelete = BotImport_DebugPolygonDelete;
 
 	botlib_export = (botlib_export_t *)GetBotLibAPI( BOTLIB_API_VERSION, &botlib_import );
-	assert(botlib_export); 	// bk001129 - somehow we end up with a zero import.
+	assert(botlib_export); 	// somehow we end up with a zero import.
 }
 
 

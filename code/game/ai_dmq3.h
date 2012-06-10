@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 
 /*****************************************************************************
  * name:		ai_dmq3.h
@@ -35,7 +36,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 void BotSetupDeathmatchAI(void);
 //shutdown the deathmatch AI
 void BotShutdownDeathmatchAI(void);
-//let the bot live within it's deathmatch AI net
+//let the bot live within its deathmatch AI net
 void BotDeathmatchAI(bot_state_t *bs, float thinktime);
 //free waypoints
 void BotFreeWaypoints(bot_waypoint_t *wp);
@@ -63,8 +64,7 @@ qboolean EntityIsDead(aas_entityinfo_t *entinfo);
 qboolean EntityIsInvisible(aas_entityinfo_t *entinfo);
 //returns true if the entity is shooting
 qboolean EntityIsShooting(aas_entityinfo_t *entinfo);
-#if 0
-//#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 //returns true if this entity has the kamikaze
 qboolean EntityHasKamikaze(aas_entityinfo_t *entinfo);
 #endif
@@ -95,9 +95,11 @@ int BotWantsToChase(bot_state_t *bs);
 //returns true if the bot wants to help
 int BotWantsToHelp(bot_state_t *bs);
 //returns true if the bot can and wants to rocketjump
+#ifndef SMOKINGUNS
 int BotCanAndWantsToRocketJump(bot_state_t *bs);
 // returns true if the bot has a persistant powerup and a weapon
 int BotHasPersistantPowerupAndWeapon(bot_state_t *bs);
+#endif
 //returns true if the bot wants to and goes camping
 int BotWantsToCamp(bot_state_t *bs);
 //the bot will perform attack movements
@@ -115,8 +117,12 @@ int BotEnemyFlagCarrierVisible(bot_state_t *bs);
 //get the number of visible teammates and enemies
 void BotVisibleTeamMatesAndEnemies(bot_state_t *bs, int *teammates, int *enemies, float range);
 //returns true if within the field of vision for the given angles
+#ifndef SMOKINGUNS
+qboolean InFieldOfVision(vec3_t viewangles, float fov, vec3_t angles);
+#else
 qboolean InFieldOfVision(vec3_t viewangles, float fov, vec3_t angles, int client);
 qboolean BotIsARealEnemy(int client, int other);
+#endif
 //returns true and sets the .enemy field when an enemy is found
 int BotFindEnemy(bot_state_t *bs, int curenemy);
 //returns a roam goal
@@ -128,7 +134,9 @@ void BotAimAtEnemy(bot_state_t *bs);
 //check if the bot should attack
 void BotCheckAttack(bot_state_t *bs);
 //and if he should reload
+#ifdef SMOKINGUNS
 void BotCheckReload(bot_state_t *bs, int weapon, int reloadbit);
+#endif
 //AI when the bot is blocked
 void BotAIBlocked(bot_state_t *bs, bot_moveresult_t *moveresult, int activate);
 //AI to predict obstacles
@@ -152,8 +160,7 @@ void BotCTFSeekGoals(bot_state_t *bs);
 //set ctf goals (defend base, get enemy flag) during retreat
 void BotCTFRetreatGoals(bot_state_t *bs);
 //
-#if 0
-//#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 int Bot1FCTFCarryingFlag(bot_state_t *bs);
 int BotHarvesterCarryingCubes(bot_state_t *bs);
 void Bot1FCTFSeekGoals(bot_state_t *bs);
@@ -202,10 +209,9 @@ extern vmCvar_t bot_nochat;
 extern vmCvar_t bot_testrchat;
 extern vmCvar_t bot_challenge;
 
+#ifndef SMOKINGUNS
 extern bot_goal_t ctf_redflag;
 extern bot_goal_t ctf_blueflag;
-#if 0
-//ifdef MISSIONPACK
 extern bot_goal_t ctf_neutralflag;
 extern bot_goal_t redobelisk;
 extern bot_goal_t blueobelisk;
@@ -213,5 +219,7 @@ extern bot_goal_t neutralobelisk;
 #endif
 
 // ai nodes
+#ifdef SMOKINGUNS
 extern vec3_t	ai_nodes[MAX_AINODES];
 extern int		ai_nodecount;
+#endif

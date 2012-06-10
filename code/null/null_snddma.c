@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -24,7 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // snddma_null.c
 // all other sound mixing is portable
 
-#include "../client/client.h"
+#include "../qcommon/q_shared.h"
+#include "../qcommon/qcommon.h"
 
 qboolean SNDDMA_Init(void)
 {
@@ -48,7 +49,6 @@ void SNDDMA_Submit(void)
 {
 }
 
-// bk001119 - added boolean flag, match client/snd_public.h
 sfxHandle_t S_RegisterSound( const char *name, qboolean compressed )
 {
 	return 0;

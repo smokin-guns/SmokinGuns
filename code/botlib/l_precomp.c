@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -54,8 +54,8 @@ typedef enum {qfalse, qtrue}	qboolean;
 #endif //SCREWUP
 
 #ifdef BOTLIB
-#include "../game/q_shared.h"
-#include "../game/botlib.h"
+#include "../qcommon/q_shared.h"
+#include "botlib.h"
 #include "be_interface.h"
 #include "l_memory.h"
 #include "l_script.h"
@@ -132,7 +132,7 @@ void QDECL SourceError(source_t *source, char *str, ...)
 	va_list ap;
 
 	va_start(ap, str);
-	vsprintf(text, str, ap);
+	Q_vsnprintf(text, sizeof(text), str, ap);
 	va_end(ap);
 #ifdef BOTLIB
 	botimport.Print(PRT_ERROR, "file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text);
@@ -156,7 +156,7 @@ void QDECL SourceWarning(source_t *source, char *str, ...)
 	va_list ap;
 
 	va_start(ap, str);
-	vsprintf(text, str, ap);
+	Q_vsnprintf(text, sizeof(text), str, ap);
 	va_end(ap);
 #ifdef BOTLIB
 	botimport.Print(PRT_WARNING, "file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text);
@@ -272,7 +272,7 @@ token_t *PC_CopyToken(token_t *token)
 #ifdef BSPC
 		Error("out of token space\n");
 #else
-		Com_Error(ERR_FATAL, "out of token space\n");
+		Com_Error(ERR_FATAL, "out of token space");
 #endif
 		return NULL;
 	} //end if
@@ -470,9 +470,9 @@ int PC_StringizeTokens(token_t *tokens, token_t *token)
 	strcat(token->string, "\"");
 	for (t = tokens; t; t = t->next)
 	{
-		strncat(token->string, t->string, MAX_TOKEN - strlen(token->string));
+		strncat(token->string, t->string, MAX_TOKEN - strlen(token->string) - 1);
 	} //end for
-	strncat(token->string, "\"", MAX_TOKEN - strlen(token->string));
+	strncat(token->string, "\"", MAX_TOKEN - strlen(token->string) - 1);
 	return qtrue;
 } //end of the function PC_StringizeTokens
 //============================================================================
@@ -654,6 +654,7 @@ void PC_FreeDefine(define_t *define)
 		PC_FreeToken(t);
 	} //end for
 	//free the define
+	FreeMemory(define->name);
 	FreeMemory(define);
 } //end of the function PC_FreeDefine
 //============================================================================
@@ -670,7 +671,7 @@ void PC_AddBuiltinDefines(source_t *source)
 	{
 		char *string;
 		int builtin;
-	} builtin[] = { // bk001204 - brackets
+	} builtin[] = {
 		{ "__LINE__",	BUILTIN_LINE },
 		{ "__FILE__",	BUILTIN_FILE },
 		{ "__DATE__",	BUILTIN_DATE },
@@ -681,9 +682,9 @@ void PC_AddBuiltinDefines(source_t *source)
 
 	for (i = 0; builtin[i].string; i++)
 	{
-		define = (define_t *) GetMemory(sizeof(define_t) + strlen(builtin[i].string) + 1);
+		define = (define_t *) GetMemory(sizeof(define_t));
 		Com_Memset(define, 0, sizeof(define_t));
-		define->name = (char *) define + sizeof(define_t);
+		define->name = (char *) GetMemory(strlen(builtin[i].string) + 1);
 		strcpy(define->name, builtin[i].string);
 		define->flags |= DEFINE_FIXED;
 		define->builtin = builtin[i].builtin;
@@ -706,7 +707,8 @@ int PC_ExpandBuiltinDefine(source_t *source, token_t *deftoken, define_t *define
 										token_t **firsttoken, token_t **lasttoken)
 {
 	token_t *token;
-	unsigned long t;	//	time_t t; //to prevent LCC warning
+	time_t t;
+	
 	char *curtime;
 
 	token = PC_CopyToken(deftoken);
@@ -947,7 +949,7 @@ void PC_ConvertPath(char *path)
 		if ((*ptr == '\\' || *ptr == '/') &&
 				(*(ptr+1) == '\\' || *(ptr+1) == '/'))
 		{
-			strcpy(ptr, ptr+1);
+			memmove(ptr, ptr+1, strlen(ptr));
 		} //end if
 		else
 		{
@@ -1011,7 +1013,7 @@ int PC_Directive_include(source_t *source)
 				break;
 			} //end if
 			if (token.type == TT_PUNCTUATION && *token.string == '>') break;
-			strncat(path, token.string, MAX_PATH);
+			strncat(path, token.string, MAX_PATH - 1);
 		} //end while
 		if (*token.string != '>')
 		{
@@ -1216,9 +1218,9 @@ int PC_Directive_define(source_t *source)
 #endif //DEFINEHASHING
 	} //end if
 	//allocate define
-	define = (define_t *) GetMemory(sizeof(define_t) + strlen(token.string) + 1);
+	define = (define_t *) GetMemory(sizeof(define_t));
 	Com_Memset(define, 0, sizeof(define_t));
-	define->name = (char *) define + sizeof(define_t);
+	define->name = (char *) GetMemory(strlen(token.string) + 1);
 	strcpy(define->name, token.string);
 	//add the define to the source
 #if DEFINEHASHING
@@ -1361,7 +1363,7 @@ define_t *PC_DefineFromString(char *string)
 #endif //DEFINEHASHING
 	//
 	FreeScript(script);
-	//if the define was created succesfully
+	//if the define was created successfully
 	if (res > 0) return def;
 	//free the define is created
 	if (src.defines) PC_FreeDefine(def);
@@ -1452,9 +1454,9 @@ define_t *PC_CopyDefine(source_t *source, define_t *define)
 	define_t *newdefine;
 	token_t *token, *newtoken, *lasttoken;
 
-	newdefine = (define_t *) GetMemory(sizeof(define_t) + strlen(define->name) + 1);
+	newdefine = (define_t *) GetMemory(sizeof(define_t));
 	//copy the define name
-	newdefine->name = (char *) newdefine + sizeof(define_t);
+	newdefine->name = (char *) GetMemory(strlen(define->name) + 1);
 	strcpy(newdefine->name, define->name);
 	newdefine->flags = define->flags;
 	newdefine->builtin = define->builtin;
@@ -1616,7 +1618,7 @@ typedef struct operator_s
 typedef struct value_s
 {
 	signed long int intvalue;
-	double floatvalue;
+	float floatvalue;
 	int parentheses;
 	struct value_s *prev, *next;
 } value_t;
@@ -1684,7 +1686,7 @@ int PC_OperatorPriority(int op)
 #define FreeOperator(op)
 
 int PC_EvaluateTokens(source_t *source, token_t *tokens, signed long int *intvalue,
-																	double *floatvalue, int integer)
+																	float *floatvalue, int integer)
 {
 	operator_t *o, *firstoperator, *lastoperator;
 	value_t *v, *firstvalue, *lastvalue, *v1, *v2;
@@ -1695,7 +1697,7 @@ int PC_EvaluateTokens(source_t *source, token_t *tokens, signed long int *intval
 	int lastwasvalue = 0;
 	int negativevalue = 0;
 	int questmarkintvalue = 0;
-	double questmarkfloatvalue = 0;
+	float questmarkfloatvalue = 0;
 	int gotquestmarkvalue = qfalse;
 	int lastoperatortype = 0;
 	//
@@ -2138,7 +2140,7 @@ int PC_EvaluateTokens(source_t *source, token_t *tokens, signed long int *intval
 // Changes Globals:		-
 //============================================================================
 int PC_Evaluate(source_t *source, signed long int *intvalue,
-												double *floatvalue, int integer)
+												float *floatvalue, int integer)
 {
 	token_t token, *firsttoken, *lasttoken;
 	token_t *t, *nexttoken;
@@ -2237,7 +2239,7 @@ int PC_Evaluate(source_t *source, signed long int *intvalue,
 // Changes Globals:		-
 //============================================================================
 int PC_DollarEvaluate(source_t *source, signed long int *intvalue,
-												double *floatvalue, int integer)
+												float *floatvalue, int integer)
 {
 	int indent, defined = qfalse;
 	token_t token, *firsttoken, *lasttoken;
@@ -2467,7 +2469,7 @@ int PC_Directive_eval(source_t *source)
 //============================================================================
 int PC_Directive_evalfloat(source_t *source)
 {
-	double value;
+	float value;
 	token_t token;
 
 	if (!PC_Evaluate(source, NULL, &value, qfalse)) return qfalse;
@@ -2560,12 +2562,16 @@ int PC_DollarDirective_evalint(source_t *source)
 	sprintf(token.string, "%d", abs(value));
 	token.type = TT_NUMBER;
 	token.subtype = TT_INTEGER|TT_LONG|TT_DECIMAL;
+
 #ifdef NUMBERVALUE
-	token.intvalue = value;
-	token.floatvalue = value;
+	token.intvalue = abs(value);
+	token.floatvalue = token.intvalue;
 #endif //NUMBERVALUE
+
 	PC_UnreadSourceToken(source, &token);
-	if (value < 0) UnreadSignToken(source);
+	if (value < 0)
+		UnreadSignToken(source);
+
 	return qtrue;
 } //end of the function PC_DollarDirective_evalint
 //============================================================================
@@ -2576,7 +2582,7 @@ int PC_DollarDirective_evalint(source_t *source)
 //============================================================================
 int PC_DollarDirective_evalfloat(source_t *source)
 {
-	double value;
+	float value;
 	token_t token;
 
 	if (!PC_DollarEvaluate(source, NULL, &value, qfalse)) return qfalse;
@@ -2587,12 +2593,16 @@ int PC_DollarDirective_evalfloat(source_t *source)
 	sprintf(token.string, "%1.2f", fabs(value));
 	token.type = TT_NUMBER;
 	token.subtype = TT_FLOAT|TT_LONG|TT_DECIMAL;
+
 #ifdef NUMBERVALUE
-	token.intvalue = (unsigned long) value;
-	token.floatvalue = value;
+	token.floatvalue = fabs(value);
+	token.intvalue = (unsigned long) token.floatvalue;
 #endif //NUMBERVALUE
+
 	PC_UnreadSourceToken(source, &token);
-	if (value < 0) UnreadSignToken(source);
+	if (value < 0)
+		UnreadSignToken(source);
+
 	return qtrue;
 } //end of the function PC_DollarDirective_evalfloat
 //============================================================================

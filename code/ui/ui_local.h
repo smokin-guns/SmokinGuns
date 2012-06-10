@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -21,36 +21,45 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 #ifndef __UI_LOCAL_H__
 #define __UI_LOCAL_H__
 
-#include "../game/q_shared.h"
-#include "../cgame/tr_types.h"
+#include "../qcommon/q_shared.h"
+#include "../renderer/tr_types.h"
 #include "ui_public.h"
-#include "keycodes.h"
+#include "../client/keycodes.h"
 #include "../game/bg_public.h"
 #include "ui_shared.h"
 
-
 // global display context
 
+#ifdef SMOKINGUNS
 extern vmCvar_t	ui_specifyAddress;
+#endif
 
 extern vmCvar_t	ui_ffa_fraglimit;
 extern vmCvar_t	ui_ffa_timelimit;
 
+#ifndef SMOKINGUNS
+extern vmCvar_t	ui_tourney_fraglimit;
+extern vmCvar_t	ui_tourney_timelimit;
+#else
 extern vmCvar_t	ui_duel_fraglimit;
 extern vmCvar_t	ui_duel_timelimit;
+#endif
 
 extern vmCvar_t	ui_team_fraglimit;
 extern vmCvar_t	ui_team_timelimit;
 extern vmCvar_t	ui_team_friendly;
 
+#ifndef SMOKINGUNS
 extern vmCvar_t	ui_ctf_capturelimit;
 extern vmCvar_t	ui_ctf_timelimit;
 extern vmCvar_t	ui_ctf_friendly;
 
 extern vmCvar_t	ui_arenasFile;
+#endif
 extern vmCvar_t	ui_botsFile;
 extern vmCvar_t	ui_spScores1;
 extern vmCvar_t	ui_spScores2;
@@ -65,12 +74,8 @@ extern vmCvar_t	ui_spSelection;
 
 extern vmCvar_t	ui_browserMaster;
 extern vmCvar_t	ui_browserGameType;
-extern vmCvar_t	ui_browserSortKey;
 extern vmCvar_t	ui_browserShowFull;
 extern vmCvar_t	ui_browserShowEmpty;
-
-extern vmCvar_t ui_cl_pb;
-extern vmCvar_t ui_sv_pb;
 
 extern vmCvar_t	ui_brassTime;
 extern vmCvar_t	ui_drawCrosshair;
@@ -151,7 +156,7 @@ extern vmCvar_t ui_serverStatusTimeOut;
 #define	MAX_EDIT_LINE			256
 
 #define MAX_MENUDEPTH			8
-#define MAX_MENUITEMS			96
+#define MAX_MENUITEMS			128
 
 #define MTYPE_NULL				0
 #define MTYPE_SLIDER			1
@@ -314,11 +319,13 @@ extern void			Bitmap_Init( menubitmap_s *b );
 extern void			Bitmap_Draw( menubitmap_s *b );
 extern void			ScrollList_Draw( menulist_s *l );
 extern sfxHandle_t	ScrollList_Key( menulist_s *l, int key );
-/*extern sfxHandle_t	menu_in_sound;
+#ifndef SMOKINGUNS
+extern sfxHandle_t	menu_in_sound;
 extern sfxHandle_t	menu_move_sound;
 extern sfxHandle_t	menu_out_sound;
 extern sfxHandle_t	menu_buzz_sound;
-extern sfxHandle_t	menu_null_sound;*/
+extern sfxHandle_t	menu_null_sound;
+#endif
 extern sfxHandle_t	weaponChangeSound;
 extern vec4_t		menu_text_color;
 extern vec4_t		menu_grayed_color;
@@ -341,7 +348,6 @@ extern vec4_t		text_color_disabled;
 extern vec4_t		text_color_normal;
 extern vec4_t		text_color_highlight;
 
-
 extern char	*ui_medalNames[];
 extern char	*ui_medalPicNames[];
 extern char	*ui_medalSounds[];
@@ -360,13 +366,13 @@ extern sfxHandle_t	MenuField_Key( menufield_s* m, int* key );
 //
 // ui_main.c
 //
-void UI_Report();
-void UI_Load();
+void UI_Report( void );
+void UI_Load( void );
 void UI_LoadMenus(const char *menuFile, qboolean reset);
 void _UI_SetActiveMenu( uiMenuCommand_t menu );
 int UI_AdjustTimeByGame(int time);
 void UI_ShowPostGame(qboolean newHigh);
-void UI_ClearScores();
+void UI_ClearScores( void );
 void UI_LoadArenas(void);
 
 //
@@ -577,20 +583,28 @@ typedef struct {
 } playerInfo_t;
 
 void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int time );
+#ifndef SMOKINGUNS
+void UI_PlayerInfo_SetModel( playerInfo_t *pi, const char *model, const char *headmodel, char *teamName );
+#else
 void UI_PlayerInfo_SetModel( playerInfo_t *pi, const char *model );
+#endif
 void UI_PlayerInfo_SetInfo( playerInfo_t *pi, int legsAnim, int torsoAnim, vec3_t viewAngles, vec3_t moveAngles, weapon_t weaponNum, qboolean chat );
+#ifndef SMOKINGUNS
+qboolean UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName , const char *headName, const char *teamName);
+#else
 qboolean UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName);
+#endif
 
 //
 // ui_atoms.c
 //
-// this is only used in the old ui, the new ui has it's own version
+// this is only used in the old ui, the new ui has its own version
 typedef struct {
-	int					frametime;
-	int					realtime;
-	int					cursorx;
-	int					cursory;
-	glconfig_t 	glconfig;
+	int				frametime;
+	int				realtime;
+	int				cursorx;
+	int				cursory;
+	glconfig_t		glconfig;
 	qboolean		debug;
 	qhandle_t		whiteShader;
 	qhandle_t		menuBackShader;
@@ -598,13 +612,16 @@ typedef struct {
 	qhandle_t		menuBackNoLogoShader;
 	qhandle_t		charset;
 	qhandle_t		charsetProp;
+#ifndef SMOKINGUNS
+// Tequila comment: Font glowing not used
 	qhandle_t		charsetPropGlow;
+#endif
 	qhandle_t		charsetPropB;
 	qhandle_t		cursor;
 	qhandle_t		rb_on;
 	qhandle_t		rb_off;
-	float				scale;
-	float				bias;
+	float			scale;
+	float			bias;
 	qboolean		demoversion;
 	qboolean		firstdraw;
 } uiStatic_t;
@@ -614,13 +631,20 @@ typedef struct {
 #define UI_NUMFX 7
 #define MAX_HEADS 64
 #define MAX_ALIASES 64
-#define MAX_HEADNAME  32
+#define MAX_HEADNAME 32
 #define MAX_TEAMS 64
 #define MAX_GAMETYPES 16
 #define MAX_MAPS 128
+#define MAX_MAPCYCLES 16
 #define MAX_SPMAPS 16
 #define PLAYERS_PER_TEAM 5
+#ifndef MAX_PINGREQUESTS
+#ifndef SMOKINGUNS
+#define MAX_PINGREQUESTS		32
+#else
 #define MAX_PINGREQUESTS		16
+#endif
+#endif
 #define MAX_ADDRESSLENGTH		64
 #define MAX_HOSTNAMELENGTH		22
 #define MAX_MAPNAMELENGTH		16
@@ -646,10 +670,16 @@ typedef struct {
 
 
 typedef struct {
-  const char *name;
+	const char *name;
 	const char *imageName;
-  qhandle_t headImage;
-  qboolean female;
+	qhandle_t headImage;
+#ifndef SMOKINGUNS
+	const char *base;
+	qboolean active;
+	int reference;
+#else
+	qboolean female;
+#endif
 } characterInfo;
 
 typedef struct {
@@ -659,29 +689,31 @@ typedef struct {
 } aliasInfo;
 
 typedef struct {
-  const char *teamName;
+	const char *teamName;
 	const char *imageName;
 	const char *teamMembers[TEAM_MEMBERS];
-  qhandle_t teamIcon;
-  qhandle_t teamIcon_Metal;
-  qhandle_t teamIcon_Name;
+	qhandle_t teamIcon;
+	qhandle_t teamIcon_Metal;
+	qhandle_t teamIcon_Name;
 	int cinematic;
 } teamInfo;
 
 typedef struct {
-  const char *gameType;
-  int gtEnum;
+	const char *gameType;
+	int gtEnum;
 } gameTypeInfo;
 
 typedef struct {
-  const char *mapName;
-  const char *author;
-  const char *description[6];
-  const char *mapLoadName;
+	const char *mapName;
+#ifdef SMOKINGUNS
+	const char *author;
+	const char *description[6];
+#endif
+	const char *mapLoadName;
 	const char *imageName;
 	const char *opponentName;
 	int teamMembers;
-  int typeBits;
+	int typeBits;
 	int cinematic;
 	int timeToBeat[MAX_GAMETYPES];
 	qhandle_t levelShot;
@@ -803,6 +835,9 @@ typedef struct {
 	int mapCount;
 	mapInfo mapList[MAX_MAPS];
 
+	char mapCycles[MAX_MAPCYCLES][MAX_NAME_LENGTH];
+	int mapCycleCount;
+	int mapCycleIndex;
 
 	int tierCount;
 	tierInfo tierList[MAX_TIERS];
@@ -847,7 +882,9 @@ typedef struct {
 	qhandle_t	q3HeadIcons[MAX_PLAYERMODELS];
 	int				q3SelectedHead;
 
+#ifndef SMOKINGUNS
 	int effectsColor;
+#endif
 
 	qboolean inGameLoad;
 
@@ -867,8 +904,8 @@ extern void			UI_DrawNamedPic( float x, float y, float width, float height, cons
 extern void			UI_DrawHandlePic( float x, float y, float w, float h, qhandle_t hShader );
 extern void			UI_FillRect( float x, float y, float width, float height, const float *color );
 extern void			UI_DrawRect( float x, float y, float width, float height, const float *color );
-extern void     UI_DrawTopBottom(float x, float y, float w, float h);
-extern void     UI_DrawSides(float x, float y, float w, float h);
+extern void			UI_DrawTopBottom(float x, float y, float w, float h);
+extern void			UI_DrawSides(float x, float y, float w, float h);
 extern void			UI_UpdateScreen( void );
 extern void			UI_SetColor( const float *rgba );
 extern void			UI_LerpColor(vec4_t a, vec4_t b, vec4_t c, float t);
@@ -942,7 +979,8 @@ int				trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode );
 void			trap_FS_Read( void *buffer, int len, fileHandle_t f );
 void			trap_FS_Write( const void *buffer, int len, fileHandle_t f );
 void			trap_FS_FCloseFile( fileHandle_t f );
-int				trap_FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize );
+int				trap_FS_GetFileList( const char *path, const char *extension, char *listbuf, int bufsize );
+int				trap_FS_Seek( fileHandle_t f, long offset, int origin ); // fsOrigin_t
 qhandle_t		trap_R_RegisterModel( const char *name );
 qhandle_t		trap_R_RegisterSkin( const char *name );
 qhandle_t		trap_R_RegisterShaderNoMip( const char *name );
@@ -979,8 +1017,8 @@ int				trap_LAN_GetPingQueueCount( void );
 void			trap_LAN_ClearPing( int n );
 void			trap_LAN_GetPing( int n, char *buf, int buflen, int *pingtime );
 void			trap_LAN_GetPingInfo( int n, char *buf, int buflen );
-void			trap_LAN_LoadCachedServers();
-void			trap_LAN_SaveCachedServers();
+void			trap_LAN_LoadCachedServers( void );
+void			trap_LAN_SaveCachedServers( void );
 void			trap_LAN_MarkServerVisible(int source, int n, qboolean visible);
 int				trap_LAN_ServerIsVisible( int source, int n);
 qboolean		trap_LAN_UpdateVisiblePings( int source );
@@ -1002,7 +1040,11 @@ void			trap_CIN_DrawCinematic (int handle);
 void			trap_CIN_SetExtents (int handle, int x, int y, int w, int h);
 int				trap_RealTime(qtime_t *qtime);
 void			trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
+#ifndef SMOKINGUNS
 qboolean		trap_VerifyCDKey( const char *key, const char *chksum);
+
+void			trap_SetPbClStatus( int status );
+#endif
 
 //
 // ui_addbots.c
@@ -1083,7 +1125,7 @@ void UI_SetBestScore( int level, int score );
 int UI_TierCompleted( int levelWon );
 qboolean UI_ShowTierVideo( int tier );
 qboolean UI_CanShowTierVideo( int tier );
-int  UI_GetCurrentGame( void );
+int UI_GetCurrentGame( void );
 void UI_NewGame( void );
 void UI_LogAwardData( int award, int data );
 int UI_GetAwardLevel( int award );
@@ -1114,7 +1156,6 @@ void UI_RankStatusMenu( void );
 
 // new ui
 
-
 #define ASSET_BACKGROUND "uiBackground"
 
 // for tracking sp game info in Team Arena
@@ -1136,5 +1177,7 @@ typedef struct postGameInfo_s {
 	int skillBonus;
 	int baseScore;
 } postGameInfo_t;
+
+
 
 #endif

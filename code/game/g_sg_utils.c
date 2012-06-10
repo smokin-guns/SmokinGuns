@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -20,7 +20,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-// g_wq_utils.c -- misc utility functions for the game module
+// g_sg_utils.c -- misc utility functions for the game module
 // by Spoon
 
 #include "g_local.h"
@@ -184,13 +184,13 @@ void G_SetItemBox (gentity_t *ent){
 }
 /*
 =============
-WQ_ThrowWeapon
+G_ThrowWeapon
 
 Spoon
 =============
 */
 
-void WQ_ThrowWeapon( int weapon, gentity_t *ent )
+void G_ThrowWeapon( int weapon, gentity_t *ent )
 {
 	playerState_t	*ps;
 	gitem_t			*item;
@@ -206,7 +206,7 @@ void WQ_ThrowWeapon( int weapon, gentity_t *ent )
 
 	item = BG_FindItemForWeapon( weapon );
 
-	drop = WQ_dropWeapon( ent, item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM );
+	drop = G_dropWeapon( ent, item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM );
 
 	if(drop){
 		trap_SendServerCommand( ent-g_entities, va("print \"%s dropped.\n\"", item->pickup_name));
@@ -245,7 +245,7 @@ LetGoOfGatling
 Make a player let go of the deployed gatling he's using.
 ========================
 */
-void LetGoOfGatling(gclient_t *client, gentity_t *gatling) {
+static void LetGoOfGatling(gclient_t *client, gentity_t *gatling) {
 	// add the ammo into the gatling
 	gatling->count = client->ps.ammo[WP_GATLING];
 	client->ps.weaponTime = 0;
@@ -262,8 +262,8 @@ void LetGoOfGatling(gclient_t *client, gentity_t *gatling) {
 	}
 
 	if(!client->ps.stats[STAT_OLDWEAPON] ||
-			  client->ps.stats[STAT_OLDWEAPON] == WP_GATLING &&
-			  !(client->ps.stats[STAT_FLAGS] & SF_GAT_CARRY)) {
+			  (client->ps.stats[STAT_OLDWEAPON] == WP_GATLING &&
+			  !(client->ps.stats[STAT_FLAGS] & SF_GAT_CARRY))) {
 		int i;
 
 		for ( i = WP_GATLING ; i > 0 ; i-- ) {
@@ -280,6 +280,9 @@ void LetGoOfGatling(gclient_t *client, gentity_t *gatling) {
 	G_AddEvent(&g_entities[gatling->s.eventParm], EV_CHANGE_TO_WEAPON, client->ps.stats[STAT_OLDWEAPON]);
 
 	gatling->s.eventParm = -1;
+
+	// Tequila comment: Gatling is now an object in the world
+	gatling->r.contents = MASK_SHOT;
 }
 
 
@@ -293,9 +296,12 @@ static void Gatling_Think( gentity_t *self) {
 	gclient_t *client;
 	vec3_t end;
 	trace_t trace;
+	
+	// Tequila: Fixed gcc warning about maybe uninitialized use of client
+	client = self->client;
 
 	if(self->s.eventParm != -1){
-		client = g_entities[self->s.eventParm].client;//&level.clients[ self->s.eventParm ];
+		client = g_entities[self->s.eventParm].client;
 		// store oldbuttons
 		self->mapparttime = self->mappart;
 		self->mappart = client->buttons;
@@ -349,12 +355,12 @@ static void Gatling_Think( gentity_t *self) {
 	}
 
 	// gatling is being built up
-	if(self->s.time2 > 0){
+	if(client && self->s.time2 > 0){
 
 		if(client->ps.stats[STAT_HEALTH] <= 0){
 			gitem_t *item = BG_FindItemForWeapon(WP_GATLING);
 
-			WQ_dropWeapon( self, item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM );
+			G_dropWeapon( self, item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM );
 			G_FreeEntity(self);
 			return;
 		}
@@ -364,7 +370,7 @@ static void Gatling_Think( gentity_t *self) {
 
 			VectorCopy(gatling_mins, self->r.mins);
 			VectorCopy(gatling_maxs, self->r.maxs);
-			//set mins/maxs for entitiystate(scanforcrosshair clientside)
+			// Set mins/maxs for clientside CG_ScanForCrosshairEntity
 			VectorCopy(self->r.mins, self->s.origin);
 			VectorCopy(self->r.maxs, self->s.origin2);
 			trap_LinkEntity(self);
@@ -374,7 +380,7 @@ static void Gatling_Think( gentity_t *self) {
 	}
 
 	// gatling is being dismantled
-	if(self->s.time2 < 0){
+	if(client && self->s.time2 < 0){
 
 		if(client->ps.stats[STAT_HEALTH] <= 0){
 			//abort
@@ -410,13 +416,9 @@ static void Gatling_Think( gentity_t *self) {
 
 	// player controls the gatling
 	if(self->s.eventParm != -1){
-		qboolean nogatling = qfalse;
 
 		//change the contents
-		if(self->r.contents = MASK_SHOT){
-			self->r.contents = CONTENTS_CORPSE;
-			trap_LinkEntity(self);
-		}
+		self->r.contents = CONTENTS_CORPSE;
 
 		//pick gatling up
 		if(client->buttons & BUTTON_ALT_ATTACK && !(self->mapparttime & BUTTON_ALT_ATTACK)){
@@ -430,50 +432,34 @@ static void Gatling_Think( gentity_t *self) {
 
 				client->ps.weaponTime = TRIPOD_TIME + 4*STAGE_TIME;
 				G_AddEvent( self, EV_DISM_TURRET, 0 );
-				self->s.time2 = -level.time;// - TRIPOD_TIME - 4*STAGE_TIME;
+				self->s.time2 = -level.time;
 				self->s.eventParm = userNum;
-				self->nextthink = level.time;
-				return;
 			}
-
 		}
 
-		/*if(client->ps.weapon != client->pers.cmd.weapon){
-			nogatling = qtrue;
-			client->ps.stats[STAT_OLDWEAPON] = client->pers.cmd.weapon;
-		}*/
-
-		if(client->ps.stats[STAT_HEALTH] <= 0){
-			nogatling = qtrue;
-		}
-
-		if(fabs(client->pers.cmd.forwardmove) > 40 ||
+		//get away from gatling is dead or moving, but not when crouching
+		else if(client->ps.stats[STAT_HEALTH] <= 0 ||
+			fabs(client->pers.cmd.forwardmove) > 40 ||
 			fabs(client->pers.cmd.rightmove) > 40 ||
-			client->pers.cmd.upmove /*|| fabs(client->ps.velocity[2])*/){
-			nogatling = qtrue;
-		}
-
-		//get away from gatling
-		if(nogatling){
+			client->pers.cmd.upmove){
 			LetGoOfGatling(client, self);
 		}
-		self->nextthink = level.time;
 	} else {
-		self->nextthink = level.time;
-		if(self->r.contents == CONTENTS_CORPSE){
-			// before resetting check if there's a player stuck into the gatling
-			trace_t trace;
+		trace_t trace;
 
-			trap_Trace_New(&trace, self->r.currentOrigin, gatling_mins, gatling_maxs,
-				self->r.currentOrigin, self->s.number, CONTENTS_BODY);
+		trap_Trace_New(&trace, self->r.currentOrigin, gatling_mins, gatling_maxs,
+			self->r.currentOrigin, self->s.number, CONTENTS_BODY);
 
-			if((trace.allsolid || trace.startsolid) && trace.entityNum < MAX_CLIENTS){
-			} else {
-				self->r.contents = MASK_SHOT;
-				trap_LinkEntity(self);
-			}
+		if((trace.allsolid || trace.startsolid) && trace.entityNum < MAX_CLIENTS){
+			// Tequila comment: Don't stuck a client playing with another gatling
+			// too next from this one
+			self->r.contents = CONTENTS_CORPSE;
+		} else {
+			self->r.contents = MASK_SHOT;
 		}
 	}
+	self->nextthink = level.time;
+	trap_LinkEntity(self);
 }
 
 /*
@@ -554,13 +540,13 @@ gentity_t *LaunchGatling( gentity_t *ent ) {
 
 /*
 =============
-WQ_GatlingBuildUp
+G_GatlingBuildUp
 
 Spoon
 =============
 */
 #define CHECK_PLANAR 0.95f
-void WQ_GatlingBuildUp( gentity_t *ent ) {
+void G_GatlingBuildUp( gentity_t *ent ) {
 	gclient_t	*client;
 	gentity_t	*gatling;
 
@@ -617,8 +603,7 @@ qboolean G_CanEntityBeActivated(gentity_t *player, gentity_t *target, qboolean e
 	trace_t tr;
 	vec3_t muzzle, forward, end;
 
-	if(Distance(player->client->ps.origin, target->r.currentOrigin) > ACTIVATE_RANGE &&
-		!exact)
+	if(!exact && Distance(player->client->ps.origin, target->r.currentOrigin) > ACTIVATE_RANGE)
 		return qfalse;
 
 	VectorCopy( player->client->ps.origin, muzzle );
@@ -638,8 +623,7 @@ qboolean G_CanEntityBeActivated(gentity_t *player, gentity_t *target, qboolean e
 		return qfalse;
 	}
 
-	if(Distance(player->client->ps.origin, tr.endpos) > ACTIVATE_RANGE &&
-		exact)
+	if(exact && Distance(player->client->ps.origin, tr.endpos) > ACTIVATE_RANGE)
 		return qfalse;
 
 	return qtrue;

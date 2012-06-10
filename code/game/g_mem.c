@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
+//
 // g_mem.c
 //
 
@@ -29,7 +30,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 
 
+#ifndef SMOKINGUNS
 #define POOLSIZE	(256 * 1024)
+#else
+#define POOLSIZE	(256 * 1024 * 4)
+#endif
 
 static char		memoryPool[POOLSIZE];
 static int		allocPoint;
@@ -42,7 +47,7 @@ void *G_Alloc( int size ) {
 	}
 
 	if ( allocPoint + size > POOLSIZE ) {
-		G_Error( "G_Alloc: failed on allocation of %u bytes\n", size );
+		G_Error( "G_Alloc: failed on allocation of %i bytes\n", size );
 		return NULL;
 	}
 

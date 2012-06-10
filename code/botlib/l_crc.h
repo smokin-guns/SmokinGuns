@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -20,16 +20,6 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-
-
-/*****************************************************************************
-* name:		l_crc.c
-*
-* desc:		CRC calculation
-*
-* $Archive: /source/stable/code/botlib/l_crc.h $
-*
-*****************************************************************************/
 
 typedef unsigned short crc_t;
 

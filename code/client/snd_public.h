@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -71,3 +71,13 @@ void S_ClearSoundBuffer( void );
 void SNDDMA_Activate( void );
 
 void S_UpdateBackgroundTrack( void );
+
+
+#ifdef USE_VOIP
+void S_StartCapture( void );
+int S_AvailableCaptureSamples( void );
+void S_Capture( int samples, byte *data );
+void S_StopCapture( void );
+void S_MasterGain( float gain );
+#endif
+

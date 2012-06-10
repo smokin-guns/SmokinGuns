@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 #include "ui_local.h"
 
 // this file is only included when building a dll
@@ -29,16 +30,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #error "Do not use in VM build"
 #endif
 
-static int (QDECL *syscall)( int arg, ... ) = (int (QDECL *)( int, ...))-1;
+static intptr_t (QDECL *syscall)( intptr_t arg, ... ) = (intptr_t (QDECL *)( intptr_t, ...))-1;
 
-void dllEntry( int (QDECL *syscallptr)( int arg,... ) ) {
+Q_EXPORT void dllEntry( intptr_t (QDECL *syscallptr)( intptr_t arg,... ) ) {
 	syscall = syscallptr;
 }
 
 int PASSFLOAT( float x ) {
-	float	floatTemp;
-	floatTemp = x;
-	return *(int *)&floatTemp;
+	floatint_t fi;
+	fi.f = x;
+	return fi.i;
 }
 
 void trap_Print( const char *string ) {
@@ -66,9 +67,9 @@ void trap_Cvar_Set( const char *var_name, const char *value ) {
 }
 
 float trap_Cvar_VariableValue( const char *var_name ) {
-	int temp;
-	temp = syscall( UI_CVAR_VARIABLEVALUE, var_name );
-	return (*(float*)&temp);
+	floatint_t fi;
+	fi.i = syscall( UI_CVAR_VARIABLEVALUE, var_name );
+	return fi.f;
 }
 
 void trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize ) {
@@ -119,7 +120,7 @@ void trap_FS_FCloseFile( fileHandle_t f ) {
 	syscall( UI_FS_FCLOSEFILE, f );
 }
 
-int trap_FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize ) {
+int trap_FS_GetFileList( const char *path, const char *extension, char *listbuf, int bufsize ) {
 	return syscall( UI_FS_GETFILELIST, path, extension, listbuf, bufsize );
 }
 
@@ -267,11 +268,11 @@ int trap_LAN_ServerStatus( const char *serverAddress, char *serverStatus, int ma
 	return syscall( UI_LAN_SERVERSTATUS, serverAddress, serverStatus, maxLen );
 }
 
-void trap_LAN_SaveCachedServers() {
+void trap_LAN_SaveCachedServers( void ) {
 	syscall( UI_LAN_SAVECACHEDSERVERS );
 }
 
-void trap_LAN_LoadCachedServers() {
+void trap_LAN_LoadCachedServers( void ) {
 	syscall( UI_LAN_LOADCACHEDSERVERS );
 }
 
@@ -361,31 +362,31 @@ int trap_RealTime(qtime_t *qtime) {
 
 // this returns a handle.  arg0 is the name in the format "idlogo.roq", set arg1 to NULL, alteredstates to qfalse (do not alter gamestate)
 int trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits) {
-  return syscall(UI_CIN_PLAYCINEMATIC, arg0, xpos, ypos, width, height, bits);
+	return syscall(UI_CIN_PLAYCINEMATIC, arg0, xpos, ypos, width, height, bits);
 }
 
 // stops playing the cinematic and ends it.  should always return FMV_EOF
 // cinematics must be stopped in reverse order of when they are started
 e_status trap_CIN_StopCinematic(int handle) {
-  return syscall(UI_CIN_STOPCINEMATIC, handle);
+	return syscall(UI_CIN_STOPCINEMATIC, handle);
 }
 
 
 // will run a frame of the cinematic but will not draw it.  Will return FMV_EOF if the end of the cinematic has been reached.
 e_status trap_CIN_RunCinematic (int handle) {
-  return syscall(UI_CIN_RUNCINEMATIC, handle);
+	return syscall(UI_CIN_RUNCINEMATIC, handle);
 }
 
 
 // draws the current frame
 void trap_CIN_DrawCinematic (int handle) {
-  syscall(UI_CIN_DRAWCINEMATIC, handle);
+	syscall(UI_CIN_DRAWCINEMATIC, handle);
 }
 
 
 // allows you to resize the animation dynamically
 void trap_CIN_SetExtents (int handle, int x, int y, int w, int h) {
-  syscall(UI_CIN_SETEXTENTS, handle, x, y, w, h);
+	syscall(UI_CIN_SETEXTENTS, handle, x, y, w, h);
 }
 
 
@@ -393,6 +394,7 @@ void	trap_R_RemapShader( const char *oldShader, const char *newShader, const cha
 	syscall( UI_R_REMAP_SHADER, oldShader, newShader, timeOffset );
 }
 
+#ifndef SMOKINGUNS
 qboolean trap_VerifyCDKey( const char *key, const char *chksum) {
 	return syscall( UI_VERIFY_CDKEY, key, chksum);
 }
@@ -400,3 +402,4 @@ qboolean trap_VerifyCDKey( const char *key, const char *chksum) {
 void trap_SetPbClStatus( int status ) {
 	syscall( UI_SET_PBCLSTATUS, status );
 }
+#endif

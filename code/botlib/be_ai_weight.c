@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 *
 *****************************************************************************/
 
-#include "../game/q_shared.h"
+#include "../qcommon/q_shared.h"
 #include "l_memory.h"
 #include "l_log.h"
 #include "l_utils.h"
@@ -39,8 +39,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "l_struct.h"
 #include "l_libvar.h"
 #include "aasfile.h"
-#include "../game/botlib.h"
-#include "../game/be_aas.h"
+#include "botlib.h"
+#include "be_aas.h"
 #include "be_aas_funcs.h"
 #include "be_interface.h"
 #include "be_ai_weight.h"
@@ -65,13 +65,20 @@ int ReadValue(source_t *source, float *value)
 	if (!strcmp(token.string, "-"))
 	{
 		SourceWarning(source, "negative value set to zero\n");
-		if (!PC_ExpectTokenType(source, TT_NUMBER, 0, &token)) return qfalse;
-	} //end if
+
+		if(!PC_ExpectAnyToken(source, &token))
+		{
+			SourceError(source, "Missing return value\n");
+			return qfalse;
+		}
+	}
+
 	if (token.type != TT_NUMBER)
 	{
 		SourceError(source, "invalid return value %s\n", token.string);
 		return qfalse;
-	} //end if
+	}
+
 	*value = token.floatvalue;
 	return qtrue;
 } //end of the function ReadValue
@@ -423,7 +430,7 @@ weightconfig_t *ReadWeightConfig(char *filename)
 	//if the file was located in a pak file
 	botimport.Print(PRT_MESSAGE, "loaded %s\n", filename);
 #ifdef DEBUG
-	if (bot_developer)
+	if (botDeveloper)
 	{
 		botimport.Print(PRT_MESSAGE, "weights loaded in %d msec\n", Sys_MilliSeconds() - starttime);
 	} //end if
@@ -594,9 +601,12 @@ float FuzzyWeight_r(int *inventory, fuzzyseperator_t *fs)
 			if (fs->next->child) w2 = FuzzyWeight_r(inventory, fs->next->child);
 			else w2 = fs->next->weight;
 			//the scale factor
-			scale = (inventory[fs->index] - fs->value) / (fs->next->value - fs->value);
+			if(fs->next->value == MAX_INVENTORYVALUE) // is fs->next the default case?
+        		return w2;      // can't interpolate, return default weight
+			else
+				scale = (float) (inventory[fs->index] - fs->value) / (fs->next->value - fs->value);
 			//scale between the two weights
-			return scale * w1 + (1 - scale) * w2;
+			return (1 - scale) * w1 + scale * w2;
 		} //end if
 		return FuzzyWeight_r(inventory, fs->next);
 	} //end else if
@@ -628,9 +638,12 @@ float FuzzyWeightUndecided_r(int *inventory, fuzzyseperator_t *fs)
 			if (fs->next->child) w2 = FuzzyWeight_r(inventory, fs->next->child);
 			else w2 = fs->next->minweight + random() * (fs->next->maxweight - fs->next->minweight);
 			//the scale factor
-			scale = (inventory[fs->index] - fs->value) / (fs->next->value - fs->value);
+			if(fs->next->value == MAX_INVENTORYVALUE) // is fs->next the default case?
+        		return w2;      // can't interpolate, return default weight
+			else
+				scale = (float) (inventory[fs->index] - fs->value) / (fs->next->value - fs->value);
 			//scale between the two weights
-			return scale * w1 + (1 - scale) * w2;
+			return (1 - scale) * w1 + scale * w2;
 		} //end if
 		return FuzzyWeightUndecided_r(inventory, fs->next);
 	} //end else if
@@ -751,7 +764,7 @@ void ScaleFuzzySeperator_r(fuzzyseperator_t *fs, float scale)
 	else if (fs->type == WT_BALANCE)
 	{
 		//
-		fs->weight = (fs->maxweight + fs->minweight) * scale;
+		fs->weight = (float) (fs->maxweight + fs->minweight) * scale;
 		//get the weight between bounds
 		if (fs->weight < fs->minweight) fs->weight = fs->minweight;
 		else if (fs->weight > fs->maxweight) fs->weight = fs->maxweight;

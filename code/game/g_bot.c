@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // g_bot.c
 
 #include "g_local.h"
@@ -44,17 +45,20 @@ typedef struct {
 	int		spawnTime;
 } botSpawnQueue_t;
 
-static int				botBeginDelay;
 static botSpawnQueue_t	botSpawnQueue[BOT_SPAWN_QUEUE_DEPTH];
 
 vmCvar_t bot_minplayers;
 // smokinguns
+#ifdef SMOKINGUNS
 vmCvar_t bot_noBR; // no bots in BR
 vmCvar_t bot_noDuel; // no bots in duel
+#endif
 
+#ifndef SMOKINGUNS
 extern gentity_t	*podium1;
 extern gentity_t	*podium2;
 extern gentity_t	*podium3;
+#endif
 
 float trap_Cvar_VariableValue( const char *var_name ) {
 	char buf[128];
@@ -218,7 +222,7 @@ static void PlayerIntroSound( const char *modelAndSkin ) {
 	char	*skin;
 
 	Q_strncpyz( model, modelAndSkin, sizeof(model) );
-	skin = Q_strrchr( model, '/' );
+	skin = strrchr( model, '/' );
 	if ( skin ) {
 		*skin++ = '\0';
 	}
@@ -290,6 +294,11 @@ void G_AddRandomBot( int team ) {
 			num--;
 			if (num <= 0) {
 				skill = trap_Cvar_VariableValue( "g_spSkill" );
+#ifndef SMOKINGUNS
+				if (team == TEAM_RED) teamstr = "red";
+				else if (team == TEAM_BLUE) teamstr = "blue";
+				else teamstr = "";
+#else
 				if (team == TEAM_RED) {
 					if (g_gametype.integer >= GT_RTP)
 						teamstr = "redspec";
@@ -307,7 +316,7 @@ void G_AddRandomBot( int team ) {
 				}
 				else
 					teamstr = "";
-
+#endif
 				strncpy(netname, value, sizeof(netname)-1);
 				netname[sizeof(netname)-1] = '\0';
 				Q_CleanStr(netname);
@@ -325,7 +334,6 @@ G_RemoveRandomBot
 */
 int G_RemoveRandomBot( int team ) {
 	int i;
-	char netname[36];
 	gclient_t	*cl;
 
 	for ( i=0 ; i< g_maxclients.integer ; i++ ) {
@@ -339,9 +347,7 @@ int G_RemoveRandomBot( int team ) {
 		if ( team >= 0 && cl->sess.sessionTeam != team ) {
 			continue;
 		}
-		strcpy(netname, cl->pers.netname);
-		Q_CleanStr(netname);
-		trap_SendConsoleCommand( EXEC_INSERT, va("kick %s\n", netname) );
+		trap_SendConsoleCommand( EXEC_INSERT, va("clientkick %d\n", cl->ps.clientNum) );
 		return qtrue;
 	}
 	return qfalse;
@@ -414,7 +420,11 @@ G_CheckMinimumPlayers
 ===============
 */
 void G_CheckMinimumPlayers( void ) {
-	int minplayers, noBR, noDuel, gametype;
+#ifndef SMOKINGUNS
+	int minplayers;
+#else
+	int minplayers, noBR, noDuel;
+#endif
 	int humanplayers, botplayers;
 	static int checkminimumplayers_time;
 
@@ -425,16 +435,28 @@ void G_CheckMinimumPlayers( void ) {
 	}
 	checkminimumplayers_time = level.time;
 	trap_Cvar_Update(&bot_minplayers);
+	minplayers = bot_minplayers.integer;
+#ifdef SMOKINGUNS
 	trap_Cvar_Update(&bot_noBR);
 	trap_Cvar_Update(&bot_noDuel);
-	minplayers = bot_minplayers.integer;
 	noBR = bot_noBR.integer;
 	noDuel = bot_noDuel.integer;
+#endif
 
 	if (minplayers <= 0) return;
 
-	gametype = g_gametype.integer;
-	if (gametype >= GT_TEAM) {
+#ifndef SMOKINGUNS
+	if (g_gametype.integer >= GT_TEAM) {
+		if (minplayers >= g_maxclients.integer / 2) {
+			minplayers = (g_maxclients.integer / 2) -1;
+		}
+
+		humanplayers = G_CountHumanPlayers( TEAM_RED );
+		botplayers = G_CountBotPlayers(	TEAM_RED );
+		//
+		if (humanplayers + botplayers < minplayers) {
+#else
+	if (g_gametype.integer >= GT_TEAM) {
 		if (minplayers & 1) {
 			minplayers += 1; // round up to even number
 		}
@@ -448,31 +470,47 @@ void G_CheckMinimumPlayers( void ) {
 		botplayers = G_CountBotPlayers( TEAM_RED )
 		             + G_CountBotPlayers( TEAM_RED_SPECTATOR );
 		//
-		if (humanplayers + botplayers < minplayers && !(gametype == GT_BR && noBR)) {
+		if (humanplayers + botplayers < minplayers && !(g_gametype.integer == GT_BR && noBR)) {
+#endif
 			G_AddRandomBot( TEAM_RED );
 		} else if (humanplayers + botplayers > minplayers && botplayers) {
 			G_RemoveRandomBot( TEAM_RED );
 		}
 		//
+#ifndef SMOKINGUNS
+		humanplayers = G_CountHumanPlayers( TEAM_BLUE );
+		botplayers = G_CountBotPlayers( TEAM_BLUE );
+		//
+		if (humanplayers + botplayers < minplayers) {
+#else
 		humanplayers = G_CountHumanPlayers( TEAM_BLUE )
 		               + G_CountHumanPlayers( TEAM_BLUE_SPECTATOR );
 		botplayers = G_CountBotPlayers( TEAM_BLUE )
 		             + G_CountBotPlayers( TEAM_BLUE_SPECTATOR );
 		//
-		if (humanplayers + botplayers < minplayers && !(gametype == GT_BR && noBR)) {
+		if (humanplayers + botplayers < minplayers && !(g_gametype.integer == GT_BR && noBR)) {
+#endif
 			G_AddRandomBot( TEAM_BLUE );
 		} else if (humanplayers + botplayers > minplayers && botplayers) {
 			G_RemoveRandomBot( TEAM_BLUE );
 		}
 	}
-	else if (gametype == GT_DUEL ) {
+#ifndef SMOKINGUNS
+	else if (g_gametype.integer == GT_TOURNAMENT ) {
+#else
+	else if (g_gametype.integer == GT_DUEL ) {
+#endif
 		if (minplayers >= g_maxclients.integer) {
 			minplayers = g_maxclients.integer-1;
 		}
 		humanplayers = G_CountHumanPlayers( -1 );
 		botplayers = G_CountBotPlayers( -1 );
 		//
+#ifndef SMOKINGUNS
+		if (humanplayers + botplayers < minplayers) {
+#else
 		if (humanplayers + botplayers < minplayers  && !noDuel) {
+#endif
 			G_AddRandomBot( TEAM_FREE );
 		} else if (humanplayers + botplayers > minplayers && botplayers) {
 			// try to remove spectators first
@@ -482,7 +520,7 @@ void G_CheckMinimumPlayers( void ) {
 			}
 		}
 	}
-	else if (gametype == GT_FFA) {
+	else if (g_gametype.integer == GT_FFA) {
 		if (minplayers >= g_maxclients.integer) {
 			minplayers = g_maxclients.integer-1;
 		}
@@ -665,12 +703,21 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	}
 	Info_SetValueForKey( userinfo, "sex", s );
 
-	key = "color";
+#ifndef SMOKINGUNS
+	key = "color1";
 	s = Info_ValueForKey( botinfo, key );
 	if ( !*s ) {
 		s = "4";
 	}
 	Info_SetValueForKey( userinfo, key, s );
+
+	key = "color2";
+	s = Info_ValueForKey( botinfo, key );
+	if ( !*s ) {
+		s = "5";
+	}
+	Info_SetValueForKey( userinfo, key, s );
+#endif
 
 	s = Info_ValueForKey(botinfo, "aifile");
 	if (!*s ) {
@@ -688,31 +735,41 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 
 	// initialize the bot settings
 	if( !team || !*team ) {
-
-		if( g_gametype.integer >= GT_TEAM) {
+		if( g_gametype.integer >= GT_TEAM ) {
 			if( PickTeam(clientNum) == TEAM_RED) {
+#ifndef SMOKINGUNS
+				team = "red";
+#else
 				if( g_gametype.integer >= GT_RTP)
 					team = "redspec";
 				else
 					team = "red";
+#endif
 			}
 			else {
+#ifndef SMOKINGUNS
+				team = "blue";
+#else
 				if( g_gametype.integer >= GT_RTP)
 					team = "bluespec";
 				else
 					team = "blue";
+#endif
 			}
 		}
 		else {
+#ifndef SMOKINGUNS
+			team = "red";
+#else
 			if(g_gametype.integer == GT_DUEL){
 				team = "s";
 			} else
 				team = "red";
+#endif
 		}
 	}
-
 	Info_SetValueForKey( userinfo, "characterfile", Info_ValueForKey( botinfo, "aifile" ) );
-	Info_SetValueForKey( userinfo, "skill", va( "%f", skill ) );
+	Info_SetValueForKey( userinfo, "skill", va( "%5.2f", skill ) );
 	Info_SetValueForKey( userinfo, "team", team );
 
 	bot = &g_entities[ clientNum ];
@@ -791,7 +848,7 @@ void Svcmd_AddBot_f( void ) {
 	// go ahead and load the bot's media immediately
 	if ( level.time - level.startTime > 1000 &&
 		trap_Cvar_VariableIntegerValue( "cl_running" ) ) {
-		trap_SendServerCommand( -1, "loaddefered\n" );	// FIXME: spelled wrong, but not changing for demo // demo? what fucking demo are you talking about?
+		trap_SendServerCommand( -1, "loaddefered\n" );	// FIXME: spelled wrong, but not changing for demo
 	}
 }
 
@@ -842,9 +899,11 @@ static void G_SpawnBots( char *botList, int baseDelay ) {
 	int			delay;
 	char		bots[MAX_INFO_VALUE];
 
+#ifndef SMOKINGUNS
 	podium1 = NULL;
 	podium2 = NULL;
 	podium3 = NULL;
+#endif
 
 	skill = trap_Cvar_VariableValue( "g_spSkill" );
 	if( skill < 1 ) {
@@ -945,11 +1004,19 @@ static void G_LoadBots( void ) {
 	}
 
 	// get all bots from .bot files
-	numdirs = trap_FS_GetFileList("scripts/wq3bots", ".bot", dirlist, 1024 );
+#ifndef SMOKINGUNS
+	numdirs = trap_FS_GetFileList("scripts", ".bot", dirlist, 1024 );
+#else
+	numdirs = trap_FS_GetFileList("scripts/sg_bots", ".bot", dirlist, 1024 );
+#endif
 	dirptr  = dirlist;
 	for (i = 0; i < numdirs; i++, dirptr += dirlen+1) {
 		dirlen = strlen(dirptr);
-		strcpy(filename, "scripts/wq3bots/");
+#ifndef SMOKINGUNS
+		strcpy(filename, "scripts/");
+#else
+		strcpy(filename, "scripts/sg_bots/");
+#endif
 		strcat(filename, dirptr);
 		G_LoadBotsFromFile(filename);
 	}
@@ -1010,6 +1077,7 @@ void G_InitBots( qboolean restart ) {
 
 	trap_Cvar_Register( &bot_minplayers, "bot_minplayers", "0", CVAR_SERVERINFO );
 	// smokinguns
+#ifdef SMOKINGUNS
 	trap_Cvar_Register( &bot_noBR, "bot_noBR", "0", CVAR_ARCHIVE );
 	trap_Cvar_Register( &bot_noDuel, "bot_noDuel", "0", CVAR_ARCHIVE );
 
@@ -1017,6 +1085,7 @@ void G_InitBots( qboolean restart ) {
 		        || (g_gametype.integer == GT_DUEL && bot_noDuel.integer) ) {
 		trap_SendConsoleCommand( EXEC_INSERT, "kickbots\n");
 	}
+#endif
 
 	if( g_gametype.integer == GT_SINGLE_PLAYER ) {
 		trap_GetServerinfo( serverinfo, sizeof(serverinfo) );

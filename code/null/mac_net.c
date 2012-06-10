@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#include "../game/q_shared.h"
+#include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 
 /*
@@ -52,15 +52,4 @@ Sys_SendPacket
 ==================
 */
 void Sys_SendPacket( int length, void *data, netadr_t to ) {
-}
-
-/*
-==================
-Sys_GetPacket
-
-Never called by the game logic, just the system event queing
-==================
-*/
-qboolean	Sys_GetPacket ( netadr_t *net_from, msg_t *net_message ) {
-	return false;
 }

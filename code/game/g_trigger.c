@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 #include "g_local.h"
 
 
@@ -108,6 +109,7 @@ void SP_trigger_multiple( gentity_t *ent ) {
 	trap_LinkEntity (ent);
 }
 
+#ifdef SMOKINGUNS
 void Touch_Escape( gentity_t *self, gentity_t *other, trace_t *trace ){
 
 	int reward ;
@@ -128,6 +130,9 @@ void Touch_Escape( gentity_t *self, gentity_t *other, trace_t *trace ){
 	reward = g_robberReward.integer ;
 	if ( reward < MIN_POINT_ROBBER_REWARD )  reward = MIN_POINT_ROBBER_REWARD ;
 	else if ( reward > MAX_POINT_ROBBER_REWARD )  reward = MAX_POINT_ROBBER_REWARD ;
+	
+	other->client->pers.rob ++ ;
+	PushMinilogf( "ROB: %i" , other->s.number ) ;
 	AddScore( other , other->r.currentOrigin , reward ) ;
 }
 
@@ -151,7 +156,7 @@ void SP_trigger_escape( gentity_t *ent ) {
 
 	trap_LinkEntity (ent);
 }
-
+#endif
 
 
 /*
@@ -185,6 +190,7 @@ trigger_push
 ==============================================================================
 */
 
+#ifndef SMOKINGUNS
 void trigger_push_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 
 	if ( !other->client ) {
@@ -193,6 +199,7 @@ void trigger_push_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 
 	BG_TouchJumpPad( &other->client->ps, &self->s );
 }
+#endif
 
 
 /*
@@ -241,6 +248,7 @@ void AimAtTarget( gentity_t *self ) {
 Must point at a target_position, which will be the apex of the leap.
 This will be client side predicted, unlike target_push
 */
+#ifndef SMOKINGUNS
 void SP_trigger_push( gentity_t *self ) {
 	InitTrigger (self);
 
@@ -256,6 +264,7 @@ void SP_trigger_push( gentity_t *self ) {
 	self->nextthink = level.time + FRAMETIME;
 	trap_LinkEntity (self);
 }
+#endif
 
 
 void Use_target_push( gentity_t *self, gentity_t *other, gentity_t *activator ) {
@@ -266,9 +275,11 @@ void Use_target_push( gentity_t *self, gentity_t *other, gentity_t *activator ) 
 	if ( activator->client->ps.pm_type != PM_NORMAL ) {
 		return;
 	}
-/*	if ( activator->client->ps.powerups[PW_FLIGHT] ) {
+#ifndef SMOKINGUNS
+	if ( activator->client->ps.powerups[PW_FLIGHT] ) {
 		return;
-	}*/
+	}
+#endif
 
 	VectorCopy (self->s.origin2, activator->client->ps.velocity);
 
@@ -284,6 +295,7 @@ Pushes the activator in the direction.of angle, or towards a target apex.
 "speed"		defaults to 1000
 if "bouncepad", play bounce noise instead of windfly
 */
+#ifndef SMOKINGUNS
 void SP_target_push( gentity_t *self ) {
 	if (!self->speed) {
 		self->speed = 1000;
@@ -304,6 +316,7 @@ void SP_target_push( gentity_t *self ) {
 	}
 	self->use = Use_target_push;
 }
+#endif
 
 /*
 ==============================================================================
@@ -313,6 +326,7 @@ trigger_teleport
 ==============================================================================
 */
 
+#ifndef SMOKINGUNS
 void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 	gentity_t	*dest;
 
@@ -324,7 +338,7 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 	}
 	// Spectators only?
 	if ( ( self->spawnflags & 1 ) &&
-		other->client->sess.sessionTeam < TEAM_SPECTATOR ) {
+		other->client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		return;
 	}
 
@@ -337,6 +351,7 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 
 	TeleportPlayer( other, dest->s.origin, dest->s.angles );
 }
+#endif
 
 
 /*QUAKED trigger_teleport (.5 .5 .5) ? SPECTATOR
@@ -347,6 +362,7 @@ If spectator is set, only spectators can use this teleport
 Spectator teleporters are not normally placed in the editor, but are created
 automatically near doors to allow spectators to move through them
 */
+#ifndef SMOKINGUNS
 void SP_trigger_teleport( gentity_t *self ) {
 	InitTrigger (self);
 
@@ -366,6 +382,7 @@ void SP_trigger_teleport( gentity_t *self ) {
 
 	trap_LinkEntity (self);
 }
+#endif
 
 
 /*
@@ -422,7 +439,6 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 		dflags = DAMAGE_NO_PROTECTION;
 	else
 		dflags = 0;
-
 	G_Damage (other, self, self, NULL, NULL, self->damage, dflags, MOD_TRIGGER_HURT);
 }
 
@@ -438,12 +454,13 @@ void SP_trigger_hurt( gentity_t *self ) {
 
 	self->r.contents = CONTENTS_TRIGGER;
 
-	if ( self->spawnflags & 2 ) {
-		self->use = hurt_use;
-	}
+	self->use = hurt_use;
 
 	// link in to the world if starting active
-	if ( ! (self->spawnflags & 1) ) {
+	if ( self->spawnflags & 1 ) {
+		trap_UnlinkEntity (self);
+	}
+	else {
 		trap_LinkEntity (self);
 	}
 }

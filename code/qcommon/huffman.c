@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * Compression book.  The ranks are not actually stored, but implicitly defined
  * by the location of a node within a doubly-linked list */
 
-#include "../game/q_shared.h"
+#include "q_shared.h"
 #include "qcommon.h"
 
 static int			bloc = 0;
@@ -38,6 +38,16 @@ void	Huff_putBit( int bit, byte *fout, int *offset) {
 	fout[(bloc>>3)] |= bit << (bloc&7);
 	bloc++;
 	*offset = bloc;
+}
+
+int		Huff_getBloc(void)
+{
+	return bloc;
+}
+
+void	Huff_setBloc(int _bloc)
+{
+	bloc = _bloc;
 }
 
 int		Huff_getBit( byte *fin, int *offset) {
@@ -83,7 +93,7 @@ static void free_ppnode(huff_t* huff, node_t **ppnode) {
 }
 
 /* Swap the location of these two nodes in the tree */
-static void swap (huff_t* huff, node_t *node1, node_t *node2) {
+static void swap (huff_t* huff, node_t *node1, node_t *node2) { 
 	node_t *par1, *par2;
 
 	par1 = node1->parent;
@@ -264,7 +274,7 @@ int Huff_Receive (node_t *node, int *ch, byte *fin) {
 	}
 	if (!node) {
 		return 0;
-//		Com_Error(ERR_DROP, "Illegal tree!\n");
+//		Com_Error(ERR_DROP, "Illegal tree!");
 	}
 	return (*ch = node->symbol);
 }
@@ -282,7 +292,7 @@ void Huff_offsetReceive (node_t *node, int *ch, byte *fin, int *offset) {
 	if (!node) {
 		*ch = 0;
 		return;
-//		Com_Error(ERR_DROP, "Illegal tree!\n");
+//		Com_Error(ERR_DROP, "Illegal tree!");
 	}
 	*ch = node->symbol;
 	*offset = bloc;

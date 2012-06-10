@@ -7,7 +7,7 @@ menuDef {
     	name "ingame_callvote"
     	visible 0
     	fullscreen 0
-    	rect 128 0 256 250
+    	rect 128 0 384 250
 	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
     	focusColor 1 .75 0 1
     	style 1
@@ -16,7 +16,7 @@ menuDef {
 
 itemDef {
 	name window
-	rect 0 0 256 250
+	rect 0 0 384 250
 	ownerdraw UI_INGAME_RECT
 	visible 1
 	decoration
@@ -26,30 +26,30 @@ itemDef {
 
 // 	BUTTONS	//
 itemDef {
-	name ctr_misc
-	text "Misc"
+	name ctr_gametype
+	text "Game Type"
 	textscale .25
 	group grpbutton
 	style WINDOW_STYLE_FILLED
 	background "ui/wq3_assets/button.tga"
-	rect 30 45 45 20
+	rect 35 45 75 20
 	type 1
 	textalign 1
-	textalignx 22
+	textalignx 38
 	textaligny 16
 	forecolor 1 1 1 1
 	backcolor 1 1 1 1
 	visible 1
-	action { hide grpCallVote ; show misc }
-	mouseEnter { show ctr_misc_alt }
-      	mouseExit { hide ctr_misc_alt }
+	action { hide grpCallVote ; show type }
+	mouseEnter { show ctr_gametype_alt }
+      	mouseExit { hide ctr_gametype_alt }
 	}
 	itemDef {
-      		name ctr_misc_alt
+      		name ctr_gametype_alt
 		group grpControlbutton
 		style WINDOW_STYLE_SHADER
 		background "ui/wq3_assets/button_selected.tga"
- 		rect 30 45 45 20
+ 		rect 35 45 75 20
       		visible 0
 		decoration	  
     		}
@@ -60,7 +60,7 @@ itemDef {
 	group grpbutton
 	style WINDOW_STYLE_FILLED
 	background "ui/wq3_assets/button.tga"
-	rect 132 45 45 20
+	rect 116 45 45 20
 	type 1
 	textalign 1
 	textalignx 22
@@ -77,7 +77,7 @@ itemDef {
 		group grpControlbutton
 		style WINDOW_STYLE_SHADER
 		background "ui/wq3_assets/button_selected.tga"
- 		rect 132 45 45 20
+ 		rect 116 45 45 20
       		visible 0
 		decoration	  
     		}
@@ -89,7 +89,7 @@ itemDef {
 	group grpbutton
 	style WINDOW_STYLE_FILLED
 	background "ui/wq3_assets/button.tga"
-	rect 81 45 45 20
+	rect 167 45 45 20
 	type 1
 	textalign 1
 	textalignx 22
@@ -106,10 +106,89 @@ itemDef {
 		group grpControlbutton
 		style WINDOW_STYLE_SHADER
 		background "ui/wq3_assets/button_selected.tga"
- 		rect 81 45 45 20
+ 		rect 167 45 45 20
       		visible 0
 		decoration	  
     		}
+
+itemDef {
+	name ctr_mapcycle
+	text "Map Cycle"
+	textscale .25
+	group grpbutton
+	style WINDOW_STYLE_FILLED
+	background "ui/wq3_assets/button.tga"
+	rect 218 45 75 20
+	type 1
+	textalign 1
+	textalignx 38
+	textaligny 16
+	forecolor 1 1 1 1
+	backcolor 1 1 1 1
+	visible 1
+	action { hide grpCallVote ; show mapcycle }
+	mouseEnter {show ctr_mapcycle_alt }
+	mouseExit { hide ctr_mapcycle_alt}
+	}
+	itemDef {
+		name ctr_mapcycle_alt
+		group grpControlbutton
+		style WINDOW_STYLE_SHADER
+		background "ui/wq3_assets/button_selected.tga"
+		rect 218 45 75 20
+		visible 0
+		decoration
+		}
+
+itemDef {
+	name ctr_misc
+	text "Misc"
+	textscale .25
+	group grpbutton
+	style WINDOW_STYLE_FILLED
+	background "ui/wq3_assets/button.tga"
+	rect 299 45 45 20
+	type 1
+	textalign 1
+	textalignx 22
+	textaligny 16
+	forecolor 1 1 1 1
+	backcolor 1 1 1 1
+	visible 1
+	action { hide grpCallVote ; show misc }
+	mouseEnter { show ctr_misc_alt }
+      	mouseExit { hide ctr_misc_alt }
+	}
+	itemDef {
+      		name ctr_misc_alt
+		group grpControlbutton
+		style WINDOW_STYLE_SHADER
+		background "ui/wq3_assets/button_selected.tga"
+ 		rect 299 45 45 20
+      		visible 0
+		decoration	  
+    		}
+
+/*itemDef {
+	name ctr_changeleader
+	text "Leader"
+	textscale .25
+	group grpbutton
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	rect 225 45 45 20
+	type 1
+	textalign 1
+	textalignx 22
+	textaligny 16
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1 
+	visible 1
+	action { hide grpCallVote ; show leader }
+	mouseEnter { setitemcolor ctr_changeleader backcolor .1 .37 .1 1 }
+      	mouseExit { setitemcolor ctr_changeleader backcolor .37 .1 .1 1 }
+	}*/
+
 
 // 	MISC	//		
 		 
@@ -118,7 +197,7 @@ itemDef {
 	text "Restart Map"
 	group grpCallVote
 	textscale .25
-	rect 16 90 224 20
+	rect 80 90 224 20
 	type 1
 	textalign 1
 	textalignx 112
@@ -134,7 +213,7 @@ itemDef {
 	group grpCallVote
 	text "Next Map"
 	textscale .25
-	rect 16 110 224 20
+	rect 80 110 224 20
 	type 1
 	textalign 1
 	textalignx 112
@@ -143,7 +222,79 @@ itemDef {
 	visible 0
 	action { exec "cmd callvote nextmap" ; uiScript closeingame }
 	}
+/*itemDef {
+	name misc
+	group grpCallVote
+	text "Do Warmup"
+	textscale .25
+	rect 16 130 224 20
+	type 1
+	textalign 1
+	textalignx 112
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 0
+	action { exec "cmd callvote g_doWarmup 1" ; uiScript closeingame }
+	}*/
 
+// Game Type //
+
+itemDef {
+	name type
+	group grpCallVote
+	text "Game Type:"
+	style 0
+	textscale .25
+	ownerdraw UI_NETGAMETYPE
+	rect 104 110 110 20
+	textalign 0
+	textalignx 0
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 0
+	}
+
+// dunno why i have to unclude this, but if it's not there the gametype-button doesn't seem to work
+itemDef {
+	name type
+	group grpCallVote
+      	rect 1000 100 1 1
+	type ITEM_TYPE_LISTBOX
+	style WINDOW_STYLE_FILLED
+	elementwidth 120
+	elementheight 15
+	textscale .25
+	elementtype LISTBOX_TEXT
+	feeder FEEDER_MAPS
+	border 1
+	bordercolor 0 0 0 0
+	forecolor 0 0 0 0
+	backcolor 0 0 0 0
+	outlinecolor 0 0 0 0
+	visible 1
+	mouseEnter {  } 
+	mouseExit { } 
+  	}
+
+itemDef {
+	name type
+	text "OK"
+	type 1
+	textscale .3
+	group grpCallVote
+	style WINDOW_STYLE_FILLED
+	background "ui/wq3_assets/button.tga"
+	rect 167 190 50 25
+	textalign 1
+	textalignx 25
+	textaligny 20
+	forecolor 1 1 1 1
+	backcolor 1 1 1 1 
+	visible 0
+	action { uiScript voteGame ; uiScript closeingame }
+	mouseEnter { show ok_alt }
+      	mouseExit { hide ok_alt }	
+	}
 
 // 	KICK PLAYER	//
 
@@ -152,7 +303,7 @@ itemDef {
 	group grpCallVote
 	text "Kick Player:"
 	textscale .25
-	rect 20 80 110 20
+	rect 84 70 110 20
 	textalign 0
 	textalignx 0
 	textaligny 16
@@ -164,7 +315,7 @@ itemDef {
 itemDef {
       	name kick
 	group grpCallVote
-       	rect 20 100 216 80
+       	rect 84 90 216 85
 	style WINDOW_STYLE_FILLED
 	type ITEM_TYPE_LISTBOX
 	elementwidth 120
@@ -190,7 +341,7 @@ itemDef {
 	group grpCallVote
 	style WINDOW_STYLE_FILLED
 	background "ui/wq3_assets/button.tga"
-	rect 103 190 50 25
+	rect 167 190 50 25
 	textalign 1
 	textalignx 25
 	textaligny 20
@@ -207,24 +358,10 @@ itemDef {
 itemDef {
 	name map
 	group grpCallVote
-	text "Gametype:"
-	style 0
-	textscale .25
-	ownerdraw UI_NETGAMETYPE
-	rect 20 65 110 20
-	textalign 0
-	textalignx 0
-	textaligny 16
-	forecolor 1 1 1 1
-	visible 0
-	}
-itemDef {
-	name map
-	group grpCallVote
 	text "New Map:"
 	ownerdraw UI_ALLMAPS_SELECTION 
 	textscale .25
-	rect 20 80 110 20
+	rect 84 70 110 20
 	textalign 0
 	textalignx 0
 	textaligny 16
@@ -236,7 +373,7 @@ itemDef {
 itemDef {
 	name map
 	group grpCallVote
-      	rect 20 100 216 80
+      	rect 84 90 216 85
 	type ITEM_TYPE_LISTBOX
 	style WINDOW_STYLE_FILLED
 	elementwidth 120
@@ -263,7 +400,7 @@ itemDef {
 	group grpCallVote
 	style WINDOW_STYLE_FILLED
 	background "ui/wq3_assets/button.tga"
-	rect 103 190 50 25
+	rect 167 190 50 25
 	textalign 1
 	textalignx 25
 	textaligny 20
@@ -275,16 +412,130 @@ itemDef {
       	mouseExit { hide ok_alt }		
 	}
 
+// 	MAP CYCLE	//
+
+itemDef {
+	name mapcycle
+	group grpCallVote
+	text "Map Cycle:"
+	textscale .25
+	rect 84 70 110 20
+	textalign 0
+	textalignx 0
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 0
+	decoration
+	action { }
+	}
+itemDef {
+	name mapcycle
+	group grpCallVote
+	rect 84 90 216 85
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_LISTBOX
+	elementwidth 120
+	elementheight 15
+	textscale .25
+	elementtype LISTBOX_TEXT
+	feeder FEEDER_MAPCYCLES
+	border 1
+	bordercolor .5 .5 .5 .5
+	forecolor 1 1 1 1
+	backcolor 0 0 0 .25
+	outlinecolor 1 .75 0 .5
+	visible 0
+	mouseEnter { fadein message_arena  } 
+	mouseExit { fadeout message_arena  }
+	}
+
+itemDef {
+	name mapcycle
+	text "OK"
+	type 1
+	textscale .3
+	group grpCallVote
+	style WINDOW_STYLE_FILLED
+	background "ui/wq3_assets/button.tga"
+	rect 167 190 50 25
+	textalign 1
+	textalignx 25
+	textaligny 20
+	forecolor 1 1 1 1
+	backcolor 1 1 1 1 
+	visible 0
+	action { uiScript voteMapcycle ; uiScript closeingame }
+	mouseEnter { show ok_alt }
+	mouseExit { hide ok_alt }
+	}
+
 // this alt will be used for all oks
 itemDef {
       	name ok_alt
 	group grpControlbutton
 	style WINDOW_STYLE_SHADER
 	background "ui/wq3_assets/button_selected.tga"
- 	rect 103 190 50 25
+ 	rect 167 190 50 25
       	visible 0
 	decoration	  
     	}
+
+// 	CHANGE LEADER	//
+
+/*itemDef {
+	name leader
+	group grpCallVote
+	text "New Leader:"
+	textscale .25
+	rect 20 70 110 20
+	textalign 0
+	textalignx 0
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 0
+	decoration
+	action { }
+	}
+itemDef {
+      	name leader
+	group grpCallVote
+       	rect 20 90 250 85
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_LISTBOX
+	elementwidth 120
+	elementheight 15
+	textscale .25
+	elementtype LISTBOX_TEXT
+	feeder FEEDER_TEAM_LIST
+	border 1
+	bordercolor .5 .5 .5 .5
+	forecolor 1 1 1 1
+	backcolor 0 0 .5 .25
+	outlinecolor 1 .75 0 .5
+	visible 0
+	mouseEnter { fadein message_arena ; setitemcolor leader bordercolor .7 0 0 1 } 
+	mouseExit { fadeout message_arena ; setitemcolor leader bordercolor .5 .5 .5 1 }
+	}
+
+itemDef {
+	name leader
+	text "OK"
+	type 1
+	textscale .25
+	group grpCallVote
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	rect 123 190 50 20
+	textalign 1
+	textalignx 25
+	textaligny 15
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1 
+	visible 0
+	action { uiScript voteLeader ; uiScript closeingame }
+	mouseEnter { setcolor backcolor .1 .37 .1 1 }
+      	mouseExit { setcolor backcolor .37 .1 .1 1 }			
+	}*/
 
 }
 

@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // cg_effects.c -- these functions generate localentities, usually as a result
 // of event processing
 
@@ -39,6 +40,12 @@ void CG_BubbleTrail( vec3_t start, vec3_t end, float spacing ) {
 	vec3_t		vec;
 	float		len;
 	int			i;
+
+#ifndef SMOKINGUNS
+	if ( cg_noProjectileTrail.integer ) {
+		return;
+	}
+#endif
 
 	VectorCopy (start, move);
 	VectorSubtract (end, start, vec);
@@ -184,14 +191,14 @@ void CG_SpawnEffect( vec3_t org ) {
 	re->reType = RT_MODEL;
 	re->shaderTime = cg.time / 1000.0f;
 
-#ifndef MISSIONPACK
+#ifndef SMOKINGUNS
 	re->customShader = cgs.media.teleportEffectShader;
 #endif
 	re->hModel = cgs.media.teleportEffectModel;
 	AxisClear( re->axis );
 
 	VectorCopy( org, re->origin );
-#ifdef MISSIONPACK
+#ifdef SMOKINGUNS
 	re->origin[2] += 16;
 #else
 	re->origin[2] -= 24;
@@ -199,7 +206,7 @@ void CG_SpawnEffect( vec3_t org ) {
 }
 
 
-#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 /*
 ===============
 CG_LightningBoltBeam
@@ -374,7 +381,6 @@ void CG_InvulnerabilityJuiced( vec3_t org ) {
 	trap_S_StartSound (org, ENTITYNUM_NONE, CHAN_BODY, cgs.media.invulnerabilityJuicedSound );
 }
 
-#endif
 
 /*
 ==================
@@ -420,7 +426,7 @@ void CG_ScorePlum( int client, vec3_t org, int score ) {
 	VectorClear(angles);
 	AnglesToAxis( angles, re->axis );
 }
-
+#endif
 
 /*
 ====================
@@ -429,7 +435,11 @@ CG_MakeExplosion
 */
 localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 								qhandle_t hModel, qhandle_t shader,
+#ifdef SMOKINGUNS
 								int msec, qboolean isSprite, float radius, qboolean smokeexp) {
+#else
+								int msec, qboolean isSprite ) {
+#endif
 	float			ang;
 	localEntity_t	*ex;
 	int				offset;
@@ -448,14 +458,17 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 
 		// randomly rotate sprite orientation
 		ex->refEntity.rotation = rand() % 360;
+#ifdef SMOKINGUNS
 		if(radius)
 			ex->refEntity.radius = radius;
 		VectorScale( dir, radius/2, tmpVec );
 		VectorAdd( tmpVec, origin, newOrigin );
 		VectorCopy(origin, newOrigin);
 		newOrigin[2] += radius/4;
-		//newOrigin[2] += radius/2;
-
+#else
+		VectorScale( dir, 16, tmpVec );
+		VectorAdd( tmpVec, origin, newOrigin );
+#endif
 	} else {
 		ex->leType = LE_EXPLOSION;
 		VectorCopy( origin, newOrigin );
@@ -485,41 +498,6 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 
 	ex->color[0] = ex->color[1] = ex->color[2] = 1.0;
 
-	/*if(smokeexp){
-		localEntity_t	*smoke;
-
-		CG_Printf("Smokeexp\n");
-
-		VectorClear(newOrigin);
-
-		smoke->leType = LE_SPRITE_EXPLOSION;
-
-		// randomly rotate sprite orientation
-		smoke->refEntity.rotation = rand() % 360;
-		if(radius)
-			smoke->refEntity.radius = radius;
-
-		VectorScale( dir, radius/2, tmpVec );
-		VectorAdd( tmpVec, origin, newOrigin );
-		VectorCopy(origin, newOrigin);
-		newOrigin[2] += radius/4;
-		//newOrigin[2] += radius/2;
-
-		smoke->startTime = ex->endTime;// - (rand() & 63);
-		smoke->endTime = smoke->startTime + 2000;
-
-		smoke->refEntity.shaderTime = smoke->startTime / 1000.0f;
-
-		smoke->refEntity.customShader = cgs.media.wqfx_smokeexp;
-		smoke->refEntity.hModel		  = hModel;
-
-		// set origin
-		VectorCopy( newOrigin, smoke->refEntity.origin );
-		VectorCopy( newOrigin, smoke->refEntity.oldorigin );
-
-		smoke->color[0] = smoke->color[1] = smoke->color[2] = 1.0;
-	}*/
-
 	return ex;
 }
 
@@ -532,9 +510,14 @@ This is the spurt of blood when a character gets hit
 =================
 */
 void CG_Bleed( vec3_t origin, int entityNum ) {
-	//localEntity_t	*ex;
+#ifndef SMOKINGUNS
+	localEntity_t	*ex;
 
-	/*ex = CG_AllocLocalEntity();
+	if ( !cg_blood.integer ) {
+		return;
+	}
+
+	ex = CG_AllocLocalEntity();
 	ex->leType = LE_EXPLOSION;
 
 	ex->startTime = cg.time;
@@ -543,17 +526,20 @@ void CG_Bleed( vec3_t origin, int entityNum ) {
 	VectorCopy ( origin, ex->refEntity.origin);
 	ex->refEntity.reType = RT_SPRITE;
 	ex->refEntity.rotation = rand() % 360;
-	ex->refEntity.radius = 10;//24
+	ex->refEntity.radius = 24;
 
-	ex->refEntity.customShader = cgs.media.bloodExplosionShader;*/
+	ex->refEntity.customShader = cgs.media.bloodExplosionShader;
+#endif
 
 	// don't show player's own blood in view
 	if ( entityNum == cg.snap->ps.clientNum ) {
-		//ex->refEntity.renderfx |= RF_THIRD_PERSON;
-		//"shake" the view
+#ifndef SMOKINGUNS
+		ex->refEntity.renderfx |= RF_THIRD_PERSON;
+#else
 		cg.landAngleChange = (rand()%30)-15;
 		cg.landTime = cg.time;
 		cg.landChange = 0;
+#endif
 	}
 }
 
@@ -678,7 +664,7 @@ void CG_GibPlayer( vec3_t playerOrigin ) {
 
 /*
 ==================
-CG_LaunchGib
+CG_LaunchExplode
 ==================
 */
 void CG_LaunchExplode( vec3_t origin, vec3_t velocity, qhandle_t hModel ) {
@@ -711,7 +697,7 @@ void CG_LaunchExplode( vec3_t origin, vec3_t velocity, qhandle_t hModel ) {
 #define	EXP_JUMP		150
 /*
 ===================
-CG_GibPlayer
+CG_BigExplode
 
 Generated a bunch of gibs launching out from the bodies location
 ===================

@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -30,9 +30,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 *
 *****************************************************************************/
 
-#include "../game/q_shared.h"
-#include "../game/botlib.h"
+#include "../qcommon/q_shared.h"
+#include "botlib.h"
 #include "l_log.h"
+#include "l_memory.h"
 #include "be_interface.h"
 
 //#define MEMDEBUG
@@ -101,7 +102,7 @@ void *GetMemory(unsigned long size)
 {
 	void *ptr;
 	memoryblock_t *block;
-  assert(botimport.GetMemory); // bk001129 - was NULL'ed
+	assert(botimport.GetMemory);
 	ptr = botimport.GetMemory(size + sizeof(memoryblock_t));
 	block = (memoryblock_t *) ptr;
 	block->id = MEM_ID;
