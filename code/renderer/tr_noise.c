@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -32,8 +32,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static float s_noise_table[NOISE_SIZE];
 static int s_noise_perm[NOISE_SIZE];
 
-#define LERP( a, b, w ) ( a * ( 1.0f - w ) + b * w )
-
 static float GetNoiseValue( int x, int y, int z, int t )
 {
 	int index = INDEX( ( int ) x, ( int ) y, ( int ) z, ( int ) t );
@@ -44,8 +42,6 @@ static float GetNoiseValue( int x, int y, int z, int t )
 void R_NoiseInit( void )
 {
 	int i;
-
-	srand( 1001 );
 
 	for ( i = 0; i < NOISE_SIZE; i++ )
 	{

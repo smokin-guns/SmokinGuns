@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 *
 *****************************************************************************/
 
-#include "../game/q_shared.h"
+#include "../qcommon/q_shared.h"
 #include "l_utils.h"
 #include "l_libvar.h"
 #include "l_memory.h"
@@ -39,13 +39,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "l_precomp.h"
 #include "l_struct.h"
 #include "aasfile.h"
-#include "../game/botlib.h"
-#include "../game/be_aas.h"
+#include "botlib.h"
+#include "be_aas.h"
 #include "be_aas_funcs.h"
 #include "be_interface.h"
 #include "be_ai_weight.h"
-#include "../game/be_ai_goal.h"
-#include "../game/be_ai_move.h"
+#include "be_ai_goal.h"
+#include "be_ai_move.h"
 
 //#define DEBUG_AI_GOAL
 #ifdef RANDOMIZE
@@ -135,7 +135,7 @@ typedef struct iteminfo_s
 	int number;							//number of the item info
 } iteminfo_t;
 
-#define ITEMINFO_OFS(x)	(int)&(((iteminfo_t *)0)->x)
+#define ITEMINFO_OFS(x)	(size_t)&(((iteminfo_t *)0)->x)
 
 fielddef_t iteminfo_fields[] =
 {
@@ -147,7 +147,7 @@ fielddef_t iteminfo_fields[] =
 {"respawntime", ITEMINFO_OFS(respawntime), FT_FLOAT},
 {"mins", ITEMINFO_OFS(mins), FT_FLOAT|FT_ARRAY, 3},
 {"maxs", ITEMINFO_OFS(maxs), FT_FLOAT|FT_ARRAY, 3},
-{0, 0, 0}
+{NULL, 0, 0}
 };
 
 structdef_t iteminfo_struct =
@@ -177,22 +177,22 @@ typedef struct bot_goalstate_s
 	float avoidgoaltimes[MAX_AVOIDGOALS];		//times to avoid the goals
 } bot_goalstate_t;
 
-bot_goalstate_t *botgoalstates[MAX_CLIENTS + 1]; // bk001206 - FIXME: init?
+bot_goalstate_t *botgoalstates[MAX_CLIENTS + 1]; // FIXME: init?
 //item configuration
-itemconfig_t *itemconfig = NULL; // bk001206 - init
+itemconfig_t *itemconfig = NULL;
 //level items
-levelitem_t *levelitemheap = NULL; // bk001206 - init
-levelitem_t *freelevelitems = NULL; // bk001206 - init
-levelitem_t *levelitems = NULL; // bk001206 - init
+levelitem_t *levelitemheap = NULL;
+levelitem_t *freelevelitems = NULL;
+levelitem_t *levelitems = NULL;
 int numlevelitems = 0;
 //map locations
-maplocation_t *maplocations = NULL; // bk001206 - init
+maplocation_t *maplocations = NULL;
 //camp spots
-campspot_t *campspots = NULL; // bk001206 - init
+campspot_t *campspots = NULL;
 //the game type
-int g_gametype = 0; // bk001206 - init
+int g_gametype = 0;
 //additional dropped item weight
-libvar_t *droppedweight = NULL; // bk001206 - init
+libvar_t *droppedweight = NULL;
 
 //========================================================================
 //
@@ -523,7 +523,7 @@ void BotInitInfoEntities(void)
 			numcampspots++;
 		} //end else if
 	} //end for
-	if (bot_developer)
+	if (botDeveloper)
 	{
 		botimport.Print(PRT_MESSAGE, "%d map locations\n", numlocations);
 		botimport.Print(PRT_MESSAGE, "%d camp spots\n", numcampspots);
@@ -1303,7 +1303,15 @@ int BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 	if (!areanum || !AAS_AreaReachability(areanum))
 	{
 		//use the last valid area the bot was in
+#ifndef SMOKINGUNS
 		areanum = gs->lastreachabilityarea;
+#else
+		// Bugfix by The Doctor
+		// http://www.smokin-guns.org/viewtopic.php?t=2382&start=15
+		if (gs->lastreachabilityarea>0) {
+			areanum = gs->lastreachabilityarea;
+		}
+#endif
 	} //end if
 	//remember the last area with reachabilities the bot was in
 	gs->lastreachabilityarea = areanum;

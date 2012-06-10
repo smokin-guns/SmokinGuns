@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // cg_info.c -- display information while data is being loading
 
 #include "cg_local.h"
@@ -33,6 +34,7 @@ static int			loadingItemIconCount;
 static qhandle_t	loadingPlayerIcons[MAX_LOADING_PLAYER_ICONS];
 static qhandle_t	loadingItemIcons[MAX_LOADING_ITEM_ICONS];
 
+#ifdef SMOKINGUNS
 #define LOADING_ALL 50
 
 //Spoon new loading-draw
@@ -93,7 +95,7 @@ my Artwork :)
 #define	DISTANCE		10
 void CG_DrawLoadingStage(void){
 	float	loaded;
-	vec4_t	color = {0.6f, 0.4f, 0.0f, 0.6f};//{0.67f, 0.06f, 0.06f, 0.6f};
+	vec4_t	color = {0.6f, 0.4f, 0.0f, 0.6f};
 	float	progress;
 
 	loaded = loadingstage + loadingPlayerIconCount*1.5 + loadingItemIconCount*1.5;
@@ -116,11 +118,14 @@ void CG_DrawLoadingStage(void){
 	//right
 	CG_FillRect(640-DISTANCE-LINE, 480-DISTANCE-3*LINE-LOADING_HEIGHT, LINE , LOADING_HEIGHT+2*LINE ,color);
 }
+#endif
+
 /*
 ===================
 CG_DrawLoadingIcons
 ===================
 */
+#ifndef SMOKINGUNS
 static void CG_DrawLoadingIcons( void ) {
 	int		n;
 	int		x, y;
@@ -140,6 +145,7 @@ static void CG_DrawLoadingIcons( void ) {
 		CG_DrawPic( x, y, 32, 32, loadingItemIcons[n] );
 	}
 }
+#endif
 
 
 /*
@@ -187,19 +193,33 @@ void CG_LoadingClient( int clientNum ) {
 
 	if ( loadingPlayerIconCount < MAX_LOADING_PLAYER_ICONS ) {
 		Q_strncpyz( model, Info_ValueForKey( info, "model" ), sizeof( model ) );
-
-		skin = Q_strrchr( model, '/' );
+		skin = strrchr( model, '/' );
 		if ( skin ) {
 			*skin++ = '\0';
 		} else {
+#ifndef SMOKINGUNS
+			skin = "default";
+		}
+
+		Com_sprintf( iconName, MAX_QPATH, "models/players/%s/icon_%s.tga", model, skin );
+#else
 			skin = "red";
 		}
 
 		Com_sprintf( iconName, MAX_QPATH, "models/wq3_players/%s/icon_%s.tga", model, skin );
+#endif
 
 		loadingPlayerIcons[loadingPlayerIconCount] = trap_R_RegisterShaderNoMip( iconName );
 		if ( !loadingPlayerIcons[loadingPlayerIconCount] ) {
+#ifndef SMOKINGUNS
+			Com_sprintf( iconName, MAX_QPATH, "models/players/characters/%s/icon_%s.tga", model, skin );
+			loadingPlayerIcons[loadingPlayerIconCount] = trap_R_RegisterShaderNoMip( iconName );
+		}
+		if ( !loadingPlayerIcons[loadingPlayerIconCount] ) {
+			Com_sprintf( iconName, MAX_QPATH, "models/players/%s/icon_%s.tga", DEFAULT_MODEL, "default" );
+#else
 			Com_sprintf( iconName, MAX_QPATH, "models/wq3_players/%s/icon_%s.tga", DEFAULT_MODEL, "red" );
+#endif
 			loadingPlayerIcons[loadingPlayerIconCount] = trap_R_RegisterShaderNoMip( iconName );
 		}
 		if ( loadingPlayerIcons[loadingPlayerIconCount] ) {
@@ -232,25 +252,43 @@ void CG_DrawInformation( void ) {
 	int			y;
 	int			value;
 	qhandle_t	levelshot;
+#ifndef SMOKINGUNS
+	qhandle_t	detail;
+#else
 	qhandle_t	background, photo;
-	//qhandle_t	detail;
-	char		buf[1024];
 	float		*color;
+#endif
+	char		buf[1024];
 
 	info = CG_ConfigString( CS_SERVERINFO );
 	sysInfo = CG_ConfigString( CS_SYSTEMINFO );
 
 	s = Info_ValueForKey( info, "mapname" );
 
+#ifdef SMOKINGUNS
 	// draw the background
 	background = trap_R_RegisterShaderNoMip( "ui/bg/main.tga");
 
 	trap_R_SetColor( NULL );
 	CG_DrawPic( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, background );
+#endif
 
 	levelshot = trap_R_RegisterShaderNoMip( va( "levelshots/%s.tga", s ) );
+#ifndef SMOKINGUNS
+	if ( !levelshot ) {
+		levelshot = trap_R_RegisterShaderNoMip( "menu/art/unknownmap" );
+	}
+	trap_R_SetColor( NULL );
+	CG_DrawPic( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, levelshot );
+
+	// blend a detail texture over it
+	detail = trap_R_RegisterShader( "levelShotDetail" );
+	trap_R_DrawStretchPic( 0, 0, cgs.glconfig.vidWidth, cgs.glconfig.vidHeight, 0, 0, 2.5, 2, detail );
+
+	// draw the icons of things as they are loaded
+	CG_DrawLoadingIcons();
+#else
 	if ( levelshot ) {
-		//levelshot = trap_R_RegisterShaderNoMip( "ui/bg/main.tga" );
 		photo = trap_R_RegisterShaderNoMip( "ui/bg/photo.tga");
 
 		CG_DrawPic( 80, 75, 480, 360, photo );
@@ -260,27 +298,34 @@ void CG_DrawInformation( void ) {
 	} else
 		color = colorWhite;
 
-	// blend a detail texture over it
-	//detail = trap_R_RegisterShader( "levelShotDetail" );
-	//trap_R_DrawStretchPic( 0, 0, cgs.glconfig.vidWidth, cgs.glconfig.vidHeight, 0, 0, 2.5, 2, detail );
-
-	// draw the icons of things as they are loaded
-	//CG_DrawLoadingIcons();
 	CG_DrawLoadingStage();
+#endif
 
 	// the first 150 rows are reserved for the client connection
 	// screen to write into
 	if ( cg.infoScreenText[0] ) {
-		CG_Text_PaintCenter( 320, 464, 0.25f, colorWhite,
-			va("Loading... %s", cg.infoScreenText), 0, 0, 0);
+#ifndef SMOKINGUNS
+		UI_DrawProportionalString( 320, 128-32, va("Loading... %s", cg.infoScreenText),
+#else
+		UI_DrawProportionalString( 320, 454, va("Loading... %s", cg.infoScreenText),
+#endif
+			UI_CENTER|UI_SMALLFONT, colorWhite );
 	} else {
-		CG_Text_PaintCenter( 320, 464, 0.25f, colorWhite,
-			"Awaiting snapshot...", 0, 0, 0);
+#ifndef SMOKINGUNS
+		UI_DrawProportionalString( 320, 128-32, "Awaiting snapshot...",
+#else
+		UI_DrawProportionalString( 320, 452, "Awaiting snapshot...",
+#endif
+			UI_CENTER|UI_SMALLFONT, colorWhite );
 	}
 
 	// draw info string information
 
+#ifndef SMOKINGUNS
+	y = 180-32;
+#else
 	y = 30;
+#endif
 
 	// don't print server lines if playing a local game
 	trap_Cvar_VariableStringBuffer( "sv_running", buf, sizeof( buf ) );
@@ -288,73 +333,91 @@ void CG_DrawInformation( void ) {
 		// server hostname
 		Q_strncpyz(buf, Info_ValueForKey( info, "sv_hostname" ), 1024);
 		Q_CleanStr(buf);
-		CG_Text_PaintCenter(320, y, 0.3f, colorWhite,
-			buf, 0, 0, 3);
-		y += 15;
-
-		// server-specific message of the day
-		s = CG_ConfigString( CS_MOTD );
-		if ( s[0] ) {
-			CG_Text_PaintCenter(320, y, 0.25f, colorWhite,
-				s, 0, 0, 3);
-			y += 12;
-		}
+		UI_DrawProportionalString( 320, y, buf,
+			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+		y += PROP_HEIGHT;
 
 		// pure server
 		s = Info_ValueForKey( sysInfo, "sv_pure" );
 		if ( s[0] == '1' ) {
-			CG_Text_PaintCenter(320, y, 0.25f, colorWhite,
-				"Pure Server", 0, 0, 3);
-			y += 12;
+			UI_DrawProportionalString( 320, y, "Pure Server",
+				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+			y += PROP_HEIGHT;
+		}
+
+		// server-specific message of the day
+		s = CG_ConfigString( CS_MOTD );
+		if ( s[0] ) {
+			UI_DrawProportionalString( 320, y, s,
+				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+			y += PROP_HEIGHT;
 		}
 
 		// some extra space after hostname and motd
 		y += 10;
 	}
 
+#ifdef SMOKINGUNS
 	if(levelshot)
 		y = 120;
 	else
 		y = 200;
+#endif
 
 	// map-specific message (long map name)
 	s = CG_ConfigString( CS_MESSAGE );
 	if ( s[0] ) {
-		CG_Text_PaintCenter(320, y, 0.3f, color,
-				s, 0, 0, 3);
-		y += 15;
+		UI_DrawProportionalString( 320, y, s,
+			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+		y += PROP_HEIGHT;
 	}
 
 	// cheats warning
 	s = Info_ValueForKey( sysInfo, "sv_cheats" );
 	if ( s[0] == '1' ) {
-		CG_Text_PaintCenter(320, y, 0.3f, color,
-				"Cheats are Enabled", 0, 0, 3);
-		y += 15;
+		UI_DrawProportionalString( 320, y, "CHEATS ARE ENABLED",
+			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+		y += PROP_HEIGHT;
+#ifndef SMOKINGUNS
+	}
+#else
 		cg_cheats = qtrue;
 	} else
 		cg_cheats = qfalse;
+#endif
 
 	// game type
 	switch ( cgs.gametype ) {
 	case GT_FFA:
+#ifndef SMOKINGUNS
+		s = "Free For All";
+#else
 		s = "Deathmatch";
+#endif
 		break;
 	case GT_SINGLE_PLAYER:
 		s = "Single Player";
 		break;
+#ifndef SMOKINGUNS
+	case GT_TOURNAMENT:
+		s = "Tournament";
+#else
 	case GT_DUEL:
 		s = "Duel";
+#endif
 		break;
 	case GT_TEAM:
 		s = "Team Deathmatch";
 		break;
+#ifdef SMOKINGUNS
 	case GT_RTP:
 		s = "Round Teamplay";
 		break;
 	case GT_BR:
 		s = "Bank Robbery";
 		break;
+#endif
+#ifndef SMOKINGUNS
 	case GT_CTF:
 		s = "Capture The Flag";
 		break;
@@ -369,46 +432,63 @@ void CG_DrawInformation( void ) {
 		s = "Harvester";
 		break;
 #endif
+#endif
 	default:
 		s = "Unknown Gametype";
 		break;
 	}
-	CG_Text_PaintCenter(320, y, 0.3f, color,
-		s, 0, 0, 3);
-	y += 15;
+	UI_DrawProportionalString( 320, y, s,
+		UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+	y += PROP_HEIGHT;
 
 	value = atoi( Info_ValueForKey( info, "timelimit" ) );
 	if ( value ) {
-		CG_Text_PaintCenter(320, y, 0.3f, color,
-				va( "Timelimit %i", value ), 0, 0, 3);
-		y += 15;
+		UI_DrawProportionalString( 320, y, va( "timelimit %i", value ),
+			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+		y += PROP_HEIGHT;
 	}
 
+#ifndef SMOKINGUNS
+	if (cgs.gametype < GT_CTF ) {
+#else
 	if (cgs.gametype < GT_RTP && cgs.gametype != GT_DUEL) {
+#endif
 		value = atoi( Info_ValueForKey( info, "fraglimit" ) );
 		if ( value ) {
-			CG_Text_PaintCenter(320, y, 0.3f, color,
-				va( "Fraglimit %i", value ), 0, 0, 3);
-			y += 15;
+			UI_DrawProportionalString( 320, y, va( "fraglimit %i", value ),
+				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+			y += PROP_HEIGHT;
 		}
 	}
 
+#ifndef SMOKINGUNS
+	if (cgs.gametype >= GT_CTF) {
+		value = atoi( Info_ValueForKey( info, "capturelimit" ) );
+		if ( value ) {
+			UI_DrawProportionalString( 320, y, va( "capturelimit %i", value ),
+				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+			y += PROP_HEIGHT;
+		}
+	}
+#else
 	if (cgs.gametype == GT_DUEL) {
 		value = atoi( Info_ValueForKey( info, "duellimit" ) );
 		if ( value ) {
-			CG_Text_PaintCenter(320, y, 0.3f, color,
-				va( "Duellimit %i", value ), 0, 0, 3);
-			y += 15;
+			UI_DrawProportionalString( 320, y, va( "Duellimit %i", value ),
+				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+			y += PROP_HEIGHT;
 		}
 	}
 
 	if (cgs.gametype >= GT_RTP) {
 		value = atoi( Info_ValueForKey( info, "scorelimit" ) );
 		if ( value ) {
-			CG_Text_PaintCenter(320, y, 0.3f, color,
-				va( "Scorelimit %i", value ), 0, 0, 3);
-			y += 15;
+			UI_DrawProportionalString( 320, y, va( "Scorelimit %i", value ),
+				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+			y += PROP_HEIGHT;
 		}
 	}
+#endif
 }
+
 

@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -30,6 +30,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 *****************************************************************************/
 
 #define Vector2Angles(v,a)		vectoangles(v,a)
+#ifndef MAX_PATH
 #define MAX_PATH				MAX_QPATH
+#endif
 #define Maximum(x,y)			(x > y ? x : y)
 #define Minimum(x,y)			(x < y ? x : y)

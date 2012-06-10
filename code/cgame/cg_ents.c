@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // cg_ents.c -- present snapshot entities, happens every single frame
 
 #include "cg_local.h"
@@ -51,11 +52,10 @@ void CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
 
 	// had to cast away the const to avoid compiler problems...
 	MatrixMultiply( lerped.axis, ((refEntity_t *)parent)->axis, entity->axis );
-
-	//own animations:
 	entity->backlerp = parent->backlerp;
 }
 
+#ifdef SMOKINGUNS
 void CG_PositionViewWeaponOnTag( refEntity_t *entity, const refEntity_t *parent,
 							qhandle_t parentModel, char *tagName ) {
 	int				i;
@@ -77,6 +77,7 @@ void CG_PositionViewWeaponOnTag( refEntity_t *entity, const refEntity_t *parent,
 	//MatrixMultiply( entity->axis, lerped.axis, tempAxis );
 	//MatrixMultiply( tempAxis, ((refEntity_t *)parent)->axis, entity->axis );
 }
+#endif
 
 /*
 ======================
@@ -253,7 +254,9 @@ static void CG_Item( centity_t *cent ) {
 	gitem_t			*item;
 	int				msec;
 	float			frac;
-//	float			scale;
+#ifndef SMOKINGUNS
+	float			scale;
+#endif
 	weaponInfo_t	*wi;
 
 	es = &cent->currentState;
@@ -271,16 +274,20 @@ static void CG_Item( centity_t *cent ) {
 		memset( &ent, 0, sizeof( ent ) );
 		ent.reType = RT_SPRITE;
 		VectorCopy( cent->lerpOrigin, ent.origin );
+#ifndef SMOKINGUNS
 		ent.radius = 14;
-
+#else
+		ent.radius = 7;
+#endif
 		ent.customShader = cg_items[es->modelindex].icon;
+#ifdef SMOKINGUNS
 		if(!Q_stricmp(item->classname, "pickup_money")){
 			if(cent->currentState.time2 < COINS)
 				ent.customShader = cgs.media.coins_pic;
 			else if(cent->currentState.time2 < BILLS)
 				ent.customShader = cgs.media.bills_pic;
 		}
-
+#endif
 		ent.shaderRGBA[0] = 255;
 		ent.shaderRGBA[1] = 255;
 		ent.shaderRGBA[2] = 255;
@@ -290,38 +297,44 @@ static void CG_Item( centity_t *cent ) {
 	}
 
 	// items bob up and down continuously
-	//scale = 0.005 + cent->currentState.number * 0.00001;
-	//cent->lerpOrigin[2] += 4 + cos( ( cg.time + 1000 ) *  scale ) * 4;
+#ifndef SMOKINGUNS
+	scale = 0.005 + cent->currentState.number * 0.00001;
+	cent->lerpOrigin[2] += 4 + cos( ( cg.time + 1000 ) *  scale ) * 4;
+#endif
 
 	memset (&ent, 0, sizeof(ent));
-	//angle assignment, new by Spoon
-	AnglesToAxis( cent->lerpAngles, ent.axis );
 
+#ifndef SMOKINGUNS
 	// autorotate at one of two speeds
-	/*if ( item->giType == IT_HEALTH ) {
+	if ( item->giType == IT_HEALTH ) {
 		VectorCopy( cg.autoAnglesFast, cent->lerpAngles );
 		AxisCopy( cg.autoAxisFast, ent.axis );
 	} else {
 		VectorCopy( cg.autoAngles, cent->lerpAngles );
 		AxisCopy( cg.autoAxis, ent.axis );
-	}*/
+	}
+#else
+	//angle assignment, new by Spoon
+	AnglesToAxis( cent->lerpAngles, ent.axis );
+#endif
 
 	wi = NULL;
 	// the weapons have their origin where they attatch to player
 	// models, so we need to offset them or they will rotate
 	// eccentricly
 	if ( item->giType == IT_WEAPON ) {
-
+#ifdef SMOKINGUNS
 		//make the dynamite a bit smaller
 		if(item->giTag == WP_DYNAMITE){
-			VectorScale(ent.axis[0], 0.7, ent.axis[0]);
-			VectorScale(ent.axis[1], 0.7, ent.axis[1]);
-			VectorScale(ent.axis[2], 0.7, ent.axis[2]);
+			VectorScale(ent.axis[0], 0.7f, ent.axis[0]);
+			VectorScale(ent.axis[1], 0.7f, ent.axis[1]);
+			VectorScale(ent.axis[2], 0.7f, ent.axis[2]);
 		} else if(item->giTag == WP_MOLOTOV){
-			VectorScale(ent.axis[0], 0.65, ent.axis[0]);
-			VectorScale(ent.axis[1], 0.65, ent.axis[1]);
-			VectorScale(ent.axis[2], 0.65, ent.axis[2]);
+			VectorScale(ent.axis[0], 0.65f, ent.axis[0]);
+			VectorScale(ent.axis[1], 0.65f, ent.axis[1]);
+			VectorScale(ent.axis[2], 0.65f, ent.axis[2]);
 		}
+#endif
 		wi = &cg_weapons[item->giTag];
 		cent->lerpOrigin[0] -=
 			wi->weaponMidpoint[0] * ent.axis[0][0] +
@@ -336,16 +349,20 @@ static void CG_Item( centity_t *cent ) {
 			wi->weaponMidpoint[1] * ent.axis[1][2] +
 			wi->weaponMidpoint[2] * ent.axis[2][2];
 
-		cent->lerpOrigin[2] += 0;	// an extra height boost
+#ifndef SMOKINGUNS
+		cent->lerpOrigin[2] += 8;	// an extra height boost
+#endif
 	}
 
 	ent.hModel = cg_items[es->modelindex].models[0];
+#ifdef SMOKINGUNS
 	if(!Q_stricmp(item->classname, "pickup_money")){
 		if(cent->currentState.time2 < COINS)
 			ent.hModel = cgs.media.coins;
 		else if(cent->currentState.time2 < BILLS)
 			ent.hModel = cgs.media.bills;
 	}
+#endif
 
 	VectorCopy( cent->lerpOrigin, ent.origin);
 	VectorCopy( cent->lerpOrigin, ent.oldorigin);
@@ -377,12 +394,12 @@ static void CG_Item( centity_t *cent ) {
 		VectorScale( ent.axis[1], 1.5, ent.axis[1] );
 		VectorScale( ent.axis[2], 1.5, ent.axis[2] );
 		ent.nonNormalizedAxes = qtrue;
-#ifdef MISSIONPACK
-		//trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.weaponHoverSound );
+#ifndef SMOKINGUNS
+		trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.weaponHoverSound );
 #endif
 	}
 
-#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 	if ( item->giType == IT_HOLDABLE && item->giTag == HI_KAMIKAZE ) {
 		VectorScale( ent.axis[0], 2, ent.axis[0] );
 		VectorScale( ent.axis[1], 2, ent.axis[1] );
@@ -394,7 +411,7 @@ static void CG_Item( centity_t *cent ) {
 	// add to refresh list
 	trap_R_AddRefEntityToScene(&ent);
 
-#ifdef MISSIONPACK
+#ifdef SMOKINGUNS
 	if ( item->giType == IT_WEAPON && wi->barrelModel ) {
 		refEntity_t	barrel;
 
@@ -446,32 +463,6 @@ static void CG_Item( centity_t *cent ) {
 	}
 }
 
-//============================================================================
-
-static void CG_WhiskeyDrop(centity_t *cent){
-	entityState_t	*ent = &cent->currentState;
-	refEntity_t		drop;
-	const weaponInfo_t		*weapon = &cg_weapons[ent->weapon];
-
-	memset( &drop, 0, sizeof( drop ) );
-	drop.reType = RT_SPRITE;
-	drop.customShader = cgs.media.wqfx_matchfire;
-	drop.radius = 20;
-	drop.renderfx = 0;
-	VectorCopy(cent->lerpOrigin, drop.origin);
-	VectorCopy(cent->lerpOrigin, drop.oldorigin);
-	drop.rotation = (cg.time/10)%360;
-
-	AnglesToAxis( vec3_origin, drop.axis );
-	trap_R_AddRefEntityToScene( &drop );
-
-	// if its burning, there is an aditional flame AND light
-	if(ent->apos.trDelta[0]){
-		trap_R_AddLightToScene(drop.origin, weapon->missileDlight,
-			weapon->missileDlightColor[0], weapon->missileDlightColor[1], weapon->missileDlightColor[2] );
-	}
-}
-
 /*
 ===============
 CG_Missile
@@ -507,23 +498,38 @@ static void CG_Missile( centity_t *cent ) {
 	else {
 		col = 0;
 	}
-*/
-
-	// draw nothing if this is an alcohol drop(already predicted)
-	if(s1->weapon == WP_MOLOTOV && s1->apos.trDelta[1]){
-		//CG_WhiskeyDrop(cent);
-		return;
-	}
 
 	// add dynamic light
+	if ( weapon->missileDlight ) {
+		trap_R_AddLightToScene(cent->lerpOrigin, weapon->missileDlight, 
+			weapon->missileDlightColor[col][0], weapon->missileDlightColor[col][1], weapon->missileDlightColor[col][2] );
+	}
+*/
+
+#ifdef SMOKINGUNS
+	// draw nothing if this is an alcohol drop(already predicted)
+	if(s1->weapon == WP_MOLOTOV && s1->apos.trDelta[1]){
+		return;
+	}
+#endif
+
+	// add dynamic light
+#ifndef SMOKINGUNS
+	if ( weapon->missileDlight ) {
+#else
 	if ( weapon->missileDlight && s1->weapon != WP_DYNAMITE && s1->weapon != WP_MOLOTOV) {
+#endif
 		trap_R_AddLightToScene(cent->lerpOrigin, weapon->missileDlight,
 			weapon->missileDlightColor[0], weapon->missileDlightColor[1], weapon->missileDlightColor[2] );
 	}
 
 	// add missile sound
+#ifndef SMOKINGUNS
+	if ( weapon->missileSound ) {
+#else
 	if ( weapon->missileSound && (s1->weapon != WP_DYNAMITE  ||
 		(s1->weapon == WP_DYNAMITE && (int)s1->apos.trDelta[0]))) {
+#endif
 		vec3_t	velocity;
 
 		BG_EvaluateTrajectoryDelta( &cent->currentState.pos, cg.time, velocity );
@@ -536,29 +542,55 @@ static void CG_Missile( centity_t *cent ) {
 	VectorCopy( cent->lerpOrigin, ent.origin);
 	VectorCopy( cent->lerpOrigin, ent.oldorigin);
 
+#ifndef SMOKINGUNS
+	if ( cent->currentState.weapon == WP_PLASMAGUN ) {
+		ent.reType = RT_SPRITE;
+		ent.radius = 16;
+		ent.rotation = 0;
+		ent.customShader = cgs.media.plasmaBallShader;
+		trap_R_AddRefEntityToScene( &ent );
+		return;
+	}
+#endif
+
 	// flicker between two skins
 	ent.skinNum = cg.clientFrame & 1;
 	ent.hModel = weapon->missileModel;
 	ent.renderfx = weapon->missileRenderfx | RF_NOSHADOW;
 
-	// convert direction of travel into axis
-	/*if ( VectorNormalize2( s1->pos.trDelta, ent.axis[1] ) == 0 ) {
-		ent.axis[0][2] = 1;
-	}*/
+#ifndef SMOKINGUNS
+	if ( cent->currentState.weapon == WP_PROX_LAUNCHER ) {
+		if (s1->generic1 == TEAM_BLUE) {
+			ent.hModel = cgs.media.blueProxMine;
+		}
+	}
+#endif
 
+	// convert direction of travel into axis
 	if ( VectorNormalize2( s1->pos.trDelta, ent.axis[0] ) == 0 ) {
 		ent.axis[0][2] = 1;
 	}
 
 	// spin as it moves
 	if ( s1->pos.trType != TR_STATIONARY ) {
-			RotateAroundDirection( ent.axis, cg.time / 6 );
+#ifndef SMOKINGUNS
+		RotateAroundDirection( ent.axis, cg.time / 4 );
+#else
+		RotateAroundDirection( ent.axis, cg.time / 6 );
+#endif
 	} else {
+#ifndef SMOKINGUNS
+		if ( s1->weapon == WP_PROX_LAUNCHER ) {
+			AnglesToAxis( cent->lerpAngles, ent.axis );
+		}
+		else
+#endif
 		{
 			RotateAroundDirection( ent.axis, s1->time );
 		}
 	}
 
+#ifdef SMOKINGUNS
 	if(s1->weapon == WP_DYNAMITE && (int)s1->apos.trDelta[0]){
 		const int time	= BG_AnimLength(WP_ANIM_SPECIAL, WP_DYNAMITE);
 		const int num	= bg_weaponlist[WP_DYNAMITE].animations[WP_ANIM_SPECIAL].numFrames;
@@ -577,10 +609,12 @@ static void CG_Missile( centity_t *cent ) {
 		ent.oldframe = ent.frame -1;
 		ent.backlerp = ent.frame - pos;
 	}
+#endif
 
 	// add to refresh list, possibly with quad glow
 	CG_AddRefEntityWithPowerups( &ent, s1, TEAM_FREE );
 
+#ifdef SMOKINGUNS
 	//add the sparks to the dynamite
 	if(s1->weapon == WP_DYNAMITE && (int)s1->apos.trDelta[0]){
 		refEntity_t		sparks;
@@ -627,6 +661,7 @@ static void CG_Missile( centity_t *cent ) {
 		trap_R_AddLightToScene(origin, weapon->missileDlight,
 			weapon->missileDlightColor[0], weapon->missileDlightColor[1], weapon->missileDlightColor[2] );
 	}
+#endif
 }
 
 /*
@@ -636,6 +671,7 @@ CG_Grapple
 This is called when the grapple is sitting up against the wall
 ===============
 */
+#ifndef SMOKINGUNS
 static void CG_Grapple( centity_t *cent ) {
 	refEntity_t			ent;
 	entityState_t		*s1;
@@ -677,7 +713,9 @@ static void CG_Grapple( centity_t *cent ) {
 
 	trap_R_AddRefEntityToScene( &ent );
 }
+#endif
 
+#ifdef SMOKINGUNS
 /*QUAKED func_smoke (0 .5 .8) ?
 Generates Smoke
 -------- KEYS --------
@@ -715,7 +753,7 @@ static void CG_Smoke( centity_t *cent){
 	vec4_t color;
 
 	// see if we have to generate sprites this time
-	if(cent->lastSmokeTime + (float)(1000/rate) > cg.time)
+	if(!rate || cent->lastSmokeTime + (float)(1000/rate) > cg.time)
 		return;
 
 	VectorCopy(cent->currentState.apos.trBase, winddir);
@@ -784,10 +822,9 @@ Generates a flare
 */
 #define NO_GLOW	1
 #define	NO_LENSFLARES	2
-static void CG_Flare( centity_t *cent){
+static void CG_Flare( centity_t *cent ){
 	refEntity_t			ent;
 	entityState_t		*s1;
-	//int					i;
 
 	s1 = &cent->currentState;
 
@@ -869,6 +906,7 @@ static void CG_Flare( centity_t *cent){
 		}
 	}
 }
+#endif
 
 /*
 ===============
@@ -879,9 +917,11 @@ static void CG_Mover( centity_t *cent ) {
 	refEntity_t		ent;
 	entityState_t		*s1;
 	
+#ifdef SMOKINGUNS
 	// Joe Kari: farclip_type and farclip_dist :
 	
-	int farclip_type = cent->currentState.powerups & 255 ;	// only 8 lower bits of powerups is used for farclipping
+	int farclip_type = cent->currentState.powerups & 127 ;	// only 7 lower bits of powerups is used for farclipping
+	int invert_clip = cent->currentState.powerups & 128 ;	// if it's a close clipping
 	// fast multiply by 64:
 	float farclip_dist = (float)( cent->currentState.legsAnim << 6 ) ;
 	float farclip_alt_dist = (float)( cent->currentState.torsoAnim << 6 ) ;
@@ -899,10 +939,9 @@ static void CG_Mover( centity_t *cent ) {
 		farclip_dist *= farclip_factor ;
 		farclip_alt_dist *= farclip_factor ;
 	}
-	
+#endif
 	
 	s1 = &cent->currentState;
-
 	
 	// create the render entity
 	memset (&ent, 0, sizeof(ent));
@@ -912,6 +951,7 @@ static void CG_Mover( centity_t *cent ) {
 
 	ent.renderfx = RF_NOSHADOW;
 	
+#ifdef SMOKINGUNS
 	// Joe Kari: for func_static (yes there are classified as mover)
 	// if a LOD is specified for this entity, then try to clip it !!!
 	if ( cent->currentState.powerups & MAPLOD_BINARY_MASK ) {
@@ -924,7 +964,13 @@ static void CG_Mover( centity_t *cent ) {
 	
 	// Joe Kari: for func_static
 	// if a farclip is specified for this entity, then try to clip it !!!
-	if ( ( farclip_type > FARCLIP_NONE ) && ( farclip_type < CG_Farclip_Tester_Table_Size ) && ( CG_Farclip_Tester[farclip_type]( s1->origin , cg.refdef.vieworg , farclip_dist , farclip_alt_dist ) ) )  return;
+	
+	if ( ( farclip_type + invert_clip > FARCLIP_NONE ) && ( farclip_type < CG_Farclip_Tester_Table_Size ) )
+	{
+		if ( !invert_clip && CG_Farclip_Tester[farclip_type]( s1->origin , cg.refdef.vieworg , farclip_dist , farclip_alt_dist ) )  return;
+		else if ( invert_clip && !CG_Farclip_Tester[farclip_type]( s1->origin , cg.refdef.vieworg , farclip_dist , farclip_alt_dist ) )  return;
+	}
+#endif
 	
 	// flicker between two skins (FIXME?)
 	ent.skinNum = ( cg.time >> 6 ) & 1;
@@ -1088,15 +1134,7 @@ CG_CalcEntityLerpPositions
 ===============
 */
 static void CG_CalcEntityLerpPositions( centity_t *cent ) {
-//unlagged - projectile nudge
-	// this will be set to how far forward projectiles will be extrapolated
-	int timeshift = 0;
-//unlagged - projectile nudge
-
-//unlagged - smooth clients #2
-	// this is done server-side now - cg_smoothClients is undefined
-	// players will always be TR_INTERPOLATE
-/*
+#ifndef SMOKINGUNS
 	// if this player does not want to see extrapolated players
 	if ( !cg_smoothClients.integer ) {
 		// make sure the clients use TR_INTERPOLATE
@@ -1105,7 +1143,16 @@ static void CG_CalcEntityLerpPositions( centity_t *cent ) {
 			cent->nextState.pos.trType = TR_INTERPOLATE;
 		}
 	}
-*/
+#else
+//unlagged - projectile nudge
+	// this will be set to how far forward projectiles will be extrapolated
+	int timeshift = 0;
+//unlagged - projectile nudge
+
+//unlagged - smooth clients #2
+	// this is done server-side now - cg_smoothClients is undefined
+	// players will always be TR_INTERPOLATE
+#endif
 //unlagged - smooth clients #2
 
 	if ( cent->interpolate && cent->currentState.pos.trType == TR_INTERPOLATE ) {
@@ -1121,6 +1168,7 @@ static void CG_CalcEntityLerpPositions( centity_t *cent ) {
 		return;
 	}
 
+#ifdef SMOKINGUNS
 //unlagged - timenudge extrapolation
 	// interpolating failed (probably no nextSnap), so extrapolate
 	// this can also happen if the teleport bit is flipped, but that
@@ -1150,10 +1198,13 @@ static void CG_CalcEntityLerpPositions( centity_t *cent ) {
 			timeshift = cg_projectileNudge.integer + 1000 / sv_fps.integer;
 		}
 	}
+#endif
 
 	// just use the current frame and evaluate as best we can
-//	BG_EvaluateTrajectory( &cent->currentState.pos, cg.time, cent->lerpOrigin );
-//	BG_EvaluateTrajectory( &cent->currentState.apos, cg.time, cent->lerpAngles );
+#ifndef SMOKINGUNS
+	BG_EvaluateTrajectory( &cent->currentState.pos, cg.time, cent->lerpOrigin );
+	BG_EvaluateTrajectory( &cent->currentState.apos, cg.time, cent->lerpAngles );
+#else
 	BG_EvaluateTrajectory( &cent->currentState.pos, cg.time + timeshift, cent->lerpOrigin );
 	BG_EvaluateTrajectory( &cent->currentState.apos, cg.time + timeshift, cent->lerpAngles );
 
@@ -1174,6 +1225,7 @@ static void CG_CalcEntityLerpPositions( centity_t *cent ) {
 		}
 	}
 //unlagged - projectile nudge
+#endif
 
 
 	// adjust for riding a mover if it wasn't rolled into the predicted
@@ -1189,6 +1241,7 @@ static void CG_CalcEntityLerpPositions( centity_t *cent ) {
 CG_TeamBase
 ===============
 */
+#ifndef SMOKINGUNS
 static void CG_TeamBase( centity_t *cent ) {
 	refEntity_t model;
 #ifdef MISSIONPACK
@@ -1336,12 +1389,14 @@ static void CG_TeamBase( centity_t *cent ) {
 	}
 #endif
 }
+#endif
 
 /*
 ===============
 CG_Intermission
 ===============
 */
+#ifdef SMOKINGUNS
 static void CG_Intermission( centity_t *cent){
 
 	if(cgs.gametype != GT_DUEL)
@@ -1356,6 +1411,7 @@ static void CG_Intermission( centity_t *cent){
 	//CG_Printf("%f %f %f\n", cg_entities[i].lerpOrigin[0], cg_entities[i].lerpOrigin[1],
 	//	cg_entities[i].lerpOrigin[2]);
 }
+#endif
 
 /*
 ===============
@@ -1379,18 +1435,20 @@ static void CG_AddCEntity( centity_t *cent ) {
 	default:
 		CG_Error( "Bad entity type: %i\n", cent->currentState.eType );
 		break;
+#ifdef SMOKINGUNS
 	case ET_FLY:
 		CG_Fly(cent);
 		break;
-	case ET_PLAYER:
-		CG_Player( cent );
-		break;
+#endif
 	case ET_INVISIBLE:
 	case ET_PUSH_TRIGGER:
 	case ET_TELEPORT_TRIGGER:
 		break;
 	case ET_GENERAL:
 		CG_General( cent );
+		break;
+	case ET_PLAYER:
+		CG_Player( cent );
 		break;
 	case ET_ITEM:
 		CG_Item( cent );
@@ -1399,7 +1457,9 @@ static void CG_AddCEntity( centity_t *cent ) {
 		CG_Missile( cent );
 		break;
 	case ET_MOVER:
+#ifdef SMOKINGUNS
 	case ET_BREAKABLE:
+#endif
 		CG_Mover( cent );
 		break;
 	case ET_BEAM:
@@ -1411,11 +1471,14 @@ static void CG_AddCEntity( centity_t *cent ) {
 	case ET_SPEAKER:
 		CG_Speaker( cent );
 		break;
+#ifndef SMOKINGUNS
 	case ET_GRAPPLE:
 		CG_Grapple( cent );
 		break;
 	case ET_TEAM:
 		CG_TeamBase( cent );
+		break;
+#else
 		break;
 	//gatling gun
 	case ET_TURRET:
@@ -1433,8 +1496,11 @@ static void CG_AddCEntity( centity_t *cent ) {
 	case ET_INTERMISSION:
 		CG_Intermission (cent);
 		break;
+#endif
 	}
+#ifdef SMOKINGUNS
 	CG_AddBoundingBoxEntity( cent );
+#endif
 }
 
 /*
@@ -1483,6 +1549,7 @@ void CG_AddPacketEntities( void ) {
 	// lerp the non-predicted value for lightning gun origins
 	CG_CalcEntityLerpPositions( &cg_entities[ cg.snap->ps.clientNum ] );
 
+#ifdef SMOKINGUNS
 //unlagged - early transitioning
 	if ( cg.nextSnap ) {
 		// pre-add some of the entities sent over by the server
@@ -1498,15 +1565,20 @@ void CG_AddPacketEntities( void ) {
 		}
 	}
 //unlagged - early transitioning
+#endif
 
 	// add each entity sent over by the server
 	for ( num = 0 ; num < cg.snap->numEntities ; num++ ) {
 		cent = &cg_entities[ cg.snap->entities[ num ].number ];
+#ifdef SMOKINGUNS
 //unlagged - early transitioning
-		if ( !cg.nextSnap || cent->nextState.eType != ET_MISSILE && cent->nextState.eType != ET_GENERAL ) {
+		if ( !cg.nextSnap || (cent->nextState.eType != ET_MISSILE && cent->nextState.eType != ET_GENERAL) ) {
 //unlagged - early transitioning
 			CG_AddCEntity( cent );
 		}
+#else
+		CG_AddCEntity( cent );
+#endif
 	}
 }
 

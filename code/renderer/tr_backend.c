@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -190,7 +190,7 @@ void GL_TexEnv( int env )
 		qglTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD );
 		break;
 	default:
-		ri.Error( ERR_DROP, "GL_TexEnv: invalid env '%d' passed\n", env );
+		ri.Error( ERR_DROP, "GL_TexEnv: invalid env '%d' passed", env );
 		break;
 	}
 }
@@ -265,7 +265,7 @@ void GL_State( unsigned long stateBits )
 				break;
 			default:
 				srcFactor = GL_ONE;		// to get warning to shut up
-				ri.Error( ERR_DROP, "GL_State: invalid src blend state bits\n" );
+				ri.Error( ERR_DROP, "GL_State: invalid src blend state bits" );
 				break;
 			}
 
@@ -297,7 +297,7 @@ void GL_State( unsigned long stateBits )
 				break;
 			default:
 				dstFactor = GL_ONE;		// to get warning to shut up
-				ri.Error( ERR_DROP, "GL_State: invalid dst blend state bits\n" );
+				ri.Error( ERR_DROP, "GL_State: invalid dst blend state bits" );
 				break;
 			}
 
@@ -522,20 +522,11 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	int				fogNum, oldFogNum;
 	int				entityNum, oldEntityNum;
 	int				dlighted, oldDlighted;
-	qboolean		depthRange, oldDepthRange;
+	qboolean		depthRange, oldDepthRange, isCrosshair, wasCrosshair;
 	int				i;
 	drawSurf_t		*drawSurf;
 	int				oldSort;
 	float			originalTime;
-#ifdef __MACOS__
-	int				macEventTime;
-
-	Sys_PumpEvents();		// crutch up the mac's limited buffer queue size
-
-	// we don't want to pump the event loop too often and waste time, so
-	// we are going to check every shader change
-	macEventTime = ri.Milliseconds() + MAC_EVENT_PUMP_MSEC;
-#endif
 
 	// save original time for entity shader offsets
 	originalTime = backEnd.refdef.floatTime;
@@ -549,6 +540,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	oldShader = NULL;
 	oldFogNum = -1;
 	oldDepthRange = qfalse;
+	wasCrosshair = qfalse;
 	oldDlighted = qfalse;
 	oldSort = -1;
 	depthRange = qfalse;
@@ -571,15 +563,6 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 		if (shader != oldShader || fogNum != oldFogNum || dlighted != oldDlighted
 			|| ( entityNum != oldEntityNum && !shader->entityMergable ) ) {
 			if (oldShader != NULL) {
-#ifdef __MACOS__	// crutch up the mac's limited buffer queue size
-				int		t;
-
-				t = ri.Milliseconds();
-				if ( t > macEventTime ) {
-					macEventTime = t + MAC_EVENT_PUMP_MSEC;
-					Sys_PumpEvents();
-				}
-#endif
 				RB_EndSurface();
 			}
 			RB_BeginSurface( shader, fogNum );
@@ -592,7 +575,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 		// change the modelview matrix if needed
 		//
 		if ( entityNum != oldEntityNum ) {
-			depthRange = qfalse;
+			depthRange = isCrosshair = qfalse;
 
 			if ( entityNum != ENTITYNUM_WORLD ) {
 				backEnd.currentEntity = &backEnd.refdef.entities[entityNum];
@@ -609,9 +592,13 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 					R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.or );
 				}
 
-				if ( backEnd.currentEntity->e.renderfx & RF_DEPTHHACK ) {
+				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
+				{
 					// hack the depth range to prevent view model from poking into walls
 					depthRange = qtrue;
+
+					if(backEnd.currentEntity->e.renderfx & RF_CROSSHAIR)
+						isCrosshair = qtrue;
 				}
 			} else {
 				backEnd.currentEntity = &tr.worldEntity;
@@ -626,15 +613,54 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			qglLoadMatrixf( backEnd.or.modelMatrix );
 
 			//
-			// change depthrange if needed
+			// change depthrange. Also change projection matrix so first person weapon does not look like coming
+			// out of the screen.
 			//
-			if ( oldDepthRange != depthRange ) {
-				if ( depthRange ) {
-					qglDepthRange (0, 0.3);
-				} else {
+			if (oldDepthRange != depthRange || wasCrosshair != isCrosshair)
+			{
+				if (depthRange)
+				{
+					if(backEnd.viewParms.stereoFrame != STEREO_CENTER)
+					{
+						if(isCrosshair)
+						{
+							if(oldDepthRange)
+							{
+								// was not a crosshair but now is, change back proj matrix
+								qglMatrixMode(GL_PROJECTION);
+								qglLoadMatrixf(backEnd.viewParms.projectionMatrix);
+								qglMatrixMode(GL_MODELVIEW);
+							}
+						}
+						else
+						{
+							viewParms_t temp = backEnd.viewParms;
+
+							R_SetupProjection(&temp, r_znear->value, qfalse);
+
+							qglMatrixMode(GL_PROJECTION);
+							qglLoadMatrixf(temp.projectionMatrix);
+							qglMatrixMode(GL_MODELVIEW);
+						}
+					}
+
+					if(!oldDepthRange)
+						qglDepthRange (0, 0.3);
+				}
+				else
+				{
+					if(!wasCrosshair && backEnd.viewParms.stereoFrame != STEREO_CENTER)
+					{
+						qglMatrixMode(GL_PROJECTION);
+						qglLoadMatrixf(backEnd.viewParms.projectionMatrix);
+						qglMatrixMode(GL_MODELVIEW);
+					}
+
 					qglDepthRange (0, 1);
 				}
+
 				oldDepthRange = depthRange;
+				wasCrosshair = isCrosshair;
 			}
 
 			oldEntityNum = entityNum;
@@ -665,10 +691,6 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 	// add light flares on lights that aren't obscured
 	RB_RenderFlares();
-
-#ifdef __MACOS__
-	Sys_PumpEvents();		// crutch up the mac's limited buffer queue size
-#endif
 }
 
 
@@ -729,6 +751,11 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 	}
 	R_SyncRenderThread();
 
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+	// Needed here to support cinematics
+	R_FrameBuffer_EndFrame();
+#endif
+
 	// we definately want to sync every frame for the cinematics
 	qglFinish();
 
@@ -755,8 +782,8 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 		qglTexImage2D( GL_TEXTURE_2D, 0, GL_RGB8, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
-		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
+		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );	
 	} else {
 		if (dirty) {
 			// otherwise, just subimage upload it so that drivers can tell we are going to be changing
@@ -797,8 +824,8 @@ void RE_UploadCinematic (int w, int h, int cols, int rows, const byte *data, int
 		qglTexImage2D( GL_TEXTURE_2D, 0, GL_RGB8, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
-		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
+		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );	
 	} else {
 		if (dirty) {
 			// otherwise, just subimage upload it so that drivers can tell we are going to be changing
@@ -1011,6 +1038,42 @@ void RB_ShowImages( void ) {
 
 }
 
+/*
+=============
+RB_ColorMask
+
+=============
+*/
+const void *RB_ColorMask(const void *data)
+{
+	const colorMaskCommand_t *cmd = data;
+	
+	qglColorMask(cmd->rgba[0], cmd->rgba[1], cmd->rgba[2], cmd->rgba[3]);
+	
+	return (const void *)(cmd + 1);
+}
+
+/*
+=============
+RB_ClearDepth
+
+=============
+*/
+const void *RB_ClearDepth(const void *data)
+{
+	const clearDepthCommand_t *cmd = data;
+	
+	if(tess.numIndexes)
+		RB_EndSurface();
+
+	// texture swapping test
+	if (r_showImages->integer)
+		RB_ShowImages();
+
+	qglClear(GL_DEPTH_BUFFER_BIT);
+	
+	return (const void *)(cmd + 1);
+}
 
 /*
 =============
@@ -1051,6 +1114,12 @@ const void	*RB_SwapBuffers( const void *data ) {
 		ri.Hunk_FreeTempMemory( stencilReadback );
 	}
 
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+	// Check to render Framebuffer if still not done
+	if (!backEnd.projection2D) {
+		R_FrameBuffer_EndFrame();
+	}
+#endif
 
 	if ( !glState.finishCalled ) {
 		qglFinish();
@@ -1085,26 +1154,56 @@ void RB_ExecuteRenderCommands( const void *data ) {
 	}
 
 	while ( 1 ) {
+		data = PADP(data, sizeof(void *));
+
 		switch ( *(const int *)data ) {
 		case RC_SET_COLOR:
 			data = RB_SetColor( data );
 			break;
 		case RC_STRETCH_PIC:
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+			R_FrameBuffer_EndFrame();
+#endif
 			data = RB_StretchPic( data );
 			break;
 		case RC_DRAW_SURFS:
 			data = RB_DrawSurfs( data );
 			break;
 		case RC_DRAW_BUFFER:
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+			data = useFrameBuffer ? RB_DrawFrameBuffer( data ) : RB_DrawBuffer( data );
+#else
 			data = RB_DrawBuffer( data );
+#endif
 			break;
 		case RC_SWAP_BUFFERS:
 			data = RB_SwapBuffers( data );
 			break;
+		//these two use a hack to let them copy the framebuffer effects too
 		case RC_SCREENSHOT:
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+			R_FrameBufferUnBind();
+#endif
 			data = RB_TakeScreenshotCmd( data );
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+			R_FrameBufferBind();
+#endif
 			break;
-
+		case RC_VIDEOFRAME:
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+			R_FrameBufferUnBind();
+#endif
+			data = RB_TakeVideoFrameCmd( data );
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+			R_FrameBufferBind();
+#endif
+			break;
+		case RC_COLORMASK:
+			data = RB_ColorMask(data);
+			break;
+		case RC_CLEARDEPTH:
+			data = RB_ClearDepth(data);
+			break;
 		case RC_END_OF_LIST:
 		default:
 			// stop rendering on this thread

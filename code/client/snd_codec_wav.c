@@ -183,7 +183,7 @@ static qboolean S_ReadRIFFHeader(fileHandle_t file, snd_info_t *info)
 // WAV codec
 snd_codec_t wav_codec =
 {
-	".wav",
+	"wav",
 	S_WAV_CodecLoad,
 	S_WAV_CodecOpenStream,
 	S_WAV_CodecReadStream,
@@ -205,8 +205,6 @@ void *S_WAV_CodecLoad(const char *filename, snd_info_t *info)
 	FS_FOpenFileRead(filename, &file, qtrue);
 	if(!file)
 	{
-		Com_Printf( S_COLOR_RED "ERROR: Could not open \"%s\"\n",
-				filename);
 		return NULL;
 	}
 

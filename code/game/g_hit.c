@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // by Spoon
 
 #include "g_local.h"
-#include "q_shared.h"
+#include "../qcommon/q_shared.h"
 
 /*
 =================
@@ -551,7 +551,7 @@ PARSEHITFILECODE
 ======================
 G_ParseAnimationFile
 
-Read a configuration file containing animation coutns and rates
+Read a configuration file containing animation counts and rates
 models/wq3_players/wq_male1/animation.cfg, etc
 ======================
 */
@@ -705,14 +705,12 @@ G_OpenFileAiNode
 */
 extern	vec3_t	ai_nodes[MAX_AINODES];
 extern	int		ai_nodecount;
-#define MAX_AINODEFILE 10000
 qboolean G_OpenFileAiNode(const char *filename){
 	int				i;
 	fileHandle_t	file;
-	char			header[] = "AI-NODES";
 	int				len;
-	char			headercheck[10];
-	char			buf[MAX_AINODEFILE];
+	char			headercheck[sizeof(AINODE_FILE_HEADER)+1];
+	char			buf[MAX_AINODEFILE+1];
 
 	int				pos = 0;
 
@@ -723,8 +721,8 @@ qboolean G_OpenFileAiNode(const char *filename){
 		trap_FS_FCloseFile( file );
 		return qfalse;
 	}
-	if ( len >= MAX_AINODEFILE ) {
-		G_Printf("ai file too big: %s!\n", filename);
+	if ( len > MAX_AINODEFILE ) {
+		G_Printf("ai file too big: %s! %d > " STRING(AINODE_FILE_MAX_SIZE) "\n", filename);
 		trap_FS_FCloseFile( file );
 		return qfalse;
 	}
@@ -733,12 +731,11 @@ qboolean G_OpenFileAiNode(const char *filename){
 	trap_FS_FCloseFile( file );
 
 	// read the header
-	BG_StringRead(headercheck, (char*)buf, sizeof(header));
-	pos += sizeof(header);
-	headercheck[8] = '\0';
+	Q_strncpyz(headercheck, buf, sizeof(AINODE_FILE_HEADER));
+	pos += sizeof(AINODE_FILE_HEADER);
 
 	//check
-	if(Q_stricmp(headercheck, header)){
+	if(Q_stricmp(headercheck, AINODE_FILE_HEADER)){
 		G_Printf("no valid ai-file: %s\n", filename);
 		return qfalse;
 	}
@@ -749,7 +746,7 @@ qboolean G_OpenFileAiNode(const char *filename){
 		if(len <= pos){
 			break;
 		}
-		BG_StringRead((char*)ai_nodes[i], (char*)(buf+pos), sizeof(vec3_t));
+		Com_Memcpy(ai_nodes[i], buf+pos, sizeof(vec3_t));
 		pos += sizeof(vec3_t);
 		//G_Printf("%i. %f %f %f\n", i+1, ai_nodes[i][0], ai_nodes[i][1], ai_nodes[i][2]);
 
@@ -820,7 +817,7 @@ typedef struct hit_data_s {
 #define HIT_DEBUG
 qboolean G_ParseHitFile(hit_data_t *hit_data, int part){
 
-	int				len, f, i, j;
+	int				len, f, i;
 	fileHandle_t	file;
 	hit_tag_t		*ptag;
 	hit_header_t	header;
@@ -869,25 +866,25 @@ qboolean G_ParseHitFile(hit_data_t *hit_data, int part){
 	//
 
 	// read in the header seperately, because of size-problems in the qvm
-	BG_StringRead((char*)&header.ident, (char*)(buf+pos), sizeof(short));
+	Com_Memcpy(&header.ident, buf+pos, sizeof(short));
 #if defined Q3_VM || !defined LittleShort	// QVM or SO on a big endian processor
 	header.ident = LittleShort(header.ident);  // fix endianness
 #endif
 	pos += sizeof(short);
 
-	BG_StringRead((char*)&header.numFrames, (char*)(buf+pos), sizeof(short));
+	Com_Memcpy(&header.numFrames, buf+pos, sizeof(short));
 #if defined Q3_VM || !defined LittleShort	// QVM or SO on a big endian processor
 	header.numFrames = LittleShort(header.numFrames);
 #endif
 	pos += sizeof(short);
 
-	BG_StringRead((char*)&header.numMeshes, (char*)(buf+pos), sizeof(short));
+	Com_Memcpy(&header.numMeshes, buf+pos, sizeof(short));
 #if defined Q3_VM || !defined LittleShort	// QVM or SO on a big endian processor
 	header.numMeshes = LittleShort(header.numMeshes);
 #endif
 	pos += sizeof(short);
 
-if(header.ident != HIT_IDENT){
+	if(header.ident != HIT_IDENT){
 #ifdef HIT_DEBUG
 		G_Error(
 #else
@@ -898,7 +895,7 @@ if(header.ident != HIT_IDENT){
 		sizeof(header.ident), sizeof(header.numFrames), sizeof(header.numMeshes),
 		sizeof(short), sizeof(int));
 		return qfalse;
-}
+	}
 
 	//
 	// tags
@@ -906,7 +903,9 @@ if(header.ident != HIT_IDENT){
 
 	if(part != PART_HEAD){
 		for(f = 0; f < header.numFrames; f++){
+#if defined Q3_VM || !defined LittleFloat
 			int j ;
+#endif
 			if(part==PART_UPPER)
 				ptag = &hit_data->tag_head[f];
 			else if(part==PART_LOWER)
@@ -921,11 +920,11 @@ if(header.ident != HIT_IDENT){
 				return qfalse;
 			}
 
-			BG_StringRead((char*)ptag, (char*)(buf+pos), sizeof(hit_tag_t));
+			Com_Memcpy(ptag, buf+pos, sizeof(hit_tag_t));
 #if defined Q3_VM || !defined LittleFloat	// QVM or SO on a big endian processor
 			for (j = 0; j < 3; j++) { // fix endianness
-				ptag->angles[j] = LittleFloat((const float *)&ptag->angles[j]);
-				ptag->origin[j] = LittleFloat((const float *)&ptag->origin[j]);
+				ptag->angles[j] = LittleFloat(((const float *)&ptag->angles)[j]);
+				ptag->origin[j] = LittleFloat(((const float *)&ptag->origin)[j]);
 			}
 #endif
 			AnglesNormalize180(ptag->angles);
@@ -939,7 +938,11 @@ if(header.ident != HIT_IDENT){
 	//
 
 	for( i = 0; i < header.numMeshes; i++){
+#if defined Q3_VM || !defined LittleShort	// QVM or SO on a big endian processor
 		int j, k, hit_num = -1;
+#else
+		int j, hit_num = -1;
+#endif
 		mesh_header_t m_header;
 
 		// load next file
@@ -989,36 +992,36 @@ if(header.ident != HIT_IDENT){
 			trap_FS_FCloseFile( file );
 		}*/
 
-		BG_StringRead((char*)&m_header.name, (char*)(buf+pos), sizeof(m_header.name));
+		Com_Memcpy(&m_header.name, buf+pos, sizeof(m_header.name));
 		pos += sizeof(m_header.name);
 
-		BG_StringRead((char*)&m_header.a1, (char*)(buf+pos), sizeof(short));
+		Com_Memcpy(&m_header.a1, buf+pos, sizeof(short));
 #if defined Q3_VM || !defined LittleShort	// QVM or SO on a big endian processor
 		m_header.a1 = LittleShort(m_header.a1);  // fix endianness
 #endif
 		pos += sizeof(short);
 
-		BG_StringRead((char*)&m_header.a2, (char*)(buf+pos), sizeof(short));
+		Com_Memcpy(&m_header.a2, buf+pos, sizeof(short));
 #if defined Q3_VM || !defined LittleShort	// QVM or SO on a big endian processor
 		m_header.a2 = LittleShort(m_header.a2);
 #endif
 		pos += sizeof(short);
 
-		BG_StringRead((char*)&m_header.dir1, (char*)(buf+pos), 3*sizeof(short));
+		Com_Memcpy(&m_header.dir1, buf+pos, 3*sizeof(short));
 #if defined Q3_VM || !defined LittleShort	// QVM or SO on a big endian processor
 		for (k = 0; k < 3; k++)
 			m_header.dir1[k] = LittleShort(m_header.dir1[k]);
 #endif
 		pos += 3*sizeof(short);
 
-		BG_StringRead((char*)&m_header.dir2, (char*)(buf+pos), 3*sizeof(short));
+		Com_Memcpy(&m_header.dir2, buf+pos, 3*sizeof(short));
 #if defined Q3_VM || !defined LittleShort	// QVM or SO on a big endian processor
 		for (k = 0; k < 3; k++)
 			m_header.dir2[k] = LittleShort(m_header.dir2[k]);
 #endif
 		pos += 3*sizeof(short);
 
-		BG_StringRead((char*)&m_header.length, (char*)(buf+pos), sizeof(short));
+		Com_Memcpy(&m_header.length, buf+pos, sizeof(short));
 #if defined Q3_VM || !defined LittleShort	// QVM or SO on a big endian processor
 		m_header.length = LittleShort(m_header.length);
 #endif
@@ -1045,11 +1048,11 @@ if(header.ident != HIT_IDENT){
 			return qfalse;
 		}
 
-		memcpy(&hit_data->meshes[hit_num].header, &m_header, sizeof(short)*9+sizeof(m_header.name));
+		Com_Memcpy(&hit_data->meshes[hit_num].header, &m_header, sizeof(short)*9+sizeof(m_header.name));
 
 		// now parse the frames
 		for(f=0; f<header.numFrames; f++){
-			BG_StringRead((char*)&hit_data->meshes[hit_num].pos[f], (char*)(buf+pos), sizeof(hit_mesh_t));
+			Com_Memcpy(&hit_data->meshes[hit_num].pos[f], buf+pos, sizeof(hit_mesh_t));
 #if defined Q3_VM || !defined LittleShort	// QVM or SO on a big endian processor
 			for (k = 0; k < 3; k++) { // fix endianness
 				hit_data->meshes[hit_num].pos[f].normal[k]
@@ -1121,7 +1124,7 @@ static void G_SetLerpFrameAnimation( lerpFrame_t *lf, int newAnimation) {
 		G_Error( "Server: Bad animation number: %i", newAnimation );
 	}
 
-	anim = &hit_data.animations[newAnimation ];//&data->animations[ newAnimation ];
+	anim = &hit_data.animations[newAnimation ];
 	//G_Printf("%i %i %f\n", anim->firstFrame, anim->numFrames, anim->frameLerp);
 	//G_Printf("%i %i %f\n", hit_data[hit_data_num].animations[newAnimation].firstFrame,
 	//	hit_data[hit_data_num].animations[newAnimation].numFrames,
@@ -1328,12 +1331,13 @@ void G_PlayerAngles( gentity_t *ent, vec3_t legs[3], vec3_t torso[3] ) {
 
 	// allow yaw to drift a bit
 	if ( ( client->ps.legsAnim & ~ANIM_TOGGLEBIT ) != LEGS_IDLE
-		|| ( client->ps.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_KNIFE_STAND
-		|| ( client->ps.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_PISTOL_STAND
-		|| ( client->ps.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_PISTOLS_STAND
-		|| ( client->ps.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_RIFLE_STAND
-		|| ( client->ps.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_GATLING_STAND
-		|| ( client->ps.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_HOLSTERED) {
+		|| ( // Tequila comment: Fixed a wrong test here generating gcc warning
+		( client->ps.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_KNIFE_STAND
+		&& ( client->ps.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_PISTOL_STAND
+		&& ( client->ps.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_PISTOLS_STAND
+		&& ( client->ps.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_RIFLE_STAND
+		&& ( client->ps.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_GATLING_STAND
+		&& ( client->ps.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_HOLSTERED)) {
 		// if not standing still, always point all in the same direction
 		client->torso.yawing = qtrue;	// always center
 		client->torso.pitching = qtrue;	// always center

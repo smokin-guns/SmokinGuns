@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "client.h"
 
-#include "../game/botlib.h"
+#include "../botlib/botlib.h"
 
 #include "libmumblelink.h"
 
@@ -34,6 +34,10 @@ extern qboolean loadCamera(const char *name);
 extern void startCamera(int time);
 extern qboolean getCameraInfo(int time, vec3_t *origin, vec3_t *angles);
 
+#ifdef SMOKINGUNS
+char **badWords = NULL;
+int numWords;
+#endif
 /*
 ====================
 CL_GetGameState
@@ -299,9 +303,9 @@ rescan:
 		// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=552
 		// allow server to indicate why they were disconnected
 		if ( argc >= 2 )
-			Com_Error (ERR_SERVERDISCONNECT, va( "Server Disconnected - %s", Cmd_Argv( 1 ) ) );
+			Com_Error( ERR_SERVERDISCONNECT, "Server disconnected - %s", Cmd_Argv( 1 ) );
 		else
-			Com_Error (ERR_SERVERDISCONNECT,"Server disconnected\n");
+			Com_Error( ERR_SERVERDISCONNECT, "Server disconnected" );
 	}
 
 	if ( !strcmp( cmd, "bcs0" ) ) {
@@ -340,6 +344,8 @@ rescan:
 		// clear notify lines and outgoing commands before passing
 		// the restart to the cgame
 		Con_ClearNotify();
+		// reparse the string, because Con_ClearNotify() may have done another Cmd_TokenizeString()
+		Cmd_TokenizeString( s );
 		Com_Memset( cl.cmds, 0, sizeof( cl.cmds ) );
 		return qtrue;
 	}
@@ -390,7 +396,7 @@ CL_ShutdonwCGame
 ====================
 */
 void CL_ShutdownCGame( void ) {
-	cls.keyCatchers &= ~KEYCATCH_CGAME;
+	Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_CGAME );
 	cls.cgameStarted = qfalse;
 	if ( !cgvm ) {
 		return;
@@ -401,12 +407,48 @@ void CL_ShutdownCGame( void ) {
 }
 
 static int	FloatAsInt( float f ) {
-	int		temp;
-
-	*(float *)&temp = f;
-
-	return temp;
+	floatint_t fi;
+	fi.f = f;
+	return fi.i;
 }
+
+/*
+====================
+Bad Word Filter 
+
+====================
+*/
+#ifdef SMOKINGUNS
+char* fixBadWords(char *str)
+{
+	char *at;
+	char wordBuf[4096];
+	int cIndex;
+	int i;
+
+	for( i=0;i<numWords;++i )
+	{
+		at = str;
+
+		while( ( at = (char *)Q_stristr( at, badWords[i] ) ) )
+		{
+#ifndef min
+#define min(a, b)	(a) < (b) ? a : b
+#endif
+			cIndex = min( strspn( at, "ABCDEFGHIIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" ), sizeof( wordBuf ) - 1 );
+			memcpy( wordBuf, at, cIndex );
+			wordBuf[cIndex] = '\0';
+
+			if( ( Q_stricmp(badWords[i], wordBuf) == 0 ) && ( at == str || ( at[-1] == ' ' ) || ( at > ( str + 1 ) && at[-2] == '^' ) ) )
+				Com_Memset( at, ' ', cIndex );
+
+			++at;
+		}	
+	}
+
+	return str;
+}
+#endif
 
 /*
 ====================
@@ -415,15 +457,17 @@ CL_CgameSystemCalls
 The cgame module is making a system call
 ====================
 */
-#define	VMA(x) VM_ArgPtr(args[x])
-#define	VMF(x)	((float *)args)[x]
-int CL_CgameSystemCalls( int *args ) {
+intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 	switch( args[0] ) {
 	case CG_PRINT:
-		Com_Printf( "%s", VMA(1) );
+#ifndef SMOKINGUNS
+		Com_Printf( "%s", (const char*)VMA(1) );
+#else
+		Com_Printf( "%s", (const char*)fixBadWords( VMA(1) ) );
+#endif
 		return 0;
 	case CG_ERROR:
-		Com_Error( ERR_DROP, "%s", VMA(1) );
+		Com_Error( ERR_DROP, "%s", (const char*)VMA(1) );
 		return 0;
 	case CG_MILLISECONDS:
 		return Sys_Milliseconds();
@@ -434,7 +478,7 @@ int CL_CgameSystemCalls( int *args ) {
 		Cvar_Update( VMA(1) );
 		return 0;
 	case CG_CVAR_SET:
-		Cvar_Set( VMA(1), VMA(2) );
+		Cvar_SetSafe( VMA(1), VMA(2) );
 		return 0;
 	case CG_CVAR_VARIABLESTRINGBUFFER:
 		Cvar_VariableStringBuffer( VMA(1), VMA(2), args[3] );
@@ -467,10 +511,10 @@ int CL_CgameSystemCalls( int *args ) {
 		CL_AddCgameCommand( VMA(1) );
 		return 0;
 	case CG_REMOVECOMMAND:
-		Cmd_RemoveCommand( VMA(1) );
+		Cmd_RemoveCommandSafe( VMA(1) );
 		return 0;
 	case CG_SENDCLIENTCOMMAND:
-		CL_AddReliableCommand( VMA(1) );
+		CL_AddReliableCommand(VMA(1), qfalse);
 		return 0;
 	case CG_UPDATESCREEN:
 		// this is used during lengthy level loading, so pump message loop
@@ -607,14 +651,15 @@ int CL_CgameSystemCalls( int *args ) {
 		return 0;
 	case CG_MEMORY_REMAINING:
 		return Hunk_MemoryRemaining();
-  case CG_KEY_ISDOWN:
+	case CG_KEY_ISDOWN:
 		return Key_IsDown( args[1] );
-  case CG_KEY_GETCATCHER:
+	case CG_KEY_GETCATCHER:
 		return Key_GetCatcher();
-  case CG_KEY_SETCATCHER:
-		Key_SetCatcher( args[1] );
-    return 0;
-  case CG_KEY_GETKEY:
+	case CG_KEY_SETCATCHER:
+		// Don't allow the cgame module to close the console
+		Key_SetCatcher( args[1] | ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) );
+		return 0;
+	case CG_KEY_GETKEY:
 		return Key_GetKey( VMA(1) );
 
 
@@ -626,7 +671,8 @@ int CL_CgameSystemCalls( int *args ) {
 		Com_Memcpy( VMA(1), VMA(2), args[3] );
 		return 0;
 	case CG_STRNCPY:
-		return (int)strncpy( VMA(1), VMA(2), args[3] );
+		strncpy( VMA(1), VMA(2), args[3] );
+		return args[1];
 	case CG_SIN:
 		return FloatAsInt( sin( VMF(1) ) );
 	case CG_COS:
@@ -664,21 +710,21 @@ int CL_CgameSystemCalls( int *args ) {
 		return 0;
 
 	case CG_CIN_PLAYCINEMATIC:
-	  return CIN_PlayCinematic(VMA(1), args[2], args[3], args[4], args[5], args[6]);
+		return CIN_PlayCinematic(VMA(1), args[2], args[3], args[4], args[5], args[6]);
 
 	case CG_CIN_STOPCINEMATIC:
-	  return CIN_StopCinematic(args[1]);
+		return CIN_StopCinematic(args[1]);
 
 	case CG_CIN_RUNCINEMATIC:
-	  return CIN_RunCinematic(args[1]);
+		return CIN_RunCinematic(args[1]);
 
 	case CG_CIN_DRAWCINEMATIC:
-	  CIN_DrawCinematic(args[1]);
-	  return 0;
+		CIN_DrawCinematic(args[1]);
+		return 0;
 
 	case CG_CIN_SETEXTENTS:
-	  CIN_SetExtents(args[1], args[2], args[3], args[4], args[5]);
-	  return 0;
+		CIN_SetExtents(args[1], args[2], args[3], args[4], args[5]);
+		return 0;
 
 	case CG_R_REMAP_SHADER:
 		re.RemapShader( VMA(1), VMA(2), VMA(3) );
@@ -697,6 +743,7 @@ int CL_CgameSystemCalls( int *args ) {
 */
 	case CG_GET_ENTITY_TOKEN:
 		return re.GetEntityToken( VMA(1), args[2] );
+#ifdef SMOKINGUNS
 	case CG_R_CULL_BBOX:
 		return re.CullBox( VMA(1) );
 	case CG_R_CULL_SPHERE:
@@ -704,12 +751,16 @@ int CL_CgameSystemCalls( int *args ) {
 	case CG_R_FRUSTUM_PLANE:
 		re.GetFrustumPlane( VMA(1) );
 		return 0;
+	case CG_GETENV:
+		Q_strncpyz( VMA(2), Sys_GetEnv( VMA(1) ), args[3] );
+		return 0;
+#endif
 	case CG_R_INPVS:
 		return re.inPVS( VMA(1), VMA(2) );
 
 	default:
-	        assert(0); // bk010102
-		Com_Error( ERR_DROP, "Bad cgame system trap: %i", args[0] );
+		assert(0);
+		Com_Error( ERR_DROP, "Bad cgame system trap: %ld", (long int) args[0] );
 	}
 	return 0;
 }
@@ -727,8 +778,60 @@ void CL_InitCGame( void ) {
 	const char			*mapname;
 	int					t1, t2;
 	vmInterpret_t		interpret;
+#ifdef SMOKINGUNS
+	int					l;
+	char				*at;
+	char				blockThis[255];
+	char				*buf;
+	char				**tempBuf;
+	int					capacity = 40;
+#endif
 
 	t1 = Sys_Milliseconds();
+
+	// Load language filter
+#ifdef SMOKINGUNS
+	if( !badWords )
+	{
+		numWords = 0;
+
+		buf = Cvar_VariableString( "cg_filterWords" );
+
+		if( strlen( buf ) > 0 )
+		{
+			l = 0;
+
+			badWords = Z_Malloc( capacity * sizeof( char* ) );
+
+			at = buf;
+			while( ( at = strchr( buf, ',' ) ) )
+			{
+				if( ( l-1 ) > capacity )					// ( l-1 ) because we want to leave room for the last word
+				{
+					tempBuf = Z_Malloc( ( capacity + 40 ) * sizeof( char** ) );
+					Com_Memcpy( tempBuf, badWords, capacity * sizeof( char** ) );
+					Z_Free( badWords );
+					badWords = tempBuf;
+
+					capacity += 40;
+				}
+
+				strncpy( blockThis, buf, ( strchr( buf, ',' ) - buf ) );
+				blockThis[( strchr( buf, ',' ) - buf )] = '\0';
+				badWords[l] = strdup( blockThis );
+				buf = at + 1;
+				++l;
+			}
+
+			badWords[l] = strdup( buf );
+			++l;
+
+			numWords = l;
+		}
+		else
+			Com_Printf( "No filter loaded.\n" );
+	}
+#endif
 
 	// put away the console
 	Con_Close();
@@ -756,6 +859,10 @@ void CL_InitCGame( void ) {
 	// use the lastExecutedServerCommand instead of the serverCommandSequence
 	// otherwise server commands sent just before a gamestate are dropped
 	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
+
+	// reset any CVAR_CHEAT cvars registered by cgame
+	if ( !clc.demoplaying && !cl_connectedToCheatServer )
+		Cvar_SetCheatState();
 
 	// we will send a usercmd this frame, which
 	// will cause the server to send us the first snapshot
@@ -915,14 +1022,50 @@ void CL_FirstSnapshot( void ) {
 	}
 
 #ifdef USE_MUMBLE
-#define CLIENT_WINDOW_TITLE "smokinguns"
 	if ((cl_useMumble->integer) && !mumble_islinked()) {
 		int ret = mumble_link(CLIENT_WINDOW_TITLE);
 		Com_Printf("Mumble: Linking to Mumble application %s\n", ret==0?"ok":"failed");
 	}
 #endif
 
-	Sys_BeginProfiling();
+#ifdef USE_VOIP
+	if (!clc.speexInitialized) {
+		int i;
+		speex_bits_init(&clc.speexEncoderBits);
+		speex_bits_reset(&clc.speexEncoderBits);
+
+		clc.speexEncoder = speex_encoder_init(&speex_nb_mode);
+
+		speex_encoder_ctl(clc.speexEncoder, SPEEX_GET_FRAME_SIZE,
+		                  &clc.speexFrameSize);
+		speex_encoder_ctl(clc.speexEncoder, SPEEX_GET_SAMPLING_RATE,
+		                  &clc.speexSampleRate);
+
+		clc.speexPreprocessor = speex_preprocess_state_init(clc.speexFrameSize,
+		                                                  clc.speexSampleRate);
+
+		i = 1;
+		speex_preprocess_ctl(clc.speexPreprocessor,
+		                     SPEEX_PREPROCESS_SET_DENOISE, &i);
+
+		i = 1;
+		speex_preprocess_ctl(clc.speexPreprocessor,
+		                     SPEEX_PREPROCESS_SET_AGC, &i);
+
+		for (i = 0; i < MAX_CLIENTS; i++) {
+			speex_bits_init(&clc.speexDecoderBits[i]);
+			speex_bits_reset(&clc.speexDecoderBits[i]);
+			clc.speexDecoder[i] = speex_decoder_init(&speex_nb_mode);
+			clc.voipIgnore[i] = qfalse;
+			clc.voipGain[i] = 1.0f;
+		}
+		clc.speexInitialized = qtrue;
+		clc.voipMuteAll = qfalse;
+		Cmd_AddCommand ("voip", CL_Voip_f);
+		Cvar_Set("cl_voipSendTarget", "all");
+		clc.voipTarget1 = clc.voipTarget2 = clc.voipTarget3 = 0x7FFFFFFF;
+	}
+#endif
 }
 
 /*
@@ -960,7 +1103,7 @@ void CL_SetCGameTime( void ) {
 	}
 
 	// allow pause in single player
-	if ( sv_paused->integer && cl_paused->integer && com_sv_running->integer ) {
+	if ( sv_paused->integer && CL_CheckPaused() && com_sv_running->integer ) {
 		// paused
 		return;
 	}
@@ -1025,9 +1168,35 @@ void CL_SetCGameTime( void ) {
 	// while a normal demo may have different time samples
 	// each time it is played back
 	if ( cl_timedemo->integer ) {
+		int now = Sys_Milliseconds( );
+		int frameDuration;
+
 		if (!clc.timeDemoStart) {
-			clc.timeDemoStart = Sys_Milliseconds();
+			clc.timeDemoStart = clc.timeDemoLastFrame = now;
+			clc.timeDemoMinDuration = INT_MAX;
+			clc.timeDemoMaxDuration = 0;
 		}
+
+		frameDuration = now - clc.timeDemoLastFrame;
+		clc.timeDemoLastFrame = now;
+
+		// Ignore the first measurement as it'll always be 0
+		if( clc.timeDemoFrames > 0 )
+		{
+			if( frameDuration > clc.timeDemoMaxDuration )
+				clc.timeDemoMaxDuration = frameDuration;
+
+			if( frameDuration < clc.timeDemoMinDuration )
+				clc.timeDemoMinDuration = frameDuration;
+
+			// 255 ms = about 4fps
+			if( frameDuration > UCHAR_MAX )
+				frameDuration = UCHAR_MAX;
+
+			clc.timeDemoDurations[ ( clc.timeDemoFrames - 1 ) %
+				MAX_TIMEDEMO_DURATIONS ] = frameDuration;
+		}
+
 		clc.timeDemoFrames++;
 		cl.serverTime = clc.timeDemoBaseTime + clc.timeDemoFrames * 50;
 	}

@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 *
 *****************************************************************************/
 
-#include "../game/q_shared.h"
+#include "../qcommon/q_shared.h"
 #include "l_log.h"
 #include "l_memory.h"
 #include "l_utils.h"
@@ -39,11 +39,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "l_struct.h"
 #include "l_libvar.h"
 #include "aasfile.h"
-#include "../game/botlib.h"
-#include "../game/be_aas.h"
+#include "botlib.h"
+#include "be_aas.h"
 #include "be_aas_funcs.h"
 #include "be_interface.h"
-#include "../game/be_ai_char.h"
+#include "be_ai_char.h"
 
 #define MAX_CHARACTERISTICS		80
 
@@ -107,8 +107,8 @@ void BotDumpCharacter(bot_character_t *ch)
 {
 	int i;
 
-	Log_Write("%s", ch->filename);
-	Log_Write("skill %d\n", ch->skill);
+	Log_Write("%s\n", ch->filename);
+	Log_Write("skill %.1f\n", ch->skill);
 	Log_Write("{\n");
 	for (i = 0; i < MAX_CHARACTERISTICS; i++)
 	{
@@ -417,7 +417,7 @@ int BotLoadCachedCharacter(char *charfile, float skill, int reload)
 		//
 		botimport.Print(PRT_MESSAGE, "loaded skill %d from %s\n", intskill, charfile);
 #ifdef DEBUG
-		if (bot_developer)
+		if (botDeveloper)
 		{
 			botimport.Print(PRT_MESSAGE, "skill %d loaded in %d msec from %s\n", intskill, Sys_MilliSeconds() - starttime, charfile);
 		} //end if

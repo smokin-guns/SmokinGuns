@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -161,7 +161,6 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 
 	// send over the current server time so the client can drift
 	// its view of time to try to match
-	// http://svn.icculus.org/quake3?rev=192&view=rev
 	if( client->oldServerTime ) {
 		// The server has not yet got an acknowledgement of the
 		// new gamestate from this client, so continue to send it
@@ -300,7 +299,6 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 	int		l;
 	int		clientarea, clientcluster;
 	int		leafnum;
-	int		c_fullsend;
 	byte	*clientpvs;
 	byte	*bitvector;
 
@@ -319,8 +317,6 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 	frame->areabytes = CM_WriteAreaBits( frame->areabits, clientarea );
 
 	clientpvs = CM_ClusterPVS (clientcluster);
-
-	c_fullsend = 0;
 
 	for ( e = 0 ; e < sv.num_entities ; e++ ) {
 		ent = SV_GentityNum(e);
@@ -355,7 +351,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		// entities can be flagged to be sent to a given mask of clients
 		if ( ent->r.svFlags & SVF_CLIENTMASK ) {
 			if (frame->ps.clientNum >= 32)
-				Com_Error( ERR_DROP, "SVF_CLIENTMASK: cientNum > 32\n" );
+				Com_Error( ERR_DROP, "SVF_CLIENTMASK: clientNum >= 32" );
 			if (~ent->r.singleClient & (1 << frame->ps.clientNum))
 				continue;
 		}
@@ -417,7 +413,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		// add it
 		SV_AddEntToSnapshot( svEnt, ent, eNums );
 
-		// if its a portal entity, add everything visible from its camera position
+		// if it's a portal entity, add everything visible from its camera position
 		if ( ent->r.svFlags & SVF_PORTAL ) {
 			if ( ent->s.generic1 ) {
 				vec3_t dir;
@@ -553,7 +549,14 @@ static int SV_RateMsec( client_t *client, int messageSize ) {
 			rate = sv_maxRate->integer;
 		}
 	}
-	rateMsec = ( messageSize + HEADER_RATE_BYTES ) * 1000 / rate;
+	if ( sv_minRate->integer ) {
+		if ( sv_minRate->integer < 1000 )
+			Cvar_Set( "sv_minRate", "1000" );
+		if ( sv_minRate->integer > rate )
+			rate = sv_minRate->integer;
+	}
+
+	rateMsec = ( messageSize + HEADER_RATE_BYTES ) * 1000 / ((int) (rate * com_timescale->value));
 
 	return rateMsec;
 }
@@ -578,35 +581,34 @@ void SV_SendMessageToClient( msg_t *msg, client_t *client ) {
 
 	// set nextSnapshotTime based on rate and requested number of updates
 
-	// local clients get snapshots every frame
+	// local clients get snapshots every server frame
 	// TTimo - https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=491
 	// added sv_lanForceRate check
 	if ( client->netchan.remoteAddress.type == NA_LOOPBACK || (sv_lanForceRate->integer && Sys_IsLANAddress (client->netchan.remoteAddress)) ) {
-		client->nextSnapshotTime = svs.time - 1;
+		client->nextSnapshotTime = svs.time + ((int) (1000.0 / sv_fps->integer * com_timescale->value));
 		return;
 	}
 
 	// normal rate / snapshotMsec calculation
-	rateMsec = SV_RateMsec( client, msg->cursize );
+	rateMsec = SV_RateMsec(client, msg->cursize);
 
-	if ( rateMsec < client->snapshotMsec ) {
+	if ( rateMsec < client->snapshotMsec * com_timescale->value) {
 		// never send more packets than this, no matter what the rate is at
-		rateMsec = client->snapshotMsec;
+		rateMsec = client->snapshotMsec * com_timescale->value;
 		client->rateDelayed = qfalse;
 	} else {
 		client->rateDelayed = qtrue;
 	}
 
-	client->nextSnapshotTime = svs.time + rateMsec;
+	client->nextSnapshotTime = svs.time + ((int) (rateMsec * com_timescale->value));
 
 	// don't pile up empty snapshots while connecting
 	if ( client->state != CS_ACTIVE ) {
 		// a gigantic connection message may have already put the nextSnapshotTime
 		// more than a second away, so don't shorten it
 		// do shorten if client is downloading
-		if ( !*client->downloadName && client->nextSnapshotTime < svs.time + 1000 ) {
-			client->nextSnapshotTime = svs.time + 1000;
-		}
+		if (!*client->downloadName && client->nextSnapshotTime < svs.time + ((int) (1000.0 * com_timescale->value)))
+			client->nextSnapshotTime = svs.time + ((int) (1000 * com_timescale->value));
 	}
 }
 
@@ -648,6 +650,10 @@ void SV_SendClientSnapshot( client_t *client ) {
 
 	// Add any download data if the client is downloading
 	SV_WriteDownloadToClient( client, &msg );
+
+#ifdef USE_VOIP
+	SV_WriteVoipToClient( client, &msg );
+#endif
 
 	// check for overflow
 	if ( msg.overflowed ) {

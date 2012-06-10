@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -21,16 +21,26 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // bg_local.h -- local definitions for the bg (both games) files
 
 #define	MIN_WALK_NORMAL	0.7f		// can't walk on very steep slopes
 
-#define	STEPSIZE		22 // in former times: 18
+#ifndef SMOKINGUNS
+#define	STEPSIZE		18
+#else
+#define	STEPSIZE		22
+#endif
 
 #define	JUMP_VELOCITY	270
 
+#ifndef SMOKINGUNS
+#define	TIMER_LAND		130
+#define	TIMER_GESTURE	(34*66+50)
+#else
 #define	TIMER_LAND		200
-#define	TIMER_GESTURE	1600 //(34*66+50)
+#define	TIMER_GESTURE	1600
+#endif
 
 #define	OVERCLIP		1.001f
 
@@ -46,7 +56,9 @@ typedef struct {
 	qboolean	walking;
 	qboolean	groundPlane;
 	trace_t		groundTrace;
+#ifdef SMOKINGUNS
 	qboolean	ladder; // We'll use this to tell when the player is on a ladder
+#endif
 
 	float		impactSpeed;
 
@@ -62,7 +74,6 @@ extern	pml_t		pml;
 extern	float	pm_stopspeed;
 extern	float	pm_duckScale;
 extern	float	pm_swimScale;
-extern	float	pm_wadeScale;
 
 extern	float	pm_accelerate;
 extern	float	pm_airaccelerate;

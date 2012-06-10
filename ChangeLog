@@ -1,17 +1,176 @@
-Changes since SG 1.0-20081231 (SVN r125+)
+Changes in SG 1.1
 ******************
-*** NEW ***
-- Further progress of ioquake3 backport (sg_tequila)
-- End-of-line use native method (torhu)
-- Bank robbery points can be specified by admin (joe_kari)
-- Spectator cannot drop weapon now (joe_kari)
-- SG Version bumped automatically per build if SG_SVN is defined (sg_tequila)
-- Supports newer versions of GCC (3.4/4.0/4.1) on Linux (sg_tequila)
-- Further removal of references to Western Quake 3
+***** CHANGES ****
+- engine source synchronized with ioQuake3 SDK rev1774
+- Added support to new autorecord demo mode where demo filename is not output to
+  the screen: set cl_autoRecordDemo to 2 to use it
+- Fixed a bug related to gatling, thanks to Barto for the reporting
+- Enhanced SDK portability
+- Added getenv trap for future use
+- Added support for chat messages area with 6 new cvars:
+  - cg_chatTime: time to keep a line in the area in seconds (default 3s)
+  - cg_chatHeight: Area height in lines (default is 3, max is 8)
+  - cg_chatWidth: Area width in chars (default is 50, max is 79)
+  - cg_chatBigText: When set area chars are just doubled in size (default to 0)
+  - cg_chatMode: integer to set the chat area mod
+    - when set to 0, the default: Chat area is disabled and chat message are
+      just displayed like in SG 1.0
+    - when set to 1: Chat area is enabled for every chat messages
+    - when set to 2: Only team chat are displayed in chat area, normal chat
+      messages are not displayed. This is like cg_teamChatsOnly in vanilla Q3.
+  - cg_chatPosition:
+    - when set to 0, the default: Chat area is put at the bottom left, just above
+      the 6th pistol ammo when player is fighting in akimbo mode
+    - when set to 1: Chat area is put at the top left, just below the normal
+      console notification area
+    - when set to 2: Chat area is put at the bottom center, just above the main
+      hud. In that case, player may need to lower cg_chatWidth if cg_BigText is
+      also set.
+- Added 'tell' server side command to authorize admins to tell privately to player
+  This command is based on the UrbanTerror 4.1 implementation, thanks guys.
+  See http://www.urbanterror.net
+- Added ui_farclip cvar to be used as farclip management facility for UI part
+- Fixed another bad prediction case when cg_boostfps is set
+- Fixed old minor OpenGL error which prevented to debug easily FBO enhancement
+- Added rotating feature to func_train
+- Added sine "pendulum style" rotation to func_rotating
+- Number of curve's subdivisions has been raised to improve visual quality
+- Added to system/graphics menu an entry for far-clipping, map Level Of Detail, and curves details
+- Now falling damage are progressive
+- Allow to customize shaders instruction "tcgen environment", now: 
+	- "tcgen environment_X" use X-axis (the default, same as "tcgen environment")
+	- "tcgen environment_Y" use Y-axis
+	- "tcgen environment_Z" use Z-axis (this one could be really usefull for reflecting water)
+	- "tcgen customEnvironment ( vector ) ( normal_weight_vector )" use a custom projection vector,
+		and set custom weight for normals
+		tcgen environment == tcgen customEnvironment ( 1 0 0 ) ( 2 2 2 )
+		Interesting value for normal_weight_vector are 
+			* ( 0 0 0 ) for a skybox-like environment map
+			* ( 2 2 2 ) for the default Q3 environment map
+			* ( 4 4 4 ) for an environment map with more deformation
+- Limit raised for shaders:
+	- up to 5 deformVertex (was 3)
+	- up to 5 tcMod (was 4)
+	- up to 24 animMap image (was 8)
+- Added new command for admins and admin-bot: 
+	- "clientid" display a table with ID, IP, GUID and name for all player
+	- "clientstatus" the same but more verbose (ping, rate, ...), client related info
+	- "playerstatus" list all players with various game related info (ID, name, Score, 
+		Kill, Death, TeamKill, SelfKill, RoB, HitPoint, $money$, TeaM, Time, Muted)
+- The console now log "teamkilled" in red letter rather than "killed" when this event occurs
+- New Minilog feature, for admin-bots usage. This is a small FIFO stack (128 entries). Older entries
+	will be overwritten if not pop'ed in time. The new commands:
+		- "poponelog" pop an entry out of the minilog
+		- "poplog" pop all entries out of the minilog
+	ATM the game engine write into it the current events: MAP, CONNECT, DISCONNECT, JOIN, HIT, 
+	TEAMHIT, SELFHIT, WORLDHIT, KILL, TEAMKILL, SELFKILL, WORLDKILL, ROB, SAY, SAYTEAM, SAYTELL, 
+	SECRET, KICK, RENAME, CALLVOTE, WON, TIED, TEAMWON, ENDROUND, NEWROUND, TIMELIMIT, DUELLIMIT, 
+	FRAGLIMIT, TEAMFRAGLIMIT, SCORELIMIT.
+- New client command "secret" (no rcon needed) that add silently an entry "SECRET" to the minilog,
+	can be usefull for registering to a third party admin-bot, ...
+- New command: "mute <client ID>", that change anything that this client try to say into "(muted)", 
+	mute it twice and everything he says would be silently drop. Use "unmute <client ID>" 
+	to restore his voice.
+- New command "kicknum <client ID> [reason]", a replacement for clientkick.
+	The reason is sent to the client.
+- New command "givemoney <client ID> <amount>" that give someone some gold, can be usefull for 
+	third party RCON script.
+- New command "giveitem <client ID> <item classname>" that give someone some item, can be usefull for 
+	third party RCON script.
+- New command "forceteamnum <client ID> <team>", same than "forceteam" except it accept a client ID
+	rather than a name, it's more reliable and more usefull for RCON script, also, it doesn't
+	allow you to do silly things, like "forceteam" does. Team can be red/lawmen (the 1st team),
+	blue/outlaws (the 2nd team), spec/spectator, or join/auto (to force auto-team).
+- Fixed bug of auto-team (dead spectators now count as part of the team)
+- New cvar g_voteMinLevelTime: you can't call a vote before this time (in seconds) has passed.
+- New cvar g_voteDelay: you have to wait this time after you called a vote to call another one.
+- New cvar g_maxVote: maximum number of vote someone could call.
+- New cvar g_maxMoney: customize the maximum money (default value: 200)
+- "/callvote kick" should not be bugged anymore, since it is converted to /kicknum internally.
+- "/callvote clientkick <client ID>" is deprecated, use "/callvote kicknum <client ID> [reason]" instead.
+- You can now use "/callvote mute <player name>" and "/callvote unmute <player name>", note that 
+	unlike /mute and /unmute, it use the player's name, not the client's ID (but it is converted
+	in ID internally, so renaming wont allow one to escape).
+- Muted player cannot call a vote
+
+Changes in SG 1.1b4-20100116
+******************
+***** CHANGES ****
+- engine source synchronized with ioQuake3 SDK rev1771
+- Enhanced SDK portability
+- Player will be kicked if he is trying to rename when he was proposed to be kicked
+- Enhanced callvote command security
+- Player names are now colorized in lists like "callvote kick" list to avoid name confusion
+- Fixed a bad prediction case when cg_boostfps is set
+- Fixed simultaneous reloading bug in akimbo mode
+- Added new command 'addentity', it can be used to test misc_externalentity or any map entity
+- Added support for misc_externalmodel map entity, thanks to World Of Padman project
+- Fixed bug where having a scoped Sharps in your inventory caused double spread for the other rifles, and the gatling.
+- Added close clipping feature for mappers
+- Update & authorize servers are now served by smokin-guns.net domain, thanks to L3th4l
+- Added support to in-game lagometer setting cg_lagometer to 2
+- Enhanced Smokin'Guns motd support
+- Added SDK tool for modders
+- Fixed cvar type for cg_bob* cvars
+- Fix GLSL program loading for custom FBO effects when more than one program is loaded from files
+
+Changes in SG 1.1b3-20091210
+******************
+***** CHANGES ****
+- engine source synchronized with ioQuake3 SDK rev1754
+- Added a custom resolution
+ - Mode 19: 1280x720 (16:9 HD), suitable to provide youtube HD format video
+- support UI item to select OpenAL device from available OpenAL devices
+- support new console aspects, thanks to Conq idea. Added 5 cvars to control it:
+  - cl_consoleType: "0" classic wooden wall texture, "1" color
+  - cl_consoleRed: from 0.0 to 1.0, the red component for the color console
+  - cl_consoleGreen: from 0.0 to 1.0, the green conponent for the color console
+  - cl_consoleBlue: from 0.0 to 1.0, the blue component for the color console
+  - cl_consoleTransparency: from 0.0 to 1.0, the alpha component or transparency for any kind of console
+- support new server cvars:
+  - g_startingWeapon to set which weapon player will own at startup (default "2" for remington pistol)
+  - g_startingMoney to set how much money player will get during startup (default "20")
+  - g_bulletDamageMode to change between bullet damage mode, support values:
+    - 0: same formula than Smokin'Guns 1.0, the default
+    - 1: new advanced linear formula proposed by tequila tuable with following cvars:
+         - g_bulletDamageALDRmidrangefactor: must be between 1 and 10, default 2
+         - g_bulletDamageALDRmidpointfactor: must be between 0 and 1, default 0.66
+         - g_bulletDamageALDRminifactor: must be between 0 and 1, default 0.5
+  - g_bulletDamageAlert: the percentage from which clients will receive warning
+    because their damage was reduced. Default is "25" %. Useful with g_bulletDamageMode set to 1
+- support new values with client game cg_hitmsg cvar:
+  - cg_hitmsg can be set to the minimum percentage you want to see when being alerted
+    by server with reduced damage due to high range hit. Default is still 1, but
+    you won't receive alert lower than the server limit (see g_bulletDamageAlert)
+    And you may want to set it to 100 to disable damage reduction alerts.
+- Added FBO support with rotoscope and bloom effects, thanks to initial Gord Allott work
+  See https://bugzilla.icculus.org/show_bug.cgi?id=3422 for some details
+  Then enhanced GLSL program loading support for frambuffer (FBO) effects
+- Added support for cl_voipDefaultGain cvar, thanks to Tremfusion team
+- Fixed SDL window icon to Smokin'Guns one
+
+Changes in SG 1.1b2-20091103
+******************
+***** CHANGES ****
+- renaming can be discarded to players trying to rename themselves too often
+  if g_splitChat is activated and g_delayedRenaming is set to a delay in seconds (default=20)
+- support for showing who is the VoIP speaker and default voip gain, thanks to tremfusion team:
+  - Thanks Mercury and Amanieu
+  - Added cl_voipShowSender and cl_voipSenderPos cvar:
+    - cl_voipShowSender must be set
+    - cl_voipSenderPos can be set from 0 to 5 to choose where the sender will be shown on the screen
+  - Added cl_voipDefaultGain to help tuning voip
+- support for shooter_dynamite and shooter_molotov map entities
+- Doors won't try to move players now
+- Fix rotating door comportement when blocked
+
+Changes in SG 1.1b1-20091019
+******************
+******* NEW ******
 - Added more custom resolution, to be set using +set r_mode mode_number
  - Mode 12: 1280x800 (wide)
- - Mode 13: 1440x900 (wide)
- - Mode 14: 1366x768 (wide)
+ - Mode 13: 1366x768 (wide)
+ - Mode 14: 1440x900 (wide)
  - Mode 15: 1680x1050 (wide)
  - Mode 16: 1920x1080 (wide)
  - Mode 17: 1920x1200 (wide)
@@ -20,71 +179,77 @@ Changes since SG 1.0-20081231 (SVN r125+)
  - you have to export DEFAULT_BASEDIR from the shell before to do a make
 - Use SMOKINGUNS and SMOKINGUNS_SO define
 - Add SG_VERSION, SG_RELEASE & SG_SVN support
-- new shotgun pattern (needs "g_newShotgunPattern 1") more uniform, and with homogenous radial density (joe_kari)
-- new money system (needs "g_moneyRespawn 1") (joe_kari)
+- new shotgun pattern (needs "g_exp_shotgunpattern 1") more uniform, and with homogenous radial density
+- new money system (needs "g_moneyrespawn 1")
 - customize teamrole in BR by setting cvar br_teamrole to 0 (default, winner defend next round), 1 (winner are robbers next round), 
-	2 (outlaws are always robbers), 3 (lawmen are always robbers) or 4 (robbers and defenders swap at every new round) (joe_kari)
-- the player who rob the bank now get one point, this is customizable by admin through the cvar: g_robberReward (value between 0 and 5) (joe_kari)
+	2 (outlaws are always robbers), 3 (lawmen are always robbers) or 4 (robbers and defenders swap at every new round)
+- the player who rob the bank now get one point, this is customizable by admin through the cvar: g_robber_reward (value between 0 and 5)
 - far-clipping (with a bunch of clipping-form) support for func_static entity, come with additionnal cvar: 
-	cg_farclip to turn on/off this feature (default: on), cg_farclipValue to scale it up (default: 1, value lesser than 1
-	are ignored - for cheat protection), and cg_farclipZoomValue for the sharp's zoom mode (default: 3, again: value 
-	lesser than 1 are ignored) (joe_kari)
-- new vote: mapcycle, only available through the console by typing "/callvote mapcycle <mapcyclename>", needs mapcycle to be
-	specified in the server.cfg, "g_availableMapcycle" should be set to a string with <mapcyclename> seperated by white-space (joe_kari)
-- in BR or RTP: you can no longer move or shoot until the countdown has ended (joe_kari)
-- collecting an ammo belt give you full ammo for all weapon, just like when you buy it (for example in Newtown and Dawnfort) (joe_kari)
-- game now execute some cvar on few event: (joe_kari)
-	- "onEvent_playerDisconnect_do" everytime a human player disconnect
-	- "onEvent_playerConnect_do" everytime a human player connect
-	- "onEvent_playerDownTo<integer>_do" everytime the number of human player connected drop down to <integer>
-	- "onEvent_playerUpTo<integer>_do" everytime the number of human player connected raise up to <integer>
-- map LOD (Level Of Detail):  support for func_static entity, come with additionnal cvar: cg_mapLOD (value from 0 to 3), 
-	this cvar is compared to the func_static LOD, if it pass the test, it is displayed, else, it is cliped. (joe_kari)
-
+	cg_farclip to turn on/off this feature (default: on), cg_farclip_value to scale it up (default: 1, value lesser than 1
+	are ignored - for cheat protection), and cg_farclip_zoomvalue for the sharp's zoom mode (default: 3, again: value 
+	lesser than 1 are ignored)
+- new g_roundNoMoveTime cvar, in seconds, to force players to not move at round beginning, only buying is possible during that time
+- new TK handling cvars g_maxteamkills,g_teamkillsforgettime and g_teamkillschecktime when g_friendlyFire is set:
+ - g_maxteamkills, set to 0 disable max TK checks, otherwise defines the maximum number of supported TK by a player
+ - g_teamkillsforgettime, in seconds, defines the time after which TK count will be reset to 0 for the player
+ - g_teamkillschecktime, in seconds, defines the time during which TK will be checked at only round beginning
+- new renderer cvar to activate OpenGL texture MultiSampling: r_ext_multisample. You really need a good video card to use it.
+ - Thanks to ioQuake3 team for r_ext_multisample cvar
+- new server console commands "bigtext" and "cp" to authorize server admins to display big message. A client number can be used
+  as first argument to only display the messsage to a given client.
+- show colorized players name in players list
+- new "sendaway" command as replacement of "kick" command, it is now used for "callvote kick"
+- renaming to empty name, to 'all' or to 'allbots' is not allowed
+- renaming is now allowed only one time by minute
+- New cvars from ioQ3 updates:
+  - s_muteWhenUnfocused to mute sound when unfocused (default=0)
+  - r_allowResize to allow window resizing in windowed rendering mode (default=0), only with SDL support
+- Thanks to ioQ3, passed rcon commands are logged
+- callvote string is logged in server log
+- new "cancelvote" server side command, can only be used by admins
+- support for more crosshair
 *** CHANGES ***
-- Fix reloading bug with peacemaker, winchester 1866 and 1897, and colt lightning (joe_kari)
+- Reloading bug fixed
 - Fix game crash during game load when using cgame binary library
 - Fix server not hitting time limit when only bots are playing (thanks to ioQ3 code engine)
 - Fix cinematic rendering with wide screens (thanks to ioQ3 code engine), intro is now visible in wide screen mode
-- Fix 'nextmap' cvar bug that was randomly breaking map cycle (joe_kari)
-- Fix the bug allowing spectator to drop weapon (joe_kari)
-- Cleanup of Visual C++ project files (sparcdr)
-- Migration of remaining VC6 era workspaces to VC9 (sparcdr)
-- Fixes to build system for both Windows and UNIX (sparcdr, sg_tequila)
-- Removal of legacy/obsolete UNIX build files (sg_tequila)
-- Fixes to SDL, lcc, and OpenAL build system (sg_tequila)
-- Silence some compiler warnings (sg_tequila)
-- Changes to vote system to lessen abuse (sg_tequila)
-- Legacy naming convention of files with *_wq_* became *_sg_* (sg_tequila)
-- Changes function syntax to camelCase (joe_kari)
+- Fix little freeze/lag in dm_train
+- Fix invisible "entity 0" bug near movers entities we can trigger
+- Many fixes from ioQuake3 sources
+- g_allowVote can be set to the number of seconds before a player can call again a vote
+- players name can be tagged to make sure they are unique in game
+- settings are now stored in a per-user location, instead of in the game's installation directory
 
 Changes in SG 1.0-20081231
 ******************
-*** CHANGES ***
-- Updated Unix building process to support more processor kind (sg_tequila)
-- Updated Makefile to produce binary libraries for unix (sg_tequila)
-- Updated Makefile to produce sse, sse2 and smp binaries for unix (sg_tequila)
-- Updated Unix building process to keep install & build folder in the source base (sg_tequila)
-- Fix "OP_BLOCK_COPY not dword aligned" in the same way then an old ioQuake3 fix... (sg_tequila)
+***** CHANGES ****
+- Updated Unix building process to support more processor kind
+- Updated Makefile to produce binary libraries for unix
+- Updated Makefile to produce sse, sse2 and smp binaries for unix
+- Updated Unix building process to keep install & build folder in the source base
+- Fix "OP_BLOCK_COPY not dword aligned" in the same way then an old ioQuake3 fix...
+
 
 Changes since sg 0.9
 ******************
 *** CHANGES ***
-- Fixed buildvm.bat and cleanvm.bat which weren't working due to reorganization (torhu)
-- Organized VC build solutions (sparcdr)
-- Removed old VC6 build solutions for main project (sparcdr)
-- Added lcc compiler toolchain back (sparcdr)
-- Added AL and unix files (sg_tequila)
+- Added .mak, .bat, .lnt, .vprj, .Conscript, .Makefile files from Tequila archive (Excluded a few)
+- Fixed buildvm.bat and cleanvm.bat which weren't working due to reorganization
+- Organized VC build solutions
+- Removed old VC build solutions
+- Created SSE and SSE2 build profiles for each solution
+- Added lcc compiler toolchain back
+- Added AL and unix files
 
 Changes since sg 0.9
 ******************
 *** CHANGES ***
-- Copyright updated
-- Source license header audit completed (sparcdr)
-- Removed .mak, .bat, .lnt, .vprj, Construct, Makefile files (Waiting for "working" sets to be comitted) (sparcdr)
-- Removed code/macosx (Old project was for pre-XCode and the current state of code excludes Intel) (sparcdr)
-- Removed code/unix (Waiting for "working" sets to be comitted) (sparcdr)
-- Updated Win32 project files for Visual Studio / C++ 2008 (VC9) (sparcdr)
+- Copyright updated.
+- Source license header audit completed.
+- Removed .mak, .bat, .lnt, .vprj, Construct, Makefile files (Waiting for "working" sets to be comitted)
+- Removed code/macosx (Old project was for pre-XCode and the current state of code excludes Intel)
+- Removed code/unix (Waiting for "working" sets to be comitted)
+- Updated Win32 project files for Visual Studio / C++ 2008 (VC9)
 
 Changes since wq3 b2.2
 ******************

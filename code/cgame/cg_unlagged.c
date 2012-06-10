@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Based on Unlagged 2.01 code by Neil "haste" Toronto.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -238,11 +238,10 @@ CG_AddBoundingBox
 
 Draws a bounding box around a player.  Called from CG_Player.
 
-SG comment by torhu:
-Be aware that the bounding box drawn is not the hitbox.  It's the box used for
-movement calculations.  The actual hitbox is about twice the size.  And because
+SG comment by torhu and Tequila:
+Be aware that the bounding box drawn is not the real hitbox. And because
 of the locational damage, it wouldn't be that useful to see the hitbox anyway.
-See Bullet_Fire in g_weapon.c to see how the bounding box is changed.
+See UpdateBoundingBox in bg_pmove.c to see how the bounding box is updated.
 =================
 */
 void CG_AddBoundingBox( centity_t *cent ) {

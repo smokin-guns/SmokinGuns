@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // server.h
 
-#include "../game/q_shared.h"
+#include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 #include "../game/g_public.h"
 #include "../game/bg_public.h"
@@ -33,6 +33,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 										// GAME BOTH REFERENCE !!!
 
 #define	MAX_ENT_CLUSTERS	16
+
+#ifdef USE_VOIP
+typedef struct voipServerPacket_s
+{
+	int generation;
+	int sequence;
+	int frames;
+	int len;
+	int sender;
+	byte data[1024];
+} voipServerPacket_t;
+#endif
 
 typedef struct svEntity_s {
 	struct worldSector_s *worldSector;
@@ -152,7 +164,6 @@ typedef struct client_s {
 	int				lastPacketTime;		// svs.time when packet was last received
 	int				lastConnectTime;	// svs.time when connection started
 	int				nextSnapshotTime;	// send another snapshot when svs.time >= nextSnapshotTime
-	int				oldServerTime;
 	qboolean		rateDelayed;		// true if nextSnapshotTime was set based on rate instead of snapshotMsec
 	int				timeoutCount;		// must timeout a few frames in a row so debugging doesn't break
 	clientSnapshot_t	frames[PACKET_BACKUP];	// updates can be delta'd from here
@@ -168,6 +179,17 @@ typedef struct client_s {
 	// buffer them into this queue, and hand them out to netchan as needed
 	netchan_buffer_t *netchan_start_queue;
 	netchan_buffer_t **netchan_end_queue;
+
+#ifdef USE_VOIP
+	qboolean hasVoip;
+	qboolean muteAllVoip;
+	qboolean ignoreVoipFromClient[MAX_CLIENTS];
+	voipServerPacket_t voipPacket[64]; // !!! FIXME: WAY too much memory!
+	int queuedVoipPackets;
+#endif
+
+	int				oldServerTime;
+	qboolean		csUpdated[MAX_CONFIGSTRINGS+1];	
 } client_t;
 
 //=============================================================================
@@ -183,15 +205,13 @@ typedef struct client_s {
 typedef struct {
 	netadr_t	adr;
 	int			challenge;
+	int			clientChallenge;		// challenge number coming from the client
 	int			time;				// time the last packet was sent to the autherize server
 	int			pingTime;			// time the challenge response was sent to client
 	int			firstTime;			// time the adr was first used, for authorize timeout checks
+	qboolean	wasrefused;
 	qboolean	connected;
 } challenge_t;
-
-
-#define	MAX_MASTERS	8				// max recipients for heartbeat packets
-
 
 // this structure will be cleared only when the game dll changes
 typedef struct {
@@ -212,13 +232,22 @@ typedef struct {
 	netadr_t	authorizeAddress;			// for rcon return messages
 } serverStatic_t;
 
+#define SERVER_MAXBANS	1024
+// Structure for managing bans
+typedef struct
+{
+	netadr_t ip;
+	// For a CIDR-Notation type suffix
+	int subnet;
+	
+	qboolean isexception;
+} serverBan_t;
+
 //=============================================================================
 
 extern	serverStatic_t	svs;				// persistant server info across maps
 extern	server_t		sv;					// cleared each map
 extern	vm_t			*gvm;				// game virtual machine
-
-#define	MAX_MASTER_SERVERS	5
 
 extern	cvar_t	*sv_fps;
 extern	cvar_t	*sv_timeout;
@@ -238,6 +267,7 @@ extern	cvar_t	*sv_killserver;
 extern	cvar_t	*sv_mapname;
 extern	cvar_t	*sv_mapChecksum;
 extern	cvar_t	*sv_serverid;
+extern	cvar_t	*sv_minRate;
 extern	cvar_t	*sv_maxRate;
 extern	cvar_t	*sv_minPing;
 extern	cvar_t	*sv_maxPing;
@@ -246,6 +276,17 @@ extern	cvar_t	*sv_pure;
 extern	cvar_t	*sv_floodProtect;
 extern	cvar_t	*sv_lanForceRate;
 extern	cvar_t	*sv_strictAuth;
+extern	cvar_t	*sv_banFile;
+extern	cvar_t	*sv_heartbeat;
+extern	cvar_t	*sv_flatline;
+
+extern	serverBan_t serverBans[SERVER_MAXBANS];
+extern	int serverBansCount;
+
+#ifdef USE_VOIP
+extern	cvar_t	*sv_voip;
+#endif
+
 
 //===========================================================
 
@@ -260,9 +301,7 @@ void SV_AddOperatorCommands (void);
 void SV_RemoveOperatorCommands (void);
 
 
-void SV_MasterHeartbeat (void);
 void SV_MasterShutdown (void);
-
 
 
 
@@ -271,6 +310,7 @@ void SV_MasterShutdown (void);
 //
 void SV_SetConfigstring( int index, const char *val );
 void SV_GetConfigstring( int index, char *buffer, int bufferSize );
+void SV_UpdateConfigstrings( client_t *client );
 
 void SV_SetUserinfo( int index, const char *val );
 void SV_GetUserinfo( int index, char *buffer, int bufferSize );
@@ -283,11 +323,13 @@ void SV_SpawnServer( char *server, qboolean killBots );
 //
 // sv_client.c
 //
-void SV_GetChallenge( netadr_t from );
+void SV_GetChallenge(netadr_t from);
 
 void SV_DirectConnect( netadr_t from );
 
+#if ! defined STANDALONE || defined SMOKINGUNS
 void SV_AuthorizeIpPacket( netadr_t from );
+#endif
 
 void SV_ExecuteClientMessage( client_t *cl, msg_t *msg );
 void SV_UserinfoChanged( client_t *cl );
@@ -299,6 +341,11 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK );
 void SV_ClientThink (client_t *cl, usercmd_t *cmd);
 
 void SV_WriteDownloadToClient( client_t *cl , msg_t *msg );
+
+#ifdef USE_VOIP
+void SV_WriteVoipToClient( client_t *cl, msg_t *msg );
+#endif
+
 
 //
 // sv_ccmds.c
@@ -343,6 +390,8 @@ int			SV_BotGetConsoleMessage( int client, char *buf, int size );
 
 int BotImport_DebugPolygonCreate(int color, int numPoints, vec3_t *points);
 void BotImport_DebugPolygonDelete(int id);
+
+void SV_BotInitBotLib(void);
 
 //============================================================
 //

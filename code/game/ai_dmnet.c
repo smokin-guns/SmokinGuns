@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 
 /*****************************************************************************
  * name:		ai_dmnet.c
@@ -32,15 +33,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *****************************************************************************/
 
 #include "g_local.h"
-#include "botlib.h"
-#include "be_aas.h"
-#include "be_ea.h"
-#include "be_ai_char.h"
-#include "be_ai_chat.h"
-#include "be_ai_gen.h"
-#include "be_ai_goal.h"
-#include "be_ai_move.h"
-#include "be_ai_weap.h"
+#include "../botlib/botlib.h"
+#include "../botlib/be_aas.h"
+#include "../botlib/be_ea.h"
+#include "../botlib/be_ai_char.h"
+#include "../botlib/be_ai_chat.h"
+#include "../botlib/be_ai_gen.h"
+#include "../botlib/be_ai_goal.h"
+#include "../botlib/be_ai_move.h"
+#include "../botlib/be_ai_weap.h"
 //
 #include "ai_main.h"
 #include "ai_dmq3.h"
@@ -57,7 +58,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // for the voice chats
 #include "../../ui/menudef.h"
 
-//goal flag, see be_ai_goal.h for the other GFL_*
+//goal flag, see ../botlib/be_ai_goal.h for the other GFL_*
 #define GFL_AIR			128
 
 int numnodeswitches;
@@ -86,7 +87,7 @@ void BotDumpNodeSwitches(bot_state_t *bs) {
 	ClientName(bs->client, netname, sizeof(netname));
 	BotAI_Print(PRT_MESSAGE, "%s at %1.1f switched more than %d AI nodes\n", netname, FloatTime(), MAX_NODESWITCHES);
 	for (i = 0; i < numnodeswitches; i++) {
-		BotAI_Print(PRT_MESSAGE, nodeswitch[i]);
+		BotAI_Print(PRT_MESSAGE, "%s", nodeswitch[i]);
 	}
 	BotAI_Print(PRT_FATAL, "");
 }
@@ -103,7 +104,7 @@ void BotRecordNodeSwitch(bot_state_t *bs, char *node, char *str, char *s) {
 	Com_sprintf(nodeswitch[numnodeswitches], 144, "%s at %2.1f entered %s: %s from %s\n", netname, FloatTime(), node, str, s);
 #ifdef DEBUG
 	if (0) {
-		BotAI_Print(PRT_MESSAGE, nodeswitch[numnodeswitches]);
+		BotAI_Print(PRT_MESSAGE, "%s", nodeswitch[numnodeswitches]);
 	}
 #endif //DEBUG
 	numnodeswitches++;
@@ -195,6 +196,7 @@ int BotNearbyGoal(bot_state_t *bs, int tfl, bot_goal_t *ltg, float range) {
 	//check if the bot should go for air
 	if (BotGoForAir(bs, tfl, ltg, range)) return qtrue;
 	//if the bot is carrying the enemy flag
+#ifndef SMOKINGUNS
 	if (BotCTFCarryingFlag(bs)) {
 		//if the bot is just a few secs away from the base
 		if (trap_AAS_AreaTravelTimeToGoalArea(bs->areanum, bs->origin,
@@ -203,6 +205,7 @@ int BotNearbyGoal(bot_state_t *bs, int tfl, bot_goal_t *ltg, float range) {
 			range = 50;
 		}
 	}
+#endif
 	//
 	ret = trap_BotChooseNBGItem(bs->gs, bs->origin, bs->inventory, tfl, ltg, range);
 	/*
@@ -224,9 +227,7 @@ BotReachedGoal
 ==================
 */
 int BotReachedGoal(bot_state_t *bs, bot_goal_t *goal) {
-
 	if (goal->flags & GFL_ITEM) {
-
 		//if touching the goal
 		if (trap_BotTouchingGoal(bs->origin, goal)) {
 			if (!(goal->flags & GFL_DROPPED)) {
@@ -234,7 +235,6 @@ int BotReachedGoal(bot_state_t *bs, bot_goal_t *goal) {
 			}
 			return qtrue;
 		}
-
 		//if the goal isn't there
 		if (trap_BotItemGoalInVisButNotVisible(bs->entitynum, bs->eye, bs->viewangles, goal)) {
 			/*
@@ -269,8 +269,12 @@ int BotReachedGoal(bot_state_t *bs, bot_goal_t *goal) {
 	}
 	else {
 		//if touching the goal
+#ifndef SMOKINGUNS
+		if (trap_BotTouchingGoal(bs->origin, goal)) return qtrue;
+#else
 		if ((bs->flags & BFL_SEEK) && Distance(bs->origin, goal->origin) < (200+(rand()%100-50))) return qtrue;
 		else if(trap_BotTouchingGoal(bs->origin, goal)) return qtrue;
+#endif
 	}
 	return qfalse;
 }
@@ -282,6 +286,7 @@ WAYPOINT SYSTEM
 =============================
 */
 /////////////////////////////
+#ifdef SMOKINGUNS
 #define SIZE 50
 qboolean ValidNode(vec3_t start, vec3_t end){
 	int area1, area2;
@@ -364,63 +369,6 @@ qboolean BotAI_FindNearestNode(qboolean valid, bot_state_t *bs, vec3_t org, vec3
 
 	VectorCopy(ai_nodes[mark], node);
 	return qtrue;
-}
-
-static qboolean BotAI_FindNearestNodeMax(bot_state_t *bs, vec3_t org, vec3_t node, float maxdist){
-	int i, mark;
-
-	VectorClear(node);
-
-	if(!ai_nodecount){
-		return qfalse;
-	}
-
-	for(i=0,mark=0; i<ai_nodecount; i++){
-
-		if(!ValidNode(bs->origin, ai_nodes[i]))
-			continue;
-
-		if(Distance(org, ai_nodes[i]) <
-			Distance(org, ai_nodes[mark]) &&
-			Distance(org, ai_nodes[i]) < maxdist){
-
-			mark = i;
-		}
-	}
-	// not valid
-	if(Distance(org, ai_nodes[mark]) >= maxdist)
-		return qfalse;
-
-	VectorCopy(ai_nodes[mark], node);
-	return qtrue;
-}
-
-static int BotAI_FindNearestNodeNum(bot_state_t *bs, vec3_t org){
-	int i, num;
-	qboolean valid = qfalse;
-
-	if(!ai_nodecount){
-		return -1;
-	}
-
-	for(i=0,num=0; i<ai_nodecount; i++){
-
-		if(Distance(org, ai_nodes[i]) <
-			Distance(org, ai_nodes[num])){
-
-			valid = qtrue;
-
-			if(bs->orientation.nodes[i])
-				continue;
-
-			num = i;
-		}
-	}
-
-	if(valid)
-		return num;
-
-	return -1;
 }
 
 static void BotAI_GoTo(vec3_t target, bot_state_t *bs, bot_goal_t *goal){
@@ -704,21 +652,7 @@ end:
 
 	// now decide which node to use
 	if(!count) {
-		/*if(g_gametype.integer == GT_BR && bs->cur_ps.persistant[PERS_ROBBER]) {
-			int num = BotAI_FindNearestNodeNum(bs, bs->orientation.endpos);
-
-			if(num != -1) {
-				VectorCopy(ai_nodes[num], waypoint);
-				bs->orientation.nodes[num] = qtrue;
-			} else {
-				bs->flags |= BFL_MONEY;
-				bs->waypointtime = level.time;
-				return qfalse;
-			}
-
-		} else {*/
-			VectorCopy(bs->orientation.endpos, waypoint);
-		//}
+		VectorCopy(bs->orientation.endpos, waypoint);
 	} else {
 		// set the nodes as used
 		for(i=0; i<NUM_NODES; i++){
@@ -761,6 +695,7 @@ static void BotAI_LookForNodes(bot_state_t *bs, bot_goal_t *goal, int money1, in
 	// goto the node
 	BotAI_GoTo(goal->origin, bs, goal);
 }
+#endif
 
 /*
 ==================
@@ -768,8 +703,6 @@ BotGetItemLongTermGoal
 ==================
 */
 int BotGetItemLongTermGoal(bot_state_t *bs, int tfl, bot_goal_t *goal) {
-
-
 	//if the bot has no goal
 	if (!trap_BotGetTopGoal(bs->gs, goal)) {
 		//BotAI_Print(PRT_MESSAGE, "no ltg on stack\n");
@@ -781,6 +714,7 @@ int BotGetItemLongTermGoal(bot_state_t *bs, int tfl, bot_goal_t *goal) {
 		bs->ltg_time = 0;
 	}
 
+#ifdef SMOKINGUNS
 	if((bs->flags & BFL_AVOID) || (bs->flags & BFL_ESCAPE)){
 		bs->waypointtime = level.time;
 		return qtrue;
@@ -795,9 +729,42 @@ int BotGetItemLongTermGoal(bot_state_t *bs, int tfl, bot_goal_t *goal) {
 		bs->orientation.money2 = 0;
 		bs->waypointtime = level.time;
 	}
+#endif
 
 	//if it is time to find a new long term goal
 	if (bs->ltg_time < FloatTime()) {
+#ifndef SMOKINGUNS
+		//pop the current goal from the stack
+		trap_BotPopGoal(bs->gs);
+		//BotAI_Print(PRT_MESSAGE, "%s: choosing new ltg\n", ClientName(bs->client, netname, sizeof(netname)));
+		//choose a new goal
+		//BotAI_Print(PRT_MESSAGE, "%6.1f client %d: BotChooseLTGItem\n", FloatTime(), bs->client);
+		if (trap_BotChooseLTGItem(bs->gs, bs->origin, bs->inventory, tfl)) {
+			/*
+			char buf[128];
+			//get the goal at the top of the stack
+			trap_BotGetTopGoal(bs->gs, goal);
+			trap_BotGoalName(goal->number, buf, sizeof(buf));
+			BotAI_Print(PRT_MESSAGE, "%1.1f: new long term goal %s\n", FloatTime(), buf);
+            */
+			bs->ltg_time = FloatTime() + 20;
+		}
+		else {//the bot gets sorta stuck with all the avoid timings, shouldn't happen though
+			//
+#ifdef DEBUG
+			char netname[128];
+
+			BotAI_Print(PRT_MESSAGE, "%s: no valid ltg (probably stuck)\n", ClientName(bs->client, netname, sizeof(netname)));
+#endif
+			//trap_BotDumpAvoidGoals(bs->gs);
+			//reset the avoid goals and the avoid reach
+			trap_BotResetAvoidGoals(bs->gs);
+			trap_BotResetAvoidReach(bs->ms);
+		}
+		//get the goal at the top of the stack
+		return trap_BotGetTopGoal(bs->gs, goal);
+	}
+#else
 		int return_value;
 		int count = 0;
 		qboolean valid;
@@ -930,6 +897,7 @@ int BotGetItemLongTermGoal(bot_state_t *bs, int tfl, bot_goal_t *goal) {
 
 		return return_value;
 	}
+#endif
 	return qtrue;
 }
 
@@ -1162,12 +1130,16 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 		if (VectorLengthSquared(dir) < Square(70)) {
 			trap_BotResetAvoidReach(bs->ms);
 			bs->defendaway_time = FloatTime() + 3 + 3 * random();
+#ifndef SMOKINGUNS
 			if (BotHasPersistantPowerupAndWeapon(bs)) {
 				bs->defendaway_range = 100;
 			}
 			else {
 				bs->defendaway_range = 350;
 			}
+#else
+			bs->defendaway_range = 350;
+#endif
 		}
 		return qtrue;
 	}
@@ -1273,7 +1245,11 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 			//don't crouch if crouched less than 5 seconds ago
 			if (bs->attackcrouch_time < FloatTime() - 5) {
 				croucher = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_CROUCHER, 0, 1);
+#ifndef SMOKINGUNS
+				if (random() < bs->thinktime * croucher) {
+#else
 				if (random() < bs->thinktime * croucher * 2) {
+#endif
 					bs->attackcrouch_time = FloatTime() + 5 + croucher * 15;
 				}
 			}
@@ -1359,6 +1335,7 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 		memcpy(goal, &bs->curpatrolpoint->goal, sizeof(bot_goal_t));
 		return qtrue;
 	}
+#ifndef SMOKINGUNS
 #ifdef CTF
 	if (gametype == GT_CTF) {
 		//if going for enemy flag
@@ -1400,13 +1377,18 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 				default: bs->ltgtype = 0; return qfalse;
 			}
 			//if not carrying the flag anymore
+#ifndef SMOKINGUNS
 			if (!BotCTFCarryingFlag(bs)) bs->ltgtype = 0;
+#else
+			bs->ltgtype = 0;
+#endif
 			//quit rushing after 2 minutes
 			if (bs->teamgoal_time < FloatTime()) bs->ltgtype = 0;
 			//if touching the base flag the bot should loose the enemy flag
 			if (trap_BotTouchingGoal(bs->origin, goal)) {
 				//if the bot is still carrying the enemy flag then the
 				//base flag is gone, now just walk near the base a bit
+#ifndef SMOKINGUNS
 				if (BotCTFCarryingFlag(bs)) {
 					trap_BotResetAvoidReach(bs->ms);
 					bs->rushbaseaway_time = FloatTime() + 5 + 10 * random();
@@ -1415,6 +1397,9 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 				else {
 					bs->ltgtype = 0;
 				}
+#else
+				bs->ltgtype = 0;
+#endif
 			}
 			BotAlternateRoute(bs, goal);
 			return qtrue;
@@ -1445,6 +1430,204 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 		}
 	}
 #endif //CTF
+#ifdef MISSIONPACK
+	else if (gametype == GT_1FCTF) {
+		if (bs->ltgtype == LTG_GETFLAG) {
+			//check for bot typing status message
+			if (bs->teammessage_time && bs->teammessage_time < FloatTime()) {
+				BotAI_BotInitialChat(bs, "captureflag_start", NULL);
+				trap_BotEnterChat(bs->cs, 0, CHAT_TEAM);
+				BotVoiceChatOnly(bs, -1, VOICECHAT_ONGETFLAG);
+				bs->teammessage_time = 0;
+			}
+			memcpy(goal, &ctf_neutralflag, sizeof(bot_goal_t));
+			//if touching the flag
+			if (trap_BotTouchingGoal(bs->origin, goal)) {
+				bs->ltgtype = 0;
+			}
+			//stop after 3 minutes
+			if (bs->teamgoal_time < FloatTime()) {
+				bs->ltgtype = 0;
+			}
+			return qtrue;
+		}
+		//if rushing to the base
+		if (bs->ltgtype == LTG_RUSHBASE) {
+			switch(BotTeam(bs)) {
+				case TEAM_RED: memcpy(goal, &ctf_blueflag, sizeof(bot_goal_t)); break;
+				case TEAM_BLUE: memcpy(goal, &ctf_redflag, sizeof(bot_goal_t)); break;
+				default: bs->ltgtype = 0; return qfalse;
+			}
+			//if not carrying the flag anymore
+			if (!Bot1FCTFCarryingFlag(bs)) {
+				bs->ltgtype = 0;
+			}
+			//quit rushing after 2 minutes
+			if (bs->teamgoal_time < FloatTime()) {
+				bs->ltgtype = 0;
+			}
+			//if touching the base flag the bot should loose the enemy flag
+			if (trap_BotTouchingGoal(bs->origin, goal)) {
+				bs->ltgtype = 0;
+			}
+			BotAlternateRoute(bs, goal);
+			return qtrue;
+		}
+		//attack the enemy base
+		if (bs->ltgtype == LTG_ATTACKENEMYBASE &&
+				bs->attackaway_time < FloatTime()) {
+			//check for bot typing status message
+			if (bs->teammessage_time && bs->teammessage_time < FloatTime()) {
+				BotAI_BotInitialChat(bs, "attackenemybase_start", NULL);
+				trap_BotEnterChat(bs->cs, 0, CHAT_TEAM);
+				BotVoiceChatOnly(bs, -1, VOICECHAT_ONOFFENSE);
+				bs->teammessage_time = 0;
+			}
+			switch(BotTeam(bs)) {
+				case TEAM_RED: memcpy(goal, &ctf_blueflag, sizeof(bot_goal_t)); break;
+				case TEAM_BLUE: memcpy(goal, &ctf_redflag, sizeof(bot_goal_t)); break;
+				default: bs->ltgtype = 0; return qfalse;
+			}
+			//quit rushing after 2 minutes
+			if (bs->teamgoal_time < FloatTime()) {
+				bs->ltgtype = 0;
+			}
+			//if touching the base flag the bot should loose the enemy flag
+			if (trap_BotTouchingGoal(bs->origin, goal)) {
+				bs->attackaway_time = FloatTime() + 2 + 5 * random();
+			}
+			return qtrue;
+		}
+		//returning flag
+		if (bs->ltgtype == LTG_RETURNFLAG) {
+			//check for bot typing status message
+			if (bs->teammessage_time && bs->teammessage_time < FloatTime()) {
+				BotAI_BotInitialChat(bs, "returnflag_start", NULL);
+				trap_BotEnterChat(bs->cs, 0, CHAT_TEAM);
+				BotVoiceChatOnly(bs, -1, VOICECHAT_ONRETURNFLAG);
+				bs->teammessage_time = 0;
+			}
+			//
+			if (bs->teamgoal_time < FloatTime()) {
+				bs->ltgtype = 0;
+			}
+			//just roam around
+			return BotGetItemLongTermGoal(bs, tfl, goal);
+		}
+	}
+	else if (gametype == GT_OBELISK) {
+		if (bs->ltgtype == LTG_ATTACKENEMYBASE &&
+				bs->attackaway_time < FloatTime()) {
+
+			//check for bot typing status message
+			if (bs->teammessage_time && bs->teammessage_time < FloatTime()) {
+				BotAI_BotInitialChat(bs, "attackenemybase_start", NULL);
+				trap_BotEnterChat(bs->cs, 0, CHAT_TEAM);
+				BotVoiceChatOnly(bs, -1, VOICECHAT_ONOFFENSE);
+				bs->teammessage_time = 0;
+			}
+			switch(BotTeam(bs)) {
+				case TEAM_RED: memcpy(goal, &blueobelisk, sizeof(bot_goal_t)); break;
+				case TEAM_BLUE: memcpy(goal, &redobelisk, sizeof(bot_goal_t)); break;
+				default: bs->ltgtype = 0; return qfalse;
+			}
+			//if the bot no longer wants to attack the obelisk
+			if (BotFeelingBad(bs) > 50) {
+				return BotGetItemLongTermGoal(bs, tfl, goal);
+			}
+			//if touching the obelisk
+			if (trap_BotTouchingGoal(bs->origin, goal)) {
+				bs->attackaway_time = FloatTime() + 3 + 5 * random();
+			}
+			// or very close to the obelisk
+			VectorSubtract(bs->origin, goal->origin, dir);
+			if (VectorLengthSquared(dir) < Square(60)) {
+				bs->attackaway_time = FloatTime() + 3 + 5 * random();
+			}
+			//quit rushing after 2 minutes
+			if (bs->teamgoal_time < FloatTime()) {
+				bs->ltgtype = 0;
+			}
+			BotAlternateRoute(bs, goal);
+			//just move towards the obelisk
+			return qtrue;
+		}
+	}
+	else if (gametype == GT_HARVESTER) {
+		//if rushing to the base
+		if (bs->ltgtype == LTG_RUSHBASE) {
+			switch(BotTeam(bs)) {
+				case TEAM_RED: memcpy(goal, &blueobelisk, sizeof(bot_goal_t)); break;
+				case TEAM_BLUE: memcpy(goal, &redobelisk, sizeof(bot_goal_t)); break;
+				default: BotGoHarvest(bs); return qfalse;
+			}
+			//if not carrying any cubes
+			if (!BotHarvesterCarryingCubes(bs)) {
+				BotGoHarvest(bs);
+				return qfalse;
+			}
+			//quit rushing after 2 minutes
+			if (bs->teamgoal_time < FloatTime()) {
+				BotGoHarvest(bs);
+				return qfalse;
+			}
+			//if touching the base flag the bot should loose the enemy flag
+			if (trap_BotTouchingGoal(bs->origin, goal)) {
+				BotGoHarvest(bs);
+				return qfalse;
+			}
+			BotAlternateRoute(bs, goal);
+			return qtrue;
+		}
+		//attack the enemy base
+		if (bs->ltgtype == LTG_ATTACKENEMYBASE &&
+				bs->attackaway_time < FloatTime()) {
+			//check for bot typing status message
+			if (bs->teammessage_time && bs->teammessage_time < FloatTime()) {
+				BotAI_BotInitialChat(bs, "attackenemybase_start", NULL);
+				trap_BotEnterChat(bs->cs, 0, CHAT_TEAM);
+				BotVoiceChatOnly(bs, -1, VOICECHAT_ONOFFENSE);
+				bs->teammessage_time = 0;
+			}
+			switch(BotTeam(bs)) {
+				case TEAM_RED: memcpy(goal, &blueobelisk, sizeof(bot_goal_t)); break;
+				case TEAM_BLUE: memcpy(goal, &redobelisk, sizeof(bot_goal_t)); break;
+				default: bs->ltgtype = 0; return qfalse;
+			}
+			//quit rushing after 2 minutes
+			if (bs->teamgoal_time < FloatTime()) {
+				bs->ltgtype = 0;
+			}
+			//if touching the base flag the bot should loose the enemy flag
+			if (trap_BotTouchingGoal(bs->origin, goal)) {
+				bs->attackaway_time = FloatTime() + 2 + 5 * random();
+			}
+			return qtrue;
+		}
+		//harvest cubes
+		if (bs->ltgtype == LTG_HARVEST &&
+			bs->harvestaway_time < FloatTime()) {
+			//check for bot typing status message
+			if (bs->teammessage_time && bs->teammessage_time < FloatTime()) {
+				BotAI_BotInitialChat(bs, "harvest_start", NULL);
+				trap_BotEnterChat(bs->cs, 0, CHAT_TEAM);
+				BotVoiceChatOnly(bs, -1, VOICECHAT_ONOFFENSE);
+				bs->teammessage_time = 0;
+			}
+			memcpy(goal, &neutralobelisk, sizeof(bot_goal_t));
+			//
+			if (bs->teamgoal_time < FloatTime()) {
+				bs->ltgtype = 0;
+			}
+			//
+			if (trap_BotTouchingGoal(bs->origin, goal)) {
+				bs->harvestaway_time = FloatTime() + 4 + 3 * random();
+			}
+			return qtrue;
+		}
+	}
+#endif
+#endif
 	//normal goal stuff
 	return BotGetItemLongTermGoal(bs, tfl, goal);
 }
@@ -1673,9 +1856,11 @@ AINode_Respawn
 ==================
 */
 int AINode_Respawn(bot_state_t *bs) {
+#ifdef SMOKINGUNS
 	bs->flags &= ~BFL_MONEY;
 	bs->flags &= ~BFL_AVOID;
 	bs->flags &= ~BFL_ESCAPE;
+#endif
 
 	// if waiting for the actual respawn
 	if (bs->respawn_wait) {
@@ -1710,6 +1895,29 @@ BotSelectActivateWeapon
 ==================
 */
 int BotSelectActivateWeapon(bot_state_t *bs) {
+#ifndef SMOKINGUNS
+	//
+	if (bs->inventory[INVENTORY_MACHINEGUN] > 0 && bs->inventory[INVENTORY_BULLETS] > 0)
+		return WEAPONINDEX_MACHINEGUN;
+	else if (bs->inventory[INVENTORY_SHOTGUN] > 0 && bs->inventory[INVENTORY_SHELLS] > 0)
+		return WEAPONINDEX_SHOTGUN;
+	else if (bs->inventory[INVENTORY_PLASMAGUN] > 0 && bs->inventory[INVENTORY_CELLS] > 0)
+		return WEAPONINDEX_PLASMAGUN;
+	else if (bs->inventory[INVENTORY_LIGHTNING] > 0 && bs->inventory[INVENTORY_LIGHTNINGAMMO] > 0)
+		return WEAPONINDEX_LIGHTNING;
+#ifdef MISSIONPACK
+	else if (bs->inventory[INVENTORY_CHAINGUN] > 0 && bs->inventory[INVENTORY_BELT] > 0)
+		return WEAPONINDEX_CHAINGUN;
+	else if (bs->inventory[INVENTORY_NAILGUN] > 0 && bs->inventory[INVENTORY_NAILS] > 0)
+		return WEAPONINDEX_NAILGUN;
+#endif
+	else if (bs->inventory[INVENTORY_RAILGUN] > 0 && bs->inventory[INVENTORY_SLUGS] > 0)
+		return WEAPONINDEX_RAILGUN;
+	else if (bs->inventory[INVENTORY_ROCKETLAUNCHER] > 0 && bs->inventory[INVENTORY_ROCKETS] > 0)
+		return WEAPONINDEX_ROCKET_LAUNCHER;
+	else if (bs->inventory[INVENTORY_BFG10K] > 0 && bs->inventory[INVENTORY_BFGAMMO] > 0)
+		return WEAPONINDEX_BFG;
+#else
 	if(bs->activatestack->weapon > 0)
 		return bs->activatestack->weapon;
 	//
@@ -1739,6 +1947,7 @@ int BotSelectActivateWeapon(bot_state_t *bs) {
 		return WP_MOLOTOV;
 	else if (bs->inventory[INVENTORY_KNIFE] > 0)
 		return WP_KNIFE;
+#endif
 	else {
 		return -1;
 	}
@@ -1751,14 +1960,22 @@ BotClearPath
  try to deactivate obstacles like proximity mines on the bot's path
 ==================
 */
+#ifdef SMOKINGUNS
 extern bot_state_t	*botstates[MAX_CLIENTS];
+#endif
 void BotClearPath(bot_state_t *bs, bot_moveresult_t *moveresult) {
+#ifndef SMOKINGUNS
+	int i, bestmine;
+	float dist, bestdist;
 	vec3_t target, dir;
 	bsp_trace_t bsptrace;
-	entityState_t state;
+#else
 	int mark = -1;
+#endif
+	entityState_t state;
 
 	// if there is a dead body wearing kamikze nearby
+#ifndef SMOKINGUNS
 	if (bs->kamikazebody) {
 		// if the bot's view angles and weapon are not used for movement
 		if ( !(moveresult->flags & (MOVERESULT_MOVEMENTVIEW | MOVERESULT_MOVEMENTWEAPON)) ) {
@@ -1779,8 +1996,8 @@ void BotClearPath(bot_state_t *bs, bot_moveresult_t *moveresult) {
 				moveresult->flags |= MOVERESULT_MOVEMENTWEAPON | MOVERESULT_MOVEMENTVIEW;
 				// if holding the right weapon
 				if (bs->cur_ps.weapon == moveresult->weapon) {
-					// if the bot is pretty close with it's aim
-					if (InFieldOfVision(bs->viewangles, 20, moveresult->ideal_viewangles, -1)) {
+					// if the bot is pretty close with its aim
+					if (InFieldOfVision(bs->viewangles, 20, moveresult->ideal_viewangles)) {
 						//
 						BotAI_Trace(&bsptrace, bs->eye, NULL, NULL, target, bs->entitynum, MASK_SHOT);
 						// if the mine is visible from the current position
@@ -1793,10 +2010,10 @@ void BotClearPath(bot_state_t *bs, bot_moveresult_t *moveresult) {
 			}
 		}
 	}
-	//if (moveresult->flags & MOVERESULT_BLOCKEDBYAVOIDSPOT) {
-	//	bs->blockedbyavoidspot_time = level.time + 200; //FloatTime() + 5;
-	//}
-
+	if (moveresult->flags & MOVERESULT_BLOCKEDBYAVOIDSPOT) {
+		bs->blockedbyavoidspot_time = FloatTime() + 5;
+	}
+#else
 #define BOX 300
 	{
 		vec3_t mins, maxs;
@@ -1826,9 +2043,65 @@ void BotClearPath(bot_state_t *bs, bot_moveresult_t *moveresult) {
 			break;
 		}
 	}
+#endif
 
 	// if blocked by an avoid spot and the view angles and weapon are used for movement
-	if (bs->blockedbyavoidspot_time > level.time/*FloatTime()*/ &&
+#ifndef SMOKINGUNS
+	if (bs->blockedbyavoidspot_time > FloatTime() &&
+		!(moveresult->flags & (MOVERESULT_MOVEMENTVIEW | MOVERESULT_MOVEMENTWEAPON)) ) {
+		bestdist = 300;
+		bestmine = -1;
+		for (i = 0; i < bs->numproxmines; i++) {
+			BotAI_GetEntityState(bs->proxmines[i], &state);
+			VectorSubtract(state.pos.trBase, bs->origin, dir);
+			dist = VectorLength(dir);
+			if (dist < bestdist) {
+				bestdist = dist;
+				bestmine = i;
+			}
+		}
+		if (bestmine != -1) {
+			//
+			// state->generic1 == TEAM_RED || state->generic1 == TEAM_BLUE
+			//
+			// deactivate prox mines in the bot's path by shooting
+			// rockets or plasma cells etc. at them
+			BotAI_GetEntityState(bs->proxmines[bestmine], &state);
+			VectorCopy(state.pos.trBase, target);
+			target[2] += 2;
+			VectorSubtract(target, bs->eye, dir);
+			vectoangles(dir, moveresult->ideal_viewangles);
+			// if the bot has a weapon that does splash damage
+			if (bs->inventory[INVENTORY_PLASMAGUN] > 0 && bs->inventory[INVENTORY_CELLS] > 0)
+				moveresult->weapon = WEAPONINDEX_PLASMAGUN;
+			else if (bs->inventory[INVENTORY_ROCKETLAUNCHER] > 0 && bs->inventory[INVENTORY_ROCKETS] > 0)
+				moveresult->weapon = WEAPONINDEX_ROCKET_LAUNCHER;
+			else if (bs->inventory[INVENTORY_BFG10K] > 0 && bs->inventory[INVENTORY_BFGAMMO] > 0)
+				moveresult->weapon = WEAPONINDEX_BFG;
+			else {
+				moveresult->weapon = 0;
+			}
+			if (moveresult->weapon) {
+				//
+				moveresult->flags |= MOVERESULT_MOVEMENTWEAPON | MOVERESULT_MOVEMENTVIEW;
+				// if holding the right weapon
+				if (bs->cur_ps.weapon == moveresult->weapon) {
+					// if the bot is pretty close with its aim
+					if (InFieldOfVision(bs->viewangles, 20, moveresult->ideal_viewangles)) {
+						//
+						BotAI_Trace(&bsptrace, bs->eye, NULL, NULL, target, bs->entitynum, MASK_SHOT);
+						// if the mine is visible from the current position
+						if (bsptrace.fraction >= 1.0 || bsptrace.ent == state.number) {
+							// shoot at the mine
+							trap_EA_Attack(bs->client);
+						}
+					}
+				}
+			}
+		}
+	}
+#else
+	if (bs->blockedbyavoidspot_time > level.time &&
 		!(bs->flags & BFL_AVOID)) {
 
 		// avoid the spot by walking away
@@ -1859,7 +2132,7 @@ void BotClearPath(bot_state_t *bs, bot_moveresult_t *moveresult) {
 
 			AIEnter_Seek_NBG(bs, "found explosive: avoiding");
 		}
-	} else if(!(bs->blockedbyavoidspot_time > /*FloatTime()*/level.time)){
+	} else if(!(bs->blockedbyavoidspot_time > level.time)){
 		if(bs->flags & BFL_AVOID){
 			bs->ltg_time = 0;
 			AIEnter_Seek_LTG(bs, "avoiding finsihed: LTG");
@@ -1867,6 +2140,7 @@ void BotClearPath(bot_state_t *bs, bot_moveresult_t *moveresult) {
 		bs->flags &= ~BFL_AVOID;
 		//AIEnter_Seek_LTG(bs, "avoiding finished: seeking LTG");
 	}
+#endif
 }
 
 /*
@@ -1875,11 +2149,6 @@ AIEnter_Seek_ActivateEntity
 ==================
 */
 void AIEnter_Seek_ActivateEntity(bot_state_t *bs, char *s) {
-
-	/*if((bs->flags & BFL_RELOAD) || (bs->flags & BFL_RELOAD2)){
-		return;
-	}*/
-
 	BotRecordNodeSwitch(bs, "activate entity", "", s);
 	bs->ainode = AINode_Seek_ActivateEntity;
 }
@@ -1944,7 +2213,12 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 			if (bs->cur_ps.weapon == bs->activatestack->weapon) {
 				VectorSubtract(bs->activatestack->target, bs->eye, dir);
 				vectoangles(dir, ideal_viewangles);
-				// if the bot is pretty close with it's aim
+				// if the bot is pretty close with its aim
+#ifndef SMOKINGUNS
+				if (InFieldOfVision(bs->viewangles, 20, ideal_viewangles)) {
+					trap_EA_Attack(bs->client);
+				}
+#else
 				if (InFieldOfVision(bs->viewangles, 20, ideal_viewangles, bs->client)) {
 					bs->flags |= BFL_ATTACK;
 
@@ -1964,6 +2238,7 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 						}
 					}
 				}
+#endif
 			}
 		}
 	}
@@ -1971,11 +2246,12 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 	if (targetvisible) {
 		// get the entity info of the entity the bot is shooting at
 		BotEntityInfo(goal->entitynum, &entinfo);
-		// if the entity the bot shoots has moved
+		// if the entity the bot shoots at moved
 		if (!VectorCompare(bs->activatestack->origin, entinfo.origin)) {
 #ifdef DEBUG
 			BotAI_Print(PRT_MESSAGE, "hit shootable button or trigger\n");
 #endif //DEBUG
+#ifdef SMOKINGUNS
 			if(g_entities[bs->activatestack->goal.entitynum].health <= 0 ||
 				Q_stricmp(g_entities[bs->activatestack->goal.entitynum].classname,
 				"func_breakable"))
@@ -1984,9 +2260,10 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 
 		if(g_entities[bs->activatestack->goal.entitynum].health <= 0 &&
 			!Q_stricmp(g_entities[bs->activatestack->goal.entitynum].classname,
-			"func_breakable"))
+			"func_breakable")) {
+#endif
 			bs->activatestack->time = 0;
-
+		}
 		// if the activate goal has been activated or the bot takes too long
 		if (bs->activatestack->time < FloatTime()) {
 			BotPopFromActivateGoalStack(bs);
@@ -2046,7 +2323,12 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 	//
 	BotClearPath(bs, &moveresult);
 	// if the bot has to shoot to activate
+#ifndef SMOKINGUNS
 	if (bs->activatestack->shoot) {
+#else
+	// Tequila: Avoid using a NULL pointer as activatestack may have been clear in modified BotClearPath() API
+	if (bs->activatestack && bs->activatestack->shoot) {
+#endif
 		// if the view angles aren't yet used for the movement
 		if (!(moveresult.flags & MOVERESULT_MOVEMENTVIEW)) {
 			VectorSubtract(bs->activatestack->target, bs->eye, dir);
@@ -2093,11 +2375,15 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 		bs->weaponnum = moveresult.weapon;
 	// if there is an enemy
 	if (BotFindEnemy(bs, -1)) {
+#ifndef SMOKINGUNS
 		if (BotWantsToRetreat(bs)) {
 			//keep the current long term goal and retreat
 			AIEnter_Battle_NBG(bs, "activate entity: found enemy");
 		}
 		else {
+#else
+		{
+#endif
 			trap_BotResetLastAvoidReach(bs->ms);
 			//empty the goal stack
 			trap_BotEmptyGoalStack(bs->gs);
@@ -2137,9 +2423,9 @@ int AINode_Seek_NBG(bot_state_t *bs) {
 	bot_goal_t goal;
 	vec3_t target, dir;
 	bot_moveresult_t moveresult;
+#ifdef SMOKINGUNS
 	qboolean override = ((bs->flags & BFL_AVOID )||( bs->flags & BFL_ESCAPE));
-
-//	Com_Printf("NBG\n");
+#endif
 
 	if (BotIsObserver(bs)) {
 		AIEnter_Observer(bs, "seek nbg: observer");
@@ -2155,38 +2441,48 @@ int AINode_Seek_NBG(bot_state_t *bs) {
 		AIEnter_Respawn(bs, "seek nbg: bot dead");
 		return qfalse;
 	}
-
 	//
 	bs->tfl = TFL_DEFAULT;
 	if (bot_grapple.integer) bs->tfl |= TFL_GRAPPLEHOOK;
 	//if in lava or slime the bot should be able to get out
 	if (BotInLavaOrSlime(bs)) bs->tfl |= TFL_LAVA|TFL_SLIME;
 	//
+#ifndef SMOKINGUNS
 	if (BotCanAndWantsToRocketJump(bs)) {
 		bs->tfl |= TFL_ROCKETJUMP;
 	}
+#endif
 	//map specific code
 	BotMapScripts(bs);
 	//no enemy
 	bs->enemy = -1;
 
 	// force the teamgoal
+#ifdef SMOKINGUNS
 	if(bs->flags & BFL_SEEK)
 		memcpy(&goal, &bs->teamgoal, sizeof(bot_goal_t));
+#endif
 
 	//if the bot has no goal
+#ifndef SMOKINGUNS
+	if (!trap_BotGetTopGoal(bs->gs, &goal)) bs->nbg_time = 0;
+#else
 	if (!trap_BotGetTopGoal(bs->gs, &goal) && !(bs->flags & BFL_SEEK) &&
-		!strcmp("item_money", g_entities[goal.entitynum].classname)) {
+		goal.entitynum>=0 && goal.entitynum<MAX_GENTITIES &&
+		!Q_stricmp("item_money", g_entities[goal.entitynum].classname))
 		bs->nbg_time = 0;
+#endif
 	//if the bot touches the current goal
-	} else if (BotReachedGoal(bs, &goal)) {
+	else if (BotReachedGoal(bs, &goal)) {
 		BotChooseWeapon(bs);
 		bs->nbg_time = 0;
 	}
-
 	//
+#ifndef SMOKINGUNS
+	if (bs->nbg_time < FloatTime()) {
+#else
 	if (bs->nbg_time < FloatTime() && !override) {
-
+#endif
 		//pop the current goal from the stack
 		trap_BotPopGoal(bs->gs);
 		//check for new nearby items right away
@@ -2202,6 +2498,7 @@ int AINode_Seek_NBG(bot_state_t *bs) {
 	//initialize the movement state
 	BotSetupForMovement(bs);
 
+#ifdef SMOKINGUNS
 #define BSIZE 30
 	if(override){
 		goal.entitynum = 0;
@@ -2214,15 +2511,15 @@ int AINode_Seek_NBG(bot_state_t *bs) {
 		goal.areanum = BotPointAreaNum(goal.origin);
 //		Com_Printf("goal overrided %f %f %f\n", goal.origin[0], goal.origin[1], goal.origin[2]);
 	}
+#endif
+	//move towards the goal
 	trap_BotMoveToGoal(&moveresult, bs->ms, &goal, bs->tfl);
-
 	//if the movement failed
 	if (moveresult.failure) {
 		//reset the avoid reach, otherwise bot is stuck in current area
 		trap_BotResetAvoidReach(bs->ms);
 		bs->nbg_time = 0;
 	}
-
 	//check if the bot is blocked
 	BotAIBlocked(bs, &moveresult, qtrue);
 	//
@@ -2254,20 +2551,25 @@ int AINode_Seek_NBG(bot_state_t *bs) {
 	if (moveresult.flags & MOVERESULT_MOVEMENTWEAPON) bs->weaponnum = moveresult.weapon;
 	//if there is an enemy
 	if (BotFindEnemy(bs, -1)) {
-
+#ifndef SMOKINGUNS
 		if (BotWantsToRetreat(bs)) {
 			//keep the current long term goal and retreat
 			AIEnter_Battle_NBG(bs, "seek nbg: found enemy");
 		}
 		else {
+#else
+		{
+#endif
 			trap_BotResetLastAvoidReach(bs->ms);
 			//empty the goal stack
 			trap_BotEmptyGoalStack(bs->gs);
 			//go fight
 			AIEnter_Battle_Fight(bs, "seek nbg: found enemy");
 
+#ifdef SMOKINGUNS
 			bs->orientation.count = 0;
 			bs->flags &= ~BFL_SEEK;
+#endif
 		}
 	}
 	return qtrue;
@@ -2303,12 +2605,11 @@ int AINode_Seek_LTG(bot_state_t *bs)
 	vec3_t target, dir;
 	bot_moveresult_t moveresult;
 	int range;
+#ifdef SMOKINGUNS
 	qboolean override = ((bs->flags & BFL_AVOID )||( bs->flags & BFL_ESCAPE));
-
+#endif
 	//char buf[128];
 	//bot_goal_t tmpgoal;
-
-	//Com_Printf("LTG\n");
 
 	if (BotIsObserver(bs)) {
 		AIEnter_Observer(bs, "seek ltg: observer");
@@ -2336,9 +2637,11 @@ int AINode_Seek_LTG(bot_state_t *bs)
 	//if in lava or slime the bot should be able to get out
 	if (BotInLavaOrSlime(bs)) bs->tfl |= TFL_LAVA|TFL_SLIME;
 	//
+#ifndef SMOKINGUNS
 	if (BotCanAndWantsToRocketJump(bs)) {
 		bs->tfl |= TFL_ROCKETJUMP;
 	}
+#endif
 	//map specific code
 	BotMapScripts(bs);
 	//no enemy
@@ -2351,12 +2654,16 @@ int AINode_Seek_LTG(bot_state_t *bs)
 	}
 	//if there is an enemy
 	if (BotFindEnemy(bs, -1)) {
+#ifndef SMOKINGUNS
 		if (BotWantsToRetreat(bs)) {
 			//keep the current long term goal and retreat
 			AIEnter_Battle_Retreat(bs, "seek ltg: found enemy");
 			return qfalse;
 		}
 		else {
+#else
+		{
+#endif
 			trap_BotResetLastAvoidReach(bs->ms);
 			//empty the goal stack
 			trap_BotEmptyGoalStack(bs->gs);
@@ -2372,7 +2679,11 @@ int AINode_Seek_LTG(bot_state_t *bs)
 		return qtrue;
 	}
 	//check for nearby goals periodicly
+#ifndef SMOKINGUNS
+	if (bs->check_time < FloatTime()) {
+#else
 	if (bs->check_time < FloatTime() && !override) {
+#endif
 		bs->check_time = FloatTime() + 0.5;
 		//check if the bot wants to camp
 		BotWantsToCamp(bs);
@@ -2380,6 +2691,7 @@ int AINode_Seek_LTG(bot_state_t *bs)
 		if (bs->ltgtype == LTG_DEFENDKEYAREA) range = 400;
 		else range = 150;
 		//
+#ifndef SMOKINGUNS
 #ifdef CTF
 		if (gametype == GT_CTF) {
 			//if carrying a flag the bot shouldn't be distracted too much
@@ -2387,6 +2699,17 @@ int AINode_Seek_LTG(bot_state_t *bs)
 				range = 50;
 		}
 #endif //CTF
+#ifdef MISSIONPACK
+		else if (gametype == GT_1FCTF) {
+			if (Bot1FCTFCarryingFlag(bs))
+				range = 50;
+		}
+		else if (gametype == GT_HARVESTER) {
+			if (BotHarvesterCarryingCubes(bs))
+				range = 80;
+		}
+#endif
+#endif
 		//
 		if (BotNearbyGoal(bs, bs->tfl, &goal, range)) {
 			trap_BotResetLastAvoidReach(bs->ms);
@@ -2406,6 +2729,7 @@ int AINode_Seek_LTG(bot_state_t *bs)
 	//initialize the movement state
 	BotSetupForMovement(bs);
 
+#ifdef SMOKINGUNS
 	if(override){
 		bot_goal_t goal;
 
@@ -2419,6 +2743,7 @@ int AINode_Seek_LTG(bot_state_t *bs)
 		goal.areanum = BotPointAreaNum(goal.origin);
 //		Com_Printf("goal overrided %f %f %f\n", goal.origin[0], goal.origin[1], goal.origin[2]);
 	}
+#endif
 	//move towards the goal
 	trap_BotMoveToGoal(&moveresult, bs->ms, &goal, bs->tfl);
 	//if the movement failed
@@ -2474,11 +2799,6 @@ AIEnter_Battle_Fight
 ==================
 */
 void AIEnter_Battle_Fight(bot_state_t *bs, char *s) {
-
-	/*if((bs->flags & BFL_RELOAD) || (bs->flags & BFL_RELOAD2)){
-		return;
-	}*/
-
 	BotRecordNodeSwitch(bs, "battle fight", "", s);
 	trap_BotResetLastAvoidReach(bs->ms);
 	bs->ainode = AINode_Battle_Fight;
@@ -2490,11 +2810,6 @@ AIEnter_Battle_Fight
 ==================
 */
 void AIEnter_Battle_SuicidalFight(bot_state_t *bs, char *s) {
-
-	/*if((bs->flags & BFL_RELOAD) || (bs->flags & BFL_RELOAD2)){
-		return;
-	}*/
-
 	BotRecordNodeSwitch(bs, "battle fight", "", s);
 	trap_BotResetLastAvoidReach(bs->ms);
 	bs->ainode = AINode_Battle_Fight;
@@ -2511,7 +2826,9 @@ int AINode_Battle_Fight(bot_state_t *bs) {
 	vec3_t target;
 	aas_entityinfo_t entinfo;
 	bot_moveresult_t moveresult;
+#ifdef SMOKINGUNS
 	qboolean override = ((bs->flags & BFL_AVOID )||( bs->flags & BFL_ESCAPE));
+#endif
 
 	if (BotIsObserver(bs)) {
 		AIEnter_Observer(bs, "battle fight: observer");
@@ -2531,7 +2848,7 @@ int AINode_Battle_Fight(bot_state_t *bs) {
 	//if there is another better enemy
 	if (BotFindEnemy(bs, bs->enemy)) {
 #ifdef DEBUG
-		//BotAI_Print(PRT_MESSAGE, "found new better enemy\n");
+		BotAI_Print(PRT_MESSAGE, "found new better enemy\n");
 #endif
 	}
 	//if no enemy
@@ -2575,8 +2892,7 @@ int AINode_Battle_Fight(bot_state_t *bs) {
 	VectorCopy(entinfo.origin, target);
 	// if not a player enemy
 	if (bs->enemy >= MAX_CLIENTS) {
-#if 0
-//#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 		// if attacking an obelisk
 		if ( bs->enemy == redobelisk.entitynum ||
 			bs->enemy == blueobelisk.entitynum ) {
@@ -2610,15 +2926,20 @@ int AINode_Battle_Fight(bot_state_t *bs) {
 	}
 	//if the enemy is not visible
 	if (!BotEntityVisible(bs->entitynum, bs->eye, bs->viewangles, 360, bs->enemy)) {
-		// changed by spoon
-		/*if (BotWantsToChase(bs)) {
+#ifndef SMOKINGUNS
+		if (BotWantsToChase(bs)) {
 			AIEnter_Battle_Chase(bs, "battle fight: enemy out of sight");
 			return qfalse;
 		}
-		else {*/
+		else {
 			AIEnter_Seek_LTG(bs, "battle fight: enemy out of sight");
 			return qfalse;
-		//}
+		}
+#else
+		// changed by spoon
+		AIEnter_Seek_LTG(bs, "battle fight: enemy out of sight");
+		return qfalse;
+#endif
 	}
 	//use holdable items
 	BotBattleUseItems(bs);
@@ -2628,12 +2949,15 @@ int AINode_Battle_Fight(bot_state_t *bs) {
 	//if in lava or slime the bot should be able to get out
 	if (BotInLavaOrSlime(bs)) bs->tfl |= TFL_LAVA|TFL_SLIME;
 	//
+#ifndef SMOKINGUNS
 	if (BotCanAndWantsToRocketJump(bs)) {
 		bs->tfl |= TFL_ROCKETJUMP;
 	}
+#endif
 	//choose the best weapon to fight with
 	BotChooseWeapon(bs);
 
+#ifdef SMOKINGUNS
 	if(override){
 		bot_goal_t goal;
 
@@ -2648,6 +2972,7 @@ int AINode_Battle_Fight(bot_state_t *bs) {
 //		Com_Printf("goal overrided %f %f %f\n", goal.origin[0], goal.origin[1], goal.origin[2]);
 		trap_BotMoveToGoal(&moveresult, bs->ms, &goal, bs->tfl);
 	} else
+#endif
 		//do attack movements
 		moveresult = BotAttackMove(bs, bs->tfl);
 
@@ -2665,12 +2990,14 @@ int AINode_Battle_Fight(bot_state_t *bs) {
 	//attack the enemy if possible
 	BotCheckAttack(bs);
 	//if the bot wants to retreat
+#ifndef SMOKINGUNS
 	if (!(bs->flags & BFL_FIGHTSUICIDAL)) {
 		if (BotWantsToRetreat(bs)) {
 			AIEnter_Battle_Retreat(bs, "battle fight: wants to retreat");
 			return qtrue;
 		}
 	}
+#endif
 	return qtrue;
 }
 
@@ -2680,11 +3007,6 @@ AIEnter_Battle_Chase
 ==================
 */
 void AIEnter_Battle_Chase(bot_state_t *bs, char *s) {
-
-	/*if((bs->flags & BFL_RELOAD) || (bs->flags & BFL_RELOAD2)){
-		return;
-	}*/
-
 	BotRecordNodeSwitch(bs, "battle chase", "", s);
 	bs->chase_time = FloatTime();
 	bs->ainode = AINode_Battle_Chase;
@@ -2701,7 +3023,9 @@ int AINode_Battle_Chase(bot_state_t *bs)
 	vec3_t target, dir;
 	bot_moveresult_t moveresult;
 	float range;
+#ifdef SMOKINGUNS
 	qboolean override = ((bs->flags & BFL_AVOID )||( bs->flags & BFL_ESCAPE));
+#endif
 
 	if (BotIsObserver(bs)) {
 		AIEnter_Observer(bs, "battle chase: observer");
@@ -2743,9 +3067,11 @@ int AINode_Battle_Chase(bot_state_t *bs)
 	//if in lava or slime the bot should be able to get out
 	if (BotInLavaOrSlime(bs)) bs->tfl |= TFL_LAVA|TFL_SLIME;
 	//
+#ifndef SMOKINGUNS
 	if (BotCanAndWantsToRocketJump(bs)) {
 		bs->tfl |= TFL_ROCKETJUMP;
 	}
+#endif
 	//map specific code
 	BotMapScripts(bs);
 	//create the chase goal
@@ -2762,7 +3088,11 @@ int AINode_Battle_Chase(bot_state_t *bs)
 		return qfalse;
 	}
 	//check for nearby goals periodicly
+#ifndef SMOKINGUNS
+	if (bs->check_time < FloatTime()) {
+#else
 	if (bs->check_time < FloatTime() && !override) {
+#endif
 		bs->check_time = FloatTime() + 1;
 		range = 150;
 		//
@@ -2779,6 +3109,7 @@ int AINode_Battle_Chase(bot_state_t *bs)
 	//initialize the movement state
 	BotSetupForMovement(bs);
 
+#ifdef SMOKINGUNS
 	if(override){
 		goal.entitynum = 0;
 		goal.flags = 0;
@@ -2790,6 +3121,7 @@ int AINode_Battle_Chase(bot_state_t *bs)
 		goal.areanum = BotPointAreaNum(goal.origin);
 //		Com_Printf("goal overrided %f %f %f\n", goal.origin[0], goal.origin[1], goal.origin[2]);
 	}
+#endif
 	//move towards the goal
 	trap_BotMoveToGoal(&moveresult, bs->ms, &goal, bs->tfl);
 	//if the movement failed
@@ -2825,10 +3157,12 @@ int AINode_Battle_Chase(bot_state_t *bs)
 	//if the bot is in the area the enemy was last seen in
 	if (bs->areanum == bs->lastenemyareanum) bs->chase_time = 0;
 	//if the bot wants to retreat (the bot could have been damage during the chase)
+#ifndef SMOKINGUNS
 	if (BotWantsToRetreat(bs)) {
 		AIEnter_Battle_Retreat(bs, "battle chase: wants to retreat");
 		return qtrue;
 	}
+#endif
 	return qtrue;
 }
 
@@ -2854,7 +3188,9 @@ int AINode_Battle_Retreat(bot_state_t *bs) {
 	vec3_t target, dir;
 	float attack_skill, range;
 	int areanum;
+#ifdef SMOKINGUNS
 	qboolean override = ((bs->flags & BFL_AVOID )||( bs->flags & BFL_ESCAPE));
+#endif
 
 	if (BotIsObserver(bs)) {
 		AIEnter_Observer(bs, "battle retreat: observer");
@@ -2908,7 +3244,18 @@ int AINode_Battle_Retreat(bot_state_t *bs) {
 	if (BotEntityVisible(bs->entitynum, bs->eye, bs->viewangles, 360, bs->enemy)) {
 		bs->enemyvisible_time = FloatTime();
 		VectorCopy(entinfo.origin, target);
-
+#ifndef SMOKINGUNS
+		// if not a player enemy
+		if (bs->enemy >= MAX_CLIENTS) {
+#ifdef MISSIONPACK
+			// if attacking an obelisk
+			if ( bs->enemy == redobelisk.entitynum ||
+				bs->enemy == blueobelisk.entitynum ) {
+				target[2] += 16;
+			}
+#endif
+		}
+#endif
 		//update the reachability area and origin if possible
 		areanum = BotPointAreaNum(target);
 		if (areanum && trap_AAS_AreaReachability(areanum)) {
@@ -2939,9 +3286,14 @@ int AINode_Battle_Retreat(bot_state_t *bs) {
 		return qfalse;
 	}
 	//check for nearby goals periodicly
+#ifndef SMOKINGUNS
+	if (bs->check_time < FloatTime()) {
+#else
 	if (bs->check_time < FloatTime() && !override) {
+#endif
 		bs->check_time = FloatTime() + 1;
 		range = 150;
+#ifndef SMOKINGUNS
 #ifdef CTF
 		if (gametype == GT_CTF) {
 			//if carrying a flag the bot shouldn't be distracted too much
@@ -2949,6 +3301,17 @@ int AINode_Battle_Retreat(bot_state_t *bs) {
 				range = 50;
 		}
 #endif //CTF
+#ifdef MISSIONPACK
+		else if (gametype == GT_1FCTF) {
+			if (Bot1FCTFCarryingFlag(bs))
+				range = 50;
+		}
+		else if (gametype == GT_HARVESTER) {
+			if (BotHarvesterCarryingCubes(bs))
+				range = 80;
+		}
+#endif
+#endif
 		//
 		if (BotNearbyGoal(bs, bs->tfl, &goal, range)) {
 			trap_BotResetLastAvoidReach(bs->ms);
@@ -2961,6 +3324,7 @@ int AINode_Battle_Retreat(bot_state_t *bs) {
 	//initialize the movement state
 	BotSetupForMovement(bs);
 
+#ifdef SMOKINGUNS
 	if(override){
 		bot_goal_t goal;
 
@@ -2974,6 +3338,7 @@ int AINode_Battle_Retreat(bot_state_t *bs) {
 		goal.areanum = BotPointAreaNum(goal.origin);
 //		Com_Printf("goal overrided %f %f %f\n", goal.origin[0], goal.origin[1], goal.origin[2]);
 	}
+#endif
 	//move towards the goal
 	trap_BotMoveToGoal(&moveresult, bs->ms, &goal, bs->tfl);
 	//if the movement failed
@@ -3023,11 +3388,6 @@ AIEnter_Battle_NBG
 ==================
 */
 void AIEnter_Battle_NBG(bot_state_t *bs, char *s) {
-
-	/*if((bs->flags & BFL_RELOAD) || (bs->flags & BFL_RELOAD2)){
-		return;
-	}*/
-
 	BotRecordNodeSwitch(bs, "battle NBG", "", s);
 	bs->ainode = AINode_Battle_NBG;
 }
@@ -3044,8 +3404,9 @@ int AINode_Battle_NBG(bot_state_t *bs) {
 	bot_moveresult_t moveresult;
 	float attack_skill;
 	vec3_t target, dir;
+#ifdef SMOKINGUNS
 	qboolean override = ((bs->flags & BFL_AVOID )||( bs->flags & BFL_ESCAPE));
-
+#endif
 
 	if (BotIsObserver(bs)) {
 		AIEnter_Observer(bs, "battle nbg: observer");
@@ -3078,16 +3439,29 @@ int AINode_Battle_NBG(bot_state_t *bs) {
 	//if in lava or slime the bot should be able to get out
 	if (BotInLavaOrSlime(bs)) bs->tfl |= TFL_LAVA|TFL_SLIME;
 	//
+#ifndef SMOKINGUNS
 	if (BotCanAndWantsToRocketJump(bs)) {
 		bs->tfl |= TFL_ROCKETJUMP;
 	}
+#endif
 	//map specific code
 	BotMapScripts(bs);
 	//update the last time the enemy was visible
 	if (BotEntityVisible(bs->entitynum, bs->eye, bs->viewangles, 360, bs->enemy)) {
 		bs->enemyvisible_time = FloatTime();
 		VectorCopy(entinfo.origin, target);
-
+#ifndef SMOKINGUNS
+		// if not a player enemy
+		if (bs->enemy >= MAX_CLIENTS) {
+#ifdef MISSIONPACK
+			// if attacking an obelisk
+			if ( bs->enemy == redobelisk.entitynum ||
+				bs->enemy == blueobelisk.entitynum ) {
+				target[2] += 16;
+			}
+#endif
+		}
+#endif
 		//update the reachability area and origin if possible
 		areanum = BotPointAreaNum(target);
 		if (areanum && trap_AAS_AreaReachability(areanum)) {
@@ -3097,27 +3471,39 @@ int AINode_Battle_NBG(bot_state_t *bs) {
 	}
 
 	// force the teamgoal
+#ifdef SMOKINGUNS
 	if((bs->flags & BFL_SEEK) /*&& (g_gametype.integer != GT_BR || !bs->cur_ps.persistant[PERS_ROBBER])*/)
 		memcpy(&goal, &bs->teamgoal, sizeof(bot_goal_t));
+#endif
 
 	//if the bot has no goal or touches the current goal
+#ifndef SMOKINGUNS
+	if (!trap_BotGetTopGoal(bs->gs, &goal)) {
+		bs->nbg_time = 0;
+	}
+	else if (BotReachedGoal(bs, &goal)) {
+#else
 	if (!trap_BotGetTopGoal(bs->gs, &goal) && !(bs->flags & BFL_SEEK) &&
-		strcmp("item_money", g_entities[goal.entitynum].classname)
+		Q_stricmp("item_money", g_entities[goal.entitynum].classname)
 		/*&& (g_gametype.integer != GT_BR || !bs->cur_ps.persistant[PERS_ROBBER])*/) {
 		bs->nbg_time = 0;
 	//if the bot touches the current goal
 	} else if (BotReachedGoal(bs, &goal)) {
+#endif
 		bs->nbg_time = 0;
 	}
-
 	//
+#ifndef SMOKINGUNS
+	if (bs->nbg_time < FloatTime()) {
+#else
 	if (bs->nbg_time < FloatTime() && !override &&
-		strcmp("item_money", g_entities[goal.entitynum].classname)) {
-		// if bot is goin to the tresory
+		Q_stricmp("item_money", g_entities[goal.entitynum].classname)) {
+		// if bot is going to the tresory
 		if(bs->flags & BFL_SEEK){
 			AIEnter_Seek_NBG(bs, "battle retreat: NGB");
 			return qfalse;
 		}
+#endif
 
 		//pop the current goal from the stack
 		trap_BotPopGoal(bs->gs);
@@ -3132,6 +3518,7 @@ int AINode_Battle_NBG(bot_state_t *bs) {
 	//initialize the movement state
 	BotSetupForMovement(bs);
 
+#ifdef SMOKINGUNS
 	if(override){
 		goal.entitynum = 0;
 		goal.flags = 0;
@@ -3143,6 +3530,7 @@ int AINode_Battle_NBG(bot_state_t *bs) {
 		goal.areanum = BotPointAreaNum(goal.origin);
 //		Com_Printf("goal overrided %f %f %f\n", goal.origin[0], goal.origin[1], goal.origin[2]);
 	}
+#endif
 	//move towards the goal
 	trap_BotMoveToGoal(&moveresult, bs->ms, &goal, bs->tfl);
 	//if the movement failed

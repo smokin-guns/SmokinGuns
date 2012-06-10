@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -23,7 +23,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tr_shade_calc.c
 
 #include "tr_local.h"
+#if idppc_altivec && !defined(MACOS_X)
+#include <altivec.h>
+#endif
 
+#ifdef _MSC_VER
+static float roundf(float numb)
+{
+    float integ = ceilf(numb);
+    if (numb > 0)
+        return integ - numb > 0.5f ? integ - 1.0f : integ;
+    return integ - numb >= 0.5f ? integ - 1.0f : integ;
+}
+#endif
 
 #define	WAVEVALUE( table, base, amplitude, phase, freq )  ((base) + table[ myftol( ( ( (phase) + tess.shaderTime * (freq) ) * FUNCTABLE_SIZE ) ) & FUNCTABLE_MASK ] * (amplitude))
 
@@ -46,7 +58,7 @@ static float *TableForFunc( genFunc_t func )
 		break;
 	}
 
-	ri.Error( ERR_DROP, "TableForFunc called with invalid function '%d' in shader '%s'\n", func, tess.shader->name );
+	ri.Error( ERR_DROP, "TableForFunc called with invalid function '%d' in shader '%s'", func, tess.shader->name );
 	return NULL;
 }
 
@@ -357,10 +369,10 @@ static void AutospriteDeform( void ) {
 	vec3_t	leftDir, upDir;
 
 	if ( tess.numVertexes & 3 ) {
-		ri.Printf( PRINT_WARNING, "Autosprite shader %s had odd vertex count", tess.shader->name );
+		ri.Printf( PRINT_WARNING, "Autosprite shader %s had odd vertex count\n", tess.shader->name );
 	}
 	if ( tess.numIndexes != ( tess.numVertexes >> 2 ) * 6 ) {
-		ri.Printf( PRINT_WARNING, "Autosprite shader %s had odd index count", tess.shader->name );
+		ri.Printf( PRINT_WARNING, "Autosprite shader %s had odd index count\n", tess.shader->name );
 	}
 
 	oldVerts = tess.numVertexes;
@@ -811,7 +823,7 @@ void RB_CalcFogTexCoords( float *st ) {
 	qboolean	eyeOutside;
 	fog_t		*fog;
 	vec3_t		local;
-	vec4_t		fogDistanceVector, fogDepthVector;
+	vec4_t		fogDistanceVector, fogDepthVector = {0, 0, 0, 0};
 
 	fog = tr.world->fogs + tess.fogNum;
 
@@ -886,6 +898,9 @@ void RB_CalcFogTexCoords( float *st ) {
 /*
 ** RB_CalcEnvironmentTexCoords
 */
+
+#ifndef SMOKINGUNS
+
 void RB_CalcEnvironmentTexCoords( float *st )
 {
 	int			i;
@@ -906,11 +921,201 @@ void RB_CalcEnvironmentTexCoords( float *st )
 		reflected[0] = normal[0]*2*d - viewer[0];
 		reflected[1] = normal[1]*2*d - viewer[1];
 		reflected[2] = normal[2]*2*d - viewer[2];
-
+		
 		st[0] = 0.5 + reflected[1] * 0.5;
 		st[1] = 0.5 - reflected[2] * 0.5;
 	}
 }
+
+#else
+
+
+
+// Joe Kari: This new function allow custom projection axis for tcgen environment 
+
+void RB_CalcEnvironmentTexCoords( float *st , int axis )
+{
+	int		i;
+	float		*v, *normal;
+	vec3_t		viewer, reflected;
+	float		d;
+
+	v = tess.xyz[0];
+	normal = tess.normal[0];
+
+	if ( axis == 0 ) {
+		// For the X-axis
+		for (i = 0 ; i < tess.numVertexes ; i++, v += 4, normal += 4, st += 2 )
+		{
+			VectorSubtract (backEnd.or.viewOrigin, v, viewer);
+			VectorNormalizeFast (viewer);
+
+			d = DotProduct (normal, viewer);
+
+			reflected[0] = normal[0]*2*d - viewer[0];
+			reflected[1] = normal[1]*2*d - viewer[1];
+			reflected[2] = normal[2]*2*d - viewer[2];
+			
+			st[0] = 0.5 - reflected[1] * 0.5;
+			st[1] = 0.5 - reflected[2] * 0.5;
+		}
+	
+	} else if ( axis == 1 ) {
+		// For the Y-axis
+		for (i = 0 ; i < tess.numVertexes ; i++, v += 4, normal += 4, st += 2 )
+		{
+			VectorSubtract (backEnd.or.viewOrigin, v, viewer);
+			VectorNormalizeFast (viewer);
+
+			d = DotProduct (normal, viewer);
+
+			reflected[0] = normal[0]*2*d - viewer[0];
+			reflected[1] = normal[1]*2*d - viewer[1];
+			reflected[2] = normal[2]*2*d - viewer[2];
+			
+			st[0] = 0.5 + reflected[0] * 0.5;
+			st[1] = 0.5 - reflected[2] * 0.5;
+		}
+	} else if ( axis == 2 ) {
+		// For the Z-axis
+		for (i = 0 ; i < tess.numVertexes ; i++, v += 4, normal += 4, st += 2 )
+		{
+			VectorSubtract (backEnd.or.viewOrigin, v, viewer);
+			VectorNormalizeFast (viewer);
+
+			d = DotProduct (normal, viewer);
+
+			reflected[0] = normal[0]*2*d - viewer[0];
+			reflected[1] = normal[1]*2*d - viewer[1];
+			reflected[2] = normal[2]*2*d - viewer[2];
+			
+			st[0] = 0.5 + reflected[0] * 0.5;
+			st[1] = 0.5 - reflected[1] * 0.5;
+		}
+	}
+}
+
+
+
+void RB_CalcCustomEnvironmentTexCoords( float *st , vec3_t dir_vector , vec3_t normal_weight )
+{
+	int		i;
+	float		*v, *normal;
+	vec3_t		viewer, reflected;
+	float		d;
+	vec3_t		xy_plan ;
+	float		xy_ratio , yx_ratio , z_ratio , inv_z_ratio ;
+	
+
+	v = tess.xyz[0];
+	normal = tess.normal[0];
+
+	VectorCopy( dir_vector , xy_plan ) ;
+	xy_plan[2] = 0 ;
+	
+	VectorNormalizeFast( xy_plan ) ;
+	yx_ratio = xy_plan[0] * xy_plan[0] ;
+	xy_ratio = 1.0f - yx_ratio ;
+	
+	VectorNormalizeFast( dir_vector ) ;
+	inv_z_ratio = dir_vector[2] * dir_vector[2] ;
+	z_ratio = 1.0f - inv_z_ratio ;
+	
+	for ( i = 0 ; i < tess.numVertexes ; i++, v += 4, normal += 4, st += 2 )
+	{
+		VectorSubtract( backEnd.or.viewOrigin, v, viewer ) ;
+		VectorNormalizeFast( viewer ) ;
+
+		d = DotProduct( normal, viewer ) ;
+		
+		reflected[0] = normal[0] * normal_weight[0] * d - viewer[0] ;
+		reflected[1] = normal[1] * normal_weight[1] * d - viewer[1] ;
+		reflected[2] = normal[2] * normal_weight[2] * d - viewer[2] ;
+		
+		// Joe Kari: please do not modify thoses lines: it is VERY hard 
+		// to figure out where to use "+" and where to use "-"
+		st[0] = 0.5 + ( reflected[0] * xy_ratio - reflected[1] * yx_ratio ) * 0.5f ;
+		st[1] = 0.5 + ( reflected[0] * yx_ratio * inv_z_ratio - reflected[1] * xy_ratio * inv_z_ratio - reflected[2] * z_ratio ) * 0.5f ;
+	}
+}
+
+
+
+void RB_CalcEnvironment360TexCoords( float *st , vec3_t dir_vector , vec3_t normal_weight )
+{
+	int		i;
+	float		*v, *normal;
+	vec3_t		viewer, reflected;
+	float		d;
+	/*
+	vec3_t		xy_plan ;
+	float		xy_ratio , yx_ratio , z_ratio , inv_z_ratio ;
+	*/
+	float		last_s = 0.5f ;
+	
+
+	v = tess.xyz[0];
+	normal = tess.normal[0];
+
+	/*
+	VectorCopy( dir_vector , xy_plan ) ;
+	xy_plan[2] = 0 ;
+	
+	VectorNormalizeFast( xy_plan ) ;
+	yx_ratio = xy_plan[0] * xy_plan[0] ;
+	xy_ratio = 1.0f - yx_ratio ;
+	
+	VectorNormalizeFast( dir_vector ) ;
+	inv_z_ratio = dir_vector[2] * dir_vector[2] ;
+	z_ratio = 1.0f - inv_z_ratio ;
+	*/
+	
+	for ( i = 0 ; i < tess.numVertexes ; i++, v += 4, normal += 4, st += 2 )
+	{
+		VectorSubtract( backEnd.or.viewOrigin, v, viewer ) ;
+		VectorNormalizeFast( viewer ) ;
+
+		d = DotProduct( normal, viewer ) ;
+		
+		reflected[0] = normal[0] * normal_weight[0] * d - viewer[0] ;
+		reflected[1] = normal[1] * normal_weight[1] * d - viewer[1] ;
+		reflected[2] = normal[2] * normal_weight[2] * d - viewer[2] ;
+		
+		VectorNormalizeFast( reflected ) ;
+		
+		
+		if ( reflected[1] == 0 && reflected[0] == 0 )
+		{
+			st[0] = 0 ;
+			if ( reflected[2] > 0 ) { st[1] = 0.00001f ; }
+			else { st[1] = 0.99999f ; }
+		}
+		else
+		{
+			if ( reflected[0] ) {
+				st[0] = 0.5f + ( atan2 ( reflected[1], reflected[0] ) / M_2xPI ) ;
+			}
+			else if ( reflected[1] > 0 ) { st[0] = 0.25f ; }
+			else { st[0] = 0.75f ; }
+			
+			// No Z-deformation: (not good at all...)
+			//st[1] = 0.5f - ( asin( reflected[2] * 0.98f ) * M_1_PI );
+			
+			// Z-deformation (most 360 environment needs this):
+			//st[1] = 0.5f - reflected[2] * 0.49999f ;
+			
+			// Z-deformation Mirrored:
+			st[1] = 0.99f - fabs( reflected[2] * 0.98f) ;
+		}
+		
+		// Handle the border case (where tex coord should wrap around)
+		// ^^ st00pid h4ck ^^ 
+		st[0] += roundf( last_s - st[0] ) ;
+		last_s = st[0] ;
+	}
+}
+
+#endif
 
 /*
 ** RB_CalcTurbulentTexCoords
@@ -1020,7 +1225,7 @@ void RB_CalcRotateTexCoords( float degsPerSecond, float *st )
 
 
 
-#if id386 && !( (defined __linux__ || defined __FreeBSD__ || defined __OpenBSD__ ) && (defined __i386__ ) ) // rb010123
+#if id386 && !defined(__GNUC__)
 
 long myftol( float f ) {
 	static int tmp;
@@ -1095,22 +1300,19 @@ void RB_CalcSpecularAlpha( unsigned char *alphas ) {
 **
 ** The basic vertex lighting calc
 */
-void RB_CalcDiffuseColor( unsigned char *colors )
+#if idppc_altivec
+static void RB_CalcDiffuseColor_altivec( unsigned char *colors )
 {
-	int				i, j;
+	int				i;
 	float			*v, *normal;
-	float			incoming;
 	trRefEntity_t	*ent;
 	int				ambientLightInt;
-	vec3_t			ambientLight;
 	vec3_t			lightDir;
-	vec3_t			directedLight;
 	int				numVertexes;
-#if idppc_altivec
-	vector unsigned char vSel = (vector unsigned char)(0x00, 0x00, 0x00, 0xff,
-							   0x00, 0x00, 0x00, 0xff,
-							   0x00, 0x00, 0x00, 0xff,
-							   0x00, 0x00, 0x00, 0xff);
+	vector unsigned char vSel = VECCONST_UINT8(0x00, 0x00, 0x00, 0xff,
+                                               0x00, 0x00, 0x00, 0xff,
+                                               0x00, 0x00, 0x00, 0xff,
+                                               0x00, 0x00, 0x00, 0xff);
 	vector float ambientLightVec;
 	vector float directedLightVec;
 	vector float lightDirVec;
@@ -1120,10 +1322,8 @@ void RB_CalcDiffuseColor( unsigned char *colors )
 	vector signed int jVecInt;
 	vector signed short jVecShort;
 	vector unsigned char jVecChar, normalPerm;
-#endif
 	ent = backEnd.currentEntity;
 	ambientLightInt = ent->ambientLightInt;
-#if idppc_altivec
 	// A lot of this could be simplified if we made sure
 	// entities light info was 16-byte aligned.
 	jVecChar = vec_lvsl(0, ent->ambientLight);
@@ -1143,21 +1343,13 @@ void RB_CalcDiffuseColor( unsigned char *colors )
 
 	zero = (vector float)vec_splat_s8(0);
 	VectorCopy( ent->lightDir, lightDir );
-#else
-	VectorCopy( ent->ambientLight, ambientLight );
-	VectorCopy( ent->directedLight, directedLight );
-	VectorCopy( ent->lightDir, lightDir );
-#endif
 
 	v = tess.xyz[0];
 	normal = tess.normal[0];
 
-#if idppc_altivec
 	normalPerm = vec_lvsl(0,normal);
-#endif
 	numVertexes = tess.numVertexes;
 	for (i = 0 ; i < numVertexes ; i++, v += 4, normal += 4) {
-#if idppc_altivec
 		normalVec0 = vec_ld(0,(vector float *)normal);
 		normalVec1 = vec_ld(11,(vector float *)normal);
 		normalVec0 = vec_perm(normalVec0,normalVec1,normalPerm);
@@ -1175,7 +1367,32 @@ void RB_CalcDiffuseColor( unsigned char *colors )
 		jVecChar = vec_packsu(jVecShort,jVecShort);	// RGBxRGBxRGBxRGBx
 		jVecChar = vec_sel(jVecChar,vSel,vSel);		// RGBARGBARGBARGBA replace alpha with 255
 		vec_ste((vector unsigned int)jVecChar,0,(unsigned int *)&colors[i*4]);	// store color
-#else
+	}
+}
+#endif
+
+static void RB_CalcDiffuseColor_scalar( unsigned char *colors )
+{
+	int				i, j;
+	float			*v, *normal;
+	float			incoming;
+	trRefEntity_t	*ent;
+	int				ambientLightInt;
+	vec3_t			ambientLight;
+	vec3_t			lightDir;
+	vec3_t			directedLight;
+	int				numVertexes;
+	ent = backEnd.currentEntity;
+	ambientLightInt = ent->ambientLightInt;
+	VectorCopy( ent->ambientLight, ambientLight );
+	VectorCopy( ent->directedLight, directedLight );
+	VectorCopy( ent->lightDir, lightDir );
+
+	v = tess.xyz[0];
+	normal = tess.normal[0];
+
+	numVertexes = tess.numVertexes;
+	for (i = 0 ; i < numVertexes ; i++, v += 4, normal += 4) {
 		incoming = DotProduct (normal, lightDir);
 		if ( incoming <= 0 ) {
 			*(int *)&colors[i*4] = ambientLightInt;
@@ -1200,7 +1417,18 @@ void RB_CalcDiffuseColor( unsigned char *colors )
 		colors[i*4+2] = j;
 
 		colors[i*4+3] = 255;
-#endif
 	}
+}
+
+void RB_CalcDiffuseColor( unsigned char *colors )
+{
+#if idppc_altivec
+	if (com_altivec->integer) {
+		// must be in a seperate function or G3 systems will crash.
+		RB_CalcDiffuseColor_altivec( colors );
+		return;
+	}
+#endif
+	RB_CalcDiffuseColor_scalar( colors );
 }
 

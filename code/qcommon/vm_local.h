@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -20,8 +20,18 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-#include "../game/q_shared.h"
+#include "q_shared.h"
 #include "qcommon.h"
+
+// don't change, this is hardcoded into x86 VMs, opStack protection relies
+// on this
+#define	OPSTACK_SIZE	256
+#define	OPSTACK_MASK	(OPSTACK_SIZE-1)
+
+// don't change
+// Hardcoded in q3asm an reserved at end of bss
+#define	PROGRAM_STACK_SIZE	0x10000
+#define	PROGRAM_STACK_MASK	(PROGRAM_STACK_SIZE-1)
 
 typedef enum {
 	OP_UNDEF,
@@ -128,7 +138,7 @@ struct vm_s {
     // DO NOT MOVE OR CHANGE THESE WITHOUT CHANGING THE VM_OFFSET_* DEFINES
     // USED BY THE ASM CODE
     int			programStack;		// the vm may be recursively entered
-    int			(*systemCall)( int *parms );
+    intptr_t			(*systemCall)( intptr_t *parms );
 
 	//------------------------------------
 
@@ -136,17 +146,19 @@ struct vm_s {
 
 	// for dynamic linked modules
 	void		*dllHandle;
-	int			(QDECL *entryPoint)( int callNum, ... );
+	intptr_t			(QDECL *entryPoint)( int callNum, ... );
+	void (*destroy)(vm_t* self);
 
 	// for interpreted modules
 	qboolean	currentlyInterpreting;
 
 	qboolean	compiled;
 	byte		*codeBase;
+	int			entryOfs;
 	int			codeLength;
 
 	int			*instructionPointers;
-	int			instructionPointersLength;
+	int			instructionCount;
 
 	byte		*dataBase;
 	int			dataMask;
@@ -156,12 +168,12 @@ struct vm_s {
 	int			numSymbols;
 	struct vmSymbol_s	*symbols;
 
-	int			callLevel;			// for debug indenting
+	int			callLevel;		// counts recursive VM_Call
 	int			breakFunction;		// increment breakCount on function entry to this
 	int			breakCount;
 
-// fqpath member added 7/20/02 by T.Ray
-	char		fqpath[MAX_QPATH+1] ;
+	byte		*jumpTableTargets;
+	int			numJumpTableTargets;
 };
 
 
@@ -178,4 +190,3 @@ vmSymbol_t *VM_ValueToFunctionSymbol( vm_t *vm, int value );
 int VM_SymbolToValue( vm_t *vm, const char *symbol );
 const char *VM_ValueToSymbol( vm_t *vm, int value );
 void VM_LogSyscalls( int *args );
-

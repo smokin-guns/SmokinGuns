@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Based on Unlagged 2.01 code by Neil "haste" Toronto.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -341,7 +341,7 @@ Decide what time to shift everyone back to, and do it
 ================
 */
 void G_DoTimeShiftFor( gentity_t *ent ) {
-#ifndef MISSIONPACK
+#ifndef SMOKINGUNS
 	int wpflags[WP_NUM_WEAPONS] = { 0, 0, 2, 4, 0, 0, 8, 16, 0, 0, 0 };
 #else
 	int wpflags[WP_NUM_WEAPONS] = { 0, 0, 2, 4, 0, 0, 8, 16, 0, 0, 0, 32, 0, 64 };
@@ -489,7 +489,6 @@ qboolean G_PredictPlayerSlideMove( gentity_t *ent, float frametime ) {
 	float		into;
 	vec3_t		endVelocity;
 	vec3_t		endClipVelocity;
-	vec3_t		worldUp = { 0.0f, 0.0f, 1.0f };
 
 	numbumps = 4;
 

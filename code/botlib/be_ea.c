@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -30,17 +30,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 *
 *****************************************************************************/
 
-#include "../game/q_shared.h"
+#include "../qcommon/q_shared.h"
 #include "l_memory.h"
 #include "l_script.h"
 #include "l_precomp.h"
 #include "l_struct.h"
-#include "../game/botlib.h"
+#include "botlib.h"
 #include "be_interface.h"
+#include "be_ea.h"
 
 #define MAX_USERMOVE				400
 #define MAX_COMMANDARGUMENTS		10
-#define ACTION_JUMPEDLASTFRAME		128
 
 bot_input_t *botinputs;
 
@@ -416,24 +416,6 @@ void EA_View(int client, vec3_t viewangles)
 //===========================================================================
 void EA_EndRegular(int client, float thinktime)
 {
-/*
-	bot_input_t *bi;
-	int jumped = qfalse;
-
-	bi = &botinputs[client];
-
-	bi->actionflags &= ~ACTION_JUMPEDLASTFRAME;
-
-	bi->thinktime = thinktime;
-	botimport.BotInput(client, bi);
-
-	bi->thinktime = 0;
-	VectorClear(bi->dir);
-	bi->speed = 0;
-	jumped = bi->actionflags & ACTION_JUMP;
-	bi->actionflags = 0;
-	if (jumped) bi->actionflags |= ACTION_JUMPEDLASTFRAME;
-*/
 } //end of the function EA_EndRegular
 //===========================================================================
 //
@@ -444,23 +426,10 @@ void EA_EndRegular(int client, float thinktime)
 void EA_GetInput(int client, float thinktime, bot_input_t *input)
 {
 	bot_input_t *bi;
-//	int jumped = qfalse;
 
 	bi = &botinputs[client];
-
-//	bi->actionflags &= ~ACTION_JUMPEDLASTFRAME;
-
 	bi->thinktime = thinktime;
 	Com_Memcpy(input, bi, sizeof(bot_input_t));
-
-	/*
-	bi->thinktime = 0;
-	VectorClear(bi->dir);
-	bi->speed = 0;
-	jumped = bi->actionflags & ACTION_JUMP;
-	bi->actionflags = 0;
-	if (jumped) bi->actionflags |= ACTION_JUMPEDLASTFRAME;
-	*/
 } //end of the function EA_GetInput
 //===========================================================================
 //
@@ -474,7 +443,6 @@ void EA_ResetInput(int client)
 	int jumped = qfalse;
 
 	bi = &botinputs[client];
-	bi->actionflags &= ~ACTION_JUMPEDLASTFRAME;
 
 	bi->thinktime = 0;
 	VectorClear(bi->dir);

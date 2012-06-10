@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 
 /*****************************************************************************
  * name:		ai_cmd.c
@@ -32,15 +33,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *****************************************************************************/
 
 #include "g_local.h"
-#include "botlib.h"
-#include "be_aas.h"
-#include "be_ea.h"
-#include "be_ai_char.h"
-#include "be_ai_chat.h"
-#include "be_ai_gen.h"
-#include "be_ai_goal.h"
-#include "be_ai_move.h"
-#include "be_ai_weap.h"
+#include "../botlib/botlib.h"
+#include "../botlib/be_aas.h"
+#include "../botlib/be_ea.h"
+#include "../botlib/be_ai_char.h"
+#include "../botlib/be_ai_chat.h"
+#include "../botlib/be_ai_gen.h"
+#include "../botlib/be_ai_goal.h"
+#include "../botlib/be_ai_move.h"
+#include "../botlib/be_ai_weap.h"
 //
 #include "ai_main.h"
 #include "ai_dmq3.h"
@@ -82,23 +83,24 @@ void BotPrintTeamGoal(bot_state_t *bs) {
 			BotAI_Print(PRT_MESSAGE, "%s: I'm gonna accompany a team mate for %1.0f secs\n", netname, t);
 			break;
 		}
+#ifndef SMOKINGUNS
 		case LTG_GETFLAG:
 		{
 			BotAI_Print(PRT_MESSAGE, "%s: I'm gonna get the flag for %1.0f secs\n", netname, t);
 			break;
 		}
+#endif
 		case LTG_RUSHBASE:
 		{
 			BotAI_Print(PRT_MESSAGE, "%s: I'm gonna rush to the base for %1.0f secs\n", netname, t);
 			break;
 		}
+#ifndef SMOKINGUNS
 		case LTG_RETURNFLAG:
 		{
 			BotAI_Print(PRT_MESSAGE, "%s: I'm gonna try to return the flag for %1.0f secs\n", netname, t);
 			break;
 		}
-#if 0
-//#ifdef MISSIONPACK
 		case LTG_ATTACKENEMYBASE:
 		{
 			BotAI_Print(PRT_MESSAGE, "%s: I'm gonna attack the enemy base for %1.0f secs\n", netname, t);
@@ -183,7 +185,6 @@ BotGetMessageTeamGoal
 int BotGetMessageTeamGoal(bot_state_t *bs, char *goalname, bot_goal_t *goal) {
 	bot_waypoint_t *cp;
 
-	// items are found in other regions of the code now
 	if (BotGetItemTeamGoal(goalname, goal)) return qtrue;
 
 	cp = BotFindWayPoint(bs->checkpoints, goalname);
@@ -829,6 +830,7 @@ void BotMatch_Patrol(bot_state_t *bs, bot_match_t *match) {
 BotMatch_GetFlag
 ==================
 */
+#ifndef SMOKINGUNS
 void BotMatch_GetFlag(bot_state_t *bs, bot_match_t *match) {
 	char netname[MAX_MESSAGE_SIZE];
 	int client;
@@ -837,8 +839,7 @@ void BotMatch_GetFlag(bot_state_t *bs, bot_match_t *match) {
 		if (!ctf_redflag.areanum || !ctf_blueflag.areanum)
 			return;
 	}
-#if 0
-//#ifdef MISSIONPACK
+#ifdef MISSIONPACK
 	else if (gametype == GT_1FCTF) {
 		if (!ctf_neutralflag.areanum || !ctf_redflag.areanum || !ctf_blueflag.areanum)
 			return;
@@ -876,12 +877,14 @@ void BotMatch_GetFlag(bot_state_t *bs, bot_match_t *match) {
 	BotPrintTeamGoal(bs);
 #endif //DEBUG
 }
+#endif
 
 /*
 ==================
 BotMatch_AttackEnemyBase
 ==================
 */
+#ifndef SMOKINGUNS
 void BotMatch_AttackEnemyBase(bot_state_t *bs, bot_match_t *match) {
 	char netname[MAX_MESSAGE_SIZE];
 	int client;
@@ -889,8 +892,7 @@ void BotMatch_AttackEnemyBase(bot_state_t *bs, bot_match_t *match) {
 	if (gametype == GT_CTF) {
 		BotMatch_GetFlag(bs, match);
 	}
-#if 0
-//#ifdef MISSIONPACK
+#ifdef MISSIONPACK
 	else if (gametype == GT_1FCTF || gametype == GT_OBELISK || gametype == GT_HARVESTER) {
 		if (!redobelisk.areanum || !blueobelisk.areanum)
 			return;
@@ -924,9 +926,9 @@ void BotMatch_AttackEnemyBase(bot_state_t *bs, bot_match_t *match) {
 	BotPrintTeamGoal(bs);
 #endif //DEBUG
 }
+#endif
 
-#if 0
-//#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 /*
 ==================
 BotMatch_Harvest
@@ -975,6 +977,7 @@ void BotMatch_Harvest(bot_state_t *bs, bot_match_t *match) {
 BotMatch_RushBase
 ==================
 */
+#ifndef SMOKINGUNS
 void BotMatch_RushBase(bot_state_t *bs, bot_match_t *match) {
 	char netname[MAX_MESSAGE_SIZE];
 	int client;
@@ -983,8 +986,7 @@ void BotMatch_RushBase(bot_state_t *bs, bot_match_t *match) {
 		if (!ctf_redflag.areanum || !ctf_blueflag.areanum)
 			return;
 	}
-#if 0
-//#ifdef MISSIONPACK
+#ifdef MISSIONPACK
 	else if (gametype == GT_1FCTF || gametype == GT_HARVESTER) {
 		if (!redobelisk.areanum || !blueobelisk.areanum)
 			return;
@@ -1016,12 +1018,14 @@ void BotMatch_RushBase(bot_state_t *bs, bot_match_t *match) {
 	BotPrintTeamGoal(bs);
 #endif //DEBUG
 }
+#endif
 
 /*
 ==================
 BotMatch_TaskPreference
 ==================
 */
+#ifndef SMOKINGUNS
 void BotMatch_TaskPreference(bot_state_t *bs, bot_match_t *match) {
 	char netname[MAX_NETNAME];
 	char teammatename[MAX_MESSAGE_SIZE];
@@ -1063,12 +1067,14 @@ void BotMatch_TaskPreference(bot_state_t *bs, bot_match_t *match) {
 	BotVoiceChatOnly(bs, teammate, VOICECHAT_YES);
 	trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
 }
+#endif
 
 /*
 ==================
 BotMatch_ReturnFlag
 ==================
 */
+#ifndef SMOKINGUNS
 void BotMatch_ReturnFlag(bot_state_t *bs, bot_match_t *match) {
 	char netname[MAX_MESSAGE_SIZE];
 	int client;
@@ -1076,8 +1082,7 @@ void BotMatch_ReturnFlag(bot_state_t *bs, bot_match_t *match) {
 	//if not in CTF mode
 	if (
 		gametype != GT_CTF
-#if 0
-//#ifdef MISSIONPACK
+#ifdef MISSIONPACK
 		&& gametype != GT_1FCTF
 #endif
 		)
@@ -1106,6 +1111,7 @@ void BotMatch_ReturnFlag(bot_state_t *bs, bot_match_t *match) {
 	BotPrintTeamGoal(bs);
 #endif //DEBUG
 }
+#endif
 
 /*
 ==================
@@ -1316,7 +1322,7 @@ void BotMatch_StartTeamLeaderShip(bot_state_t *bs, bot_match_t *match) {
 		//get the team mate that will be the team leader
 		trap_BotMatchVariable(match, NETNAME, teammate, sizeof(teammate));
 		strncpy(bs->teamleader, teammate, sizeof(bs->teamleader));
-		bs->teamleader[sizeof(bs->teamleader)] = '\0';
+		bs->teamleader[sizeof(bs->teamleader)-1] = '\0';
 	}
 	//chats for someone else
 	else {
@@ -1362,19 +1368,19 @@ void BotMatch_StopTeamLeaderShip(bot_state_t *bs, bot_match_t *match) {
 BotMatch_WhoIsTeamLeader
 ==================
 */
+#ifndef SMOKINGUNS
 void BotMatch_WhoIsTeamLeader(bot_state_t *bs, bot_match_t *match) {
 	char netname[MAX_MESSAGE_SIZE];
-
-	return;
 
 	if (!TeamPlayIsOn()) return;
 
 	ClientName(bs->client, netname, sizeof(netname));
 	//if this bot IS the team leader
-	//if (!Q_stricmp(netname, bs->teamleader)) {
-	//	trap_EA_SayTeam(bs->client, "I'm the team leader\n");
-	//}
+	if (!Q_stricmp(netname, bs->teamleader)) {
+		trap_EA_SayTeam(bs->client, "I'm the team leader\n");
+	}
 }
+#endif
 
 /*
 ==================
@@ -1431,6 +1437,7 @@ void BotMatch_WhatAreYouDoing(bot_state_t *bs, bot_match_t *match) {
 			BotAI_BotInitialChat(bs, "patrolling", NULL);
 			break;
 		}
+#ifndef SMOKINGUNS
 		case LTG_GETFLAG:
 		{
 			BotAI_BotInitialChat(bs, "capturingflag", NULL);
@@ -1446,8 +1453,6 @@ void BotMatch_WhatAreYouDoing(bot_state_t *bs, bot_match_t *match) {
 			BotAI_BotInitialChat(bs, "returningflag", NULL);
 			break;
 		}
-#if 0
-//#ifdef MISSIONPACK
 		case LTG_ATTACKENEMYBASE:
 		{
 			BotAI_BotInitialChat(bs, "attackingenemybase", NULL);
@@ -1523,6 +1528,7 @@ float BotNearestVisibleItem(bot_state_t *bs, char *itemname, bot_goal_t *goal) {
 BotMatch_WhereAreYou
 ==================
 */
+#ifndef SMOKINGUNS
 void BotMatch_WhereAreYou(bot_state_t *bs, bot_match_t *match) {
 	float dist, bestdist;
 	int i, bestitem, redtt, bluett, client;
@@ -1546,8 +1552,7 @@ void BotMatch_WhereAreYou(bot_state_t *bs, bot_match_t *match) {
 		"Heavy Armor",
 		"Red Flag",
 		"Blue Flag",
-#if 0
-//#ifdef MISSIONPACK
+#ifdef MISSIONPACK
 		"Nailgun",
 		"Prox Launcher",
 		"Chaingun",
@@ -1580,8 +1585,7 @@ void BotMatch_WhereAreYou(bot_state_t *bs, bot_match_t *match) {
 	}
 	if (bestitem != -1) {
 		if (gametype == GT_CTF
-#if 0
-//#ifdef MISSIONPACK
+#ifdef MISSIONPACK
 			|| gametype == GT_1FCTF
 #endif
 			) {
@@ -1597,8 +1601,7 @@ void BotMatch_WhereAreYou(bot_state_t *bs, bot_match_t *match) {
 				BotAI_BotInitialChat(bs, "location", nearbyitems[bestitem], NULL);
 			}
 		}
-#if 0
-//#ifdef MISSIONPACK
+#ifdef MISSIONPACK
 		else if (gametype == GT_OBELISK || gametype == GT_HARVESTER) {
 			redtt = trap_AAS_AreaTravelTimeToGoalArea(bs->areanum, bs->origin, redobelisk.areanum, TFL_DEFAULT);
 			bluett = trap_AAS_AreaTravelTimeToGoalArea(bs->areanum, bs->origin, blueobelisk.areanum, TFL_DEFAULT);
@@ -1621,6 +1624,7 @@ void BotMatch_WhereAreYou(bot_state_t *bs, bot_match_t *match) {
 		trap_BotEnterChat(bs->cs, client, CHAT_TELL);
 	}
 }
+#endif
 
 /*
 ==================
@@ -1734,6 +1738,7 @@ void BotMatch_Kill(bot_state_t *bs, bot_match_t *match) {
 BotMatch_CTF
 ==================
 */
+#ifndef SMOKINGUNS
 void BotMatch_CTF(bot_state_t *bs, bot_match_t *match) {
 
 	char flag[128], netname[MAX_NETNAME];
@@ -1770,8 +1775,7 @@ void BotMatch_CTF(bot_state_t *bs, bot_match_t *match) {
 			bs->flagstatuschanged = 1;
 		}
 	}
-#if 0
-//#ifdef MISSIONPACK
+#ifdef MISSIONPACK
 	else if (gametype == GT_1FCTF) {
 		if (match->subtype & ST_1FCTFGOTFLAG) {
 			trap_BotMatchVariable(match, NETNAME, netname, sizeof(netname));
@@ -1780,6 +1784,7 @@ void BotMatch_CTF(bot_state_t *bs, bot_match_t *match) {
 	}
 #endif
 }
+#endif
 
 void BotMatch_EnterGame(bot_state_t *bs, bot_match_t *match) {
 	int client;
@@ -1846,13 +1851,13 @@ int BotMatchMessage(bot_state_t *bs, char *message) {
 			break;
 		}
 		//CTF & 1FCTF
+#ifndef SMOKINGUNS
 		case MSG_GETFLAG:				//ctf get the enemy flag
 		{
 			BotMatch_GetFlag(bs, &match);
 			break;
 		}
-#if 0
-//#ifdef MISSIONPACK
+#ifdef MISSIONPACK
 		//CTF & 1FCTF & Obelisk & Harvester
 		case MSG_ATTACKENEMYBASE:
 		{
@@ -1890,6 +1895,7 @@ int BotMatchMessage(bot_state_t *bs, char *message) {
 			BotMatch_CTF(bs, &match);
 			break;
 		}
+#endif
 		case MSG_GETITEM:
 		{
 			BotMatch_GetItem(bs, &match);
@@ -1951,7 +1957,9 @@ int BotMatchMessage(bot_state_t *bs, char *message) {
 		}
 		case MSG_WHOISTEAMLAEDER:
 		{
+#ifndef SMOKINGUNS
 			BotMatch_WhoIsTeamLeader(bs, &match);
+#endif
 			break;
 		}
 		case MSG_WHATAREYOUDOING:		//ask a bot what he/she is doing
@@ -1966,7 +1974,9 @@ int BotMatchMessage(bot_state_t *bs, char *message) {
 		}
 		case MSG_WHEREAREYOU:
 		{
+#ifndef SMOKINGUNS
 			BotMatch_WhereAreYou(bs, &match);
+#endif
 			break;
 		}
 		case MSG_LEADTHEWAY:

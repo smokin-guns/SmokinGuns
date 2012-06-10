@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 /**********************************************************************
 	UI_ATOMS.C
 
@@ -30,15 +31,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 qboolean		m_entersound;		// after a frame, so caching won't disrupt the sound
 
-// these are here so the functions in q_shared.c can link
-#ifndef UI_HARD_LINKED
-
 void QDECL Com_Error( int level, const char *error, ... ) {
 	va_list		argptr;
 	char		text[1024];
 
 	va_start (argptr, error);
-	vsprintf (text, error, argptr);
+	Q_vsnprintf (text, sizeof(text), error, argptr);
 	va_end (argptr);
 
 	trap_Error( va("%s", text) );
@@ -49,13 +47,11 @@ void QDECL Com_Printf( const char *msg, ... ) {
 	char		text[1024];
 
 	va_start (argptr, msg);
-	vsprintf (text, msg, argptr);
+	Q_vsnprintf (text, sizeof(text), msg, argptr);
 	va_end (argptr);
 
 	trap_Print( va("%s", text) );
 }
-
-#endif
 
 qboolean newUI = qfalse;
 
@@ -83,19 +79,22 @@ void UI_StartDemoLoop( void ) {
 
 
 #ifndef SMOKINGUNS
+#ifndef MISSIONPACK
 static void NeedCDAction( qboolean result ) {
 	if ( !result ) {
 		trap_Cmd_ExecuteText( EXEC_APPEND, "quit\n" );
 	}
 }
+#endif // MISSIONPACK
 
+#ifndef MISSIONPACK
 static void NeedCDKeyAction( qboolean result ) {
 	if ( !result ) {
 		trap_Cmd_ExecuteText( EXEC_APPEND, "quit\n" );
 	}
 }
+#endif // MISSIONPACK
 #endif
-
 
 char *UI_Argv( int arg ) {
 	static char	buffer[MAX_STRING_CHARS];
@@ -117,36 +116,36 @@ char *UI_Cvar_VariableString( const char *var_name ) {
 
 
 void UI_SetBestScores(postGameInfo_t *newInfo, qboolean postGame) {
-	trap_Cvar_Set("ui_scoreAccuracy",     va("%i%%", newInfo->accuracy));
+	trap_Cvar_Set("ui_scoreAccuracy",		va("%i%%", newInfo->accuracy));
 	trap_Cvar_Set("ui_scoreImpressives",	va("%i", newInfo->impressives));
-	trap_Cvar_Set("ui_scoreExcellents", 	va("%i", newInfo->excellents));
-	trap_Cvar_Set("ui_scoreDefends", 			va("%i", newInfo->defends));
-	trap_Cvar_Set("ui_scoreAssists", 			va("%i", newInfo->assists));
-	trap_Cvar_Set("ui_scoreGauntlets", 		va("%i", newInfo->gauntlets));
-	trap_Cvar_Set("ui_scoreScore", 				va("%i", newInfo->score));
-	trap_Cvar_Set("ui_scorePerfect",	 		va("%i", newInfo->perfects));
-	trap_Cvar_Set("ui_scoreTeam",					va("%i to %i", newInfo->redScore, newInfo->blueScore));
-	trap_Cvar_Set("ui_scoreBase",					va("%i", newInfo->baseScore));
+	trap_Cvar_Set("ui_scoreExcellents",		va("%i", newInfo->excellents));
+	trap_Cvar_Set("ui_scoreDefends",		va("%i", newInfo->defends));
+	trap_Cvar_Set("ui_scoreAssists",		va("%i", newInfo->assists));
+	trap_Cvar_Set("ui_scoreGauntlets",		va("%i", newInfo->gauntlets));
+	trap_Cvar_Set("ui_scoreScore",			va("%i", newInfo->score));
+	trap_Cvar_Set("ui_scorePerfect",		va("%i", newInfo->perfects));
+	trap_Cvar_Set("ui_scoreTeam",			va("%i to %i", newInfo->redScore, newInfo->blueScore));
+	trap_Cvar_Set("ui_scoreBase",			va("%i", newInfo->baseScore));
 	trap_Cvar_Set("ui_scoreTimeBonus",		va("%i", newInfo->timeBonus));
 	trap_Cvar_Set("ui_scoreSkillBonus",		va("%i", newInfo->skillBonus));
 	trap_Cvar_Set("ui_scoreShutoutBonus",	va("%i", newInfo->shutoutBonus));
-	trap_Cvar_Set("ui_scoreTime",					va("%02i:%02i", newInfo->time / 60, newInfo->time % 60));
+	trap_Cvar_Set("ui_scoreTime",			va("%02i:%02i", newInfo->time / 60, newInfo->time % 60));
 	trap_Cvar_Set("ui_scoreCaptures",		va("%i", newInfo->captures));
-  if (postGame) {
-		trap_Cvar_Set("ui_scoreAccuracy2",     va("%i%%", newInfo->accuracy));
+	if (postGame) {
+		trap_Cvar_Set("ui_scoreAccuracy2",		va("%i%%", newInfo->accuracy));
 		trap_Cvar_Set("ui_scoreImpressives2",	va("%i", newInfo->impressives));
-		trap_Cvar_Set("ui_scoreExcellents2", 	va("%i", newInfo->excellents));
-		trap_Cvar_Set("ui_scoreDefends2", 			va("%i", newInfo->defends));
-		trap_Cvar_Set("ui_scoreAssists2", 			va("%i", newInfo->assists));
-		trap_Cvar_Set("ui_scoreGauntlets2", 		va("%i", newInfo->gauntlets));
-		trap_Cvar_Set("ui_scoreScore2", 				va("%i", newInfo->score));
-		trap_Cvar_Set("ui_scorePerfect2",	 		va("%i", newInfo->perfects));
-		trap_Cvar_Set("ui_scoreTeam2",					va("%i to %i", newInfo->redScore, newInfo->blueScore));
-		trap_Cvar_Set("ui_scoreBase2",					va("%i", newInfo->baseScore));
+		trap_Cvar_Set("ui_scoreExcellents2",	va("%i", newInfo->excellents));
+		trap_Cvar_Set("ui_scoreDefends2",		va("%i", newInfo->defends));
+		trap_Cvar_Set("ui_scoreAssists2",		va("%i", newInfo->assists));
+		trap_Cvar_Set("ui_scoreGauntlets2",		va("%i", newInfo->gauntlets));
+		trap_Cvar_Set("ui_scoreScore2",			va("%i", newInfo->score));
+		trap_Cvar_Set("ui_scorePerfect2",		va("%i", newInfo->perfects));
+		trap_Cvar_Set("ui_scoreTeam2",			va("%i to %i", newInfo->redScore, newInfo->blueScore));
+		trap_Cvar_Set("ui_scoreBase2",			va("%i", newInfo->baseScore));
 		trap_Cvar_Set("ui_scoreTimeBonus2",		va("%i", newInfo->timeBonus));
-		trap_Cvar_Set("ui_scoreSkillBonus2",		va("%i", newInfo->skillBonus));
+		trap_Cvar_Set("ui_scoreSkillBonus2",	va("%i", newInfo->skillBonus));
 		trap_Cvar_Set("ui_scoreShutoutBonus2",	va("%i", newInfo->shutoutBonus));
-		trap_Cvar_Set("ui_scoreTime2",					va("%02i:%02i", newInfo->time / 60, newInfo->time % 60));
+		trap_Cvar_Set("ui_scoreTime2",			va("%02i:%02i", newInfo->time / 60, newInfo->time % 60));
 		trap_Cvar_Set("ui_scoreCaptures2",		va("%i", newInfo->captures));
 	}
 }
@@ -155,6 +154,14 @@ void UI_LoadBestScores(const char *map, int game) {
 	char		fileName[MAX_QPATH];
 	fileHandle_t f;
 	postGameInfo_t newInfo;
+
+#ifdef SMOKINGUNS
+	// Tequila: Minor fix to not try to load anything when map is not defined here
+	//          In some case that's involves not critical bad file loading tries
+	if (map==NULL)
+		return ;
+#endif
+
 	memset(&newInfo, 0, sizeof(postGameInfo_t));
 	Com_sprintf(fileName, MAX_QPATH, "games/%s_%i.game", map, game);
 	if (trap_FS_FOpenFile(fileName, &f, FS_READ) >= 0) {
@@ -167,7 +174,7 @@ void UI_LoadBestScores(const char *map, int game) {
 	}
 	UI_SetBestScores(&newInfo, qfalse);
 
-	Com_sprintf(fileName, MAX_QPATH, "demos/%s_%d.dm_%d", map, game, (int)trap_Cvar_VariableValue("protocol"));
+	Com_sprintf(fileName, MAX_QPATH, "demos/%s_%d.%s%d", map, game, DEMOEXT, (int)trap_Cvar_VariableValue("protocol"));
 	uiInfo.demoAvailable = qfalse;
 	if (trap_FS_FOpenFile(fileName, &f, FS_READ) >= 0) {
 		uiInfo.demoAvailable = qtrue;
@@ -180,7 +187,7 @@ void UI_LoadBestScores(const char *map, int game) {
 UI_ClearScores
 ===============
 */
-void UI_ClearScores() {
+void UI_ClearScores(void) {
 	char	gameList[4096];
 	char *gameFile;
 	int		i, len, count, size;
@@ -211,23 +218,16 @@ void UI_ClearScores() {
 
 
 
-static void	UI_Cache_f() {
+static void	UI_Cache_f( void ) {
 	Display_CacheAll();
 }
-
-/*
-Serverinfoprocedure
-char		info[MAX_INFO_STRING];
-trap_GetConfigString( CS_SERVERINFO, info, sizeof(info) );
-game = atoi(Info_ValueForKey(info, "g_gametype"));
-*/
 
 /*
 =======================
 UI_CalcPostGameStats
 =======================
 */
-static void UI_CalcPostGameStats() {
+static void UI_CalcPostGameStats( void ) {
 	char		map[MAX_QPATH];
 	char		fileName[MAX_QPATH];
 	char		info[MAX_INFO_STRING];
@@ -292,7 +292,7 @@ static void UI_CalcPostGameStats() {
 	// see if the score is higher for this one
 	newHigh = (newInfo.redScore > newInfo.blueScore && newInfo.score > oldInfo.score);
 
-	if  (newHigh) {
+	if (newHigh) {
 		// if so write out the new one
 		uiInfo.newHighScoreTime = uiInfo.uiDC.realTime + 20000;
 		if (trap_FS_FOpenFile(fileName, &f, FS_WRITE) >= 0) {
@@ -308,7 +308,9 @@ static void UI_CalcPostGameStats() {
 	}
 
 	// put back all the ui overrides
+#ifndef SMOKINGUNS
 	trap_Cvar_Set("capturelimit", UI_Cvar_VariableString("ui_saveCaptureLimit"));
+#endif
 	trap_Cvar_Set("fraglimit", UI_Cvar_VariableString("ui_saveFragLimit"));
 	trap_Cvar_Set("cg_drawTimer", UI_Cvar_VariableString("ui_drawTimer"));
 	trap_Cvar_Set("g_doWarmup", UI_Cvar_VariableString("ui_doWarmup"));
@@ -357,9 +359,13 @@ qboolean UI_ConsoleCommand( int realTime ) {
 		if (trap_Argc() == 4) {
 			char shader1[MAX_QPATH];
 			char shader2[MAX_QPATH];
+			char shader3[MAX_QPATH];
+
 			Q_strncpyz(shader1, UI_Argv(1), sizeof(shader1));
 			Q_strncpyz(shader2, UI_Argv(2), sizeof(shader2));
-			trap_R_RemapShader(shader1, shader2, UI_Argv(3));
+			Q_strncpyz(shader3, UI_Argv(3), sizeof(shader3));
+
+			trap_R_RemapShader(shader1, shader2, shader3);
 			return qtrue;
 		}
 	}
@@ -494,8 +500,8 @@ Coordinates are 640*480 virtual values
 void UI_DrawRect( float x, float y, float width, float height, const float *color ) {
 	trap_R_SetColor( color );
 
-  UI_DrawTopBottom(x, y, width, height);
-  UI_DrawSides(x, y, width, height);
+	UI_DrawTopBottom(x, y, width, height);
+	UI_DrawSides(x, y, width, height);
 
 	trap_R_SetColor( NULL );
 }

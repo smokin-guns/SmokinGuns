@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 
 // g_public.h -- game module information visible to server
 
@@ -55,7 +56,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 typedef struct {
-	entityState_t	s;				// communicated by server to clients
+	entityState_t	unused;			// apparently this field was put here accidentally
+									//  (and is kept only for compatibility, as a struct pad)
 
 	qboolean	linked;				// qfalse if not in any good cluster
 	int			linkcount;
@@ -84,8 +86,8 @@ typedef struct {
 	// when a trace call is made and passEntityNum != ENTITYNUM_NONE,
 	// an ent will be excluded from testing if:
 	// ent->s.number == passEntityNum	(don't interact with self)
-	// ent->s.ownerNum = passEntityNum	(don't interact with your own missiles)
-	// entity[ent->s.ownerNum].ownerNum = passEntityNum	(don't interact with other missiles from owner)
+	// ent->r.ownerNum == passEntityNum	(don't interact with your own missiles)
+	// entity[ent->r.ownerNum].r.ownerNum == passEntityNum	(don't interact with other missiles from owner)
 	int			ownerNum;
 } entityShared_t;
 
@@ -427,21 +429,3 @@ typedef enum {
 
 	BOTAI_START_FRAME				// ( int time );
 } gameExport_t;
-
-// hika comments: this part Spoon added is only for the mod
-#if defined SMOKINGUNS_SO || defined Q3_VM
-typedef struct shaderInfo_s {
-	int			surfaceFlags;
-} shaderInfo_t;
-
-extern	shaderInfo_t shaderInfo[MAX_BRUSHSIDES];
-extern	int	shaderInfoNum;
-
-qboolean CG_ParseTexFile(const char *filename);
-extern	hit_data_t	hit_data;
-
-qboolean G_LoadHitFiles(hit_data_t *hit_data);
-
-#endif
-
-

@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -21,6 +21,7 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 #include "g_local.h"
 
 /*
@@ -42,13 +43,84 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	RESPAWN_AMMO		40
 #define	RESPAWN_HOLDABLE	60
 #define	RESPAWN_MEGAHEALTH	35//120
+#ifndef SMOKINGUNS
+#define	RESPAWN_POWERUP		120
+#else
 #define	RESPAWN_POWERUP		45
+#endif
 
 
 //======================================================================
 
 int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
+#ifndef SMOKINGUNS
+	int			quantity;
+	int			i;
+	gclient_t	*client;
 
+	if ( !other->client->ps.powerups[ent->item->giTag] ) {
+		// round timing to seconds to make multiple powerup timers
+		// count in sync
+		other->client->ps.powerups[ent->item->giTag] =
+			level.time - ( level.time % 1000 );
+	}
+
+	if ( ent->count ) {
+		quantity = ent->count;
+	} else {
+		quantity = ent->item->quantity;
+	}
+
+	other->client->ps.powerups[ent->item->giTag] += quantity * 1000;
+
+	// give any nearby players a "denied" anti-reward
+	for ( i = 0 ; i < level.maxclients ; i++ ) {
+		vec3_t		delta;
+		float		len;
+		vec3_t		forward;
+		trace_t		tr;
+
+		client = &level.clients[i];
+		if ( client == other->client ) {
+			continue;
+		}
+		if ( client->pers.connected == CON_DISCONNECTED ) {
+			continue;
+		}
+		if ( client->ps.stats[STAT_HEALTH] <= 0 ) {
+			continue;
+		}
+
+    // if same team in team game, no sound
+    // cannot use OnSameTeam as it expects to g_entities, not clients
+  	if ( g_gametype.integer >= GT_TEAM && other->client->sess.sessionTeam == client->sess.sessionTeam  ) {
+      continue;
+    }
+
+		// if too far away, no sound
+		VectorSubtract( ent->s.pos.trBase, client->ps.origin, delta );
+		len = VectorNormalize( delta );
+		if ( len > 192 ) {
+			continue;
+		}
+
+		// if not facing, no sound
+		AngleVectors( client->ps.viewangles, forward, NULL, NULL );
+		if ( DotProduct( delta, forward ) < 0.4 ) {
+			continue;
+		}
+
+		// if not line of sight, no sound
+		trap_Trace( &tr, client->ps.origin, NULL, NULL, ent->s.pos.trBase, ENTITYNUM_NONE, CONTENTS_SOLID );
+		if ( tr.fraction != 1.0 ) {
+			continue;
+		}
+
+		// anti-reward
+		client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_DENIEDREWARD;
+	}
+	return RESPAWN_POWERUP;
+#else
 	if(ent->item->giTag == PW_GOLD && g_gametype.integer == GT_BR) {
 		other->client->ps.stats[STAT_MONEY] += 10;
 		other->client->ps.powerups[ent->item->giTag] = 1;
@@ -67,13 +139,14 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 		other->client->ps.powerups[ent->item->giTag] = 1;
 	}
 	
-	if(other->client->ps.stats[STAT_MONEY] > MAX_MONEY)
-			other->client->ps.stats[STAT_MONEY] = MAX_MONEY;
+	if(other->client->ps.stats[STAT_MONEY] > g_maxMoney.integer)
+			other->client->ps.stats[STAT_MONEY] = g_maxMoney.integer;
 
 	if(ent->item->giTag == PW_GOLD && g_gametype.integer == GT_BR)
 		return 0;
 
 	return RESPAWN_POWERUP+rand()%10;
+#endif
 }
 
 //======================================================================
@@ -93,7 +166,7 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 		clientNum = other->client->ps.clientNum;
 		trap_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
 		handicap = atof( Info_ValueForKey( userinfo, "handicap" ) );
-		if( !handicap ) {
+		if( handicap<=0.0f || handicap>100.0f) {
 			handicap = 100.0f;
 		}
 		max = (int)(2 *  handicap);
@@ -110,7 +183,7 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 		clientNum = other->client->ps.clientNum;
 		trap_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
 		handicap = atof( Info_ValueForKey( userinfo, "handicap" ) );
-		if( !handicap ) {
+		if( handicap<=0.0f || handicap>100.0f) {
 			handicap = 100.0f;
 		}
 		other->client->pers.maxHealth = handicap;
@@ -121,7 +194,7 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 		clientNum = other->client->ps.clientNum;
 		trap_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
 		handicap = atof( Info_ValueForKey( userinfo, "handicap" ) );
-		if( !handicap ) {
+		if( handicap<=0.0f || handicap>100.0f) {
 			handicap = 100.0f;
 		}
 		other->client->pers.maxHealth = handicap;
@@ -130,7 +203,7 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 		clientNum = other->client->ps.clientNum;
 		trap_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
 		handicap = atof( Info_ValueForKey( userinfo, "handicap" ) );
-		if( !handicap ) {
+		if( handicap<=0.0f || handicap>100.0f) {
 			handicap = 100.0f;
 		}
 		other->client->pers.maxHealth = handicap;
@@ -140,7 +213,7 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 		clientNum = other->client->ps.clientNum;
 		trap_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
 		handicap = atof( Info_ValueForKey( userinfo, "handicap" ) );
-		if( !handicap ) {
+		if( handicap<=0.0f || handicap>100.0f) {
 			handicap = 100.0f;
 		}
 		other->client->pers.maxHealth = handicap;
@@ -157,9 +230,11 @@ int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
 
 	other->client->ps.stats[STAT_HOLDABLE_ITEM] = ent->item - bg_itemlist;
 
+#ifndef SMOKINGUNS
 	if( ent->item->giTag == HI_KAMIKAZE ) {
 		other->client->ps.eFlags |= EF_KAMIKAZE;
 	}
+#endif
 
 	return RESPAWN_HOLDABLE;
 }
@@ -167,6 +242,15 @@ int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
 
 //======================================================================
 
+#ifndef SMOKINGUNS
+void Add_Ammo (gentity_t *ent, int weapon, int count)
+{
+	ent->client->ps.ammo[weapon] += count;
+	if ( ent->client->ps.ammo[weapon] > 200 ) {
+		ent->client->ps.ammo[weapon] = 200;
+	}
+}
+#else
 void Add_Ammo (gentity_t *ent, int clip, int count)
 {
 	int belt = 1;
@@ -216,6 +300,7 @@ void Add_Ammo (gentity_t *ent, int clip, int count)
 			ent->client->ps.ammo[clip] = bg_weaponlist[WP_REM58].clipAmmo;
 	}
 }
+#endif
 
 int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 {
@@ -242,7 +327,11 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 		quantity = 0; // None for you, sir!
 	} else {
 		if ( ent->count ) {
+#ifndef SMOKINGUNS
+			quantity = ent->count;
+#else
 			quantity = ent->count-1;
+#endif
 		} else {
 			quantity = ent->item->quantity;
 		}
@@ -261,6 +350,20 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 #endif
 	}
 
+#ifndef SMOKINGUNS
+	// add the weapon
+	other->client->ps.stats[STAT_WEAPONS] |= ( 1 << ent->item->giTag );
+
+	Add_Ammo( other, ent->item->giTag, quantity );
+
+	if (ent->item->giTag == WP_GRAPPLING_HOOK)
+		other->client->ps.ammo[ent->item->giTag] = -1; // unlimited ammo
+
+	// team deathmatch has slow weapon respawns
+	if ( g_gametype.integer == GT_TEAM ) {
+		return g_weaponTeamRespawn.integer;
+	}
+#else
 	// if the weapon is the second the player owns(pistol)
 	if(other->client->ps.stats[STAT_WEAPONS] & (1 << ent->item->giTag) &&
 		bg_weaponlist[ent->item->giTag].wp_sort == WPS_PISTOL){
@@ -272,15 +375,6 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 
 		Add_Ammo( other, ent->item->giTag, quantity );
 	}
-
-#ifndef SMOKINGUNS
-	if (ent->item->giTag == WP_GRAPPLING_HOOK)
-		other->client->ps.ammo[ent->item->giTag] = -1; // unlimited ammo
-
-	// team deathmatch has slow weapon respawns
-	if ( g_gametype.integer == GT_TEAM ) {
-		return g_weaponTeamRespawn.integer;
-	}
 #endif
 
 	return g_weaponRespawn.integer;
@@ -289,12 +383,13 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 
 //======================================================================
 
+#ifndef SMOKINGUNS
 int Pickup_Health (gentity_t *ent, gentity_t *other) {
 	int			max;
 	int			quantity;
 
 	// small and mega healths will go over the max
-#ifndef SMOKINGUNS
+#ifdef MISSIONPACK
 	if( other->client && bg_itemlist[other->client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD ) {
 		max = other->client->ps.stats[STAT_MAX_HEALTH];
 	}
@@ -325,11 +420,13 @@ int Pickup_Health (gentity_t *ent, gentity_t *other) {
 
 	return RESPAWN_HEALTH;
 }
+#endif
 
 //======================================================================
 
 int Pickup_Armor( gentity_t *ent, gentity_t *other ) {
 #ifndef SMOKINGUNS
+#ifdef MISSIONPACK
 	int		upperBound;
 
 	other->client->ps.stats[STAT_ARMOR] += ent->item->quantity;
@@ -344,6 +441,12 @@ int Pickup_Armor( gentity_t *ent, gentity_t *other ) {
 	if ( other->client->ps.stats[STAT_ARMOR] > upperBound ) {
 		other->client->ps.stats[STAT_ARMOR] = upperBound;
 	}
+#else
+	other->client->ps.stats[STAT_ARMOR] += ent->item->quantity;
+	if ( other->client->ps.stats[STAT_ARMOR] > other->client->ps.stats[STAT_MAX_HEALTH] * 2 ) {
+		other->client->ps.stats[STAT_ARMOR] = other->client->ps.stats[STAT_MAX_HEALTH] * 2;
+	}
+#endif
 #else
 	if(ent->count){
 		other->client->ps.stats[STAT_ARMOR] += ent->count;
@@ -388,8 +491,10 @@ void RespawnItem( gentity_t *ent ) {
 
 	ent->r.contents = CONTENTS_TRIGGER;
 
+#ifdef SMOKINGUNS
 	if(ent->item->giTag == WP_DYNAMITE && ent->item->giType == IT_WEAPON)
 		ent->r.contents = CONTENTS_TRIGGER2;
+#endif
 
 	ent->s.eFlags &= ~EF_NODRAW;
 	ent->r.svFlags &= ~SVF_NOCLIENT;
@@ -472,9 +577,11 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	case IT_ARMOR:
 		respawn = Pickup_Armor(ent, other);
 		break;
+#ifndef SMOKINGUNS
 	case IT_HEALTH:
 		respawn = Pickup_Health(ent, other);
 		break;
+#endif
 	case IT_POWERUP:
 		respawn = Pickup_Powerup(ent, other);
 		predict = qfalse;
@@ -483,13 +590,13 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	case IT_PERSISTANT_POWERUP:
 		respawn = Pickup_PersistantPowerup(ent, other);
 		break;
-#endif
 	case IT_TEAM:
 		respawn = Pickup_Team(ent, other);
 		break;
 	case IT_HOLDABLE:
 		respawn = Pickup_Holdable(ent, other);
 		break;
+#endif
 	default:
 #ifdef SMOKINGUNS
 		G_LogPrintf( "Item: %i %s\n", other->s.number, ent->item->classname );
@@ -624,7 +731,11 @@ LaunchItem
 Spawns an item and tosses it forward
 ================
 */
+#ifndef SMOKINGUNS
+gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
+#else
 gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int droppedflags ) {
+#endif
 	gentity_t	*dropped;
 
 	dropped = G_Spawn();
@@ -635,13 +746,18 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int droppe
 
 	dropped->classname = item->classname;
 	dropped->item = item;
-	//VectorSet (dropped->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS);
-	//VectorSet (dropped->r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS);
+#ifndef SMOKINGUNS
+	VectorSet (dropped->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS);
+	VectorSet (dropped->r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS);
+#else
 	G_SetItemBox( dropped );
+#endif
 
 	dropped->r.contents = CONTENTS_TRIGGER;
+#ifdef SMOKINGUNS
 	if(dropped->item->giTag == WP_DYNAMITE && dropped->item->giType == IT_WEAPON)
 		dropped->r.contents = CONTENTS_TRIGGER2;
+#endif
 
 	dropped->touch = Touch_Item;
 
@@ -652,18 +768,25 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int droppe
 
 	dropped->s.eFlags |= EF_BOUNCE_HALF;
 #ifndef SMOKINGUNS
-	if ((g_gametype.integer == GT_CTF || g_gametype.integer == GT_1FCTF) && item->giType == IT_TEAM) { // Special case for CTF flags
+#ifdef MISSIONPACK
+	if ((g_gametype.integer == GT_CTF || g_gametype.integer == GT_1FCTF)			&& item->giType == IT_TEAM) { // Special case for CTF flags
 #else
 	if (g_gametype.integer == GT_CTF && item->giType == IT_TEAM) { // Special case for CTF flags
 #endif
 		dropped->think = Team_DroppedFlagThink;
 		dropped->nextthink = level.time + 30000;
 		Team_CheckDroppedItem( dropped );
-	} else if(!(item->giType == IT_POWERUP && item->giTag == PW_GOLD)){ // auto-remove after 30 seconds
+	} else { // auto-remove after 30 seconds
+#else
+	if(!(item->giType == IT_POWERUP && item->giTag == PW_GOLD)){ // auto-remove after 30 seconds
+#endif
 		dropped->think = G_FreeEntity;
 		dropped->nextthink = level.time + 30000;
 	}
 
+#ifndef SMOKINGUNS
+	dropped->flags = FL_DROPPED_ITEM;
+#else
 	VectorCopy(dropped->r.currentAngles, dropped->s.apos.trBase);
 
 	dropped->flags = droppedflags; //FL_DROPPED_ITEM;
@@ -676,6 +799,7 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int droppe
 		SnapVector( dropped->s.pos.trDelta );		// save net bandwidth
 		dropped->physicsBounce= 0.2f;
 	}
+#endif
 
 	trap_LinkEntity (dropped);
 
@@ -684,10 +808,11 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int droppe
 
 /*
 ================
-WQ_dropWeapon
+G_dropWeapon
 ================
 */
-gentity_t *WQ_dropWeapon( gentity_t *ent, gitem_t *item, float angle, int flags ) { // XRAY FMJ
+#ifdef SMOKINGUNS
+gentity_t *G_dropWeapon( gentity_t *ent, gitem_t *item, float angle, int flags ) { // XRAY FMJ
 	vec3_t	velocity;
 	vec3_t	angles, dir;
 
@@ -696,14 +821,13 @@ gentity_t *WQ_dropWeapon( gentity_t *ent, gitem_t *item, float angle, int flags 
 		return NULL;
 
 	// set aiming directions
-	//AngleVectors (ent->client->ps.viewangles, velocity, NULL, NULL);
 	VectorCopy( ent->s.apos.trBase, angles );
 	angles[YAW] += 0;
 	angles[PITCH] = 0;	// always forward
 
 	AngleVectors( angles, velocity, NULL, NULL );
 	VectorScale( velocity, 50, velocity );
-	velocity[2] += 10;// + crandom() * 10;
+	velocity[2] += 10;
 	VectorNormalize( velocity );
 
 	/*modified by Spoon Start*/
@@ -712,14 +836,12 @@ gentity_t *WQ_dropWeapon( gentity_t *ent, gitem_t *item, float angle, int flags 
 	VectorScale(dir,50,dir);
 	VectorAdd(ent->s.pos.trBase, dir, dir);
 
-	//dir[2] += 50;
-
 	// snap to integer coordinates for more efficient network bandwidth usage
 	SnapVector( dir);
 
 	return LaunchItem( item, dir, velocity, flags );
 }
-
+#endif
 
 /*
 ================
@@ -731,19 +853,28 @@ Spawns an item and tosses it forward
 gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle ) {
 	vec3_t	velocity;
 	vec3_t	angles;
+#ifdef SMOKINGUNS
 	int ammo;
 
 	if(item->giType == IT_WEAPON)
 		ammo = ent->client->ps.ammo[item->giTag];
+#endif
 
 	VectorCopy( ent->s.apos.trBase, angles );
 	angles[YAW] += angle;
 	angles[PITCH] = 0;	// always forward
 
 	AngleVectors( angles, velocity, NULL, NULL );
+#ifndef SMOKINGUNS
+	VectorScale( velocity, 150, velocity );
+#else
 	VectorScale( velocity, 100, velocity );
+#endif
 	velocity[2] += 200 + crandom() * 50;
 
+#ifndef SMOKINGUNS
+	return LaunchItem( item, ent->s.pos.trBase, velocity );
+#else
 	// if player has no dynamite in his hands reset the mode to 0, otherwise
 	// the dynamite(unlit) would explode
 	if(ent->client->ps.weapon != WP_DYNAMITE && ent->client->ps.weapon != WP_MOLOTOV)
@@ -756,6 +887,7 @@ gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle ) {
 		return fire_molotov( ent, ent->s.pos.trBase, velocity, 50);
 	} else
 		return LaunchItem( item, ent->s.pos.trBase, velocity, FL_DROPPED_ITEM );
+#endif
 }
 
 
@@ -783,6 +915,11 @@ free fall from their spawn points
 void FinishSpawningItem( gentity_t *ent ) {
 	trace_t		tr;
 	vec3_t		dest;
+
+#ifndef SMOKINGUNS
+	VectorSet( ent->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS );
+	VectorSet( ent->r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS );
+#else
 	vec3_t		mins, maxs;
 
 	VectorSet( mins, -8, -8, -4 );
@@ -790,6 +927,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 
 	//mins and maxs is now set by G_SetItemBox
 	G_SetItemBox( ent );
+#endif
 
 	ent->s.eType = ET_ITEM;
 	ent->s.modelindex = ent->item - bg_itemlist;		// store item number in modelindex
@@ -797,31 +935,42 @@ void FinishSpawningItem( gentity_t *ent ) {
 
 	ent->r.contents = CONTENTS_TRIGGER;
 
+#ifdef SMOKINGUNS
 	if(ent->item->giTag == WP_DYNAMITE && ent->item->giType == IT_WEAPON)
 		ent->r.contents = CONTENTS_TRIGGER2;
+#endif
 
 	ent->touch = Touch_Item;
 	// using an item causes it to respawn
 	ent->use = Use_Item;
-
-	if(ent->flags & FL_BUY_ITEM){
-		//only to be being bought not to sit around
-		G_SetOrigin( ent, ent->s.origin );
-		return;
-	}
 
 #ifndef SMOKINGUNS
 	if ( ent->spawnflags & 1 ) {
 		// suspended
 		G_SetOrigin( ent, ent->s.origin );
 	} else {
+#else
+	if(ent->flags & FL_BUY_ITEM){
+		//only to be being bought not to sit around
+		G_SetOrigin( ent, ent->s.origin );
+		return;
+	}
 #endif
+
 		// drop to floor
 		VectorSet( dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096 );
+#ifndef SMOKINGUNS
+		trap_Trace( &tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID );
+#else
 		trap_Trace_New( &tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID );
+#endif
 
 		if ( tr.startsolid ) {
-
+#ifndef SMOKINGUNS
+			G_Printf ("FinishSpawningItem: %s startsolid at %s\n", ent->classname, vtos(ent->s.origin));
+			G_FreeEntity( ent );
+			return;
+#else
 			if(ent->item->giType == IT_POWERUP && ent->item->giTag == PW_GOLD){
 				trap_Trace_New( &tr, ent->s.origin, mins, maxs, dest, ent->s.number, MASK_SOLID );
 			}
@@ -831,6 +980,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 				G_FreeEntity( ent );
 				return;
 			}
+#endif
 		}
 
 		// allow to ride movers
@@ -838,11 +988,11 @@ void FinishSpawningItem( gentity_t *ent ) {
 
 		G_SetOrigin( ent, tr.endpos );
 
-		VectorCopy(ent->r.currentOrigin, ent->s.pos.trBase);
-		VectorCopy(ent->r.currentAngles, ent->s.apos.trBase);
 #ifndef SMOKINGUNS
 	}
-#endif
+#else
+		VectorCopy(ent->r.currentOrigin, ent->s.pos.trBase);
+		VectorCopy(ent->r.currentAngles, ent->s.apos.trBase);
 
 	if(ent->item->giType == IT_POWERUP && ent->item->giTag == PW_GOLD){
 		if(g_gametype.integer != GT_BR){
@@ -853,6 +1003,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 			ent->s.apos.trBase[YAW] = ent->r.currentAngles[YAW] = rand()%360;
 		}
 	}
+#endif
 
 	// team slaves and targeted items aren't present at start
 	if ( ( ent->flags & FL_TEAMSLAVE ) || ent->targetname ) {
@@ -892,6 +1043,7 @@ void G_CheckTeamItems( void ) {
 	// Set up team stuff
 	Team_InitGame();
 
+#ifndef SMOKINGUNS
 	if( g_gametype.integer == GT_CTF ) {
 		gitem_t	*item;
 
@@ -905,7 +1057,7 @@ void G_CheckTeamItems( void ) {
 			G_Printf( S_COLOR_YELLOW "WARNING: No team_CTF_blueflag in map" );
 		}
 	}
-#ifndef SMOKINGUNS
+#ifdef MISSIONPACK
 	if( g_gametype.integer == GT_1FCTF ) {
 		gitem_t	*item;
 
@@ -963,6 +1115,7 @@ void G_CheckTeamItems( void ) {
 			G_Printf( S_COLOR_YELLOW "WARNING: No team_neutralobelisk in map" );
 		}
 	}
+#endif
 #endif
 }
 
@@ -1081,37 +1234,35 @@ be on an entity that hasn't spawned yet.
 ============
 */
 void G_SpawnItem (gentity_t *ent, gitem_t *item) {
-
 	G_SpawnFloat( "random", "0", &ent->random );
 	G_SpawnFloat( "wait", "0", &ent->wait );
 
-
 	RegisterItem( item );
-
 	if ( G_ItemDisabled(item) )
 		return;
 
 	ent->item = item;
-
 	// some movers spawn on the second frame, so delay item
 	// spawns until the third frame so they can ride trains
 	ent->nextthink = level.time + FRAMETIME * 2;
 	ent->think = FinishSpawningItem;
 
-	ent->physicsBounce = 0.30f;		// items are bouncy
+#ifndef SMOKINGUNS
+	ent->physicsBounce = 0.50;		// items are bouncy
 
 	if ( item->giType == IT_POWERUP ) {
 		G_SoundIndex( "sound/items/poweruprespawn.wav" );
 		G_SpawnFloat( "noglobalsound", "0", &ent->speed);
 	}
 
-
-#ifndef SMOKINGUNS
+#ifdef MISSIONPACK
 	if ( item->giType == IT_PERSISTANT_POWERUP ) {
 		ent->s.generic1 = ent->spawnflags;
 	}
 #endif
-
+#else
+	ent->physicsBounce = 0.30f;		// items are bouncy
+#endif
 }
 
 
@@ -1185,7 +1336,11 @@ void G_RunItem( gentity_t *ent ) {
 	} else {
 		mask = MASK_PLAYERSOLID & ~CONTENTS_BODY;//MASK_SOLID;
 	}
+#ifndef SMOKINGUNS
+	trap_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin,
+#else
 	trap_Trace_New( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin,
+#endif
 		ent->r.ownerNum, mask );
 
 	VectorCopy( tr.endpos, ent->r.currentOrigin );
@@ -1204,7 +1359,9 @@ void G_RunItem( gentity_t *ent ) {
 	}
 
 	// check later if object has been removed in which knife stucks into
+#ifdef SMOKINGUNS
 	VectorCopy(origin, ent->s.origin2);
+#endif
 
 	// if it is in a nodrop volume, remove it
 	contents = trap_PointContents( ent->r.currentOrigin, -1 );

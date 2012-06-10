@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2009 Smokin' Guns
+Copyright (C) 2005-2010 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -21,8 +21,9 @@ along with Smokin' Guns; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 
-/*#ifdef MISSIONPACK
+#ifndef SMOKINGUNS
 
 #define CTF_CAPTURE_BONUS		100		// what you get for capture
 #define CTF_TEAM_BONUS			25		// what your team gets for capture
@@ -37,7 +38,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CTF_RETURN_FLAG_ASSIST_BONUS		10	// awarded for returning a flag that causes a capture to happen almost immediately
 #define CTF_FRAG_CARRIER_ASSIST_BONUS		10	// award for fragging a flag carrier if a capture happens almost immediately
 
-#else*/
+#else
 
 #define CTF_CAPTURE_BONUS		5		// what you get for capture
 #define CTF_TEAM_BONUS			0		// what your team gets for capture
@@ -52,7 +53,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CTF_RETURN_FLAG_ASSIST_BONUS		1	// awarded for returning a flag that causes a capture to happen almost immediately
 #define CTF_FRAG_CARRIER_ASSIST_BONUS		2	// award for fragging a flag carrier if a capture happens almost immediately
 
-//#endif
+#endif
 
 #define CTF_TARGET_PROTECT_RADIUS			1000	// the radius around an object being defended where a target will be worth extra frags
 #define CTF_ATTACKER_PROTECT_RADIUS			1000	// the radius around an object being defended where an attacker will get extra frags when making kills
@@ -74,16 +75,26 @@ const char *OtherTeamName(int team);
 const char *TeamColorString(int team);
 void AddTeamScore(vec3_t origin, int team, int score);
 
+#ifndef SMOKINGUNS
 void Team_DroppedFlagThink(gentity_t *ent);
 void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker);
 void Team_CheckHurtCarrier(gentity_t *targ, gentity_t *attacker);
+#endif
 void Team_InitGame(void);
+#ifndef SMOKINGUNS
 void Team_ReturnFlag(int team);
+#endif
 void Team_FreeEntity(gentity_t *ent);
-gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3_t angles, int mappart );
+#ifndef SMOKINGUNS
+gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3_t angles, qboolean isbot );
+#else
+gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3_t angles, qboolean isbot, int mappart );
+#endif
 gentity_t *Team_GetLocation(gentity_t *ent);
 qboolean Team_GetLocationMsg(gentity_t *ent, char *loc, int loclen);
 void TeamplayInfoMessage( gentity_t *ent );
 void CheckTeamStatus(void);
 
+#ifndef SMOKINGUNS
 int Pickup_Team( gentity_t *ent, gentity_t *other );
+#endif
