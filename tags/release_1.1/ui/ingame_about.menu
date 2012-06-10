@@ -1,0 +1,306 @@
+#include "ui/menudef.h"
+
+{
+\\ INGAME ABOUT BOX \\
+
+menuDef {
+    	name "ingame_about"
+    	visible 0
+    	fullscreen 0
+	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+    	rect 128 0 256 340
+    	focusColor 1 .75 0 1
+    	style 1
+
+itemDef {
+	name window
+	rect 0 0 256 340
+	ownerdraw UI_INGAME_RECT
+	visible 1
+	decoration
+	}
+
+itemDef {
+	name about
+	rect 0 35 256 20
+	name gametypefield
+	type 4
+      	style 0	
+	text "Map Name:"
+	cvar ui_sv_mapname 
+	maxPaintChars 12
+      	textalign ITEM_ALIGN_RIGHT		
+      	textalignx 128
+      	textaligny 12    
+	textscale .25     
+      	forecolor 1 1 1 1
+      	visible 1
+	decoration
+	}
+
+
+
+itemDef {
+	name about
+	rect 0 50 256 20
+	style 0
+	//type 4
+	textalign ITEM_ALIGN_RIGHT	
+	text "GameType:"
+	type ITEM_TYPE_MULTI	
+	cvar ui_sv_gametype	
+      	cvarFloatList { "Deathmatch" 0 "Duel" 1 "Deathmatch" 2 "Team Deathmatch" 3 "Round Teamplay" 4 "Bank Robbery" 5 "Unknown" 6 "Unknown" 7 "Unknown" 8 }		
+      	
+	textalignx 128
+	textaligny 12    
+	textscale .25
+	backcolor 0 0 .75 .25
+	visible 1
+	decoration
+	}
+itemDef {
+	name about
+	rect 0 80 256 20
+	type 4
+      	style 0	
+	text "Score Limit:" 
+	cvarTest ui_sv_gametype
+	hideCvar { "0" ; "1" ; "2" ; "3" }
+	maxPaintChars 12
+	cvar ui_sv_scorelimit 
+      	textalign ITEM_ALIGN_RIGHT		
+      	textalignx 128
+      	textaligny 12    
+	textscale .25     
+      	forecolor 1 1 1 1
+      	visible 1
+	decoration
+	}
+itemDef {
+	name about
+	rect 0 80 256 20
+	type 4
+      	style 0	
+	text "Frag Limit:"
+	cvarTest ui_sv_gametype
+	showCvar { "0" ; "2"; "3"}
+	maxPaintChars 12
+	cvar ui_sv_fraglimit 
+      	textalign ITEM_ALIGN_RIGHT		
+      	textalignx 128
+      	textaligny 12    
+	textscale .25     
+      	forecolor 1 1 1 1
+      	visible 1
+	decoration
+	}
+itemDef {
+	name about
+	rect 0 80 256 20
+	type 4
+      	style 0	
+	text "Duel Limit:"
+	cvarTest ui_sv_gametype
+	showCvar { "1"}
+	maxPaintChars 12
+	cvar ui_sv_duellimit 
+      	textalign ITEM_ALIGN_RIGHT		
+      	textalignx 128
+      	textaligny 12    
+	textscale .25     
+      	forecolor 1 1 1 1
+      	visible 1
+	decoration
+	}
+itemDef {
+	name about
+	rect 0 95 256 20
+	type 4
+      	style 0	
+	text "Time Limit:"
+	maxPaintChars 12
+	cvar ui_sv_timelimit 
+      	textalign ITEM_ALIGN_RIGHT		
+      	textalignx 128
+      	textaligny 12    
+	textscale .25     
+      	forecolor 1 1 1 1
+      	visible 1
+	decoration
+	}
+
+
+itemDef {
+	name about
+	rect 20 110 256 20
+	type 4
+      	style 0	
+	text "1st Team:"
+	maxPaintChars 12
+	cvar ui_sv_redteamname
+      	textalign ITEM_ALIGN_RIGHT		
+      	textalignx 108
+      	textaligny 12    
+	textscale .25     
+      	forecolor 1 1 1 1
+      	visible 1
+	decoration
+	}
+itemDef {
+	name about
+	rect 20 125 256 20
+	type 4
+      	style 0	
+	text "2nd Team:"
+	maxPaintChars 12
+	cvar ui_sv_blueteamname
+      	textalign ITEM_ALIGN_RIGHT		
+      	textalignx 108
+      	textaligny 12    
+	textscale .25     
+      	forecolor 1 1 1 1
+      	visible 1
+	decoration
+	}
+
+itemDef {
+	name about
+	rect 0 150 256 20
+	type 4
+      	style 0	
+	text "Protocol:"
+	cvar ui_sv_protocol 
+	maxPaintChars 12
+      	textalign ITEM_ALIGN_RIGHT		
+      	textalignx 128
+      	textaligny 12    
+	textscale .25     
+      	forecolor 1 1 1 1
+      	visible 1
+	decoration
+	}
+
+itemDef {
+	name about
+	rect 0 165 256 20
+	type 4
+      	style 0	
+	text "Max Clients:"
+	cvar ui_sv_maxclients 
+	maxPaintChars 12
+      	textalign ITEM_ALIGN_RIGHT		
+      	textalignx 128
+      	textaligny 12    
+	textscale .25     
+      	forecolor 1 1 1 1
+      	visible 1
+	decoration
+	}
+
+itemDef {
+	name about
+	rect 0 180 256 20
+	type 4
+      	style 0	
+	text "Host Name:"
+	cvar ui_sv_hostname 
+	maxPaintChars 48
+      	textalign ITEM_ALIGN_RIGHT		
+      	textalignx 128
+      	textaligny 12    
+	textscale .25     
+      	forecolor 1 1 1 1
+      	visible 1
+	decoration
+	}
+
+itemDef {
+	name about
+	rect 10 215 256 20
+	type 11
+      	style 0	
+	text "Password Required:"
+	cvar ui_sv_needpass 
+      	textalign ITEM_ALIGN_RIGHT		
+      	textalignx 128
+      	textaligny 12    
+	textscale .25     
+      	forecolor 1 1 1 1
+      	visible 1
+	decoration
+	}
+
+itemDef {
+	name about
+	rect 10 230 256 20
+	type 11
+      	style 0	
+	text "DM Flags:"
+	cvar ui_sv_dmflags 
+      	textalign ITEM_ALIGN_RIGHT		
+      	textalignx 128
+      	textaligny 12    
+	textscale .25     
+      	forecolor 1 1 1 1
+      	visible 1
+	decoration
+	}
+itemDef {
+	name about
+	rect 10 245 256 20
+	type 4
+      	style 0	
+	text "Bot/Min Players:"
+	cvar ui_sv_bot_minplayers 
+      	textalign ITEM_ALIGN_RIGHT		
+      	textalignx 128
+      	textaligny 12    
+	textscale .25     
+      	forecolor 1 1 1 1
+      	visible 1
+	decoration
+	}
+
+
+itemDef {
+	name about
+	rect 10 275 256 20
+	type 4
+      	style 0	
+	text "Smokin' Guns Version:"
+	cvar ui_sv_wq_version
+      	textalign ITEM_ALIGN_RIGHT		
+      	textalignx 128
+      	textaligny 12
+	textscale .25     
+      	forecolor 1 1 1 1
+      	visible 1
+	decoration
+	}
+
+
+itemDef {
+	name about
+	rect 0 290 256 20
+	type 4
+      	style 0	
+	text "Version:"
+	cvar ui_sv_version 
+	maxPaintChars 64
+      	textalign ITEM_ALIGN_LEFT		
+      	textalignx 128
+      	textaligny 12
+	textalign 1    
+	textscale .25     
+      	forecolor 1 1 1 1
+      	visible 1
+	decoration
+	}
+
+
+
+
+}
+
+
+}

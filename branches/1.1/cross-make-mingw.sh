@@ -1,6 +1,7 @@
 #!/bin/sh
 
-CMD_PREFIX="i686-pc-mingw32 i586-mingw32msvc i686-w64-mingw32 i386-mingw32msvc mingw32";
+#CMD_PREFIX="i686-pc-mingw32 i586-mingw32msvc i686-w64-mingw32 i386-mingw32msvc mingw32";
+CMD_PREFIX="i586-mingw32msvc";
 
 if [ "X$CC" = "X" ]; then
 	for check in $CMD_PREFIX; 
