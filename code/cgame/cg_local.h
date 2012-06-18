@@ -1734,10 +1734,10 @@ extern	vmCvar_t		cg_predictItems;
 extern	vmCvar_t		cg_deferPlayers;
 extern	vmCvar_t		cg_drawFriend;
 #ifndef SMOKINGUNS
-extern  vmCvar_t		cg_scorePlum;
 extern	vmCvar_t		cg_teamChatsOnly;
 extern	vmCvar_t		cg_noVoiceChats;
 extern	vmCvar_t		cg_noVoiceText;
+extern  vmCvar_t		cg_scorePlum;
 //unlagged - smooth clients #2
 // this is done server-side now
 extern	vmCvar_t		cg_smoothClients;
@@ -2218,11 +2218,9 @@ void CG_CloseBuyMenu( void );
 void CG_ExecuteNewServerCommands( int latestSequence );
 void CG_ParseServerinfo( void );
 void CG_SetConfigValues( void );
-#ifndef SMOKINGUNS
-void CG_LoadVoiceChats( void );
-#endif
 void CG_ShaderStateChanged(void);
 #ifndef SMOKINGUNS
+void CG_LoadVoiceChats( void );
 void CG_VoiceChatLocal( int mode, qboolean voiceOnly, int clientNum, int color, const char *cmd );
 void CG_PlayBufferedVoiceChats( void );
 #endif

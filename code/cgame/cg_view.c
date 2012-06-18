@@ -1117,8 +1117,8 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	// add buffered sounds
 	CG_PlayBufferedSounds();
 
-	// play buffered voice chats
 #ifndef SMOKINGUNS
+	// play buffered voice chats
 	CG_PlayBufferedVoiceChats();
 #endif
 

@@ -185,8 +185,10 @@ vmCvar_t	cg_teamOverlayUserinfo;
 vmCvar_t	cg_drawFriend;
 #ifndef SMOKINGUNS
 vmCvar_t	cg_teamChatsOnly;
+#ifdef MISSIONPACK
 vmCvar_t	cg_noVoiceChats;
 vmCvar_t	cg_noVoiceText;
+#endif
 vmCvar_t	cg_hudFiles;
 vmCvar_t	cg_scorePlum;
 vmCvar_t	cg_smoothClients;
@@ -430,8 +432,10 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_drawFriend, "cg_drawFriend", "1", CVAR_ARCHIVE },
 #ifndef SMOKINGUNS
 	{ &cg_teamChatsOnly, "cg_teamChatsOnly", "0", CVAR_ARCHIVE },
+#ifdef MISSIONPACK
 	{ &cg_noVoiceChats, "cg_noVoiceChats", "0", CVAR_ARCHIVE },
 	{ &cg_noVoiceText, "cg_noVoiceText", "0", CVAR_ARCHIVE },
+#endif
 #endif
 	// the following variables are created in other parts of the system,
 	// but we also reference them here

@@ -24,7 +24,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 #include "g_local.h"
 
+#ifdef MISSIONPACK
 #include "../../ui/menudef.h"			// for the voice chats
+#endif
 
 /*
 ==================
@@ -1498,6 +1500,7 @@ static void Cmd_Secret_f( gentity_t *ent ) {
 #endif
 
 
+#ifdef SMOKINGUNS
 static void G_VoiceTo( gentity_t *ent, gentity_t *other, int mode, const char *id, qboolean voiceonly ) {
 	int color;
 	char *cmd;
@@ -1569,6 +1572,7 @@ void G_Voice( gentity_t *ent, gentity_t *target, int mode, const char *id, qbool
 		G_VoiceTo( ent, other, mode, id, voiceonly );
 	}
 }
+#endif
 
 /*
 ==================
@@ -2750,11 +2754,12 @@ void ClientCommand( int clientNum ) {
 		Cmd_Tell_f ( ent );
 		return;
 	}
+#ifdef SMOKINGUNS
 	if (Q_stricmp (cmd, "secret") == 0) {
 		Cmd_Secret_f ( ent );
 		return;
 	}
-#ifndef SMOKINGUNS
+#else
 	if (Q_stricmp (cmd, "vsay") == 0) {
 		Cmd_Voice_f (ent, SAY_ALL, qfalse, qfalse);
 		return;
