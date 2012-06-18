@@ -151,7 +151,7 @@ static void CG_AddTestModel (void) {
 		return;
 	}
 
-	// if testing a gun, set the origin reletive to the view origin
+	// if testing a gun, set the origin relative to the view origin
 	if ( cg.testGun ) {
 		VectorCopy( cg.refdef.vieworg, cg.testModelEntity.origin );
 		VectorCopy( cg.refdef.viewaxis[0], cg.testModelEntity.axis[0] );
