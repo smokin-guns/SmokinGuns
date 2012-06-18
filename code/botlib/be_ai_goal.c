@@ -1019,7 +1019,7 @@ void BotUpdateEntityItems(void)
 	for (li = levelitems; li; li = nextli)
 	{
 		nextli = li->next;
-		//if it is a item that will time out
+		//if it is an item that will time out
 		if (li->timeout)
 		{
 			//timeout the item
