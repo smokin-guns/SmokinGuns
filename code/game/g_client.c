@@ -671,8 +671,8 @@ void BodySink( gentity_t *ent ) {
 	qboolean duel = (g_gametype.integer == GT_DUEL);
 
 	// make sure no body is left at round restart
-	if((g_gametype.integer >= GT_RTP && g_round > ent->angle) ||
-		(g_gametype.integer == GT_DUEL && g_session != ent->angle)){
+	if((g_gametype.integer >= GT_RTP && g_round > ent->round_or_duel) ||
+		(g_gametype.integer == GT_DUEL && g_session != ent->round_or_duel)){
 		ent->physicsObject = qfalse;
 		trap_UnlinkEntity( ent );
 		return;
@@ -871,10 +871,9 @@ void CopyToBodyQue( gentity_t *ent ) {
 	body->takedamage = qfalse;
 
 	if( g_gametype.integer >= GT_RTP)
-		body->angle = g_round;
-
-	if( g_gametype.integer == GT_DUEL)
-		body->angle = g_session;
+		body->round_or_duel = g_round;
+	else if( g_gametype.integer == GT_DUEL)
+		body->round_or_duel = g_session;
 #endif
 
 

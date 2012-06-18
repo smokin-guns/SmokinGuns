@@ -1064,12 +1064,12 @@ static void SV_ExceptDel_f(void)
 
 /*
 ==================
-SV_KickNum_f
+SV_ClientKick_f
 
 Kick a user off of the server  FIXME: move to game
 ==================
 */
-static void SV_KickNum_f( void ) {
+static void SV_ClientKick_f( void ) {
 	client_t	*cl;
 
 	// make sure server is running
@@ -1079,11 +1079,7 @@ static void SV_KickNum_f( void ) {
 	}
 
 	if ( Cmd_Argc() != 2 ) {
-#ifndef SMOKINGUNS
-		Com_Printf ("Usage: kicknum <client number>\n");
-#else
 		Com_Printf ("Usage: clientkick <client number>\n");
-#endif
 		return;
 	}
 
@@ -1805,7 +1801,7 @@ void SV_AddOperatorCommands( void ) {
 		Cmd_AddCommand ("clientstatus", SV_ClientStatus_f);
 	}
 #endif
-	Cmd_AddCommand ("clientkick", SV_KickNum_f);
+	Cmd_AddCommand ("clientkick", SV_ClientKick_f);
 	Cmd_AddCommand ("status", SV_Status_f);
 	Cmd_AddCommand ("serverinfo", SV_Serverinfo_f);
 	Cmd_AddCommand ("systeminfo", SV_Systeminfo_f);

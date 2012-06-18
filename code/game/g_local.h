@@ -234,6 +234,7 @@ struct gentity_s {
 	int			mappart;
 	int			mapparttime;
 	char		*mappartname;
+	int			round_or_duel;
 
 	qboolean	used;
 
