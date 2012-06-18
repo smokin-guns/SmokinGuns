@@ -47,7 +47,7 @@ void *G_Alloc( int size ) {
 	}
 
 	if ( allocPoint + size > POOLSIZE ) {
-		G_Error( "G_Alloc: failed on allocation of %i bytes\n", size );
+		G_Error( "G_Alloc: failed on allocation of %i bytes", size );
 		return NULL;
 	}
 
