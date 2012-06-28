@@ -1,34 +1,33 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
 
-This file is part of Smokin' Guns.
+This file is part of Quake III Arena source code.
 
-Smokin' Guns is free software; you can redistribute it
+Quake III Arena source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Smokin' Guns is distributed in the hope that it will be
+Quake III Arena source code is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Smokin' Guns; if not, write to the Free Software
+along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
 /*****************************************************************************
-* name:		be_aas_cluster.c
-*
-* desc:		area clustering
-*
-* $Archive: /source/stable/code/botlib/be_aas_cluster.c $
-*
-*****************************************************************************/
+ * name:		be_aas_cluster.c
+ *
+ * desc:		area clustering
+ *
+ * $Archive: /MissionPack/code/botlib/be_aas_cluster.c $
+ *
+ *****************************************************************************/
 
 #include "../qcommon/q_shared.h"
 #include "l_memory.h"
@@ -131,7 +130,7 @@ int AAS_UpdatePortal(int areanum, int clusternum)
 	//
 	if (portalnum == aasworld.numportals)
 	{
-		AAS_Error("no portal of area %d", areanum);
+		AAS_Error("no portal of area %d\n", areanum);
 		return qtrue;
 	} //end if
 	//
@@ -158,7 +157,7 @@ int AAS_UpdatePortal(int areanum, int clusternum)
 	} //end else
 	if (aasworld.portalindexsize >= AAS_MAX_PORTALINDEXSIZE)
 	{
-		AAS_Error("AAS_MAX_PORTALINDEXSIZE");
+		AAS_Error("AAS_MAX_PORTALINDEXSIZE\n");
 		return qtrue;
 	} //end if
 	//set the area cluster number to the negative portal number
@@ -185,7 +184,7 @@ int AAS_FloodClusterAreas_r(int areanum, int clusternum)
 	//
 	if (areanum <= 0 || areanum >= aasworld.numareas)
 	{
-		AAS_Error("AAS_FloodClusterAreas_r: areanum out of range");
+		AAS_Error("AAS_FloodClusterAreas_r: areanum out of range\n");
 		return qfalse;
 	} //end if
 	//if the area is already part of a cluster
@@ -195,7 +194,7 @@ int AAS_FloodClusterAreas_r(int areanum, int clusternum)
 		//
 		//there's a reachability going from one cluster to another only in one direction
 		//
-		AAS_Error("cluster %d touched cluster %d at area %d\r\n",
+		AAS_Error("cluster %d touched cluster %d at area %d\n",
 				clusternum, aasworld.areasettings[areanum].cluster, areanum);
 		return qfalse;
 	} //end if
@@ -411,7 +410,7 @@ int AAS_FindClusters(void)
 			continue;
 		if (aasworld.numclusters >= AAS_MAX_CLUSTERS)
 		{
-			AAS_Error("AAS_MAX_CLUSTERS");
+			AAS_Error("AAS_MAX_CLUSTERS\n");
 			return qfalse;
 		} //end if
 		cluster = &aasworld.clusters[aasworld.numclusters];
@@ -450,7 +449,7 @@ void AAS_CreatePortals(void)
 		{
 			if (aasworld.numportals >= AAS_MAX_PORTALS)
 			{
-				AAS_Error("AAS_MAX_PORTALS");
+				AAS_Error("AAS_MAX_PORTALS\n");
 				return;
 			} //end if
 			portal = &aasworld.portals[aasworld.numportals];
@@ -497,7 +496,7 @@ int AAS_NonConvexFaces(aas_face_t *face1, aas_face_t *face2, int side1, int side
 	int i, j, edgenum;
 	aas_plane_t *plane1, *plane2;
 	aas_edge_t *edge;
-
+	
 
 	plane1 = &aasworld.planes[face1->planenum ^ side1];
 	plane2 = &aasworld.planes[face2->planenum ^ side2];
@@ -777,7 +776,7 @@ int AAS_GetAdjacentAreasWithLessPresenceTypes_r(int *areanums, int numareas, int
 			{
 				if (numareas >= MAX_PORTALAREAS)
 				{
-					AAS_Error("MAX_PORTALAREAS");
+					AAS_Error("MAX_PORTALAREAS\n");
 					return numareas;
 				} //end if
 				numareas = AAS_GetAdjacentAreasWithLessPresenceTypes_r(areanums, numareas, otherareanum);
@@ -812,7 +811,7 @@ int AAS_CheckAreaForPossiblePortals(int areanum)
 	//
 	Com_Memset(numareafrontfaces, 0, sizeof(numareafrontfaces));
 	Com_Memset(numareabackfaces, 0, sizeof(numareabackfaces));
-	numareas = numfrontfaces = numbackfaces = 0;
+	numfrontfaces = numbackfaces = 0;
 	numfrontareas = numbackareas = 0;
 	frontplanenum = backplanenum = -1;
 	//add any adjacent areas with less presence types
