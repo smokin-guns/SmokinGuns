@@ -1,34 +1,33 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
 
-This file is part of Smokin' Guns.
+This file is part of Quake III Arena source code.
 
-Smokin' Guns is free software; you can redistribute it
+Quake III Arena source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Smokin' Guns is distributed in the hope that it will be
+Quake III Arena source code is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Smokin' Guns; if not, write to the Free Software
+along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
 /*****************************************************************************
-* name:		be_aas_bspq3.c
-*
-* desc:		BSP, Environment Sampling
-*
-* $Archive: /source/stable/code/botlib/be_aas_bspq3.c $
-*
-*****************************************************************************/
+ * name:		be_aas_bspq3.c
+ *
+ * desc:		BSP, Environment Sampling
+ *
+ * $Archive: /MissionPack/code/botlib/be_aas_bspq3.c $
+ *
+ *****************************************************************************/
 
 #include "../qcommon/q_shared.h"
 #include "l_memory.h"
@@ -324,7 +323,7 @@ int AAS_VectorForBSPEpairKey(int ent, char *key, vec3_t v)
 int AAS_FloatForBSPEpairKey(int ent, char *key, float *value)
 {
 	char buf[MAX_EPAIRKEY];
-
+	
 	*value = 0;
 	if (!AAS_ValueForBSPEpairKey(ent, key, buf, MAX_EPAIRKEY)) return qfalse;
 	*value = atof(buf);
@@ -339,7 +338,7 @@ int AAS_FloatForBSPEpairKey(int ent, char *key, float *value)
 int AAS_IntForBSPEpairKey(int ent, char *key, int *value)
 {
 	char buf[MAX_EPAIRKEY];
-
+	
 	*value = 0;
 	if (!AAS_ValueForBSPEpairKey(ent, key, buf, MAX_EPAIRKEY)) return qfalse;
 	*value = atoi(buf);
@@ -393,7 +392,7 @@ void AAS_ParseBSPEntities(void)
 	{
 		if (strcmp(token.string, "{"))
 		{
-			ScriptError(script, "invalid %s\n", token.string);
+			ScriptError(script, "invalid %s", token.string);
 			AAS_FreeBSPEntities();
 			FreeScript(script);
 			return;
@@ -414,7 +413,7 @@ void AAS_ParseBSPEntities(void)
 			ent->epairs = epair;
 			if (token.type != TT_STRING)
 			{
-				ScriptError(script, "invalid %s\n", token.string);
+				ScriptError(script, "invalid %s", token.string);
 				AAS_FreeBSPEntities();
 				FreeScript(script);
 				return;
@@ -434,7 +433,7 @@ void AAS_ParseBSPEntities(void)
 		} //end while
 		if (strcmp(token.string, "}"))
 		{
-			ScriptError(script, "missing }\n");
+			ScriptError(script, "missing }");
 			AAS_FreeBSPEntities();
 			FreeScript(script);
 			return;
@@ -470,7 +469,7 @@ void AAS_DumpBSPData(void)
 	Com_Memset( &bspworld, 0, sizeof(bspworld) );
 } //end of the function AAS_DumpBSPData
 //===========================================================================
-// load an bsp file
+// load a .bsp file
 //
 // Parameter:				-
 // Returns:					-

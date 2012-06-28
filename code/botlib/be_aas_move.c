@@ -1,34 +1,33 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
 
-This file is part of Smokin' Guns.
+This file is part of Quake III Arena source code.
 
-Smokin' Guns is free software; you can redistribute it
+Quake III Arena source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Smokin' Guns is distributed in the hope that it will be
+Quake III Arena source code is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Smokin' Guns; if not, write to the Free Software
+along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
 /*****************************************************************************
-* name:		be_aas_move.c
-*
-* desc:		AAS
-*
-* $Archive: /source/stable/code/botlib/be_aas_move.c $
-*
-*****************************************************************************/
+ * name:		be_aas_move.c
+ *
+ * desc:		AAS
+ *
+ * $Archive: /MissionPack/code/botlib/be_aas_move.c $
+ *
+ *****************************************************************************/
 
 #include "../qcommon/q_shared.h"
 #include "l_memory.h"
@@ -377,23 +376,11 @@ void AAS_Accelerate(vec3_t velocity, float frametime, vec3_t wishdir, float wish
 	if (accelspeed > addspeed) {
 		accelspeed = addspeed;
 	}
-
+	
 	for (i=0 ; i<3 ; i++) {
-		velocity[i] += accelspeed*wishdir[i];
+		velocity[i] += accelspeed*wishdir[i];	
 	}
 } //end of the function AAS_Accelerate
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
-void AAS_AirControl(vec3_t start, vec3_t end, vec3_t velocity, vec3_t cmdmove)
-{
-	vec3_t dir;
-
-	VectorSubtract(end, start, dir);
-} //end of the function AAS_AirControl
 //===========================================================================
 // applies ground friction to the given velocity
 //
@@ -519,7 +506,8 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 	float phys_maxstep, phys_maxsteepness, phys_jumpvel, friction;
 	float gravity, delta, maxvel, wishspeed, accelerate;
 	//float velchange, newvel;
-	int n, i, j, pc, step, swimming, ax, crouch, event, jump_frame, areanum;
+	//int ax;
+	int n, i, j, pc, step, swimming, crouch, event, jump_frame, areanum;
 	int areas[20], numareas;
 	vec3_t points[20];
 	vec3_t org, end, feet, start, stepend, lastorg, wishdir;
@@ -527,7 +515,7 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 	vec3_t up = {0, 0, 1};
 	aas_plane_t *plane, *plane2;
 	aas_trace_t trace, steptrace;
-
+	
 	if (frametime <= 0) frametime = 0.1f;
 	//
 	phys_friction = aassettings.phys_friction;
@@ -575,7 +563,7 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 		//apply command movement
 		if (n < cmdframes)
 		{
-			ax = 0;
+			//ax = 0;
 			maxvel = phys_maxwalkvelocity;
 			accelerate = phys_airaccelerate;
 			VectorCopy(cmdmove, wishdir);
@@ -599,13 +587,13 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 				{
 					accelerate = phys_walkaccelerate;
 				} //end else
-				ax = 2;
+				//ax = 2;
 			} //end if
 			if (swimming)
 			{
 				maxvel = phys_maxswimvelocity;
 				accelerate = phys_swimaccelerate;
-				ax = 3;
+				//ax = 3;
 			} //end if
 			else
 			{
@@ -818,13 +806,13 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s *move,
 				if (!step)
 				{
 					//velocity left to test for this frame is the projection
-					//of the current test velocity into the hit plane
+					//of the current test velocity into the hit plane 
 					VectorMA(left_test_vel, -DotProduct(left_test_vel, plane->normal),
 										plane->normal, left_test_vel);
 					//store the old velocity for landing check
 					VectorCopy(frame_test_vel, old_frame_test_vel);
 					//test velocity for the next frame is the projection
-					//of the velocity of the current frame into the hit plane
+					//of the velocity of the current frame into the hit plane 
 					VectorMA(frame_test_vel, -DotProduct(frame_test_vel, plane->normal),
 										plane->normal, frame_test_vel);
 					//check for a landing on an almost horizontal floor
