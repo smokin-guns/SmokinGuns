@@ -1,34 +1,33 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
 
-This file is part of Smokin' Guns.
+This file is part of Quake III Arena source code.
 
-Smokin' Guns is free software; you can redistribute it
+Quake III Arena source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Smokin' Guns is distributed in the hope that it will be
+Quake III Arena source code is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Smokin' Guns; if not, write to the Free Software
+along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
 /*****************************************************************************
-* name:		be_aas_main.c
-*
-* desc:		AAS
-*
-* $Archive: /source/stable/code/botlib/be_aas_main.c $
-*
-*****************************************************************************/
+ * name:		be_aas_main.c
+ *
+ * desc:		AAS
+ *
+ * $Archive: /MissionPack/code/botlib/be_aas_main.c $
+ *
+ *****************************************************************************/
 
 #include "../qcommon/q_shared.h"
 #include "l_memory.h"
@@ -424,7 +423,7 @@ void AAS_Shutdown(void)
 	//aas has not been initialized
 	aasworld.initialized = qfalse;
 	//NOTE: as soon as a new .bsp file is loaded the .bsp file memory is
-	// freed an reallocated, so there's no need to free that memory here
+	// freed and reallocated, so there's no need to free that memory here
 	//print shutdown
 	botimport.Print(PRT_MESSAGE, "AAS shutdown.\n");
 } //end of the function AAS_Shutdown

@@ -1,34 +1,33 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
 
-This file is part of Smokin' Guns.
+This file is part of Quake III Arena source code.
 
-Smokin' Guns is free software; you can redistribute it
+Quake III Arena source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Smokin' Guns is distributed in the hope that it will be
+Quake III Arena source code is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Smokin' Guns; if not, write to the Free Software
+along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
 /*****************************************************************************
-* name:		be_ai_char.c
-*
-* desc:		bot characters
-*
-* $Archive: /source/stable/code/botlib/be_ai_char.c $
-*
-*****************************************************************************/
+ * name:		be_ai_char.c
+ *
+ * desc:		bot characters
+ *
+ * $Archive: /MissionPack/code/botlib/be_ai_char.c $
+ *
+ *****************************************************************************/
 
 #include "../qcommon/q_shared.h"
 #include "l_log.h"
@@ -257,7 +256,7 @@ bot_character_t *BotLoadCharacterFromFile(char *charfile, int skill)
 					if (!strcmp(token.string, "}")) break;
 					if (token.type != TT_NUMBER || !(token.subtype & TT_INTEGER))
 					{
-						SourceError(source, "expected integer index, found %s\n", token.string);
+						SourceError(source, "expected integer index, found %s", token.string);
 						FreeSource(source);
 						BotFreeCharacterStrings(ch);
 						FreeMemory(ch);
@@ -266,7 +265,7 @@ bot_character_t *BotLoadCharacterFromFile(char *charfile, int skill)
 					index = token.intvalue;
 					if (index < 0 || index > MAX_CHARACTERISTICS)
 					{
-						SourceError(source, "characteristic index out of range [0, %d]\n", MAX_CHARACTERISTICS);
+						SourceError(source, "characteristic index out of range [0, %d]", MAX_CHARACTERISTICS);
 						FreeSource(source);
 						BotFreeCharacterStrings(ch);
 						FreeMemory(ch);
@@ -274,7 +273,7 @@ bot_character_t *BotLoadCharacterFromFile(char *charfile, int skill)
 					} //end if
 					if (ch->c[index].type)
 					{
-						SourceError(source, "characteristic %d already initialized\n", index);
+						SourceError(source, "characteristic %d already initialized", index);
 						FreeSource(source);
 						BotFreeCharacterStrings(ch);
 						FreeMemory(ch);
@@ -309,7 +308,7 @@ bot_character_t *BotLoadCharacterFromFile(char *charfile, int skill)
 					} //end else if
 					else
 					{
-						SourceError(source, "expected integer, float or string, found %s\n", token.string);
+						SourceError(source, "expected integer, float or string, found %s", token.string);
 						FreeSource(source);
 						BotFreeCharacterStrings(ch);
 						FreeMemory(ch);
@@ -337,7 +336,7 @@ bot_character_t *BotLoadCharacterFromFile(char *charfile, int skill)
 		} //end if
 		else
 		{
-			SourceError(source, "unknown definition %s\n", token.string);
+			SourceError(source, "unknown definition %s", token.string);
 			FreeSource(source);
 			BotFreeCharacterStrings(ch);
 			FreeMemory(ch);
@@ -714,7 +713,7 @@ int Characteristic_Integer(int character, int index)
 	} //end else if
 	else
 	{
-		botimport.Print(PRT_ERROR, "characteristic %d is not a integer\n", index);
+		botimport.Print(PRT_ERROR, "characteristic %d is not an integer\n", index);
 		return 0;
 	} //end else if
 //	return 0;
