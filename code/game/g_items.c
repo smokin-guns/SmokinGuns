@@ -553,6 +553,10 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	if (other->health < 1)
 		return;		// dead people can't pickup
 
+	if ( IsItemAvailable(ent->item->giTag, ent->item->giType) == qfalse ) {// patch buy item
+		return;
+	}
+
 	// the same pickup rules are used for client side and server side
 	if ( !BG_CanItemBeGrabbed( g_gametype.integer, &ent->s, &other->client->ps ) ) {
 		return;
@@ -599,7 +603,9 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 #endif
 	default:
 #ifdef SMOKINGUNS
+	if ((g_donotlog.integer & 2) == 0) {// patch do not log
 		G_LogPrintf( "Item: %i %s\n", other->s.number, ent->item->classname );
+	}
 #endif
 		return;
 	}
@@ -611,7 +617,9 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 
 	if ( !respawn) {
 #ifdef SMOKINGUNS
+	if ((g_donotlog.integer & 2) == 0) {
 		G_LogPrintf( "Item: %i %s\n", other->s.number, ent->item->classname );
+	}
 #endif
 		return;
 	}
@@ -665,7 +673,9 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		ent->r.contents = 0;
 		ent->unlinkAfterEvent = qtrue;
 #ifdef SMOKINGUNS
+	if ((g_donotlog.integer & 2) == 0) {
 		G_LogPrintf( "Item: %i %s\n", other->s.number, ent->item->classname );
+	}
 #endif
 		return;
 	}
@@ -708,6 +718,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	}
 #ifdef SMOKINGUNS
 	// Tequila comment: Check and report the buy case
+	if ((g_donotlog.integer & 2) == 0) {// patch do not log
 	if (ent->flags & FL_BUY_ITEM)
 		G_LogPrintf( "Item: %i %s bought ($%i/$%i)\n", other->s.number,
 			ent->item->classname, ent->item->prize, other->client->ps.stats[STAT_MONEY] );
@@ -717,6 +728,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	else
 		G_LogPrintf( "Item: %i %s (%i) picked up\n", other->s.number,
 			ent->item->classname, ent->count );
+	}
 #endif
 	trap_LinkEntity( ent );
 }
@@ -1234,11 +1246,23 @@ be on an entity that hasn't spawned yet.
 ============
 */
 void G_SpawnItem (gentity_t *ent, gitem_t *item) {
+	//--------- begin (nobots/nohumans item pickup fix)// patch special: restrict spawned items
+	int		i=0;
+	G_SpawnInt( "nobots", "0", &i);
+	if ( i ) {
+		ent->flags |= FL_NO_BOTS;
+	}
+	G_SpawnInt( "nohumans", "0", &i );
+	if ( i ) {
+		ent->flags |= FL_NO_HUMANS;
+	}
+	//--------- end (nobots/nohumans item pickup fix)
+
 	G_SpawnFloat( "random", "0", &ent->random );
 	G_SpawnFloat( "wait", "0", &ent->wait );
 
 	RegisterItem( item );
-	if ( G_ItemDisabled(item) )
+	if ( G_ItemDisabled(item) || IsItemAvailable(item->giTag, item->giType) == qfalse )
 		return;
 
 	ent->item = item;

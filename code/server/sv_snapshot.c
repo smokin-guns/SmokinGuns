@@ -58,6 +58,10 @@ static void SV_EmitPacketEntities( clientSnapshot_t *from, clientSnapshot_t *to,
 	int		oldindex, newindex;
 	int		oldnum, newnum;
 	int		from_num_entities;
+	int		clientid;
+
+
+	clientid = from->ps.clientNum;
 
 	// generate the delta update
 	if ( !from ) {
@@ -120,9 +124,9 @@ static void SV_EmitPacketEntities( clientSnapshot_t *from, clientSnapshot_t *to,
 SV_WriteSnapshotToClient
 ==================
 */
-static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
+static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg, msg_t *msg_demo ) {
 	clientSnapshot_t	*frame, *oldframe;
-	int					lastframe;
+	int					lastframe, lastdemoframe;
 	int					i;
 	int					snapFlags;
 
@@ -153,7 +157,17 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 		}
 	}
 
+	lastdemoframe = 1;// default assumption: we delta from the previous frame
+	if (client->demorecording && client->demowaiting) {
+		lastdemoframe = 0;
+		lastframe = 0;
+		client->olddemoframe = NULL;
+		oldframe = NULL;
+		client->demowaiting = qfalse;
+	}
+
 	MSG_WriteByte (msg, svc_snapshot);
+	MSG_WriteByte (msg_demo, svc_snapshot);
 
 	// NOTE, MRE: now sent at the start of every message from server to client
 	// let the client know which reliable clientCommands we have received
@@ -169,12 +183,15 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 		// incorrect, but since it'll be busy loading a map at
 		// the time it doesn't really matter.
 		MSG_WriteLong (msg, sv.time + client->oldServerTime);
+		MSG_WriteLong (msg_demo, sv.time);
 	} else {
 		MSG_WriteLong (msg, sv.time);
+		MSG_WriteLong (msg_demo, sv.time);
 	}
 
 	// what we are delta'ing from
 	MSG_WriteByte (msg, lastframe);
+	MSG_WriteByte (msg_demo, lastdemoframe);
 
 	snapFlags = svs.snapFlagServerBit;
 	if ( client->rateDelayed ) {
@@ -185,10 +202,13 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 	}
 
 	MSG_WriteByte (msg, snapFlags);
+	MSG_WriteByte (msg_demo, snapFlags);
 
 	// send over the areabits
 	MSG_WriteByte (msg, frame->areabytes);
+	MSG_WriteByte (msg_demo, frame->areabytes);
 	MSG_WriteData (msg, frame->areabits, frame->areabytes);
+	MSG_WriteData (msg_demo, frame->areabits, frame->areabytes);
 
 	// delta encode the playerstate
 	if ( oldframe ) {
@@ -196,16 +216,26 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 	} else {
 		MSG_WriteDeltaPlayerstate( msg, NULL, &frame->ps );
 	}
+	// delta encode the playerstate (for the demo)
+	if ( client->olddemoframe ) {
+		MSG_WriteDeltaPlayerstate( msg_demo, &client->olddemoframe->ps, &frame->ps );
+	} else {
+		MSG_WriteDeltaPlayerstate( msg_demo, NULL, &frame->ps );
+	}
+
 
 	// delta encode the entities
 	SV_EmitPacketEntities (oldframe, frame, msg);
+	SV_EmitPacketEntities (client->olddemoframe, frame, msg_demo);
 
 	// padding for rate debugging
 	if ( sv_padPackets->integer ) {
 		for ( i = 0 ; i < sv_padPackets->integer ; i++ ) {
 			MSG_WriteByte (msg, svc_nop);
+			MSG_WriteByte (msg_demo, svc_nop);
 		}
 	}
+	client->olddemoframe = frame;
 }
 
 
@@ -216,14 +246,23 @@ SV_UpdateServerCommandsToClient
 (re)send all server commands the client hasn't acknowledged yet
 ==================
 */
-void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg ) {
+void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg, msg_t *msg_demo ) {
 	int		i;
-
+	char *message;
 	// write any unacknowledged serverCommands
 	for ( i = client->reliableAcknowledge + 1 ; i <= client->reliableSequence ; i++ ) {
 		MSG_WriteByte( msg, svc_serverCommand );
+		MSG_WriteByte( msg_demo, svc_serverCommand );
 		MSG_WriteLong( msg, i );
-		MSG_WriteString( msg, client->reliableCommands[ i & (MAX_RELIABLE_COMMANDS-1) ] );
+		MSG_WriteLong( msg_demo, i );
+		message = client->reliableCommands[ i & (MAX_RELIABLE_COMMANDS-1) ];
+		MSG_WriteString( msg,      message );
+
+		if (!strncmp( message, "chat", 4) || !strncmp( message, "print", 5)) {
+			MSG_WriteString( msg_demo, "print \"\"" );
+		} else {
+			MSG_WriteString( msg_demo, client->reliableCommands[ i & (MAX_RELIABLE_COMMANDS-1) ] );
+		}
 	}
 	client->reliableSent = client->reliableSequence;
 }
@@ -286,6 +325,17 @@ static void SV_AddEntToSnapshot( svEntity_t *svEnt, sharedEntity_t *gEnt, snapsh
 	eNums->numSnapshotEntities++;
 }
 
+
+static qboolean recentlySeen(client_t *viewer_cl,int ent_clnum) {// patch anti-wallhack
+	if (viewer_cl->tracetimer[ent_clnum] > sv.time+210+10) { // if the sv.time has been reset
+		viewer_cl->tracetimer[ent_clnum] = sv.time; // reset the tracetimer
+	} else if (viewer_cl->tracetimer[ent_clnum] > (sv.time+210-10)) { // if we have recently seen this entity, we are lazy and assume it is still visible
+		return qtrue;
+	}
+	return qfalse;
+}
+
+#define offsetrandom2(MIN,MAX) (((float)(rand() + 0.5f) / ((float)RAND_MAX + 1.0f)) * ((MAX)-(MIN)) + (MIN))
 /*
 ===============
 SV_AddEntitiesVisibleFromPoint
@@ -301,6 +351,8 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 	int		leafnum;
 	byte	*clientpvs;
 	byte	*bitvector;
+	client_t	*cl;
+	vec3_t diff;
 
 	// during an error shutdown message we may need to transmit
 	// the shutdown message after the server has shutdown, so
@@ -364,11 +416,14 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		}
 
 		// broadcast entities are always sent
-		if ( ent->r.svFlags & SVF_BROADCAST ) {
+		cl = svs.clients+frame->ps.clientNum;
+//		if ( ent->r.svFlags & SVF_BROADCAST ) {
+		if ( ent->r.svFlags & SVF_BROADCAST && (ent->s.eType != ET_PLAYER || sv_antiwallhack->integer == 0 || recentlySeen(cl,ent->s.clientNum))) {// broadcast only non-players. Warning: in case sv_antiwallhack equals 1, bots will be disappearing on dm_train when touching doors, unless you compensate with "recentlySeen".
 			SV_AddEntToSnapshot( svEnt, ent, eNums );
 			continue;
 		}
 
+		//if (!(ent->r.svFlags & SVF_BOT)) {// if this entity is not a bot ... (compensation for the broadcast restriction to non-players)
 		// ignore if not touching a PV leaf
 		// check area
 		if ( !CM_AreasConnected( clientarea, svEnt->areanum ) ) {
@@ -410,8 +465,16 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 			}
 		}
 
+		if (sv_antiwallhack->integer == 1 && (cl->netchan.remoteAddress.type != NA_BOT) && ent->s.eType == ET_PLAYER) {
+			if (!SV_IsPlayerVisibleFromPoint(origin,frame,ent,diff)) {
+				continue;
+
+			}
+		}
+
 		// add it
 		SV_AddEntToSnapshot( svEnt, ent, eNums );
+		// reset ps.pm_type?
 
 		// if it's a portal entity, add everything visible from its camera position
 		if ( ent->r.svFlags & SVF_PORTAL ) {
@@ -624,6 +687,10 @@ Also called by SV_FinalMessage
 void SV_SendClientSnapshot( client_t *client ) {
 	byte		msg_buf[MAX_MSGLEN];
 	msg_t		msg;
+	byte		msg_buf_demo[MAX_MSGLEN];// patch demo
+	msg_t		msg_demo;
+	int         headerBytes;
+	playerState_t	*ps;
 
 	// build the snapshot
 	SV_BuildClientSnapshot( client );
@@ -635,18 +702,31 @@ void SV_SendClientSnapshot( client_t *client ) {
 	}
 
 	MSG_Init (&msg, msg_buf, sizeof(msg_buf));
+	MSG_Init (&msg_demo, msg_buf_demo, sizeof(msg_buf_demo));// patch demo
 	msg.allowoverflow = qtrue;
+	msg_demo.allowoverflow = qtrue;
+
+	headerBytes = msg.cursize;//&msg.readcount;
 
 	// NOTE, MRE: all server->client messages now acknowledge
 	// let the client know which reliable clientCommands we have received
 	MSG_WriteLong( &msg, client->lastClientCommand );
+	MSG_WriteLong( &msg_demo, client->lastClientCommand );
 
 	// (re)send any reliable server commands
-	SV_UpdateServerCommandsToClient( client, &msg );
+	SV_UpdateServerCommandsToClient( client, &msg, &msg_demo);
 
 	// send over all the relevant entityState_t
 	// and the playerState_t
-	SV_WriteSnapshotToClient( client, &msg );
+	SV_WriteSnapshotToClient( client, &msg, &msg_demo);
+
+	if ( client->demorecording && !client->demowaiting) {
+		SVCL_WriteDemoMessage( client, &msg_demo, headerBytes );
+		ps = SV_GameClientNum( client - svs.clients);
+		if (ps->pm_type == PM_INTERMISSION) {
+			CL_StopRecord( client );
+		}
+	}
 
 	// Add any download data if the client is downloading
 	SV_WriteDownloadToClient( client, &msg );

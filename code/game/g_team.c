@@ -1213,7 +1213,7 @@ gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3
 #ifndef SMOKINGUNS
 		return SelectSpawnPoint( vec3_origin, origin, angles, isbot );
 #else
-		return SelectSpawnPoint( vec3_origin, origin, angles, isbot, mappart, NULL );
+		return SelectSpawnPoint( vec3_origin, origin, angles, mappart, NULL );// signature change
 #endif
 	}
 

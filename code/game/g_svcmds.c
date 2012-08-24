@@ -413,22 +413,23 @@ gclient_t	*ClientForString( const char *s ) {
 	gclient_t	*cl;
 	int			i;
 	int			idnum;
+	char		cleanName[64];
 
-	// numeric values are just slot numbers
-	if ( s[0] >= '0' && s[0] <= '9' ) {
-		idnum = atoi( s );
-		if ( idnum < 0 || idnum >= level.maxclients ) {
-			Com_Printf( "Bad client slot: %i\n", idnum );
-			return NULL;
-		}
-
-		cl = &level.clients[idnum];
-		if ( cl->pers.connected == CON_DISCONNECTED ) {
-			G_Printf( "Client %i is not connected\n", idnum );
-			return NULL;
-		}
-		return cl;
-	}
+// 	// numeric values are just slot numbers
+// 	if ( s[0] >= '0' && s[0] <= '9' ) {
+// 		idnum = atoi( s );
+// 		if ( idnum < 0 || idnum >= level.maxclients ) {
+// 			Com_Printf( "Bad client slot: %i\n", idnum );
+// 			return NULL;
+// 		}
+// 
+// 		cl = &level.clients[idnum];
+// 		if ( cl->pers.connected == CON_DISCONNECTED ) {
+// 			G_Printf( "Client %i is not connected\n", idnum );
+// 			return NULL;
+// 		}
+// 		return cl;
+// 	}
 
 	// check for a name match
 	for ( i=0 ; i < level.maxclients ; i++ ) {
@@ -436,23 +437,58 @@ gclient_t	*ClientForString( const char *s ) {
 		if ( cl->pers.connected == CON_DISCONNECTED ) {
 			continue;
 		}
-#ifndef SMOKINGUNS
+// #ifndef SMOKINGUNS
 		if ( !Q_stricmp( cl->pers.netname, s ) ) {
-#else
-		// Tequila: netname should match an unique name, so name can't be stolen
-		if ( !strcmp( cl->pers.netname, s ) ) {
-#endif
-			return cl;
-		}
+// #else
+// 		// Tequila: netname should match an unique name, so name can't be stolen
+// 		if ( !strcmp( cl->pers.netname, s ) ) {
+// #endif
+			G_Printf( "User %s is on the server\n", s );
+		return cl;
 	}
 
-#ifdef SMOKINGUNS
-	if (verbose)
-#endif
-		G_Printf( "User %s is not on the server\n", s );
+		Q_strncpyz( cleanName, cl->pers.netname, sizeof(cleanName) );
+		Q_CleanStr( cleanName );
+		if ( !Q_stricmp( cleanName, s ) ) {
+		return cl;
+	}
+	}
+
+	G_Printf( "User %s is not on the server\n", s );
 
 	return NULL;
 }
+
+int	MyClientNumberForString( const char *s ) {
+	gclient_t	*cl;
+	int			i;
+	int			idnum;
+	char		cleanName[64];
+
+	// check for a name match
+	for ( i=0 ; i < level.maxclients ; i++ ) {
+		cl = &level.clients[i];
+		if ( cl->pers.connected == CON_DISCONNECTED ) {
+			continue;
+		}
+
+		if ( !Q_stricmp( cl->pers.netname, s ) ) {
+			G_Printf( "User %s is on the server\n", s );
+			return i;
+		}
+		
+		Q_strncpyz( cleanName, cl->pers.netname, sizeof(cleanName) );
+		Q_CleanStr( cleanName );
+		if ( !Q_stricmp( cleanName, s ) ) {
+			return i;
+		}
+	}
+
+		G_Printf( "User %s is not on the server\n", s );
+	return -1;
+}
+
+char	*ConcatArgs( int start );
 
 /*
 ===================
@@ -464,17 +500,30 @@ forceteam <player> <team>
 void	Svcmd_ForceTeam_f( void ) {
 	gclient_t	*cl;
 	char		str[MAX_TOKEN_CHARS];
+	char		str2[MAX_TOKEN_CHARS];
+	int clnum;
 
+	if ( trap_Argc() >= 2 ) {
 	// find the player
 	trap_Argv( 1, str, sizeof( str ) );
-	cl = ClientForString( str );
-	if ( !cl ) {
+		clnum = atoi(str);
+		if (clnum<0 || clnum>MAX_CLIENTS) {return;}
+		cl = level.clients+clnum;
+		if ( !cl || cl->pers.connected == CON_DISCONNECTED ) {
 		return;
 	}
+		trap_Argv( 2, str2, sizeof( str2 ) );
 
 	// set the team
-	trap_Argv( 2, str, sizeof( str ) );
-	SetTeam( &g_entities[cl - level.clients], str );
+		if (str2[0] == 's' && g_entities[cl - level.clients].client->sess.sessionTeam == TEAM_SPECTATOR) {
+			return;
+		}
+		SetTeam( &g_entities[cl - level.clients], str2 );
+		G_Printf( "forceteam: %s: %s\n", str, str2 );
+		return;
+	}
+	G_Printf ("Usage: forceteam <client number> [s,r,b,sr,sb,f]\n");
+	return;
 }
 
 
@@ -746,6 +795,236 @@ void Svcmd_GiveItem_f ()
 	trap_SendServerCommand( -1, va( "print \"%s^7 ^2earned some %s !^7\n\"", cl->pers.netname , item->pickup_name ) );
 }
 
+
+/*
+==================// patch servercommmands: lock team
+Svcmd_LockTeam_f
+
+Locks a user into a team
+==================
+*/
+static void Svcmd_LockTeam_f( void ) {
+	gclient_t	*cl;
+	char		str[MAX_TOKEN_CHARS];
+	char		str2[MAX_TOKEN_CHARS];
+	const char* team;
+	int clnum;
+
+	if ( trap_Argc() >= 2 ) {
+		// find the player
+		trap_Argv( 1, str, sizeof( str ) );
+		clnum = atoi(str);
+		if (clnum<0 || clnum>MAX_CLIENTS) {return;}
+		cl = level.clients+clnum;
+		if ( !cl || cl->pers.connected == CON_DISCONNECTED ) {
+			return;
+		}
+		trap_Argv( 2, str2, sizeof( str2 ) );
+
+		if (trap_Argc() == 2 ) {
+			G_Printf("lockteam: %s: %i\n",str,Comma_ValueForIndex(g_lockedTeams.string, clnum));
+			return;
+		} else if (trap_Argc() == 3 ) {
+			if ( !Q_stricmp( str2, "s" )) {team="3";}
+			else if ( !Q_stricmp( str2, "sr" )) {team="13";}
+			else if ( !Q_stricmp( str2, "sb" )) {team="23";}
+			else if ( !Q_stricmp( str2, "r" )) {team="1";}
+			else if ( !Q_stricmp( str2, "b" )) {team="2";}
+			else {team = "0";}
+			if (Q_stricmp (team,"0")) {
+				trap_Cvar_Set( "g_lockedTeams", Comma_SetValueAtIndex(va("%s", g_lockedTeams.string), clnum, team));
+			} else {
+				trap_Cvar_Set( "g_lockedTeams", Comma_SetValueAtIndex(va("%s", g_lockedTeams.string), clnum, ""));
+			}
+			trap_Cvar_Update(&g_lockedTeams);
+			G_Printf ("lockteam: %s: %i\n",str,Comma_ValueForIndex(g_lockedTeams.string, clnum));
+			return;
+		}
+	}
+	G_Printf ("Usage: lockteam <client number> [s,r,b,sr,sb,f]\n");
+	return;
+}
+
+/*
+==================
+SV_NoVoteNum_f
+
+(Dis)allow a user's vote
+==================
+*/
+static void SV_NoVoteNum_f( void ) {
+	gclient_t	*cl;
+	char		str[MAX_TOKEN_CHARS];
+	char		str2[MAX_TOKEN_CHARS];
+	int clnum;
+	int voteless;
+
+	if ( trap_Argc() >= 2 ) {
+		// find the player
+		trap_Argv( 1, str, sizeof( str ) );
+		clnum = atoi(str);
+		if (clnum<0 || clnum>MAX_CLIENTS) {return;}
+		cl = level.clients+clnum;
+		if ( !cl || cl->pers.connected == CON_DISCONNECTED ) {
+			return;
+		}
+		trap_Argv( 2, str2, sizeof( str2 ) );
+
+		if ( trap_Argc() == 2 ) {
+			G_Printf ("novote: %s: %i\n",str,Comma_ValueForIndex(g_voteless.string, atoi(str)));
+			return;
+		} else if ( trap_Argc() == 3 ) {
+			voteless = atoi(str2);
+			if ( voteless == 1 ) {
+				trap_Cvar_Set( "g_voteless", Comma_SetValueAtIndex(va("%s", g_voteless.string), atoi(str), "1"));
+			} else {
+				trap_Cvar_Set( "g_voteless", Comma_SetValueAtIndex(va("%s", g_voteless.string), atoi(str), ""));
+			}
+			trap_Cvar_Update(&g_voteless);
+			G_Printf ("novote: %s: %i\n",str,Comma_ValueForIndex(g_voteless.string, atoi(str)));
+			return;
+		}
+	}
+	G_Printf ("Usage: novote <client number> [0/1]\n");
+	return;
+}
+
+/*
+==================
+SV_Protect_f
+
+(Un)protects a user agfainst kickvotes
+==================
+*/
+static void SV_ProtectNum_f( void ) {
+	gclient_t	*cl;
+	char		str[MAX_TOKEN_CHARS];
+	char		str2[MAX_TOKEN_CHARS];
+	int clnum;
+	int protect;
+
+	if ( trap_Argc() >= 2 ) {
+		// find the player
+		trap_Argv( 1, str, sizeof( str ) );
+		clnum = atoi(str);
+		if (clnum<0 || clnum>MAX_CLIENTS) {return;}
+		cl = level.clients+clnum;
+		if ( !cl || cl->pers.connected == CON_DISCONNECTED ) {
+			return;
+		}
+		trap_Argv( 2, str2, sizeof( str2 ) );
+
+		if ( trap_Argc() == 2 ) {
+			G_Printf ("protect: %s: %i\n",str,Comma_ValueForIndex(g_protected.string, atoi(str)));
+			return;
+		} else if ( trap_Argc() == 3 ) {
+			protect = atoi(str2);
+			if ( protect == 1 ) {
+				trap_Cvar_Set( "g_protected", Comma_SetValueAtIndex(va("%s", g_protected.string), atoi(str), "1"));
+			} else {
+				trap_Cvar_Set( "g_protected", Comma_SetValueAtIndex(va("%s", g_protected.string), atoi(str), ""));
+			}
+			trap_Cvar_Update(&g_protected);
+			G_Printf ("protect: %s: %i\n",str,Comma_ValueForIndex(g_protected.string, atoi(str)));
+			return;
+		}
+	}
+	G_Printf ("Usage: protect <client number> [0/1]\n");
+	return;
+}
+
+
+/*
+==================
+SV_MuteNum_f
+
+(Un)Mutes a user
+==================
+*/
+static void SV_MuteNum_f( void ) {
+	gclient_t	*cl;
+	char		str[MAX_TOKEN_CHARS];
+	char		str2[MAX_TOKEN_CHARS];
+	int clnum;
+	int mute;
+
+	if ( trap_Argc() >= 2 ) {
+		// find the player
+		trap_Argv( 1, str, sizeof( str ) );
+		clnum = atoi(str);
+		if (clnum<0 || clnum>MAX_CLIENTS) {return;}
+		cl = level.clients+clnum;
+		if ( !cl || cl->pers.connected == CON_DISCONNECTED ) {
+			return;
+		}
+		trap_Argv( 2, str2, sizeof( str2 ) );
+
+		if ( trap_Argc() == 2 ) {
+			G_Printf ("mute: %s: %i\n",str,Comma_ValueForIndex(g_muted.string, atoi(str)));
+			return;
+		} else if ( trap_Argc() == 3 ) {
+			mute = atoi(str2);
+			if ( mute == 1  ) {
+				trap_Cvar_Set( "g_muted", Comma_SetValueAtIndex(va("%s", g_muted.string), atoi(str), "1"));
+			} else {
+				trap_Cvar_Set( "g_muted", Comma_SetValueAtIndex(va("%s", g_muted.string), atoi(str), ""));
+			}
+			trap_Cvar_Update(&g_muted);
+			ClientUserinfoChanged(clnum);
+			G_Printf ("mute: %s: %i\n",str,Comma_ValueForIndex(g_muted.string, atoi(str)));
+			return;
+		}
+	}
+	G_Printf ("Usage: mute <client number> [0/1]\n");
+	return;
+}
+
+/*
+==================
+SV_HandicapNum_f
+
+Sets a user's handicap
+==================
+*/
+static void SV_HandicapNum_f( void ) {
+	gclient_t	*cl;
+	char		str[MAX_TOKEN_CHARS];
+	char		str2[MAX_TOKEN_CHARS];
+	int clnum;
+	int handicap;
+
+	if ( trap_Argc() >= 2 ) {
+		// find the player
+		trap_Argv( 1, str, sizeof( str ) );
+		clnum = atoi(str);
+		if (clnum<0 || clnum>MAX_CLIENTS) {return;}
+		cl = level.clients+clnum;
+		if ( !cl || cl->pers.connected == CON_DISCONNECTED ) {
+			return;
+		}
+		trap_Argv( 2, str2, sizeof( str2 ) );
+
+		if ( trap_Argc() == 2 ) {
+			G_Printf ("handicap: %s: %i\n",str,Comma_ValueForIndex(g_handicaps.string, atoi(str)));
+			return;
+		} else if ( trap_Argc() == 3 ) {
+			handicap = atoi(str2);
+			if ( handicap < 1 || handicap > 99 ) {
+				trap_Cvar_Set( "g_handicaps", Comma_SetValueAtIndex(va("%s", g_handicaps.string), atoi(str), ""));
+//				Info_SetValueForKey( cl->userinfo, "handicap", "100" );
+			} else {
+				trap_Cvar_Set( "g_handicaps", Comma_SetValueAtIndex(va("%s", g_handicaps.string), atoi(str), str2));
+//				Info_SetValueForKey( cl->userinfo, "handicap", str2 );
+			}
+//			SV_UserinfoChanged( cl );
+			trap_Cvar_Update(&g_handicaps);
+			G_Printf ("handicap: %s: %i\n",str,Comma_ValueForIndex(g_handicaps.string, atoi(str)));
+			return;
+		}
+	}
+	G_Printf ("Usage: handicap <client number> [<handicap>]\n");
+	return;
+}
 
 void Svcmd_KickBots_f(void){
 	int i;
@@ -1025,6 +1304,26 @@ qboolean	ConsoleCommand( void ) {
 
 	if ( Q_stricmp (cmd, "forceteam") == 0 ) {
 		Svcmd_ForceTeam_f();
+		return qtrue;
+	}
+	if ( Q_stricmp (cmd, "lockteam") == 0 ) {
+		Svcmd_LockTeam_f();
+		return qtrue;
+	}
+	if ( Q_stricmp (cmd, "handicap") == 0 ) {
+		SV_HandicapNum_f();
+		return qtrue;
+	}
+	if ( Q_stricmp (cmd, "mute") == 0 ) {
+		SV_MuteNum_f();
+		return qtrue;
+	}
+	if ( Q_stricmp (cmd, "novote") == 0 ) {
+		SV_NoVoteNum_f();
+		return qtrue;
+	}
+	if ( Q_stricmp (cmd, "protect") == 0 ) {
+		SV_ProtectNum_f();
 		return qtrue;
 	}
 

@@ -626,6 +626,10 @@ void SV_DropClient( client_t *drop, const char *reason ) {
 		}
 	}
 
+	if (drop->demorecording) {// patch demos: stop recording on drop
+		CL_StopRecord( drop );
+	}
+
 	// Kill any download
 	SV_CloseDownload( drop );
 
@@ -659,6 +663,8 @@ void SV_DropClient( client_t *drop, const char *reason ) {
 		drop->state = CS_ZOMBIE;		// become free in a few seconds
 	}
 
+	drop->forcename=0;// patch servercommands: reset forcename on drop
+
 	// if this was the last client on the server, send a heartbeat
 	// to the master so it is known the server is empty
 	// send a heartbeat now so the master will get up to date info
@@ -689,6 +695,8 @@ static void SV_SendClientGameState( client_t *client ) {
 	entityState_t	*base, nullstate;
 	msg_t		msg;
 	byte		msgBuffer[MAX_MSGLEN];
+	msg_t		msg_fake;
+	byte		msgBuffer_fake[MAX_MSGLEN];
 
  	Com_DPrintf ("SV_SendClientGameState() for %s\n", client->name);
 	Com_DPrintf( "Going from CS_CONNECTED to CS_PRIMED for %s\n", client->name );
@@ -696,12 +704,15 @@ static void SV_SendClientGameState( client_t *client ) {
 	client->pureAuthentic = 0;
 	client->gotCP = qfalse;
 
+	client->forcename = 0;// reset forcename
+
 	// when we receive the first packet from the client, we will
 	// notice that it is from a different serverid and that the
 	// gamestate message was not just sent, forcing a retransmit
 	client->gamestateMessageNum = client->netchan.outgoingSequence;
 
 	MSG_Init( &msg, msgBuffer, sizeof( msgBuffer ) );
+	MSG_Init( &msg_fake, msgBuffer_fake, sizeof( msgBuffer_fake ) );
 
 	// NOTE, MRE: all server->client messages now acknowledge
 	// let the client know which reliable clientCommands we have received
@@ -711,7 +722,8 @@ static void SV_SendClientGameState( client_t *client ) {
 	// we have to do this cause we send the client->reliableSequence
 	// with a gamestate and it sets the clc.serverCommandSequence at
 	// the client side
-	SV_UpdateServerCommandsToClient( client, &msg );
+	// SV_UpdateServerCommandsToClient( client, &msg );
+	SV_UpdateServerCommandsToClient( client, &msg, &msg_fake );
 
 	// send the gamestate
 	MSG_WriteByte( &msg, svc_gamestate );
@@ -781,6 +793,10 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 
 	// call the game begin function
 	VM_Call( gvm, GAME_CLIENT_BEGIN, client - svs.clients );
+	
+	if (svs.initialized && sv_autorecord->integer && client->netchan.remoteAddress.type != NA_BOT) {
+		CL_Record(client, NULL);
+	}
 }
 
 /*
@@ -1354,11 +1370,12 @@ static void SV_VerifyPaks_f( client_t *cl ) {
 			cl->pureAuthentic = 1;
 		}
 		else {
-			cl->pureAuthentic = 0;
-			cl->nextSnapshotTime = -1;
-			cl->state = CS_ACTIVE;
-			SV_SendClientSnapshot( cl );
-			SV_DropClient( cl, "Unpure client detected. Invalid .PK3 files referenced!" );
+			cl->pureAuthentic = 2;// patch unpure
+// 			cl->nextSnapshotTime = -1;
+// 			cl->state = CS_ACTIVE;
+// 			
+// 			SV_SendClientSnapshot( cl );
+// 			SV_DropClient( cl, "Unpure client detected. Invalid .PK3 files referenced!" );
 		}
 	}
 }
@@ -1384,11 +1401,22 @@ into a more C friendly form.
 void SV_UserinfoChanged( client_t *cl ) {
 	char	*val;
 	char	*ip;
-	int		i;
+	int		i,muted=0,handicap;
 	int	len;
 
+	muted = Comma_ValueForIndex(Cvar_VariableString("g_muted"),cl-svs.clients);
+
 	// name for C code
+	if (cl->forcename>0) {// if server-side set client name
+		Info_SetValueForKey( cl->userinfo,  "name", cl->name );
+		if (cl->forcename==1) {// if the name was to be overridden one time
+			cl->forcename=0;
+		}
+	} else if (muted) {// if muted, lock name
+		Info_SetValueForKey( cl->userinfo,  "name", cl->name );
+	} else {// if client-side set client name
 	Q_strncpyz( cl->name, Info_ValueForKey (cl->userinfo, "name"), sizeof(cl->name) );
+	}
 
 	// rate command
 
@@ -1410,13 +1438,15 @@ void SV_UserinfoChanged( client_t *cl ) {
 			cl->rate = 3000;
 		}
 	}
-	val = Info_ValueForKey (cl->userinfo, "handicap");
-	if (strlen(val)) {
-		i = atoi(val);
-		if (i<=0 || i>100 || strlen(val) > 4) {
-			Info_SetValueForKey( cl->userinfo, "handicap", "100" );
-		}
-	}
+//	val = Info_ValueForKey (cl->userinfo, "handicap");
+//	if (strlen(val)) {
+//		i = atoi(val);
+//		if (i<=0 || i>100 || strlen(val) > 4) {
+//			Info_SetValueForKey( cl->userinfo, "handicap", "100" );
+//		}
+//	}
+	handicap = Comma_ValueForIndex(Cvar_VariableString("g_handicaps"), cl-svs.clients);
+	Info_SetValueForKey( cl->userinfo, "handicap", va("%i",handicap) );
 
 	// snaps command
 	val = Info_ValueForKey (cl->userinfo, "snaps");
@@ -1743,6 +1773,13 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 			continue;
 		}
 		SV_ClientThink (cl, &cmds[ i ]);
+	}
+	if ( cl->pureAuthentic > 1 ) {// patch unpure: count to 10 until client is dropped to ensure, the message is delivered
+	    cl->pureAuthentic++;
+	    if (cl->pureAuthentic == 10) {
+		  SV_DropClient( cl, "missed the correct .PK3 files. ^rPlease ^ropen ^rconsole ^r(^gShift^r+^gEsc^r) ^rand ^rtype ^g\\seta ^gcg_allowDownload ^g1 ^rand ^g\\reconnect^r." );
+		  cl->lastPacketTime = svs.time;	// in case there is a funny zombie
+	    }
 	}
 }
 

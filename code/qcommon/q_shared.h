@@ -302,7 +302,7 @@ typedef int		clipHandle_t;
 
 #define	MAX_NAME_LENGTH		32		// max length of a client name
 
-#define	MAX_SAY_TEXT	150
+#define	MAX_SAY_TEXT	1024
 
 // paramters for command buffer stuffing
 typedef enum {
@@ -885,6 +885,8 @@ void Com_TruncateLongString( char *buffer, const char *s );
 //
 // key / value info strings
 //
+char *Comma_SetValueAtIndex( char *string, int clientNum, const char *value );
+int Comma_ValueForIndex( const char *string, int clientNum );
 char *Info_ValueForKey( const char *s, const char *key );
 void Info_RemoveKey( char *s, const char *key );
 void Info_RemoveKey_big( char *s, const char *key );
@@ -1224,6 +1226,7 @@ typedef struct playerState_s {
 
 	// not communicated over the net at all
 	int			ping;			// server to game info for scoreboard
+//	int			timeNudge;		// game to server info for controlling cl_timeNudge
 #ifdef SMOKINGUNS_MOD	// Only used by SG mod
 	int			oldbuttons;
 #endif

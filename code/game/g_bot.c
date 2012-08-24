@@ -1075,9 +1075,8 @@ void G_InitBots( qboolean restart ) {
 	G_LoadBots();
 	G_LoadArenas();
 
-	trap_Cvar_Register( &bot_minplayers, "bot_minplayers", "0", CVAR_SERVERINFO );
+	trap_Cvar_Register( &bot_minplayers, "bot_minplayers", "0", CVAR_ARCHIVE );
 	// smokinguns
-#ifdef SMOKINGUNS
 	trap_Cvar_Register( &bot_noBR, "bot_noBR", "0", CVAR_ARCHIVE );
 	trap_Cvar_Register( &bot_noDuel, "bot_noDuel", "0", CVAR_ARCHIVE );
 
@@ -1085,7 +1084,6 @@ void G_InitBots( qboolean restart ) {
 		        || (g_gametype.integer == GT_DUEL && bot_noDuel.integer) ) {
 		trap_SendConsoleCommand( EXEC_INSERT, "kickbots\n");
 	}
-#endif
 
 	if( g_gametype.integer == GT_SINGLE_PLAYER ) {
 		trap_GetServerinfo( serverinfo, sizeof(serverinfo) );

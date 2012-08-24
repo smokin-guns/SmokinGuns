@@ -38,6 +38,7 @@ cvar_t	*sv_rconPassword;		// password for remote server commands
 cvar_t	*sv_privatePassword;	// password for the privateClient slots
 cvar_t	*sv_allowDownload;
 cvar_t	*sv_maxclients;
+cvar_t	*sv_autorecord;
 
 cvar_t	*sv_privateClients;		// number of clients reserved for password
 cvar_t	*sv_hostname;
@@ -59,6 +60,7 @@ cvar_t	*sv_floodProtect;
 cvar_t	*sv_lanForceRate; // dedicated 1 (LAN) server forces local client rates to 99999 (bug #491)
 cvar_t	*sv_strictAuth;
 cvar_t	*sv_banFile;
+cvar_t  *sv_antiwallhack;		// patch anti-wallhack
 cvar_t  *sv_heartbeat;			// Heartbeat string that is sent to the master
 cvar_t  *sv_flatline;			// If the master server supports it we can send a flatline
 					// when server is killed
@@ -90,6 +92,32 @@ static char	*SV_ExpandNewlines( char *in ) {
 		if ( *in == '\n' ) {
 			string[l++] = '\\';
 			string[l++] = 'n';
+		} else {
+			string[l++] = *in;
+		}
+		in++;
+	}
+	string[l] = 0;
+
+	return string;
+}
+
+/*
+===============// patch println
+SV_ConvertNewlines
+
+Converts "\n" to newlines
+===============
+*/
+char	*SV_ConvertNewlines( char *in ) {
+	static	char	string[20000];
+	int		l;
+
+	l = 0;
+	while ( *in && l < sizeof(string) - 3 ) {
+		if ( *in == '\\' && *(in+1) == 'n') {
+			string[l++] = '\n';
+			in++;
 		} else {
 			string[l++] = *in;
 		}
@@ -246,12 +274,13 @@ void SV_MasterHeartbeat(const char *message)
 	netenabled = Cvar_VariableIntegerValue("net_enabled");
 
 	// "dedicated 1" is for lan play, "dedicated 2" is for inet public play
-	if (!com_dedicated || com_dedicated->integer != 2 || !(netenabled & (NET_ENABLEV4 | NET_ENABLEV6)))
-		return;		// only dedicated servers send heartbeats
+// 	if (!com_dedicated || com_dedicated->integer != 2 || !(netenabled & (NET_ENABLEV4 | NET_ENABLEV6)))// patch ensure heartbeat
+// 		return;		// only dedicated servers send heartbeats
 
 	// if not time yet, don't send anything
-	if ( svs.time < svs.nextHeartbeatTime )
+	if ( svs.time < svs.nextHeartbeatTime && (svs.time > svs.nextHeartbeatTime-HEARTBEAT_MSEC-1 ) ) {
 		return;
+	}
 
 	svs.nextHeartbeatTime = svs.time + HEARTBEAT_MSEC;
 
@@ -585,7 +614,7 @@ static void SVC_Status( netadr_t from ) {
 		if ( cl->state >= CS_CONNECTED ) {
 			ps = SV_GameClientNum( i );
 			Com_sprintf (player, sizeof(player), "%i %i \"%s\"\n",
-				ps->persistant[PERS_SCORE], cl->ping, cl->name);
+			ps->clientNum==i?ps->persistant[PERS_SCORE]:0, cl->ping, cl->name);// patch getstatus: spectators shouldn't inherite the score of observed players
 			playerLength = strlen(player);
 			if (statusLength + playerLength >= sizeof(status) ) {
 				break;		// can't hold any more
@@ -964,7 +993,7 @@ static void SV_CheckTimeouts( void ) {
 			cl->state = CS_FREE;	// can now be reused
 			continue;
 		}
-		if ( cl->state >= CS_CONNECTED && cl->lastPacketTime < droppoint) {
+		if ( cl->state >= CS_CONNECTED && cl->lastPacketTime < droppoint && Cvar_VariableValue( "bot_pause" )!=2) {
 			// wait several frames so a debugger session doesn't
 			// cause a timeout
 			if ( ++cl->timeoutCount > 5 ) {

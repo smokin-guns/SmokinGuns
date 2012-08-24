@@ -70,6 +70,342 @@ float	pm_ladderfriction = 3000;  // Friction is high enough so you don't slip do
 int		c_pmove = 0;
 
 
+////From AltUrt: Walljump constants 
+//#define WALLJUMP_BOOST 140 //used in the checkWalljump function, no change to the actual walljump made here.
+//#define MAX_WALLJUMPS 3 //no explanation needed
+//#define WALLJUMP_SPEED 580.0f //used in VectorMA for walljumps, affects player velocity
+//#define WALLJUMP_MAX_VEL 600 //max velocity during walljumps. I cut this in half, it was 1200 which seems way too high --xamis
+//#define WALLJUMP_MAX_UP_VEL 250 //cap the upward velocity on a walljump
+//#define WALLJUMP_UP_VEL_BOOST 1.1f //give the player some upward boost off the wall
+//
+//
+// patch ledgeclimb: from alturt. Does not work yet
+//#define LEDGEGRABMAXHEIGHT              45
+//#define LEDGEGRABHEIGHT                 42
+//#define LEDGEVERTOFFSET                 LEDGEGRABHEIGHT
+//#define LEDGEGRABMINHEIGHT              40
+//
+////max distance you can be from the ledge for ledge grabbing to work
+//#define LEDGEGRABDISTANCE               20
+//
+////min distance you can be from the ledge for ledge grab to work
+//#define LEDGEGRABMINDISTANCE    4
+//
+////distance at which the animation grabs the ledge
+//#define LEDGEHOROFFSET                  22
+//
+//
+//float vectoyaw( const vec3_t vec ) {
+//        float   yaw;
+//
+//        if (vec[YAW] == 0 && vec[PITCH] == 0) {
+//                yaw = 0;
+//        } else {
+//                if (vec[PITCH]) {
+//                        yaw = ( atan2( vec[YAW], vec[PITCH]) * 180 / M_PI );
+//                } else if (vec[YAW] > 0) {
+//                        yaw = 90;
+//                } else {
+//                        yaw = 270;
+//                }
+//                if (yaw < 0) {
+//                        yaw += 360;
+//                }
+//        }
+//
+//        return yaw;
+//}
+//
+//void PM_SetPMViewAngle(playerState_t *ps, vec3_t angle, usercmd_t *ucmd)
+//{
+//        int                     i;
+//
+//        for (i=0 ; i<3 ; i++)
+//        { // set the delta angle
+//                int             cmdAngle;
+//
+//                cmdAngle = ANGLE2SHORT(angle[i]);
+//                ps->delta_angles[i] = cmdAngle - ucmd->angles[i];
+//        }
+//        VectorCopy (angle, ps->viewangles);
+//}
+//
+////lets go of a ledge
+//void BG_LetGoofLedge(playerState_t *ps)
+//{
+//        ps->pm_flags &= ~PMF_EDGE;
+//        ps->torsoTimer = 0;
+//        ps->legsTimer = 0;
+//}
+//
+//qboolean BG_InLedgeMove( int anim )
+//{
+//
+//        switch ( anim )
+//        {
+//        case BOTH_LEDGECLIMB:
+//                return qtrue;
+//                break;
+//        default:
+//               return qfalse;
+//               break;
+//        }
+//
+//}
+//
+//void PM_SetVelocityforLedgeMove( playerState_t *ps, int anim )
+//{
+//        vec3_t fwdAngles, moveDir;
+//
+//                        if( pm->ps->torsoTimer > 750 )
+//                        {
+//                                ps->velocity[0] = 0;
+//                                ps->velocity[1] = 0;
+//                                ps->velocity[2] = 40;
+//                        }
+//                        else if( pm->ps->torsoTimer > 550 )
+//                        {
+//                                ps->velocity[0] = 0;
+//                                ps->velocity[1] = 0;
+//                                ps->velocity[2] = 100;
+//                        }
+//                        else  if( pm->ps->torsoTimer > 500 )
+//                        {
+//                                ps->velocity[0] = 0;
+//                                ps->velocity[1] = 0;
+//                                ps->velocity[2] = 60;
+//                        }
+//                        else if( pm->ps->torsoTimer > 400 )
+//                        {
+//                                ps->velocity[0] = 0;
+//                                ps->velocity[1] = 0;
+//                                ps->velocity[2] = 50;
+//                        }
+//                        else if( pm->ps->torsoTimer > 120 )
+//                        {
+//                                ps->velocity[0] = 0;
+//                                ps->velocity[1] = 0;
+//                                ps->velocity[2] = 120;
+//                        }
+//                        else if( pm->ps->torsoTimer > 90 )
+//                        {
+//                                ps->velocity[0] = 0;
+//                                ps->velocity[1] = 0;
+//                                ps->velocity[2] = 140;
+//                        }
+//                        else if(pm->ps->torsoTimer > 0)
+//                        {
+//                                ps->velocity[0] = 170;
+//                                ps->velocity[1] = 170;
+//                                ps->velocity[2] = 194;
+//                                VectorSet(fwdAngles, 0, pm->ps->viewangles[YAW], 0);
+//                                AngleVectors( fwdAngles, moveDir, NULL, NULL );
+//                                VectorScale(moveDir, 190, moveDir);
+//                                VectorCopy(moveDir, ps->velocity);
+//                        }
+//                        else
+//                        {
+//                            BG_LetGoofLedge(ps);
+//                                VectorClear(ps->velocity);
+//                        }
+//
+//}
+//
+//qboolean LedgeGrabableEntity(int entityNum)
+//{//indicates if the given entity is an entity that can be ledgegrabbed.
+//        //bgEntity_t *ent = PM_BGEntForNum(entityNum);
+//      //  switch(ent->s.eType)
+//      //  {
+//      //  case ET_PLAYER:
+//      //  case ET_ITEM:
+//       // case ET_MISSILE:
+//        //                return qfalse;
+//        //default:
+//                        return qtrue;
+//      //  };
+//}
+//
+//void PM_GrabWallForClimb( playerState_t *ps )
+//{
+//        PM_StartTorsoAnim ( BOTH_LEDGECLIMB );
+//        PM_StartLegsAnim  ( BOTH_LEDGECLIMB );
+//        ps->torsoTimer = 900;
+//        ps->legsTimer = 900;
+//        ps->weaponTime = 900;
+//        PM_AddEvent(EV_LEDGEGRAB);
+//        ps->pm_flags |= PMF_EDGE;
+//}
+//
+////Switch to this animation and keep repeating this animation while updating its timers
+//
+//void PM_AdjustAngleForLedgeClimb( playerState_t *ps, usercmd_t *ucmd )
+//{
+//        if( ps->pm_flags & PMF_EDGE ){
+//                if(ucmd->forwardmove <= 0)
+//                        {
+//                                BG_LetGoofLedge(ps);
+//                                return;
+//                        }
+//                        else
+//                        {
+//                PM_SetVelocityforLedgeMove(ps, ps->legsAnim);
+//                return;
+//                        }
+//        }
+//}
+//
+//qboolean LedgeTrace( trace_t *trace, vec3_t dir, float *lerpup, float *lerpfwd, float *lerpyaw)
+//{//scan for for a ledge in the given direction
+//        vec3_t traceTo, traceFrom, wallangles;
+//        VectorMA( pm->ps->origin, LEDGEGRABDISTANCE, dir, traceTo );
+//        VectorCopy(pm->ps->origin, traceFrom);
+//
+//	if ( CheckLadder() != 0 )
+//		return qfalse;
+//
+//        traceFrom[2] += LEDGEGRABMINHEIGHT;
+//        traceTo[2] += LEDGEGRABMINHEIGHT;
+//
+//        pm->trace( trace, traceFrom, NULL, NULL, traceTo, pm->ps->clientNum, pm->tracemask );
+//
+//        if(trace->fraction < 1 && LedgeGrabableEntity(trace->entityNum))
+//        {//hit a wall, pop into the wall and fire down to find top of wall
+//                VectorMA(trace->endpos, 0.5, dir, traceTo);
+//
+//                VectorCopy(traceTo, traceFrom);
+//
+//                traceFrom[2] += (LEDGEGRABMAXHEIGHT - LEDGEGRABMINHEIGHT);
+//
+//                pm->trace( trace, traceFrom, NULL, NULL, traceTo, pm->ps->clientNum, pm->tracemask );
+//
+//                if(trace->fraction == 1.0 || trace->startsolid || !LedgeGrabableEntity(trace->entityNum))
+//                {
+//                        return qfalse;
+//                }
+//        }
+//
+//        //check to make sure we found a good top surface and go from there
+//        vectoangles(trace->plane.normal, wallangles);
+//        if(wallangles[PITCH] > -20)
+//        {//no ledge or the ledge is too steep
+//
+//                return qfalse;
+//        }
+//        else
+//        {
+//                VectorCopy(trace->endpos, traceTo);
+//                *lerpup = trace->endpos[2] - pm->ps->origin[2] - LEDGEVERTOFFSET;
+//
+//                VectorCopy(pm->ps->origin, traceFrom);
+//                traceTo[2]-= 1;
+//
+//                traceFrom[2] = traceTo[2];
+//
+//                pm->trace( trace, traceFrom, NULL, NULL, traceTo, pm->ps->clientNum, MASK_SOLID );
+//                vectoangles(trace->plane.normal, wallangles);
+//                if(trace->fraction == 1.0
+//                        || wallangles[PITCH] > 20 || wallangles[PITCH] < -20
+//                        || !LedgeGrabableEntity(trace->entityNum))
+//                {//no ledge or too steep of a ledge
+//                        return qfalse;
+//                }
+//
+//
+//                *lerpfwd = Distance(trace->endpos, traceFrom) - LEDGEHOROFFSET;
+//                *lerpyaw = vectoyaw( trace->plane.normal )+180;
+//                return qtrue;
+//        }
+//}
+//
+////check for ledge grab
+//
+//void PM_CheckGrab(void)
+//{
+//        vec3_t checkDir, traceTo, fwdAngles;
+//        trace_t trace;
+//        float lerpup = 0;
+//        float lerpfwd = 0;
+//        float lerpyaw = 0;
+//        qboolean skipcmdtrace = qfalse;
+//
+//      //  if(pm->ps->groundEntityNum != ENTITYNUM_NONE )//&& pm->ps->inAirAnim)
+//       // {//not in the air don't attempt a ledge grab
+//     //           return;
+//     //   }
+//
+//
+//        if(BG_InLedgeMove(pm->ps->legsAnim) || pm->ps->pm_type == PM_SPECTATOR)
+//        {//already on ledge, a spectator, or in a special jump
+//                return;
+//        }
+//
+//        if(pm->ps->velocity == 0)
+//                return;//Not moving forward
+//
+//        //try looking in front of us first
+//        VectorSet(fwdAngles, 0, pm->ps->viewangles[YAW], 0.0f);
+//        AngleVectors( fwdAngles, checkDir, NULL, NULL );
+//
+//        if( !VectorCompare(pm->ps->velocity, vec3_origin) )
+//        {//player is moving
+//                if(LedgeTrace(&trace, checkDir, &lerpup, &lerpfwd, &lerpyaw))
+//                {
+//                        skipcmdtrace = qtrue;
+//                }
+//        }
+//
+//        if(!skipcmdtrace)
+//        {
+//                //TRYING to go.
+//                if(!pm->cmd.forwardmove)
+//                {//no dice abort
+//                        return;
+//                }
+//                else
+//                {
+//                        if ( pm->cmd.forwardmove > 0 )
+//                        {//already tried this direction.
+//                                return;
+//                        }
+//                        else if ( pm->cmd.forwardmove < 0 )
+//                        {
+//                                AngleVectors( fwdAngles, checkDir, NULL, NULL );
+//                                VectorScale( checkDir, -1, checkDir );
+//                                VectorNormalize(checkDir);
+//                        }
+//
+//                        if(!LedgeTrace(&trace, checkDir, &lerpup, &lerpfwd, &lerpyaw))
+//                        {//no dice
+//                                return;
+//                        }
+//                }
+//        }
+//
+//        VectorCopy(pm->ps->origin, traceTo);
+//        VectorMA(pm->ps->origin, lerpfwd, checkDir, traceTo);
+//        traceTo[2] += lerpup;
+//
+//        //check to see if we can actually latch to that position.
+//        pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, traceTo, pm->ps->clientNum, MASK_PLAYERSOLID );
+//        if(trace.fraction != 1 || trace.startsolid)
+//        {
+//                return;
+//        }
+//
+//        //turn to face wall
+//        pm->ps->viewangles[YAW] = lerpyaw;
+//       // PM_SetPMViewAngle(pm->ps, pm->ps->viewangles, &pm->cmd);
+//        pm->cmd.angles[YAW] = ANGLE2SHORT( pm->ps->viewangles[YAW] ) - pm->ps->delta_angles[YAW];
+//        pm->ps->weaponTime = 0;
+//        pm->cmd.upmove=0;
+//        VectorCopy(trace.endpos, pm->ps->origin);
+//        VectorCopy(vec3_origin, pm->ps->velocity);
+//        PM_GrabWallForClimb(pm->ps);
+//
+//}
+////End of ledgegrab functions
+
+
 /*
 ===============
 PM_AddEvent
@@ -3708,7 +4044,7 @@ static void PM_LadderMove( void ) {
 	PM_SlideMove( qfalse ); // move without gravity
 }
 
-
+extern	vmCvar_t	g_climbable;// patch climable
 /*
 =============
 CheckLadder [ ARTHUR TOMLIN ]
@@ -3748,7 +4084,8 @@ void CheckLadder( void )
 	pm->trace (&trace, origin, pm->mins, pm->maxs, spot,
 		pm->ps->clientNum, MASK_PLAYERSOLID);
 
-	if ((trace.fraction < 1) && (trace.surfaceFlags & SURF_LADDER)){
+	if (trace.fraction < 1 && g_climbable.integer==666) Com_Printf("surface: %i  contents: %i\n", trace.surfaceFlags, trace.contents);
+	if ((trace.fraction < 1) && ( (!pml.walking && !pml.groundPlane && (trace.surfaceFlags & g_climbable.integer)) || (trace.surfaceFlags & SURF_LADDER) || ( pm->waterlevel > 0.75))){// pml.groundPlan was added recently
 		pml.ladder = qtrue;
 	} else {
 		pml.ladder = qfalse;
@@ -3995,16 +4332,14 @@ void PmoveSingle (pmove_t *pmove) {
 		PM_AirMove();
 	} else if (pm->ps->pm_flags & PMF_TIME_WATERJUMP) {
 #else
-	if (pm->ps->pm_flags & PMF_TIME_WATERJUMP) {
+	if (pml.ladder) {// patch outofwaterclimb
+		PM_LadderMove();
+	} else if (pm->ps->pm_flags & PMF_TIME_WATERJUMP) {
 #endif
 		PM_WaterJumpMove();
 	} else if ( pm->waterlevel > 1 ) {
 		// swimming
 		PM_WaterMove();
-#ifdef SMOKINGUNS
-	} else if (pml.ladder) {
-		PM_LadderMove();
-#endif
 	} else if ( pml.walking ) {
 		// walking on ground
 		PM_WalkMove();

@@ -899,6 +899,38 @@ static float CG_DrawAttacker( float y ) {
 #endif
 
 /*
+================
+CG_DrawSpeedMeter
+
+================
+*/
+static float CG_DrawSpeedMeter( float y ) {
+	char        *s;
+	int         w;
+	vec_t       *vel;
+	int         speed;
+	
+	/* speed meter can get in the way of the scoreboard */
+	if ( cg.scoreBoardShowing ) {
+		return y;
+	}
+
+	vel = cg.snap->ps.velocity;
+	/* ignore vertical component of velocity */
+	speed = sqrt(vel[0] * vel[0] + vel[1] * vel[1]);
+
+	s = va( "%iu/s", speed );
+
+	//w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
+	w = CG_DrawStrlen( s ) * 11;
+
+	//CG_DrawBigString( 635 - w, y + 2, s, 1.0F);
+	CG_Text_Paint(640-w, y + 5 + BIGCHAR_HEIGHT, 0.4f, colorWhite, s, 0, 0, 3);
+	return y + BIGCHAR_HEIGHT + 4;
+}
+
+
+/*
 ==================
 CG_DrawSnapshot
 ==================
@@ -1507,6 +1539,9 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 	}
 	if ( cg_drawTimer.integer ) {
 		y = CG_DrawTimer( y );
+	}
+	if ( cg_drawspeed.integer ) {
+		y = CG_DrawSpeedMeter( y );
 	}
 #ifdef SMOKINGUNS
 	if ( cg_drawdebug.integer ) {
@@ -2521,23 +2556,23 @@ void CG_CenterPrint( const char *str, int y, int charWidth ) {
 	// remove "^" if nessecary
 	for(i = 0; cg.centerPrint[i]; i++){
 
-		// ignore if there are two of them
-		if(cg.centerPrint[i] == '^'){
-			remove = qtrue;
-			continue;
-		}
-
-		if(remove){
-			int j;
-
-			// move the others two steps further
-			for( j = i-1; cg.centerPrint[j+2]; j++){
-				cg.centerPrint[j] = cg.centerPrint[j+2];
-			}
-			cg.centerPrint[j] = '\0';
-			remove = qfalse;
-			i -= 2; // string had been moved back (2 shifts)
-		}
+// 		// ignore if there are two of them// patch colored names: allow colors
+// 		if(cg.centerPrint[i] == '^'){
+// 			remove = qtrue;
+// 			continue;
+// 		}
+// 
+// 		if(remove){
+// 			int j;
+// 
+// 			// move the others two steps further
+// 			for( j = i-1; cg.centerPrint[j+2]; j++){
+// 				cg.centerPrint[j] = cg.centerPrint[j+2];
+// 			}
+// 			cg.centerPrint[j] = '\0';
+// 			remove = qfalse;
+// 			i -= 2; // string had been moved back (2 shifts)
+// 		}
 	}
 #endif
 
@@ -4078,8 +4113,7 @@ static void CG_DrawBuyMenu( void ) {
 
 		item = CG_GetBuyItem();
 
-		if(cg.snap->ps.stats[STAT_MONEY] < item->prize)
-			return;
+		if(cg.snap->ps.stats[STAT_MONEY] >= item->prize) {
 		// don't buy other special weapons if handling a gatling
 		if(item->giType == IT_WEAPON && bg_weaponlist[item->giTag].wp_sort == WPS_GUN &&
 			gatling){
@@ -4116,7 +4150,10 @@ static void CG_DrawBuyMenu( void ) {
 				cg.weaponSelect = item->giTag;
 			}
 		}
-
+		} else {
+			trap_S_StartSound(NULL, cg.snap->ps.clientNum, CHAN_ANNOUNCER, cgs.media.bang[1]);// patch buy: if wecannot buy, don't get stuck in the menu
+			cg.oldbutton = qtrue;
+		}
 		if(numpressed){
 			CG_CloseBuyMenu();
 		}

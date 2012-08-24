@@ -393,9 +393,10 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 			|| check->r.absmin[2] >= maxs[2]
 			|| check->r.absmax[0] <= mins[0]
 			|| check->r.absmax[1] <= mins[1]
-			|| check->r.absmax[2] <= mins[2] ) {
+			|| check->r.absmax[2]-13 <= mins[2] ) {// patch playerheight: hack to enable to open trap doors from underneath (dm_train,dm_hangemhigh)
 				continue;
 			}
+
 			// see if the ent's bbox is inside the pusher's final position
 			// this does allow a fast moving object to pass through a thin entity...
 			if (!G_TestEntityPosition (check)) {
@@ -985,7 +986,7 @@ void InitMover( gentity_t *ent ) {
 
 	// calculate time to reach second position from speed
 #ifdef SMOKINGUNS
-	ent->r.contents = CONTENTS_BODY;
+	ent->r.contents = CONTENTS_SOLID|CONTENTS_MOVER;// ent->r.contents = CONTENTS_BODY;
 
 	if ( ent->s.eFlags & EF_ROTATING_DOOR ){
 		ent->s.apos.trType = TR_STATIONARY;
@@ -1426,6 +1427,8 @@ void SP_func_door_rotating (gentity_t *ent) {
 		VectorClear(ent->s.angles2);
 		ent->s.angles2[0] = -1000;
 	}
+//	ent->r.contents |= CONTENTS_BODY;// DEBUG
+	ent->r.contents |= CONTENTS_MOVER;
 }
 
 #define BREAK_RESPAWN_TIME 45000
@@ -1550,7 +1553,7 @@ void SP_func_breakable (gentity_t *ent){
 	// initialize it, if nessecary
 	G_LookForBreakableType(ent);
 
-	ent->r.contents = (CONTENTS_BODY|CONTENTS_MOVER);
+	ent->r.contents = (CONTENTS_BODY);// DEBUG
 	ent->wait = 0;
 
 	trap_LinkEntity(ent);
@@ -1646,12 +1649,13 @@ void G_MoverContents(qboolean change){
 		if(ent->s.eType == ET_MOVER &&
 			(ent->r.contents & CONTENTS_BODY)){
 
-			if(change)
-				ent->r.contents |= CONTENTS_SOLID;
-			else
-				ent->r.contents &= ~CONTENTS_SOLID;
+//			if(change)
+				ent->r.contents |= (CONTENTS_SOLID);//CONTENTS_SOLID|// DEBUG
+//			else
+//				ent->r.contents &= ~CONTENTS_SOLID;
 		}
 	}
+	//	trap_LinkEntity(ent);// Tequila's fix for the invisibility/insolid bug of entities on slot 0 (dm_train, bot touching doors)
 }
 
 void Think_SmokeInit( gentity_t *ent ){

@@ -202,6 +202,12 @@ void SP_shooter_grenade( gentity_t *ent );
 #else
 void SP_shooter_dynamite( gentity_t *ent );
 void SP_shooter_molotov( gentity_t *ent );
+void SP_eternal_fire( gentity_t *ent );
+void SP_invisible_hurt( gentity_t *ent );
+void SP_remove_info_player_deathmatch( gentity_t *ent );
+void SP_remove_pickup_money( gentity_t *ent );
+void SP_remove_item_money( gentity_t *ent );
+void SP_remove_item_belt( gentity_t *ent );
 #endif
 
 void SP_team_CTF_redplayer( gentity_t *ent );
@@ -301,6 +307,12 @@ spawn_t	spawns[] = {
 #else
 	{"shooter_grenade", SP_shooter_dynamite},
 	{"shooter_plasma", SP_shooter_molotov},
+	{"eternal_fire", SP_eternal_fire},
+	{"invisible_hurt", SP_invisible_hurt},
+	{"remove_info_player_deathmatch", SP_remove_info_player_deathmatch},
+	{"remove_pickup_money", SP_remove_pickup_money},
+	{"remove_item_money", SP_remove_item_money},
+	{"remove_item_belt", SP_remove_item_belt},
 	{"shooter_dynamite", SP_shooter_dynamite},
 	{"shooter_molotov", SP_shooter_molotov},
 #endif
@@ -787,6 +799,84 @@ void SP_worldspawn( void ) {
 }
 
 
+///*
+//==============
+//G_SpawnEntitiesFromString
+//
+//Parses textual entity definitions out of an entstring and spawns gentities.
+//==============
+//*/
+//void G_SpawnEntitiesFromString( void ) {
+//	// allow calls to G_Spawn*()
+//	level.spawning = qtrue;
+//	level.numSpawnVars = 0;
+//
+//	// the worldspawn is not an actual entity, but it still
+//	// has a "spawn" function to perform any global setup
+//	// needed by a level (setting configstrings or cvars, etc)
+//	if ( !G_ParseSpawnVars() ) {
+//		G_Error( "SpawnEntities: no entities" );
+//	}
+//	SP_worldspawn();
+//
+//	// parse ents
+//	while( G_ParseSpawnVars() ) {
+//		G_SpawnGEntityFromSpawnVars();
+//	}
+//
+//	level.spawning = qfalse;			// any future calls to G_Spawn*() will be errors
+//}
+
+/*
+===============
+G_ParseSpawnFileBuf
+===============
+*/
+void G_ParseSpawnFileBuf( char *buf ) {
+	char	*token;
+	char	key[MAX_TOKEN_CHARS];
+
+	while ( 1 ) {
+
+		level.numSpawnVars = 0;
+		level.numSpawnVarChars = 0;
+
+		token = COM_Parse( &buf );
+		if ( !token[0] ) {
+			break;
+		}
+		if ( strcmp( token, "{" ) ) {
+			Com_Printf( "Missing { in info file\n" );
+			break;
+		}
+
+		while ( 1 ) {
+			token = COM_ParseExt( &buf, qtrue );
+			if ( !token[0] ) {
+				Com_Printf( "Unexpected end of info file\n" );
+				break;
+			}
+			if ( !strcmp( token, "}" ) ) {
+				break;
+			}
+			Q_strncpyz( key, token, sizeof( key ) );
+
+			token = COM_ParseExt( &buf, qfalse );
+
+			if ( level.numSpawnVars == MAX_SPAWN_VARS ) {
+				G_Error( "G_ParseSpawnVars: MAX_SPAWN_VARS" );
+			}
+
+			level.spawnVars[ level.numSpawnVars ][0] = G_AddSpawnVarToken( key );
+			level.spawnVars[ level.numSpawnVars ][1] = G_AddSpawnVarToken( token );
+			level.numSpawnVars++;
+		}
+
+// do the actual spawning
+		G_SpawnGEntityFromSpawnVars();
+	}
+}
+
 /*
 ==============
 G_SpawnEntitiesFromString
@@ -795,6 +885,17 @@ Parses textual entity definitions out of an entstring and spawns gentities.
 ==============
 */
 void G_SpawnEntitiesFromString( void ) {
+	int			len;
+	fileHandle_t	f;
+	char			buf[MAX_ARENAS_TEXT];
+	char			filename[MAX_QPATH] = "powerups/";
+	char			map[MAX_QPATH];
+	char			serverinfo[MAX_INFO_STRING];
+
+	trap_GetServerinfo( serverinfo, sizeof(serverinfo) );
+	Q_strncpyz( map, Info_ValueForKey( serverinfo, "mapname" ), sizeof(map) );
+//	level.isCustom = G_MapIsCustom( map );
+
 	// allow calls to G_Spawn*()
 	level.spawning = qtrue;
 	level.numSpawnVars = 0;
@@ -811,6 +912,29 @@ void G_SpawnEntitiesFromString( void ) {
 	while( G_ParseSpawnVars() ) {
 		G_SpawnGEntityFromSpawnVars();
 	}
+
+	// special corkscrew script reader
+	strcat(filename, map);
+	strcat(filename, ".txt");
+
+	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	if ( !f ) {
+		trap_Printf( va( S_COLOR_RED "file not found: %s\n", filename ) );
+		level.spawning = qfalse;			// any future calls to G_Spawn*() will be errors
+		return;
+	}
+	if ( len >= MAX_ARENAS_TEXT ) {
+		trap_Printf( va( S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_ARENAS_TEXT ) );
+		trap_FS_FCloseFile( f );
+		level.spawning = qfalse;			// any future calls to G_Spawn*() will be errors
+		return;
+	}
+
+	trap_FS_Read( buf, len, f );
+	buf[len] = 0;
+	trap_FS_FCloseFile( f );
+
+	G_ParseSpawnFileBuf( buf );
 
 	level.spawning = qfalse;			// any future calls to G_Spawn*() will be errors
 }

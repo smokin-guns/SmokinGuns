@@ -393,7 +393,7 @@ void G_TouchTriggers( gentity_t *ent ) {
 				(ent->client->oldbuttons & BUTTON_ACTIVATE)) &&
 
 				(!(ent->r.svFlags & SVF_BOT) ||
-				(hit->moverState != MOVER_POS1 && hit->moverState != MOVER_POS2) ) ) //  bots dont need to press down activate, but sometimes they need to close doors in order to re-open them outwards
+				(hit->moverState != MOVER_POS1 && hit->moverState != MOVER_POS2) ) ) //  patch bots: bots dont need to press down activate, but sometimes they need to close doors in order to re-open them outwards
 				
 				continue;
 
@@ -758,11 +758,11 @@ qboolean ClientInactivityTimer( gclient_t *client ) {
 		client->inactivityTime = level.time + g_inactivity.integer * 1000;
 		client->inactivityWarning = qfalse;
 	} else if ( !client->pers.localClient ) {
-		if ( level.time > client->inactivityTime ) {
+		if ( level.time > client->inactivityTime && g_humancount) {// patch energy save
 			trap_DropClient( client - level.clients, "Dropped due to inactivity" );
 			return qfalse;
 		}
-		if ( level.time > client->inactivityTime - 10000 && !client->inactivityWarning ) {
+		if ( level.time > client->inactivityTime - 10000 && !client->inactivityWarning && g_humancount) {// patch energy save
 			client->inactivityWarning = qtrue;
 			trap_SendServerCommand( client - level.clients, "cp \"Ten seconds until inactivity drop!\n\"" );
 		}
@@ -1067,7 +1067,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 #endif
 			SelectSpawnPoint( ent->client->ps.origin, origin, angles, qfalse );
 #else
-			SelectSpawnPoint( ent->client->ps.origin, origin, angles, qfalse, ent->mappart, ent->client);
+			SelectSpawnPoint( ent->client->ps.origin, origin, angles, ent->mappart, ent);// patch spawn point
 #endif
 			TeleportPlayer( ent, origin, angles );
 			break;
@@ -1274,6 +1274,7 @@ void ClientThink_real( gentity_t *ent ) {
 		}
 
 		client->pers.realPing = sum / NUM_PING_SAMPLES;
+//		client->ps.timeNudge = sum / NUM_PING_SAMPLES;// patch timenudge
 	}
 	else {
 		// if g_truePing is off, use the normal ping
@@ -1306,6 +1307,7 @@ void ClientThink_real( gentity_t *ent ) {
 
 		// adjust the real ping to reflect the new latency
 		client->pers.realPing += time - ucmd->serverTime;
+//		client->ps.timeNudge += time - ucmd->serverTime; // patch timenudge
 	}
 //unlagged - lag simulation #2
 
@@ -1330,6 +1332,7 @@ void ClientThink_real( gentity_t *ent ) {
 	if ( client->pers.latentSnaps ) {
 		// adjust the real ping
 		client->pers.realPing += client->pers.latentSnaps * (1000 / sv_fps.integer);
+//		client->ps.timeNudge += client->pers.latentSnaps * (1000 / sv_fps.integer);// patch timenudge
 		// adjust the attack time so backward reconciliation will work
 		client->attackTime -= client->pers.latentSnaps * (1000 / sv_fps.integer);
 	}
@@ -1527,12 +1530,12 @@ void ClientThink_real( gentity_t *ent ) {
 #ifdef SMOKINGUNS
 	pm.ps->oldbuttons = client->buttons;
 #endif
-
+	    pm.tracemask = MASK_PLAYERSOLID | CONTENTS_BOTCLIP;//
 	if ( pm.ps->pm_type == PM_DEAD ) {
 		pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
 	}
 	else if ( ent->r.svFlags & SVF_BOT ) {
-		pm.tracemask = MASK_PLAYERSOLID | CONTENTS_BOTCLIP;
+//		pm.tracemask = MASK_PLAYERSOLID | CONTENTS_BOTCLIP;//
 #ifdef SMOKINGUNS
 		client->ps.stats[STAT_FLAGS] |= SF_BOT;
 #endif

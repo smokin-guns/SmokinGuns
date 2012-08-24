@@ -329,6 +329,7 @@ typedef enum {
 #define PMF_INVULEXPAND		16384	// invulnerability sphere set to full size
 #ifdef SMOKINGUNS
 #define PMF_SUICIDE			32768
+#define PMF_EDGE    128// patch URT edge climbing
 #endif
 
 #define	PMF_ALL_TIMES	(PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK)

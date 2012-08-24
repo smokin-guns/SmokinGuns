@@ -296,6 +296,19 @@ static const char *Cvar_Validate( cvar_t *var,
 		return value;
 }
 
+/*
+============
+Cvar_Get
+
+If the variable already exists, the value will not be set unless CVAR_ROM
+The flags will be or'ed in if the variable exists.
+============
+*/
+cvar_t *Cvar_Get3( const char *var_name, const char *var_value, int flags ) {
+	cvar_t	*var;
+	var = Cvar_FindVar (var_name);
+	return var;
+}
 
 /*
 ============

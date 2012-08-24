@@ -1812,6 +1812,7 @@ extern	vmCvar_t		cg_serverduellimit;
 extern	vmCvar_t		cg_impactparticles;
 extern	vmCvar_t		cg_gunsmoke;
 extern	vmCvar_t		cg_addguns;
+extern	vmCvar_t		cg_killmsg;
 extern	vmCvar_t		cg_hitmsg;
 extern	vmCvar_t		cg_hitfarmsg;
 extern	vmCvar_t		cg_ownhitmsg;
@@ -1821,6 +1822,8 @@ extern	vmCvar_t		cg_debug;
 extern	vmCvar_t		cg_glowflares;
 extern	vmCvar_t		cg_boostfps;
 extern	vmCvar_t		cg_drawdebug;
+extern	vmCvar_t		cg_drawspeed;
+
 
 //extern	vmCvar_t		cg_teamredcount;
 //extern	vmCvar_t		cg_teambluecount;

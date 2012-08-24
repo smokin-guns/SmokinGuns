@@ -406,6 +406,8 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	qboolean	isBot;
 	char		systemInfo[16384];
 	const char	*p;
+    char delimiter[] = " ";
+    char *ptr;
 
 	// shut down the existing game if it is running
 	SV_ShutdownGameProgs();
@@ -594,6 +596,21 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 		Cvar_Set( "sv_paks", "" );
 		Cvar_Set( "sv_pakNames", "" );
 	}
+	
+//	p = Cvar_Get ("sv_additionalPaks", "", CVAR_SERVERINFO | CVAR_LATCH )->string;
+//	Com_Printf( "WARNING: adding %s to referenced Paks\n", p );
+//	FS_AddReferencedPaks(p);
+
+	p = Cvar_Get ("sv_additionalPaks", "", CVAR_SERVERINFO | CVAR_LATCH )->string;
+    ptr = strtok(p, delimiter);
+    while(ptr != NULL) {
+	    //printf("%s\n", ptr);
+	    Com_Printf( "WARNING: adding %s to referenced Paks\n", ptr );
+	    FS_AddReferencedPaks(ptr);
+	    ptr = strtok(NULL, delimiter);
+    }
+	Cvar_Set( "sv_additionalPaks", "" );
+
 	// the server sends these to the clients so they can figure
 	// out which pk3s should be auto-downloaded
 	p = FS_ReferencedPakChecksums();
@@ -636,7 +653,7 @@ void SV_Init (void)
 	SV_AddOperatorCommands ();
 
 	// serverinfo vars
-	Cvar_Get ("dmflags", "0", CVAR_SERVERINFO);
+	Cvar_Get ("dmflags", "0", CVAR_ARCHIVE);
 	Cvar_Get ("fraglimit", "20", CVAR_SERVERINFO);
 	Cvar_Get ("timelimit", "0", CVAR_SERVERINFO);
 	sv_gametype = Cvar_Get ("g_gametype", "0", CVAR_SERVERINFO | CVAR_LATCH );
@@ -645,6 +662,8 @@ void SV_Init (void)
 	sv_privateClients = Cvar_Get ("sv_privateClients", "0", CVAR_SERVERINFO);
 	sv_hostname = Cvar_Get ("sv_hostname", "noname", CVAR_SERVERINFO | CVAR_ARCHIVE );
 	sv_maxclients = Cvar_Get ("sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH);
+	sv_autorecord = Cvar_Get ("sv_autorecord", "0", CVAR_ARCHIVE );
+	sv_antiwallhack = Cvar_Get ("sv_antiwallhack", "1", CVAR_ARCHIVE);
 
 	sv_minRate = Cvar_Get ("sv_minRate", "0", CVAR_ARCHIVE | CVAR_SERVERINFO );
 	sv_maxRate = Cvar_Get ("sv_maxRate", "0", CVAR_ARCHIVE | CVAR_SERVERINFO );
@@ -720,6 +739,10 @@ void SV_FinalMessage( char *message ) {
 	for ( j = 0 ; j < 2 ; j++ ) {
 		for (i=0, cl = svs.clients ; i < sv_maxclients->integer ; i++, cl++) {
 			if (cl->state >= CS_CONNECTED) {
+				if (cl->demorecording) {
+					CL_StopRecord( cl );
+				}  
+			  
 				// don't send a disconnect to a local client
 				if ( cl->netchan.remoteAddress.type != NA_LOOPBACK ) {
 					SV_SendServerCommand( cl, "print \"%s\n\"\n", message );
@@ -743,12 +766,24 @@ before Sys_Quit or Sys_Error
 ================
 */
 void SV_Shutdown( char *finalmsg ) {
+	int			i;
+	client_t	*cl;
+
 	if ( !com_sv_running || !com_sv_running->integer ) {
 		return;
 	}
 
 	Com_Printf( "----- Server Shutdown (%s) -----\n", finalmsg );
 
+	if (sv_autorecord->integer) {
+		for (i=0, cl = svs.clients ; i < sv_maxclients->integer ; i++, cl++) {
+			if (cl->state >= CS_CONNECTED && cl->demorecording) {
+				CL_StopRecord( cl );
+			}
+		}
+	}
+	
+	
 	NET_LeaveMulticast6();
 
 	if ( svs.clients && !com_errorEntered ) {

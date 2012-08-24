@@ -575,7 +575,7 @@ static void CG_Obituary( entityState_t *ent ) {
 		if(weapon){
 			if ( ent->eFlags & EF_SAME_TEAM )
 				CG_Printf("%s ^1teamkilled^7 %s with %s.\n", attackerName, targetName, bg_weaponlist[weapon].name );
-			else
+			else if ( cg_killmsg.integer == 1 )// patch messages: optionally disable kill messages in chat window. They're still shown in the top right corner.
 				CG_Printf("%s killed %s with %s.\n", attackerName, targetName, bg_weaponlist[weapon].name );
 			return;
 		}

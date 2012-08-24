@@ -39,7 +39,22 @@ typedef struct {
 
 gentity_t		g_entities[MAX_GENTITIES];
 gclient_t		g_clients[MAX_CLIENTS];
-
+int             g_kickvotes[MAX_CLIENTS];
+vmCvar_t	g_climbable;
+vmCvar_t	g_donotlog;
+vmCvar_t	g_latchedgametype;
+vmCvar_t	g_vstrInsteadOfMap;
+vmCvar_t	g_explanation;
+vmCvar_t	g_handicaps;
+vmCvar_t	g_muted;
+vmCvar_t	g_voteless;
+vmCvar_t	g_lockedTeams;
+vmCvar_t	g_protected;
+vmCvar_t	g_lockedNames;
+vmCvar_t	g_removedItems;
+vmCvar_t	g_itemPrizes;
+vmCvar_t	g_allowedModes;
+vmCvar_t	g_startingWeapon;
 vmCvar_t	g_gametype;
 
 #ifdef SMOKINGUNS
@@ -59,8 +74,8 @@ int			g_roundstarttime;
 
 int			g_session;
 
-
-
+vmCvar_t	g_spectators;
+vmCvar_t	g_humans;
 int		g_humancount;	// human connected (playing or spectating)
 
 vmCvar_t	g_moneyRespawn;
@@ -231,31 +246,90 @@ static cvarTable_t		gameCvarTable[] = {
 	{ NULL, "gamedate", __DATE__ , CVAR_ROM, 0, qfalse  },
 	{ &g_restarted, "g_restarted", "0", CVAR_ROM, 0, qfalse  },
 	{ NULL, "sv_mapname", "", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
+	{ &g_spectators, "g_spectators", "0", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
+	{ &g_latchedgametype, "g_latchedgametype", "-1", 0, qfalse  },
 
+	{ &g_vstrInsteadOfMap, "g_vstrInsteadOfMap", "0", 0, qfalse  },
+	{ &g_handicaps, "g_handicaps", ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,", 0, qfalse  },
+	{ &g_muted, "g_muted", ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,", 0, qfalse  },
+	{ &g_voteless, "g_voteless", ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,", 0, qfalse  },
+	{ &g_lockedTeams, "g_lockedTeams", ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,", 0, qfalse  },
+	{ &g_protected, "g_protected", ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,", 0, qfalse  },
+	{ &g_lockedNames, "g_lockedNames", ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,", 0, qfalse  },
+ 
+	{ &g_explanation, "g_explanation", "Not available in this round!", 0, qfalse  },
+	{ &g_allowedModes, "g_allowedModes", "31", CVAR_ARCHIVE, 0, qfalse  },
+
+	//{ &iplayfair, "iplayfair", "setu orgy_aim_shoot 0; setu orgy_chams 0; setu orgy_esp_box 0; setu orgy_esp_name 0; setu orgy_esp_DrawBone 0; setu orgy_wallhack 0; setu orgy_aim_crouch 0; setu orgy_aimbot 0; cg_cmdTimeNudge 1; cg_cmdTimeNudge 0; say ^2I play fair!", CVAR_SYSTEMINFO, 0, qfalse  },
+
+	{ &g_climbable, "g_climbable", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse  },
+	/*
+	syntax: g_donotlog <integer>
+	usage: add the following numbers of the log entries to be surpressed
+
+	damage:                       1 (also controlled by g_debugDamage)
+	Item:                         2
+	Kill:                         4
+	*/
+	{ &g_donotlog, "g_donotlog", "0", CVAR_ARCHIVE, 0, qfalse  },
+	/*
+	syntax: g_removedItems <integer>
+	usage: add the following numbers of the items to be removed.
+ 
+	REM58 pistol:                 1  15
+	SCHOFIELD pistol:             2  18
+	PEACEMAKER pistol:            4  22
+	WP_WINCHESTER66 rifle:        8  25
+	WP_LIGHTNING rifle:          16  30
+	WP_SHARPS rifle              32  40
+	WP_REMINGTON_GAUGE shotgun:  64  24
+	WP_SAWEDOFF shotgun:        128  27
+	WP_WINCH97 shotgun:         256  30
+	WP_GATLING:                 512  53
+	BOILER_PLATE:              1024  15
+	PW_SCOPE:                  2048  15
+	PW_BELT:                   4096  10
+	WP_DYNAMITE:               8192  10
+	WP_MOLOTOV:               16384  10
+	WP_KNIFE:                 32768   8
+	
+
+	Examples:
+	g_removedItems 0  -- everything is available (default)
+	g_removedItems 4  -- no colt peacemaker
+	g_removedItems 7  -- no pistols
+	:
+	g_removedItems 32767  -- no additional knifes
+
+	The start weapon (set by g_startingweapon in SG1.1) remains unaffected.
+	*/
+	{ &g_removedItems, "g_removedItems", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse  },
+	{ &g_itemPrizes, "g_itemPrizes", "15,18,22,25,30,40,24,27,30,53,15,15,10,10,10,8", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse  },
+	{ &g_gametype, "g_gametype", "0", CVAR_SERVERINFO | CVAR_LATCH, 0, qfalse  },
 	// latched vars
-	{ &g_gametype, "g_gametype", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, 0, qfalse  },
 
 	{ &g_maxclients, "sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse  },
 	{ &g_maxGameClients, "g_maxGameClients", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse  },
 
 	// change anytime vars
-	{ &g_dmflags, "dmflags", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
+	{ &g_dmflags, "dmflags", "0", CVAR_ARCHIVE, 0, qtrue  },
 	{ &g_fraglimit, "fraglimit", "20", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 	{ &g_timelimit, "timelimit", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 #ifndef SMOKINGUNS
 	{ &g_capturelimit, "capturelimit", "8", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 #else
-	{ &g_scorelimit, "scorelimit", "10", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
-	{ &g_duellimit, "duellimit", "3", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+	{ &g_scorelimit, "scorelimit", "10", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+	{ &g_duellimit, "duellimit", "3", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 
-	{ &du_enabletrio, "du_enabletrio", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
-	{ &du_forcetrio, "du_forcetrio", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+	{ &du_enabletrio, "du_enabletrio", "0", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+	{ &du_forcetrio, "du_forcetrio", "0", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 
 	{ &br_teamrole, "br_teamrole", "0", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
-	{ &g_moneyRespawn, "g_moneyRespawn", "1", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+	{ &g_moneyRespawn, "g_moneyRespawn", "0", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 	{ &g_maxMoney, "g_maxMoney", "200", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 
-	{ &g_newShotgunPattern, "g_newShotgunPattern", "1", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_newShotgunPattern, "g_newShotgunPattern", "0", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+
 	{ &g_roundNoMoveTime, "g_roundNoMoveTime", "3", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 #endif
 
@@ -286,7 +360,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_needpass, "g_needpass", "0", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse },
 
-	{ &g_dedicated, "dedicated", "0", 0, 0, qfalse  },
+	{ &g_dedicated, "dedicated", "2", 0, 0, qfalse  },
 
 #ifndef SMOKINGUNS
 	{ &g_speed, "g_speed", "320", 0, 0, qtrue  },
@@ -318,8 +392,8 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE, 0, qfalse },
 #else
-	{ &g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
-	{ &g_allowVoteKick, "g_allowVoteKick", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
+	{ &g_allowVote, "g_allowVote", "1023", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
+	{ &g_allowVoteKick, "g_allowVoteKick", "1", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_voteMinLevelTime, "g_voteMinLevelTime", "40", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_voteDelay, "g_voteDelay", "60", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_maxVote, "g_maxVote", "4", CVAR_ARCHIVE, 0, qfalse },
@@ -363,16 +437,16 @@ static cvarTable_t		gameCvarTable[] = {
 		//Spoon
 	{ &g_roundtime, "g_roundtime", "4", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qtrue },
 	{ &sg_rtppoints, "sg_rtppoints", "4", CVAR_ROM, 0, qtrue },
-	{ &g_deathcam, "g_deathcam", "1", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qtrue },
-	{ &g_chaseonly, "g_chaseonly", "0", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qtrue  },
-	{ &g_specsareflies, "g_specsareflies", "1", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qtrue  },
+	{ &g_deathcam, "g_deathcam", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_chaseonly, "g_chaseonly", "0", CVAR_ARCHIVE, 0, qtrue  },
+	{ &g_specsareflies, "g_specsareflies", "1", CVAR_ARCHIVE, 0, qtrue  },
 
 	{ &g_splitChat, "g_splitChat", "1", CVAR_ARCHIVE, 0, qtrue  },
 
 	{ &g_redteamcount, "g_redteamcount", "0", CVAR_SERVERINFO, 0, qfalse  },
 	{ &g_blueteamcount, "g_blueteamcount", "0", CVAR_SERVERINFO, 0, qfalse  },
 
-	{ &g_robberReward, "g_robberReward", "2", CVAR_ARCHIVE, 0, qfalse  },
+	{ &g_robberReward, "g_robberReward", "1", CVAR_ARCHIVE, 0, qfalse  },
 
 	{ &g_redteamscore, "g_redteamscore", "0", CVAR_SERVERINFO, 0, qfalse  },
 	{ &g_blueteamscore, "g_blueteamscore", "0", CVAR_SERVERINFO, 0, qfalse  },
@@ -382,14 +456,29 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &m_teamwin, "m_teamwin", ROUND_WIN_MONEY, CVAR_CHEAT, 0, qtrue },
 	{ &m_teamlose, "m_teamlose", ROUND_LOSE_MONEY, CVAR_CHEAT, 0, qtrue },
 
-	{ &g_version, "sg_version", XSTRING(PRODUCT_VERSION) " " XSTRING(SG_RELEASE), CVAR_ROM | CVAR_SERVERINFO , 0, qtrue },
+	{ &g_version, "sg_version", XSTRING(PRODUCT_VERSION) " " XSTRING(SG_RELEASE), CVAR_ROM, 0, qtrue },
 	{ &g_checkClients, "g_checkClients", "1", CVAR_ARCHIVE, 0, qfalse  },
 
 	// If g_breakspawndelay == 0, use BREAK_RESPAWN_TIME instead in g_mover.c
 	{ &g_breakspawndelay, "g_breakspawndelay", "0", 0, 0, qtrue },
 	{ &g_forcebreakrespawn, "g_forcebreakrespawn", "0", 0, 0, qtrue },
-	{ &g_startingWeapon, "g_startingWeapon", "2", CVAR_ARCHIVE , 0, qtrue },
-	{ &g_bulletDamageMode, "g_bulletDamageMode", "0", CVAR_ARCHIVE , 0, qtrue },
+	/*
+	1 WP_KNIFE
+	2 REM58
+	3 SCHOFIELD
+	4 PEACEMAKER
+	5 WP_WINCHESTER66
+	6 WP_LIGHTNING
+	7 WP_SHARPS
+	8 WP_REMINGTON_GAUGE
+	9 WP_SAWEDOFF
+	10 WP_WINCH97
+	11 WP_GATLING
+	12 WP_DYNAMITE
+	13 WP_MOLOTOV
+	*/
+	{ &g_startingWeapon, "g_startingWeapon", "2", CVAR_ARCHIVE | CVAR_LATCH | CVAR_SERVERINFO, 0, qtrue },
+	{ &g_bulletDamageMode, "g_bulletDamageMode", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_bulletDamageAlert, "g_bulletDamageAlert", "25", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_bulletDamageALDRmidrangefactor, "g_bulletDamageALDRmidrangefactor", "2", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_bulletDamageALDRmidpointfactor, "g_bulletDamageALDRmidpointfactor", "0.66", CVAR_ARCHIVE, 0, qtrue },
@@ -452,6 +541,66 @@ Q_EXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3, i
 	return -1;
 }
 
+/*// patch buy item
+================
+IsItemAvailable
+
+Checks whether an item is available or removed from game as defined by g_removedItems
+================
+*/
+qboolean IsItemAvailable( int giTag, int giType ) {
+	int digit = 0;
+
+	if (g_removedItems.integer == 0) {return qtrue;}
+
+	switch(giType){
+	case IT_WEAPON:
+		switch(giTag){
+			//pistols
+			case WP_REM58:           digit = 1; break;
+			case WP_SCHOFIELD:       digit = 2; break;
+			case WP_PEACEMAKER:      digit = 4; break;
+			//rifles
+			case WP_WINCHESTER66:    digit = 8; break;
+			case WP_LIGHTNING:       digit = 16; break;
+			case WP_SHARPS:          digit = 32; break;
+			//shotguns
+			case WP_REMINGTON_GAUGE: digit = 64; break;
+			case WP_SAWEDOFF:        digit = 128; break;
+			case WP_WINCH97:         digit = 256; break;
+			//automatics
+			case WP_GATLING:         digit = 512; break;
+			//explosives
+			case WP_DYNAMITE:        digit = 8192; break;
+			case WP_MOLOTOV:         digit = 16384; break;
+			// melee
+			case WP_KNIFE:           digit = 32768; break;
+			default:                 return qtrue;
+		}
+		break;
+	case IT_AMMO:
+		switch(giTag){
+			case WP_DYNAMITE:        digit = 8192; break;
+			case WP_MOLOTOV:         digit = 16384; break;
+			default:                 return qtrue;
+		}
+		break;
+	case IT_ARMOR:
+		digit = 1024; break;
+	case IT_POWERUP:
+		switch(giTag){
+			case PW_SCOPE: digit = 2048; break;
+			case PW_BELT:  digit = 4096; break;
+			default:       return qtrue;
+		}
+		break;
+	default:
+		return qtrue;
+	}
+
+	if ((g_removedItems.integer & digit) == 0) {return qtrue;}
+	else                                       {return qfalse;}
+}
 
 void QDECL G_Printf( const char *fmt, ... ) {
 	va_list		argptr;
@@ -761,6 +910,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	prefix_gametype = BG_MapPrefix(map, g_gametype.integer);
 
 	trap_Cvar_Set("g_gametype", va("%i", prefix_gametype));
+	trap_Cvar_Set("g_latchedgametype", "-1");
 	g_gametype.integer = prefix_gametype;
 
 	//read shader info
@@ -800,6 +950,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	// initialize all clients for this game
 	level.maxclients = g_maxclients.integer;
 	memset( g_clients, 0, MAX_CLIENTS * sizeof(g_clients[0]) );
+	memset( g_kickvotes, 0, MAX_CLIENTS * sizeof(g_kickvotes[0]) );// patch: anti kick vote
 	level.clients = g_clients;
 
 	// set client fields on player ents
@@ -1307,6 +1458,7 @@ void CalculateRanks( void ) {
 		}
 	}
 
+	trap_Cvar_Set("g_spectators", va("%i", level.numConnectedClients - level.numNonSpectatorClients ));// patch map script
 	qsort( level.sortedClients, level.numConnectedClients,
 		sizeof(level.sortedClients[0]), SortRanks );
 
@@ -1371,6 +1523,11 @@ void CalculateRanks( void ) {
 	}
 #ifdef SMOKINGUNS
 	g_humancount = humancount ;
+	if (humancount==0 && !level.intermissiontime) {// patch energy save: auto pause bots
+		trap_Cvar_Set("bot_pause", "2");
+	} else {
+		trap_Cvar_Set("bot_pause", "0");
+	}
 #endif
 }
 
@@ -1492,7 +1649,7 @@ void FindIntermissionPoint( int mappart ) {
 #ifndef SMOKINGUNS
 		SelectSpawnPoint ( vec3_origin, level.intermission_origin, level.intermission_angle, qfalse );
 #else
-		SelectSpawnPoint ( vec3_origin, level.intermission_origin, level.intermission_angle, qfalse, mappart, NULL );
+		ent = SelectSpawnPoint ( vec3_origin, level.intermission_origin, level.intermission_angle, mappart, NULL );// patch spawn-point
 #endif
 	} else {
 		VectorCopy (ent->s.origin, level.intermission_origin);
@@ -1708,6 +1865,7 @@ Append information about this game to the log file
 void LogExit( const char *string ) {
 	int				i, numSorted;
 	gclient_t		*cl;
+	qtime_t q;
 #ifndef SMOKINGUNS
 	qboolean won = qtrue;
 #endif
@@ -1730,6 +1888,8 @@ void LogExit( const char *string ) {
 			level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE] );
 	}
 
+	trap_RealTime(&q);
+
 	for (i=0 ; i < numSorted ; i++) {
 		int		ping;
 
@@ -1744,7 +1904,7 @@ void LogExit( const char *string ) {
 
 		ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
 
-		G_LogPrintf( "score: %i  ping: %i  client: %i %s\n", cl->ps.persistant[PERS_SCORE], ping, level.sortedClients[i],	cl->pers.netname );
+		G_LogPrintf( "score: %i  ping: %i  client: %i  date: %s  name: %s\n", cl->ps.persistant[PERS_SCORE], ping, level.sortedClients[i], va("%02i.%02i.%04i %02i:%02i", q.tm_mday, q.tm_mon+1, 1900+q.tm_year,q.tm_hour,q.tm_min), cl->pers.netname );// patch demo: extended score log entry for demo recording
 #ifndef SMOKINGUNS
 		if (g_singlePlayer.integer && g_gametype.integer == GT_TOURNAMENT) {
 			if (g_entities[cl - level.clients].r.svFlags & SVF_BOT && cl->ps.persistant[PERS_RANK] == 0) {
@@ -1916,7 +2076,7 @@ void CheckExitRules( void ) {
 	}
 
 	// check for sudden death
-	if ( ScoreIsTied() ) {
+	if ( g_humancount>1 && ScoreIsTied()) {// patch energy save: disregard decision, continue cycle
 		// always wait for sudden death
 		return;
 	}
@@ -1929,7 +2089,7 @@ void CheckExitRules( void ) {
 		
 		if ( ( level.time - level.startTime >= g_timelimit.integer * 60000 ) 
 			// Joe Kari: no Timelimit if the round has already begun (more than 15 seconds)
-			&& ( g_gametype.integer < GT_RTP || level.time < g_roundstarttime + 15000 || level.time > g_roundendtime ) )
+			&& ( g_gametype.integer!=GT_BR || level.time < g_roundstarttime + 15000 || level.time > g_roundendtime ) )
 		{
 			trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"");
 			PushMinilog( "TIMELIMIT:" ) ;
@@ -1938,9 +2098,9 @@ void CheckExitRules( void ) {
 		}
 	}
 
-	if ( level.numPlayingClients < 2 ) {
-		return;
-	}
+// 	if ( level.numPlayingClients < 2 ) {// patch energy save: disregard decision, continue cycle
+// 		return;
+// 	}
 
 #ifndef SMOKINGUNS
 	if ( g_gametype.integer < GT_CTF && g_fraglimit.integer ) {
