@@ -139,7 +139,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot ) {
 #else
 	if ( g_gametype.integer == GT_TEAM ) {
 #endif
-		if ( g_teamAutoJoin.integer ) {
+		if ( g_teamAutoJoin.integer && !(g_entities[ client - level.clients ].r.svFlags & SVF_BOT) ) {
 			sess->sessionTeam = PickTeam( -1 );
 #ifdef SMOKINGUNS
 			if ( sess->sessionTeam == TEAM_RED )  PushMinilogf( "JOIN: %i => lawmen" , clientNum ) ;
