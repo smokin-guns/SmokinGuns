@@ -686,11 +686,13 @@ Chooses a player start, deathmatch start, etc
 ============
 */
 gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, int mappart, gentity_t *ent ) {
-//	return SelectRandomFurthestSpawnPoint( avoidPoint, origin, angles, mappart, client );
-
 	gclient_t	*client;
 	gentity_t	*spot;
 	gentity_t	*nearestSpot;
+
+	if (g_gametype.integer == GT_DUEL) {// fix DUEL spawn point regression; restoring the original behaviour
+		return SelectRandomFurthestSpawnPoint( avoidPoint, origin, angles, qfalse, mappart, ent->client );
+	}
 
 	client = ent->client;
 	nearestSpot = SelectNearestDeathmatchSpawnPoint( avoidPoint );
