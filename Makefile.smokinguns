@@ -1,6 +1,6 @@
 ########################################################################
 # Based on ioQuake3 commit see https://github.com/ioquake/ioq3
-IOQ3_GITHUB_COMMIT = 037565293f
+IOQ3_GITHUB_COMMIT = 4f7eb9fa21
 ########################################################################
 ifeq ($(BUILD_CLIENT),)
   # Build client by default
@@ -34,6 +34,9 @@ ifeq ($(USE_CODEC_VORBIS),)
 endif
 ifeq ($(USE_FREETYPE),)
   USE_FREETYPE     = 0
+endif
+ifndef ($(BUILD_RENDERER_REND2),)
+  BUILD_RENDERER_REND2 = 1
 endif
 ########################################################################
 # Don't modify the following or the build will just be broken
