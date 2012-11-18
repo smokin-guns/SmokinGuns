@@ -174,6 +174,32 @@ char	*ConcatArgs( int start ) {
 	return line;
 }
 
+
+/*
+==================
+StringIsInteger
+==================
+*/
+qboolean StringIsInteger( const char * s ) {
+	int			i;
+	int			len;
+	qboolean	foundDigit;
+
+	len = strlen( s );
+	foundDigit = qfalse;
+
+	for ( i=0 ; i < len ; i++ ) {
+		if ( !isdigit( s[i] ) ) {
+			return qfalse;
+		}
+
+		foundDigit = qtrue;
+	}
+
+	return foundDigit;
+}
+
+
 /*
 ==================
 ClientNumberFromString
@@ -186,25 +212,16 @@ int ClientNumberFromString( gentity_t *to, char *s ) {
 	gclient_t	*cl;
 	int			idnum;
 	char		cleanName[MAX_STRING_CHARS];
-	
-	// numeric values are just slot numbers
-	if (s[0] >= '0' && s[0] <= '9') {
-		// Joe Kari: wtf??? 
-		// ClientNumberFromString() is suppose to find a client from its name, what if a client have a number
-		// as the first character of its name??? 
-		
-		idnum = atoi( s );
-		if ( idnum < 0 || idnum >= level.maxclients ) {
-			trap_SendServerCommand( to-g_entities, va("print \"Bad client slot: %i\n\"", idnum));
-			return -1;
-		}
 
-		cl = &level.clients[idnum];
-		if ( cl->pers.connected != CON_CONNECTED ) {
-			trap_SendServerCommand( to-g_entities, va("print \"Client %i is not active\n\"", idnum));
-			return -1;
+	// numeric values could be slot numbers
+	if ( StringIsInteger( s ) ) {
+		idnum = atoi( s );
+		if ( idnum >= 0 && idnum < level.maxclients ) {
+			cl = &level.clients[idnum];
+			if ( cl->pers.connected == CON_CONNECTED ) {
+				return idnum;
+			}
 		}
-		return idnum;
 	}
 
 	// check for a name match
