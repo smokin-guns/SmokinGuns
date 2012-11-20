@@ -1490,7 +1490,7 @@ static void Cmd_Tell_f( gentity_t *ent ) {
 	}
 
 	target = &g_entities[targetNum];
-	if ( !target || !target->inuse || !target->client ) {
+	if ( !target->inuse || !target->client ) {
 		return;
 	}
 
@@ -1650,7 +1650,7 @@ static void Cmd_VoiceTell_f( gentity_t *ent, qboolean voiceonly ) {
 	}
 
 	target = &g_entities[targetNum];
-	if ( !target || !target->inuse || !target->client ) {
+	if ( !target->inuse || !target->client ) {
 		return;
 	}
 
@@ -1779,6 +1779,14 @@ void Cmd_GameCommand_f( gentity_t *ent ) {
 		return;
 	}
 
+	trap_Argv( 2, arg, sizeof( arg ) );
+	order = atoi( arg );
+
+	if ( order < 0 || order >= numgc_orders ) {
+		trap_SendServerCommand( ent-g_entities, va("print \"Bad order: %i\n\"", order));
+		return;
+	}
+
 	trap_Argv( 1, arg, sizeof( arg ) );
 	targetNum = ClientNumberFromString( ent, arg );
 	if ( targetNum == -1 ) {
@@ -1786,15 +1794,7 @@ void Cmd_GameCommand_f( gentity_t *ent ) {
 	}
 
 	target = &g_entities[targetNum];
-	if ( !target || !target->inuse || !target->client ) {
-		return;
-	}
-
-	trap_Argv( 2, arg, sizeof( arg ) );
-	order = atoi( arg );
-
-	if ( order < 0 || order >= numgc_orders ) {
-		trap_SendServerCommand( ent-g_entities, va("print \"Bad order: %i\n\"", order));
+	if ( !target->inuse || !target->client ) {
 		return;
 	}
 
