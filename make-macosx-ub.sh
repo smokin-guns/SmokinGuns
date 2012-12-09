@@ -16,6 +16,16 @@ BIN_DEDOBJ="
 	build/release-darwin-ppc/smokinguns_dedicated.ppc
 	build/release-darwin-i386/smokinguns_dedicated.i386
 "
+RENDER_OBJ="
+	build/release-darwin-ppc/renderer_opengl1_smp_ppc.dylib
+	build/release-darwin-i386/renderer_opengl1_smp_i386.dylib
+	build/release-darwin-ppc/renderer_opengl1_ppc.dylib
+	build/release-darwin-i386/renderer_opengl1_i386.dylib
+	build/release-darwin-ppc/renderer_rend2_smp_ppc.dylib
+	build/release-darwin-i386/renderer_rend2_smp_i386.dylib
+	build/release-darwin-ppc/renderer_rend2_ppc.dylib
+	build/release-darwin-i386/renderer_rend2_i386.dylib
+"
 
 cd `dirname $0`
 if [ ! -f Makefile ]; then
@@ -151,7 +161,14 @@ echo "
 		<string>NSApplication</string>
 	</dict>
 	</plist>
-	" > "$DESTDIR/$APPBUNDLE/Contents/Info.plist"
+	" > $DESTDIR/$APPBUNDLE/Contents/Info.plist
+
+lipo -create -o $DESTDIR/$APPBUNDLE/Contents/MacOS/$BINARY $BIN_OBJ
+lipo -create -o $DESTDIR/$APPBUNDLE/Contents/MacOS/$DEDBIN $BIN_DEDOBJ
+cp $RENDER_OBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/
+cp $BASE_OBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/$BASEDIR/
+cp $MPACK_OBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/$MPACKDIR/
+cp code/libs/macosx/*.dylib $DESTDIR/$APPBUNDLE/Contents/MacOS/
 
 lipo build/release-darwin-ppc/smokinguns.ppc build/release-darwin-i386/smokinguns.i386 -create -output "$DESTDIR/$APPBUNDLE/Contents/MacOS/$BINARY"
 lipo build/release-darwin-ppc/smokinguns_dedicated.ppc build/release-darwin-i386/smokinguns_dedicated.i386 -create -output "$DESTDIR/$APPBUNDLE/Contents/MacOS/$DEDBIN"
