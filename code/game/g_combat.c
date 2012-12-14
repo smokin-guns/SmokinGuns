@@ -1901,8 +1901,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 						: hit_info[client->lasthurt_location].backname,
 					modNames[mod], attacker->s.number );
 			} else {
-				G_LogPrintf( "%i: world:%i health:%i damage:%.1f from:%s by:%i\n", level.time,
-					targ->s.number, targ->health, take, modNames[mod] , attacker->s.number );
+				G_LogPrintf( "%i: world:%i/%s health:%i damage:%.1f from:%s by:%i\n", level.time,
+					targ->s.number, targ->classname, targ->health, take, modNames[mod] , attacker->s.number );
 			}
 		}
 		

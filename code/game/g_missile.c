@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	MISSILE_PRESTEP_TIME	50
 
 #ifdef SMOKINGUNS
-void G_KnifeThink( gentity_t *self ) {
+static void G_KnifeThink( gentity_t *self ) {
 	trace_t trace;
 	int mask;
 
@@ -56,7 +56,7 @@ G_BounceMissile
 
 ================
 */
-void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
+static void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 	vec3_t	velocity;
 	float	dot;
 	int		hitTime;
@@ -100,7 +100,7 @@ G_ExplodeMissile
 Explode a missile without an impact
 ================
 */
-void G_ExplodeMissile( gentity_t *ent ) {
+static void G_ExplodeMissile( gentity_t *ent ) {
 	vec3_t		dir;
 	vec3_t		origin;
 
@@ -116,16 +116,12 @@ void G_ExplodeMissile( gentity_t *ent ) {
 	G_AddEvent( ent, EV_MISSILE_MISS, DirToByte( dir ) );
 
 	ent->freeAfterEvent = qtrue;
+	ent->takedamage = qfalse;
 
 	// splash damage
-	if ( ent->splashDamage ) {
-		if( G_RadiusDamage( ent->r.currentOrigin, ent->parent, ent->splashDamage, ent->splashRadius, ent
-			, ent->splashMethodOfDeath ) ) {
-#ifndef SMOKINGUNS
-			g_entities[ent->r.ownerNum].client->accuracy_hits++;
-#endif
-		}
-	}
+	if ( ent->splashDamage )
+		G_RadiusDamage( ent->r.currentOrigin, ent->parent, ent->splashDamage,
+			ent->splashRadius, ent, ent->splashMethodOfDeath );
 
 	trap_LinkEntity( ent );
 }
@@ -163,6 +159,7 @@ void G_InstantExplode(vec3_t orig, gentity_t *attacker) {
 	dynamite->methodOfDeath = MOD_DYNAMITE;
 	dynamite->splashMethodOfDeath = MOD_DYNAMITE;
 	dynamite->clipmask = MASK_SHOT;
+	dynamite->takedamage = qfalse;
 
 	G_ExplodeMissile(dynamite);
 }
@@ -346,7 +343,7 @@ static void ProximityMine_Player( gentity_t *mine, gentity_t *player ) {
 */
 /////////////////////////////////////////////
 #ifdef SMOKINGUNS
-void WhiskeyBurn( gentity_t *self, gentity_t *other, trace_t *trace ) {
+static void WhiskeyBurn( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	int		dflags;
 
 	// it's not burning!
@@ -374,7 +371,7 @@ void WhiskeyBurn( gentity_t *self, gentity_t *other, trace_t *trace ) {
 		other->client->ps.powerups[PW_BURNBIT] = level.time;
 }
 
-void WhiskeyThink( gentity_t *self){
+static void WhiskeyThink(gentity_t *self){
 
 	if(self->wait <= level.time){
 		G_FreeEntity(self);
@@ -399,18 +396,11 @@ void WhiskeyThink( gentity_t *self){
 		for(i = 0; i < num; i++){
 			gentity_t *hit = &g_entities[touch[i]];
 
-			if(!Q_stricmp(hit->classname, "whiskey_pool") &&
-				hit->s.apos.trDelta[0] == 0.0f){
-
-				G_AddEvent( hit, EV_WHISKEY_BURNS, DirToByte(hit->s.angles2));
-				hit->s.apos.trDelta[0] = 1;
-				hit->wait = level.time + WHISKEY_BURNTIME;
-			}
-
-			// make the dynamite explode
-			if(hit->r.contents & CONTENTS_TRIGGER2 && hit->takedamage){
-				G_Damage (hit, self, self->parent, NULL, NULL, 100, 0, MOD_MOLOTOV);
-			}
+			// make the dynamite explode and molotov burning
+			if (hit->r.contents & CONTENTS_EXPLOSIVE && hit->takedamage)
+				G_Damage (hit, self, self->parent, NULL, NULL, 100.0f, 0, MOD_MOLOTOV);
+			else if (hit->r.contents & CONTENTS_FLAMMABLE && hit->takedamage)
+				G_Damage (hit, self, self->parent, NULL, NULL, 10.0f, 0, MOD_MOLOTOV);
 		}
 	}
 
@@ -418,22 +408,17 @@ void WhiskeyThink( gentity_t *self){
 }
 
 // pool doesnt die it just burns
-void WhiskeyDie ( gentity_t *self, gentity_t *inflictor,
+static void WhiskeyDie ( gentity_t *self, gentity_t *inflictor,
 	gentity_t *attacker, int damage, int mod ) {
-
-	if(mod != MOD_DYNAMITE || self->s.apos.trDelta[0]){
-		self->health = 1;
-		self->takedamage = qtrue;
-		return;
-	}
 
 	G_AddEvent( self, EV_WHISKEY_BURNS, DirToByte(self->s.angles2));
 	self->s.apos.trDelta[0] = 1;
 
 	self->wait = level.time + WHISKEY_BURNTIME;
+	self->takedamage = qfalse;
 }
 
-gentity_t *SetWhiskeyPool (gentity_t *self, vec3_t origin, vec3_t normal, qboolean fire) {
+static gentity_t *SetWhiskeyPool (gentity_t *self, vec3_t origin, vec3_t normal, qboolean fire) {
 	gentity_t	*pool;
 
 	pool = G_Spawn();
@@ -453,18 +438,19 @@ gentity_t *SetWhiskeyPool (gentity_t *self, vec3_t origin, vec3_t normal, qboole
 	pool->touch = WhiskeyBurn;
 	pool->think = WhiskeyThink;
 	pool->nextthink = level.time + 100;
-	pool->r.contents |= CONTENTS_TRIGGER;
+	pool->r.contents |= CONTENTS_FLAMMABLE|CONTENTS_TRIGGER;
 
 	pool->die = WhiskeyDie;
 	pool->health = 1;
-	pool->takedamage = qtrue;
 
 	if(fire) {
 		pool->wait = level.time + WHISKEY_BURNTIME;
 		pool->s.apos.trDelta[0] = 1;
+		pool->takedamage = qfalse;
 	} else {
 		pool->wait = level.time + WHISKEY_SICKERTIME;
 		pool->s.apos.trDelta[0] = 0;
+		pool->takedamage = qtrue;
 	}
 
 	pool->noise_index = G_SoundIndex( "sound/world/electro.wav" );
@@ -482,7 +468,7 @@ gentity_t *SetWhiskeyPool (gentity_t *self, vec3_t origin, vec3_t normal, qboole
 	return pool;
 }
 
-void SprotzThink(gentity_t *self){
+static void SprotzThink(gentity_t *self){
 	vec3_t newOrigin, oldorg;
 	trace_t trace;
 	int contents;
@@ -549,7 +535,7 @@ G_MissileImpact
 #ifndef SMOKINGUNS
 void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 #else
-void G_MissileImpact( gentity_t *ent, trace_t *trace, int shaderNum ) {
+static void G_MissileImpact( gentity_t *ent, trace_t *trace, int shaderNum ) {
 #endif
 	gentity_t		*other;
 	qboolean		hitClient = qfalse;
@@ -1246,7 +1232,7 @@ gentity_t *fire_prox( gentity_t *self, vec3_t start, vec3_t dir ) {
 #endif
 
 #else
-void G_Temp(gentity_t *self){
+static void G_Temp(gentity_t *self){
 	self->nextthink = level.time + 100;
 }
 
@@ -1306,7 +1292,7 @@ G_Suck
 =================
 */
 
-void G_Suck( gentity_t *self ) {
+static void G_Suck( gentity_t *self ) {
 	int wait = self->wait;
 
 	// if in water disable burning
@@ -1323,7 +1309,7 @@ void G_Suck( gentity_t *self ) {
 		self->item = item;
 
 		self->s.eType = ET_ITEM;
-		self->r.contents = CONTENTS_TRIGGER2;
+		self->r.contents = CONTENTS_EXPLOSIVE;
 		self->wait = -1;
 		self->flags |= FL_THROWN_ITEM;
 
@@ -1361,7 +1347,7 @@ G_DynamiteDie
 Spoon - Destroy the dynamite
 ================
 */
-void G_DynamiteDie( gentity_t *self, gentity_t *inflictor,
+static void G_DynamiteDie( gentity_t *self, gentity_t *inflictor,
 	gentity_t *attacker, int damage, int mod ) {
 
 	self->takedamage = qfalse;
@@ -1397,7 +1383,7 @@ gentity_t *fire_dynamite (gentity_t *self, vec3_t start, vec3_t dir, int speed) 
 	bolt->health = 5;
 	bolt->takedamage = qtrue;
 	bolt->die = G_DynamiteDie;
-	bolt->r.contents = CONTENTS_CORPSE;
+	bolt->r.contents = CONTENTS_EXPLOSIVE;
 	VectorSet(bolt->r.mins, -8, -8, -1);
 	VectorCopy(bolt->r.mins, bolt->r.absmin);
 	VectorSet(bolt->r.maxs, 8, 8, 8);

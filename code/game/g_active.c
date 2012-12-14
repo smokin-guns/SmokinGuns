@@ -292,7 +292,7 @@ void G_TouchTriggers( gentity_t *ent ) {
 #ifndef SMOKINGUNS
 		if ( !( hit->r.contents & CONTENTS_TRIGGER ) ) {
 #else
-		if ( !( hit->r.contents & CONTENTS_TRIGGER ) && !( hit->r.contents & CONTENTS_TRIGGER2 ) &&
+		if ( !( hit->r.contents & CONTENTS_TRIGGER ) && !( hit->r.contents & CONTENTS_EXPLOSIVE ) &&
 			!(hit->s.eType == ET_MOVER && hit->s.angles2[0] == -1000) &&
 			hit->s.eType != ET_ESCAPE) {
 #endif

@@ -797,7 +797,6 @@ void LookAtKiller( gentity_t *self, gentity_t *attacker );
 //
 void G_RunMissile( gentity_t *ent );
 #ifdef SMOKINGUNS
-void G_ExplodeMissile( gentity_t *ent );
 void G_InstantExplode(vec3_t orig, gentity_t *attacker);
 #endif
 gentity_t *fire_blaster (gentity_t *self, vec3_t start, vec3_t aimdir);

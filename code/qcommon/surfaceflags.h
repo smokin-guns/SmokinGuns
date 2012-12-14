@@ -32,8 +32,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	CONTENTS_SOLID			1		// an eye is never valid in a solid
 
 #ifdef SMOKINGUNS
-//make dynamite shootable
-#define CONTENTS_TRIGGER2		2
+//make dynamite shootable and molotov burning
+#define CONTENTS_EXPLOSIVE		2
+#define CONTENTS_FLAMMABLE		4
 #endif
 
 #define	CONTENTS_LAVA			8
