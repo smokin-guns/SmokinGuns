@@ -264,9 +264,9 @@ qboolean G_TryPushingProxMine( gentity_t *check, gentity_t *pusher, vec3_t move,
 	}
 	return ret;
 }
-#endif
 
 void G_ExplodeMissile( gentity_t *ent );
+#endif
 
 /*
 ============
