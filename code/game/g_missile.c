@@ -408,7 +408,7 @@ void WhiskeyThink( gentity_t *self){
 			}
 
 			// make the dynamite explode
-			if(hit->r.contents && CONTENTS_TRIGGER2 && hit->takedamage){
+			if(hit->r.contents & CONTENTS_TRIGGER2 && hit->takedamage){
 				G_Damage (hit, self, self->parent, NULL, NULL, 100, 0, MOD_MOLOTOV);
 			}
 		}
