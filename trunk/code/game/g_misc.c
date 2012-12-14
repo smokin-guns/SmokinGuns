@@ -322,9 +322,6 @@ void SP_misc_portal_camera(gentity_t *ent) {
 
 ======================================================================
 */
-#ifdef SMOKINGUNS
-void G_DynamiteDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod );
-#endif
 
 void Use_Shooter( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	vec3_t		dir;

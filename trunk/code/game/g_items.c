@@ -493,7 +493,7 @@ void RespawnItem( gentity_t *ent ) {
 
 #ifdef SMOKINGUNS
 	if(ent->item->giTag == WP_DYNAMITE && ent->item->giType == IT_WEAPON)
-		ent->r.contents = CONTENTS_TRIGGER2;
+		ent->r.contents = CONTENTS_EXPLOSIVE;
 #endif
 
 	ent->s.eFlags &= ~EF_NODRAW;
@@ -756,7 +756,7 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int droppe
 	dropped->r.contents = CONTENTS_TRIGGER;
 #ifdef SMOKINGUNS
 	if(dropped->item->giTag == WP_DYNAMITE && dropped->item->giType == IT_WEAPON)
-		dropped->r.contents = CONTENTS_TRIGGER2;
+		dropped->r.contents = CONTENTS_EXPLOSIVE;
 #endif
 
 	dropped->touch = Touch_Item;
@@ -937,7 +937,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 
 #ifdef SMOKINGUNS
 	if(ent->item->giTag == WP_DYNAMITE && ent->item->giType == IT_WEAPON)
-		ent->r.contents = CONTENTS_TRIGGER2;
+		ent->r.contents = CONTENTS_EXPLOSIVE;
 #endif
 
 	ent->touch = Touch_Item;
