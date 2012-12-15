@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2012 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -3754,26 +3754,6 @@ void CheckLadder( void )
 		pml.ladder = qfalse;
 	}
 }
-
-/*
-=============
-UpdateBoundingBox (by Tequila)
-=============
-*/
-static void UpdateBoundingBox(pmove_t *pmove) {
-	// Update max box after the move as it is used for the hit computing. This prevent
-	// to use some dirty hack at bullet fire checks which involves very bad side
-	// effects on not linked entities...
-
-	// Rise up the Bbox to include the head model
-	pmove->maxs[2] += MAXS_Z_BBOX_UPDATE ;
-
-	// We don't modify other bbox sizes as it usually involves bad loop in bullet trace
-	// computing when shooting at 2 players too next to each other. This may involves
-	// some missed hit but not so often than people will believe :P
-
-	// Bounding box is always reset in PM_CheckDuck() during the next move
-}
 #endif
 
 
@@ -4085,9 +4065,5 @@ void Pmove (pmove_t *pmove) {
 
 	//PM_CheckStuck();
 
-#ifdef SMOKINGUNS
-	// Tequila: After moving, we can fix the bounding box which is used as first hitbox in g_weapon.c
-	UpdateBoundingBox(pmove);
-#endif
 }
 
