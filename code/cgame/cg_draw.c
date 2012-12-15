@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2012 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -348,6 +348,40 @@ void CG_DrawMoneyField (int x, int y, int width, int value) {
 
 		CG_DrawPic( x,y, MONEY_WIDTH, MONEY_HEIGHT, cgs.media.numbermoneyShaders[frame] );
 		x += MONEY_WIDTH + MONEY_WIDTH/5;
+		ptr++;
+		l--;
+	}
+}
+
+#define	SCORE_WIDTH2 10
+#define	SCORE_WIDTH3 8
+#define	SCORE_HEIGHT2 14
+#define	SCORE_HEIGHT3 12
+void CG_DrawScoreField (int x, int y, int value) {
+	char	num[16], *ptr;
+	int		l,w,h;
+
+	value = value < 0 ? 0 : value;
+	value = value > 999 ? 999 : value;
+
+	Com_sprintf (num, sizeof(num), "%i", value);
+	l = strlen(num);
+	x += 2 ;
+	if (l>2) {
+		w = SCORE_WIDTH3 ;
+		h = SCORE_HEIGHT3 ;
+		y += (SCORE_HEIGHT2-SCORE_HEIGHT3)/2 ;
+	} else {
+		w = SCORE_WIDTH2 ;
+		h = SCORE_HEIGHT2 ;
+		x += w * (2 - l);
+	}
+
+	ptr = num;
+	while (*ptr && l)
+	{
+		CG_DrawPic( x, y, w, h, cgs.media.numbermoneyShaders[*ptr -'0'] );
+		x += w ;
 		ptr++;
 		l--;
 	}

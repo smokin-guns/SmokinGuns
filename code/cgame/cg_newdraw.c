@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2012 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -34,6 +34,7 @@ extern displayContextDef_t cgDC;
 #ifdef SMOKINGUNS
 void CG_DrawField (int x, int y, int width, int value);
 void CG_DrawMoneyField (int x, int y, int width, int value);
+void CG_DrawScoreField (int x, int y, int value);
 #endif
 
 // set in CG_ParseTeamInfo
@@ -2023,7 +2024,7 @@ void CG_OwnerDraw(itemDef_t *item, float x, float y, float w, float h, float tex
 		}
 		if(!(cgs.gametype == GT_DUEL && cg.snap->ps.pm_flags & PMF_FOLLOW &&
 				cg.snap->ps.pm_type != PM_CHASECAM) && score != SCORE_NOT_PRESENT) {
-			CG_DrawMoneyField (rect.x, rect.y, 2, score);
+			CG_DrawScoreField (rect.x, rect.y, score);
 		}
 		break;
 	case CG_FIELD_SCORE2:
@@ -2035,7 +2036,7 @@ void CG_OwnerDraw(itemDef_t *item, float x, float y, float w, float h, float tex
 		}
 		if(!(cgs.gametype == GT_DUEL && cg.snap->ps.pm_flags & PMF_FOLLOW &&
 				cg.snap->ps.pm_type != PM_CHASECAM) && score != SCORE_NOT_PRESENT) {
-			CG_DrawMoneyField (rect.x, rect.y, 2, score);
+			CG_DrawScoreField (rect.x, rect.y, score);
 		}
 		trap_R_SetColor(NULL);
 		break;
