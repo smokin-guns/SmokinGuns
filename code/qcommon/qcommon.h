@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2012 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -253,7 +253,7 @@ extern int demo_protocols[];
 #ifndef SMOKINGUNS
 #define	UPDATE_SERVER_NAME	"update.quake3arena.com"
 #else
-#define	UPDATE_SERVER_NAME	"update.smokin-guns.net"
+#define	UPDATE_SERVER_NAME	"update.smokin-guns.org"
 #endif
 // override on command line, config files etc.
 #ifndef MASTER_SERVER_NAME
