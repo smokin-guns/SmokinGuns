@@ -605,9 +605,23 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 		VectorCopy( client->ps.origin, ent->s.origin );
 
 		G_TouchTriggers( ent );
-#ifndef SMOKINGUNS
-		trap_UnlinkEntity( ent );
-#endif
+
+		// Tequila: After moving and touching triggers, we can fix the bounding
+		// box which is used as first hitbox in g_weapon.c
+
+		// We need to update max box as it is used for the hit computing. This prevent
+		// to use some dirty hack at bullet fire checks which involves very bad side
+		// effects on not linked entities...
+		// We do that after the move and after touching triggers like trap doors
+		// from underneath
+
+		// The fix is to rise up the Bbox to include the head model
+		pm.maxs[2] += MAXS_Z_BBOX_UPDATE ;
+		// We don't modify other bbox sizes as it usually involves bad loop in bullet trace
+		// computing when shooting at 2 players too next to each other. This may involves
+		// some missed hit but not so often than people will believe :P
+
+		// Bounding box is always reset in PM_CheckDuck() during the next move
 	}
 
 	// "fly" is unlinked normally
