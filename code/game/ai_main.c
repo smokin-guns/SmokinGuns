@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2012 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -1468,7 +1468,14 @@ int BotAIStartFrame(int time) {
 		BotUpdateInfoConfigStrings();
 	}
 
-	if (bot_pause.integer) {
+#define BOT_AUTOPAUSABLE 0
+
+#if BOT_AUTOPAUSABLE
+	// TheDoctor: make bots auto-pausable
+	if (bot_pause.integer && trap_AAS_Initialized()) || (bot_pause.integer == 2 && g_humancount==0) {
+#else
+	if (bot_pause.integer && trap_AAS_Initialized()) {
+#endif
 		// execute bot user commands every frame
 		for( i = 0; i < MAX_CLIENTS; i++ ) {
 			if( !botstates[i] || !botstates[i]->inuse ) {
@@ -1716,7 +1723,12 @@ int BotAISetup( int restart ) {
 	trap_Cvar_Register(&bot_thinktime, "bot_thinktime", "100", CVAR_CHEAT);
 	trap_Cvar_Register(&bot_memorydump, "bot_memorydump", "0", CVAR_CHEAT);
 	trap_Cvar_Register(&bot_saveroutingcache, "bot_saveroutingcache", "0", CVAR_CHEAT);
+#ifdef BOT_AUTOPAUSABLE
+	// TheDoctor: make bots pausable
+	trap_Cvar_Register(&bot_pause, "bot_pause", "0", 0);
+#else
 	trap_Cvar_Register(&bot_pause, "bot_pause", "0", CVAR_CHEAT);
+#endif
 	trap_Cvar_Register(&bot_report, "bot_report", "0", CVAR_CHEAT);
 	trap_Cvar_Register(&bot_testsolid, "bot_testsolid", "0", CVAR_CHEAT);
 	trap_Cvar_Register(&bot_testclusters, "bot_testclusters", "0", CVAR_CHEAT);

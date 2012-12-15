@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2012 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -239,11 +239,9 @@ void BotInterbreedGoalFuzzyLogic(int parent1, int parent2, int child)
 //===========================================================================
 void BotSaveGoalFuzzyLogic(int goalstate, char *filename)
 {
+	bot_goalstate_t *gs;
 
-//	bot_goalstate_t *gs;
-
-	//gs =
-	BotGoalStateFromHandle(goalstate);
+	gs = BotGoalStateFromHandle(goalstate);
 
 	//WriteWeightConfig(filename, gs->itemweightconfig);
 } //end of the function BotSaveGoalFuzzyLogic
@@ -1480,8 +1478,13 @@ int BotChooseNBGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 	//if the bot is in solid or if the area the bot is in has no reachability links
 	if (!areanum || !AAS_AreaReachability(areanum))
 	{
+#ifdef DEBUG
+		botimport.Print(PRT_MESSAGE, "bot is in solid or area has no reachability links: %d %d\n",areanum,gs->lastreachabilityarea);
+#endif
 		//use the last valid area the bot was in
-		areanum = gs->lastreachabilityarea;
+		if (gs->lastreachabilityarea>0) {
+			areanum = gs->lastreachabilityarea;
+		}
 	} //end if
 	//remember the last area with reachabilities the bot was in
 	gs->lastreachabilityarea = areanum;
@@ -1569,7 +1572,12 @@ int BotChooseNBGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 						bestweight = weight;
 						bestitem = li;
 					} //end if
+			}
+#ifdef DEBUG
+			else {
+				botimport.Print(PRT_MESSAGE, "can't reach %d\n", li->entitynum);
 				} //end if
+#endif
 			} //end if
 		} //end if
 	} //end for
