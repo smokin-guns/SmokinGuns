@@ -3975,16 +3975,15 @@ void PmoveSingle (pmove_t *pmove) {
 		PM_AirMove();
 	} else if (pm->ps->pm_flags & PMF_TIME_WATERJUMP) {
 #else
-	if (pm->ps->pm_flags & PMF_TIME_WATERJUMP) {
+	// TheDoctor: Fix out of water climbing
+	if (pml.ladder) {
+		PM_LadderMove();
+	} else if (pm->ps->pm_flags & PMF_TIME_WATERJUMP) {
 #endif
 		PM_WaterJumpMove();
 	} else if ( pm->waterlevel > 1 ) {
 		// swimming
 		PM_WaterMove();
-#ifdef SMOKINGUNS
-	} else if (pml.ladder) {
-		PM_LadderMove();
-#endif
 	} else if ( pml.walking ) {
 		// walking on ground
 		PM_WalkMove();
