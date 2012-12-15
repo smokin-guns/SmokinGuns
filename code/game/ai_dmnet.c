@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2012 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -805,8 +805,12 @@ int BotGetItemLongTermGoal(bot_state_t *bs, int tfl, bot_goal_t *goal) {
 			// break the loop if there is no real goal
 			if(count >= 10){
 				// bot "needs" time to buy something
-				if(bs->buytime > level.time)
+				if(bs->buytime > level.time) {
+#ifdef DEBUG
+					BotAI_Print(PRT_MESSAGE, "wait buy %d>%d.", bs->buytime, level.time);
+#endif
 					return qfalse;
+				}
 
 				BotAI_LookForNodes(bs, goal, vec_money[0], vec_money[1]);
 				trap_BotEmptyGoalStack(bs->gs);
@@ -816,9 +820,14 @@ int BotGetItemLongTermGoal(bot_state_t *bs, int tfl, bot_goal_t *goal) {
 			//choose a new goal
 			if (trap_BotChooseLTGItem(bs->gs, bs->origin, bs->inventory, tfl)) {
 				bs->ltg_time = FloatTime() + 20;
+#ifdef DEBUG
+				BotAI_Print(PRT_MESSAGE, "new goal.");
+#endif
 			}
 			else {//the bot gets sorta stuck with all the avoid timings, shouldn't happen though
-
+#ifdef DEBUG
+				BotAI_Print(PRT_MESSAGE, "avoid stuck.");
+#endif
 				//reset the avoid goals and the avoid reach
 				trap_BotResetAvoidGoals(bs->gs);
 				trap_BotResetAvoidReach(bs->ms);
@@ -828,10 +837,16 @@ int BotGetItemLongTermGoal(bot_state_t *bs, int tfl, bot_goal_t *goal) {
 
 			valid = (goal->entitynum >= 0 && goal->entitynum < MAX_GENTITIES);
 
-			if(!valid)
+			if(!valid) {
+#ifdef DEBUG
+				BotAI_Print(PRT_MESSAGE, "invalid.");
+#endif
 				continue;
-
+			}
 			if(valid){
+#ifdef DEBUG
+				BotAI_Print(PRT_MESSAGE, "valid.");
+#endif
 				/*if(g_gametype.integer == GT_BR && bs->cur_ps.persistant[PERS_ROBBER] &&
 					!Q_stricmp(g_entities[goal->entitynum].classname, "item_money") &&
 					!(g_entities[goal->entitynum].r.svFlags & SVF_NOCLIENT)){
@@ -877,7 +892,9 @@ int BotGetItemLongTermGoal(bot_state_t *bs, int tfl, bot_goal_t *goal) {
 					continue;
 				}*/
 			}
-
+#ifdef DEBUG
+			BotAI_Print(PRT_MESSAGE, "grabbable %d.", BG_CanItemBeGrabbed(g_gametype.integer, &g_entities[goal->entitynum].s, &bs->cur_ps));
+#endif
 		} while (!valid || (bs->flags & BFL_AVOID) ||
 			!Q_stricmp(g_entities[goal->entitynum].classname, "freed") ||
 			!Q_stricmp(g_entities[goal->entitynum].classname, "player") ||
@@ -1009,7 +1026,7 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 								if (DotProduct(dir, dir2) > 0.7) {
 									// back up
 									BotSetupForMovement(bs);
-									trap_BotMoveInDirection(bs->ms, dir2, 400, MOVE_WALK);
+									//trap_BotMoveInDirection(bs->ms, dir2, 400, MOVE_WALK);
 								}
 							}
 						}
@@ -2166,6 +2183,10 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 	bsp_trace_t bsptrace;
 	aas_entityinfo_t entinfo;
 
+#ifdef DEBUG
+	BotAI_Print(PRT_MESSAGE, "Seek_ActivateEntity\n");
+#endif
+
 	if (BotIsObserver(bs)) {
 		BotClearActivateGoalStack(bs);
 		AIEnter_Observer(bs, "active entity: observer");
@@ -2288,7 +2309,7 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 			if (trap_BotTouchingGoal(bs->origin, goal)) {
 #ifdef DEBUG
 				BotAI_Print(PRT_MESSAGE, "touched button or trigger\n");
-#endif //DEBUG
+#endif
 				bs->activatestack->time = 0;
 			}
 		}
@@ -2426,6 +2447,9 @@ int AINode_Seek_NBG(bot_state_t *bs) {
 #ifdef SMOKINGUNS
 	qboolean override = ((bs->flags & BFL_AVOID )||( bs->flags & BFL_ESCAPE));
 #endif
+#ifdef DEBUG
+	Com_Printf("seek NBG:\n");
+#endif
 
 	if (BotIsObserver(bs)) {
 		AIEnter_Observer(bs, "seek nbg: observer");
@@ -2493,8 +2517,13 @@ int AINode_Seek_NBG(bot_state_t *bs) {
 		return qfalse;
 	}
 	//predict obstacles
-	if (BotAIPredictObstacles(bs, &goal))
+	if (BotAIPredictObstacles(bs, &goal)) {
+#ifdef DEBUG
+		Com_Printf("some obstacle\n");
+#endif
 		return qfalse;
+	}
+
 	//initialize the movement state
 	BotSetupForMovement(bs);
 
@@ -2601,15 +2630,24 @@ AINode_Seek_LTG
 */
 int AINode_Seek_LTG(bot_state_t *bs)
 {
+#ifdef DEBUG
+	vec3_t oldOrigin, diff;
+#endif
 	bot_goal_t goal;
 	vec3_t target, dir;
 	bot_moveresult_t moveresult;
 	int range;
+
 #ifdef SMOKINGUNS
 	qboolean override = ((bs->flags & BFL_AVOID )||( bs->flags & BFL_ESCAPE));
 #endif
 	//char buf[128];
 	//bot_goal_t tmpgoal;
+#ifdef DEBUG
+	Com_Printf("AINode_Seek_LTG\n");
+
+	VectorCopy(bs->origin,oldOrigin);
+#endif
 
 	if (BotIsObserver(bs)) {
 		AIEnter_Observer(bs, "seek ltg: observer");
@@ -2674,10 +2712,16 @@ int AINode_Seek_LTG(bot_state_t *bs)
 	}
 	//
 	BotTeamGoals(bs, qfalse);
+#ifdef DEBUG
+	Com_Printf("longtermgoal.\n");
+#endif
 	//get the current long term goal
 	if (!BotLongTermGoal(bs, bs->tfl, qfalse, &goal)) {
 		return qtrue;
 	}
+#ifdef DEBUG
+	Com_Printf("goal: %d. nearbygoal.\n", goal.number);
+#endif
 	//check for nearby goals periodicly
 #ifndef SMOKINGUNS
 	if (bs->check_time < FloatTime()) {
@@ -2723,9 +2767,14 @@ int AINode_Seek_LTG(bot_state_t *bs)
 			return qfalse;
 		}
 	}
+
 	//predict obstacles
-	if (BotAIPredictObstacles(bs, &goal))
+	if (BotAIPredictObstacles(bs, &goal)) {
+#ifdef DEBUG
+		Com_Printf("Some obstacle\n");
+#endif
 		return qfalse;
+	}
 	//initialize the movement state
 	BotSetupForMovement(bs);
 
@@ -2790,6 +2839,10 @@ int AINode_Seek_LTG(bot_state_t *bs)
 	//if the weapon is used for the bot movement
 	if (moveresult.flags & MOVERESULT_MOVEMENTWEAPON) bs->weaponnum = moveresult.weapon;
 	//
+#ifdef DEBUG
+	VectorSubtract(oldOrigin,bs->origin,diff);
+	BotAI_Print(PRT_MESSAGE, "movement %d %d %d\n", moveresult.blockentity,moveresult.blocked,moveresult.flags);
+#endif
 	return qtrue;
 }
 

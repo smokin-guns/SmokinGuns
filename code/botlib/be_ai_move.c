@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2012 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -656,10 +656,11 @@ int BotAvoidSpots(vec3_t origin, aas_reachability_t *reach, bot_avoidspot_t *avo
 
 	switch(reach->traveltype & TRAVELTYPE_MASK)
 	{
+		// TheDoctor: put priority on ladder travel
+		case TRAVEL_LADDER: checkbetween = qtrue; break;
 		case TRAVEL_WALK: checkbetween = qtrue; break;
 		case TRAVEL_CROUCH: checkbetween = qtrue; break;
 		case TRAVEL_BARRIERJUMP: checkbetween = qtrue; break;
-		case TRAVEL_LADDER: checkbetween = qtrue; break;
 		case TRAVEL_WALKOFFLEDGE: checkbetween = qfalse; break;
 		case TRAVEL_JUMP: checkbetween = qfalse; break;
 		case TRAVEL_SWIM: checkbetween = qtrue; break;
@@ -1492,6 +1493,7 @@ bot_moveresult_t BotTravel_BarrierJump(bot_movestate_t *ms, aas_reachability_t *
 //===========================================================================
 bot_moveresult_t BotFinishTravel_BarrierJump(bot_movestate_t *ms, aas_reachability_t *reach)
 {
+	float dist;
 	vec3_t hordir;
 	bot_moveresult_t_cleared( result );
 
@@ -1501,7 +1503,7 @@ bot_moveresult_t BotFinishTravel_BarrierJump(bot_movestate_t *ms, aas_reachabili
 		hordir[0] = reach->end[0] - ms->origin[0];
 		hordir[1] = reach->end[1] - ms->origin[1];
 		hordir[2] = 0;
-		VectorNormalize(hordir);
+		dist = VectorNormalize(hordir);
 		//
 		BotCheckBlocked(ms, hordir, qtrue, &result);
 		//
@@ -1578,6 +1580,7 @@ bot_moveresult_t BotTravel_WaterJump(bot_movestate_t *ms, aas_reachability_t *re
 bot_moveresult_t BotFinishTravel_WaterJump(bot_movestate_t *ms, aas_reachability_t *reach)
 {
 	vec3_t dir, pnt;
+	float dist;
 	bot_moveresult_t_cleared( result );
 
 	//botimport.Print(PRT_MESSAGE, "BotFinishTravel_WaterJump\n");
@@ -1593,7 +1596,7 @@ bot_moveresult_t BotFinishTravel_WaterJump(bot_movestate_t *ms, aas_reachability
 	dir[0] += crandom() * 10;
 	dir[1] += crandom() * 10;
 	dir[2] += 70 + crandom() * 10;
-	VectorNormalize(dir);
+	dist = VectorNormalize(dir);
 	//elemantary actions
 	EA_Move(ms->client, dir, 400);
 	//set the ideal view angles
@@ -2877,7 +2880,7 @@ bot_moveresult_t BotFinishTravel_WeaponJump(bot_movestate_t *ms, aas_reachabilit
 //===========================================================================
 bot_moveresult_t BotTravel_JumpPad(bot_movestate_t *ms, aas_reachability_t *reach)
 {
-	float speed;
+	float dist, speed;
 	vec3_t hordir;
 	bot_moveresult_t_cleared( result );
 
@@ -2885,7 +2888,7 @@ bot_moveresult_t BotTravel_JumpPad(bot_movestate_t *ms, aas_reachability_t *reac
 	hordir[0] = reach->start[0] - ms->origin[0];
 	hordir[1] = reach->start[1] - ms->origin[1];
 	hordir[2] = 0;
-	VectorNormalize(hordir);
+	dist = VectorNormalize(hordir);
 	//
 	BotCheckBlocked(ms, hordir, qtrue, &result);
 	speed = 400;
@@ -2933,10 +2936,11 @@ int BotReachabilityTime(aas_reachability_t *reach)
 {
 	switch(reach->traveltype & TRAVELTYPE_MASK)
 	{
+		// TheDoctor: put priority on ladder travel
+		case TRAVEL_LADDER: return 6;
 		case TRAVEL_WALK: return 5;
 		case TRAVEL_CROUCH: return 5;
 		case TRAVEL_BARRIERJUMP: return 5;
-		case TRAVEL_LADDER: return 6;
 		case TRAVEL_WALKOFFLEDGE: return 5;
 		case TRAVEL_JUMP: return 5;
 		case TRAVEL_SWIM: return 5;
@@ -3325,10 +3329,11 @@ void BotMoveToGoal(bot_moveresult_t *result, int movestate, bot_goal_t *goal, in
 #endif //DEBUG
 			switch(reach.traveltype & TRAVELTYPE_MASK)
 			{
+				// TheDoctor: put priority on ladder travel
+				case TRAVEL_LADDER: *result = BotTravel_Ladder(ms, &reach); break;
 				case TRAVEL_WALK: *result = BotTravel_Walk(ms, &reach); break;
 				case TRAVEL_CROUCH: *result = BotTravel_Crouch(ms, &reach); break;
 				case TRAVEL_BARRIERJUMP: *result = BotTravel_BarrierJump(ms, &reach); break;
-				case TRAVEL_LADDER: *result = BotTravel_Ladder(ms, &reach); break;
 				case TRAVEL_WALKOFFLEDGE: *result = BotTravel_WalkOffLedge(ms, &reach); break;
 				case TRAVEL_JUMP: *result = BotTravel_Jump(ms, &reach); break;
 				case TRAVEL_SWIM: *result = BotTravel_Swim(ms, &reach); break;
@@ -3434,10 +3439,11 @@ void BotMoveToGoal(bot_moveresult_t *result, int movestate, bot_goal_t *goal, in
 			//
 			switch(reach.traveltype & TRAVELTYPE_MASK)
 			{
+				// TheDoctor: put priority on ladder travel
+				case TRAVEL_LADDER: *result = BotTravel_Ladder(ms, &reach); break;
 				case TRAVEL_WALK: *result = BotTravel_Walk(ms, &reach); break;//BotFinishTravel_Walk(ms, &reach); break;
 				case TRAVEL_CROUCH: /*do nothing*/ break;
 				case TRAVEL_BARRIERJUMP: *result = BotFinishTravel_BarrierJump(ms, &reach); break;
-				case TRAVEL_LADDER: *result = BotTravel_Ladder(ms, &reach); break;
 				case TRAVEL_WALKOFFLEDGE: *result = BotFinishTravel_WalkOffLedge(ms, &reach); break;
 				case TRAVEL_JUMP: *result = BotFinishTravel_Jump(ms, &reach); break;
 				case TRAVEL_SWIM: *result = BotTravel_Swim(ms, &reach); break;
