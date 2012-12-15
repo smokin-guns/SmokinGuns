@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2012 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -2051,6 +2051,20 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		}
 		Com_sprintf( level.voteString, sizeof( level.voteString ), "unmute %i", clientnum );
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteString ), "unmute \"%s\"", arg_str );
+	} else if ( !Q_stricmp( arg1, "timelimit" ) ) {
+		i = atoi( arg2 );
+// Tequila: Clamp timelimit within acceptable values like 30 days
+#define MAX_TIMELIMIT 43200
+		if( i < 0 ){
+			trap_SendServerCommand( ent-g_entities, va("print \"Invalid timelimit: %s, must be positive\n\"", arg2) );
+			return;
+		} else if( i >= MAX_TIMELIMIT ) {
+			trap_SendServerCommand( ent-g_entities, va("print \"Invalid timelimit: %s, must be lower than %i minutes\n\"", arg2, MAX_TIMELIMIT) );
+			return;
+		}
+
+		Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %d", arg1, i );
+		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s minutes", level.voteString );
 #endif
 	} else if ( !Q_stricmp( arg1, "nextmap" ) ) {
 		char	s[MAX_STRING_CHARS];
