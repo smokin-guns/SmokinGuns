@@ -252,6 +252,99 @@ int ClientNumberFromCleanName( char *name ) {
 	return -1;
 }
 
+
+/*
+==================
+Cmd_AASTrace_f
+
+
+==================
+*/
+void Cmd_AASTrace_f(gentity_t *ent)// patch DEBUG
+{
+	trace_t trace;
+	char	arg1[MAX_STRING_TOKENS];
+	int contentmask,entcontent;
+	vec3_t forward,end,direction,angle;
+
+	if ( trap_Argc() != 2 ) {
+		trap_SendServerCommand( ent-g_entities, "print \"usage: aastrace CONTENTMASK\n\"" );
+		contentmask=0x80000000-1;
+	}	else {
+		trap_Argv( 1, arg1, sizeof( arg1 ) );
+		contentmask = atoi( arg1 );
+	}
+	VectorCopy(ent->s.apos.trBase,direction);
+	VectorNormalize(direction);// normalize
+	VectorMA(ent->r.currentOrigin, 40, direction, end);
+	trap_Trace(&trace, ent->r.currentOrigin, ent->r.mins,  ent->r.maxs, end, ent->s.clientNum, contentmask);
+	if (trace.entityNum>=1022) {
+		trap_SendServerCommand( ent-g_entities, va("print \"Content is: %s C%i/C%i/C%i [S%i,A%i] E%i (%f,%f,%f)\n\"",
+				g_entities[trace.entityNum].classname, trace.contents, contentmask, 0,
+				trace.startsolid,trace.allsolid,
+				trace.entityNum,
+				end[0],end[1],end[2]));
+	} else {
+		trap_SendServerCommand( ent-g_entities, va("print \"Content is: %s C%i/C%i/C%i [S%i,A%i] E%i (%f,%f,%f) (%f,%f,%f)\n\"",
+				g_entities[trace.entityNum].classname, trace.contents, contentmask, g_entities[trace.entityNum].r.contents,
+				trace.startsolid,trace.allsolid,
+				trace.entityNum,
+				end[0],end[1],end[2],
+				g_entities[trace.entityNum].s.origin[0],g_entities[trace.entityNum].s.origin[1],g_entities[trace.entityNum].s.origin[2]));
+		VectorSubtract(g_entities[trace.entityNum].s.origin, ent->r.currentOrigin, direction);
+		//	}
+		vectoangles(direction, angle);
+		SetClientViewAngle(ent,angle);
+		trap_SendServerCommand( ent-g_entities, va("print \"new angles: (%f,%f,%f)\n\"",direction[0],direction[1],direction[2]));
+
+	}
+
+}
+
+/*
+==================
+Cmd_EntityValues_f
+
+
+==================
+*/
+void Cmd_EntityValues_f(gentity_t *ent) {// patch DEBUG
+	trap_SendServerCommand( ent-g_entities,
+			va("print \"s.apos.trBase: (%f,%f,%f), s.pos.trBase: (%f,%f,%f), r.currentOrigin: (%f,%f,%f)\n\""
+// angle: %f; s.angles: (%f,%f,%f), s.angles2: (%f,%f,%f), s.origin: (%f,%f,%f), s.origin2: (%f,%f,%f), movedir: (%f,%f,%f), r.currentAngle: (%f,%f,%f), [they do not change]
+
+//					,ent->angle
+//					,ent->s.angles[0]
+//					,ent->s.angles[1]
+//					,ent->s.angles[2]
+//					,ent->s.angles2[0]
+//					,ent->s.angles2[1]
+//					,ent->s.angles2[2]
+//					,ent->s.origin[0]
+//					,ent->s.origin[1]
+//					,ent->s.origin[2]
+//					,ent->s.origin2[0]
+//					,ent->s.origin2[1]
+//					,ent->s.origin2[2]
+//					,ent->movedir[0]
+//					,ent->movedir[1]
+//					,ent->movedir[2]
+//					,ent->r.currentAngles[0]
+//					,ent->r.currentAngles[1]
+//				    ,ent->r.currentAngles[2]
+					,ent->s.apos.trBase[0]
+					,ent->s.apos.trBase[1]
+					,ent->s.apos.trBase[2]
+					,ent->s.pos.trBase[0]
+					,ent->s.pos.trBase[1]
+					,ent->s.pos.trBase[2]
+					,ent->r.currentOrigin[0]
+					,ent->r.currentOrigin[1]
+					,ent->r.currentOrigin[2]
+	));//));
+}//
+//
+
 /*
 ==================
 Cmd_Give_f
@@ -581,28 +674,25 @@ void BroadcastTeamChange( gclient_t *client, int oldTeam )
 		return;
 
 	if ( client->sess.sessionTeam == TEAM_RED ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined %s.\n\"", client->pers.netname, g_redteam.string) );
+		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " ^3joined %s.\n\"", client->pers.netname, g_redteam.string) );
 	} else if ( client->sess.sessionTeam == TEAM_BLUE ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined %s.\n\"", client->pers.netname, g_blueteam.string));
+		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " ^3joined %s.\n\"", client->pers.netname, g_blueteam.string));
 	} else if ( client->sess.sessionTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR ) {
 		// Joe Kari: no need to shout, especially if I want to spec someone suspicious, I don't want to get caught.
 		//trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the spectators.\n\"", client->pers.netname));
-		trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " joined the spectators.\n\"", client->pers.netname));
+		trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " joined the spectators.\n\"", client->pers.netname));// patch don't annoy players
 	} else if ( client->sess.sessionTeam == TEAM_FREE ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the gunfight.\n\"", client->pers.netname));
+		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " ^3joined the gunfight.\n\"", client->pers.netname));
 	}
 #else
 	if ( client->sess.sessionTeam == TEAM_RED ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the red team.\n\"",
+		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " ^3joined the ^1red ^3team.\n\"",
 			client->pers.netname) );
 	} else if ( client->sess.sessionTeam == TEAM_BLUE ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the blue team.\n\"",
-		client->pers.netname));
-	} else if ( client->sess.sessionTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the spectators.\n\"",
+		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " ^3joined the ^4blue ^3team.\n\"",
 		client->pers.netname));
 	} else if ( client->sess.sessionTeam == TEAM_FREE ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the battle.\n\"",
+		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " ^3joined the battle.\n\"",
 		client->pers.netname));
 	}
 #endif
@@ -1067,7 +1157,7 @@ Cmd_Team_f
 =================
 */
 void Cmd_Team_f( gentity_t *ent ) {
-	int			oldTeam;
+	int			oldTeam,forcedteam;// patch forceteam, mute
 	char		s[MAX_TOKEN_CHARS];
 
 	if ( trap_Argc() != 2 ) {
@@ -1115,6 +1205,20 @@ void Cmd_Team_f( gentity_t *ent ) {
 	trap_Argv( 1, s, sizeof( s ) );
 
 #ifdef SMOKINGUNS
+	forcedteam = Comma_ValueForIndex( g_lockedTeams.string, ent-g_entities );
+	if ((s[0] == 'b' && forcedteam>0 && forcedteam!=2)
+	 || (s[0] == 'B' && forcedteam>0 && forcedteam!=20)
+	 || (s[0] == 'r' && forcedteam>0 && forcedteam!=1)
+	 || (s[0] == 'R' && forcedteam>0 && forcedteam!=10)
+	 || (s[0] == 'f' && forcedteam>0 && forcedteam<10)
+	 || (s[0] == 'F' && forcedteam>0 && forcedteam<10)
+   //|| (s[0] == 's' && forcedteam>0 && forcedteam!=3)
+   //|| (s[0] == 'S' && forcedteam>0 && forcedteam!=3)
+	) {
+		G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", "You are forbidden to join/change team." );
+		return;
+	}
+
 	// change to the spectators
 	if ( g_gametype.integer >= GT_RTP) {
 		if(s[0] == 'b' || s[0] == 'B'){
@@ -1323,7 +1427,7 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 #define EC		"\x19"
 
 void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) {
-	int			j;
+	int			j,muted;
 	gentity_t	*other;
 	int			color;
 	char		name[64];
@@ -1333,25 +1437,38 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	// don't let text be too long for malicious reasons
 	char		text[MAX_SAY_TEXT];
 	char		location[64];
+	int         clientid = ent->client - level.clients;
+	qtime_t     q;
+	
 
 	if ( g_gametype.integer < GT_TEAM && mode == SAY_TEAM ) {
 		mode = SAY_ALL;
 	}
+	trap_RealTime(&q);
 	
-	
-#ifdef SMOKINGUNS
-	// Joe Kari: new feature that allow admin to mute someone
-	// It is probably more funny to display "(muted)" than turn it off completely ^^ 
-	if ( ent->client->pers.muted ) {
-		if ( ent->client->pers.muted > 1 )  return ;
-		chatText = "^9(muted)" ;
+	muted = Comma_ValueForIndex( g_muted.string, clientid );
+	if (muted==1) {
+		G_LogPrintf( "muted: %i: [%s] %s: %s\n", clientid, va("%02i.%02i.%04i %02i:%02i", q.tm_mday, q.tm_mon+1, 1900+q.tm_year,q.tm_hour,q.tm_min), ent->client->pers.netname, chatText );
+		G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", "You have been muted." );
+		return;
 	}
-#endif
+// #ifdef SMOKINGUNS
+// 	// Joe Kari: new feature that allow admin to mute someone
+// 	// It is probably more funny to display "(muted)" than turn it off completely ^^ 
+// 	if ( ent->client->pers.muted ) {
+// 		if ( ent->client->pers.muted > 1 )  return ;
+// 		chatText = "^9(muted)" ;
+// 	}
+// #endif
 	
 	switch ( mode ) {
 	default:
 	case SAY_ALL:
-		G_LogPrintf( "say: %s: %s\n", ent->client->pers.netname, chatText );
+		if (Q_strncasecmp("!!", chatText, 2)) {// log as is
+		    G_LogPrintf( "say: %i: [%s] %s: %s\n", clientid, va("%02i.%02i.%04i %02i:%02i", q.tm_mday, q.tm_mon+1, 1900+q.tm_year,q.tm_hour,q.tm_min), ent->client->pers.netname, chatText );
+		} else {// log but omit the second exclamation mark
+		    G_LogPrintf( "say: %i: [%s] %s: %s\n", clientid, va("%02i.%02i.%04i %02i:%02i", q.tm_mday, q.tm_mon+1, 1900+q.tm_year,q.tm_hour,q.tm_min), ent->client->pers.netname, chatText+1 );
+		}
 		Com_sprintf (name, sizeof(name), "%s%c%c"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 		color = COLOR_GREEN;
 #ifdef SMOKINGUNS
@@ -1359,7 +1476,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 #endif
 		break;
 	case SAY_TEAM:
-		G_LogPrintf( "sayteam: %s: %s\n", ent->client->pers.netname, chatText );
+		G_LogPrintf( "sayteam: %i: [%s] %s: %s\n", clientid, va("%02i.%02i.%04i %02i:%02i", q.tm_mday, q.tm_mon+1, 1900+q.tm_year,q.tm_hour,q.tm_min), ent->client->pers.netname, chatText );
 		if (Team_GetLocationMsg(ent, location, sizeof(location)))
 			Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC") (%s)"EC": ",
 				ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE, location);
@@ -1372,6 +1489,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 #endif
 		break;
 	case SAY_TELL:
+		if (target!=ent) G_LogPrintf( "tell: %i to %i: [%s] %s to %s: %s\n", clientid, (target->client-level.clients), va("%02i.%02i.%04i %02i:%02i", q.tm_mday, q.tm_mon+1, 1900+q.tm_year,q.tm_hour,q.tm_min), ent->client->pers.netname, target->client->pers.netname, chatText );
 		if (target && g_gametype.integer >= GT_TEAM &&
 			target->client->sess.sessionTeam == ent->client->sess.sessionTeam &&
 			Team_GetLocationMsg(ent, location, sizeof(location)))
@@ -1413,12 +1531,15 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		Com_sprintf(endname, sizeof(endname), "%s", name);
 #endif
 
-	// send it to all the apropriate clients
+	if (Q_strncasecmp("!!", text, 2)) {// if not !!, say it
+		if (Q_strncasecmp("!", text, 1)) {
+			// send it to all the appropriate clients
 	for (j = 0; j < level.maxclients; j++) {
 		other = &g_entities[j];
-#ifndef SMOKINGUNS
-		G_SayTo( ent, other, mode, color, name, text );
-#else
+
+//#ifndef SMOKINGUNS
+//		G_SayTo( ent, other, mode, color, name, text );
+//#else
 		if(g_splitChat.integer && g_gametype.integer >= GT_RTP){
 
 			if(ent->client->sess.sessionTeam >= TEAM_SPECTATOR &&
@@ -1429,7 +1550,11 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 			color = COLOR_WHITE;
 
 		G_SayTo( ent, other, mode, color, endname, text );
-#endif
+			}
+		} else {
+			trap_SendServerCommand( -1, va("print \"%s%c%c%s\n\"", endname, Q_COLOR_ESCAPE, COLOR_WHITE, text));
+		}
+//#endif
 	}
 }
 
@@ -1486,7 +1611,6 @@ static void Cmd_Tell_f( gentity_t *ent ) {
 
 	p = ConcatArgs( 2 );
 
-	G_LogPrintf( "tell: %s to %s: %s\n", ent->client->pers.netname, target->client->pers.netname, p );
 	G_Say( ent, target, SAY_TELL, p );
 	// don't tell to the player self if it was already directed to this player
 	// also don't send the chat back to a bot
@@ -1683,7 +1807,7 @@ static void Cmd_VoiceTaunt_f( gentity_t *ent ) {
 		who = g_entities + ent->client->lastkilled_client;
 		if (who->client) {
 			// who is the person I just killed
-			if (who->client->lasthurt_mod == MOD_GAUNTLET) {
+			if (who->client->lasthurt_mod == MOD_KNIFE) {
 				if (!(who->r.svFlags & SVF_BOT)) {
 					G_Voice( ent, who, SAY_TELL, VOICECHAT_KILLGAUNTLET, qfalse );	// and I killed them with a gauntlet
 				}
@@ -1724,23 +1848,63 @@ static void Cmd_VoiceTaunt_f( gentity_t *ent ) {
 	// just say something
 	G_Voice( ent, NULL, SAY_ALL, VOICECHAT_TAUNT, qfalse );
 }
-#else
+#endif
+
 /*
 ==================
 IsAvailableMap
 ==================
 */
 static qboolean IsAvailableMap(const char *mapname) {
+  	char	buf[MAX_STRING_CHARS];
 	char		expanded[MAX_QPATH];
 	fileHandle_t	f;
 
 	// make sure the map level file exists
 	Com_sprintf (expanded, sizeof(expanded), "maps/%s.bsp", mapname);
 	trap_FS_FOpenFile( expanded, &f, FS_READ );
+	if (!f) {
+		return qfalse;
+	} else {
+		trap_FS_FCloseFile(f);
+	}
+	
+	
+	if (g_vstrInsteadOfMap.integer) {
+		trap_Cvar_VariableStringBuffer( va("%s",mapname), buf, sizeof(buf) );
+		if (!strlen(buf)) return qfalse;
+	}
+	
+	return qtrue;
+}
+
+/*
+==================
+IsAvailableSpecial
+==================
+*/
+static qboolean IsAvailableSpecial(const char *special) {
+	char	buf[MAX_STRING_CHARS];
+	trap_Cvar_VariableStringBuffer(va("weapons%s",special),buf,sizeof(buf));
+	G_LogPrintf( va("weapons%s",special) );
+	return strlen(buf) ? qtrue : qfalse ;
+}
+/*
+==================
+IsPatchedMap
+==================
+*/
+static qboolean IsPatchedMap(const char *mapname) { // patch dm on br maps:
+	char		expanded[MAX_QPATH];
+	fileHandle_t	f;
+
+	// make sure the map level file exists
+	Com_sprintf (expanded, sizeof(expanded), "powerups/%s.txt", mapname);
+	trap_FS_FOpenFile( expanded, &f, FS_READ );
 
 	return f ? qtrue : qfalse ;
 }
-#endif
+
 
 
 static char	*gc_orders[] = {
@@ -1802,70 +1966,122 @@ static const char *gameNames[] = {
 #endif
 };
 
+
+int Q_strncasecmp (const char *s1, const char *s2, int n) // patch callvote: improved voting system
+{
+	int		c1, c2;
+	
+	do
+	{
+		c1 = *s1++;
+		c2 = *s2++;
+
+		if (!n--)
+			return 0;		// strings are equal until end point
+		
+		if (c1 != c2)
+		{
+			if (c1 >= 'a' && c1 <= 'z')
+				c1 -= ('a' - 'A');
+			if (c2 >= 'a' && c2 <= 'z')
+				c2 -= ('a' - 'A');
+			if (c1 != c2)
+				return -1;		// strings not equal
+		}
+	} while (c1);
+	
+	return 0;		// strings are equal
+}
+
+const char* getGameName(int i) {
+	if( i == GT_SINGLE_PLAYER || i < GT_FFA || i > GT_BR) {
+		return "unknown gametype";
+	} else {
+		return gameNames[i];
+	}
+}
+
+const static char	*special[17] = {"All", "Knife", "Knives", "Remington", "Remingtons", "Colt", "Rifle", "Lightning", "Sharps", "Shotgun", "SawedOff", "Pumpgun", "Dynamite", "Molotov", "NoFirearms", "NoGatling", "NoDynamite"}; 
 /*
 ==================
 Cmd_CallVote_f
 ==================
 */
 void Cmd_CallVote_f( gentity_t *ent ) {
+	char*	s;
+	char*   sep;
+	char*   csep;
 	char*	c;
-	int	i;
+	char	copy[MAX_STRING_CHARS];
+	int	i,j;
+	int	voteless,protected,old; // patch callvote: improved voting system
 	char	arg1[MAX_STRING_TOKENS];
 	char	arg2[MAX_STRING_TOKENS];
+	char	buf[256];
+	char	key[256];
 	int	diff;
 	int	clientnum;
 	char*	arg_str;
+	char	list[MAX_STRING_TOKENS-40];
+	gclient_t	*cl;
+	int clientid = ent-g_entities;
+ 
+	voteless = Comma_ValueForIndex( g_voteless.string, clientid );
+	if (voteless==1) {
+		G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", "You are not allowed to call a vote." );
+		return;
+	}
 
 	if ( !g_allowVote.integer ) {
-		trap_SendServerCommand( ent-g_entities, "print \"Voting is not allowed here.\n\"" );
-		trap_SendServerCommand( ent-g_entities, "cp \"Voting is not allowed here\n\"" );
+		G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", "Voting not allowed here." );
 		return;
 	}
 
 #ifdef SMOKINGUNS
-	// Joe Kari: muted player can't callvote... hihihi ^^ 
-	if ( ent->client->pers.muted ) {
-		trap_SendServerCommand( ent-g_entities, "print \"You try to call a vote, but nobody can hear your voice.\n\"" );
-		trap_SendServerCommand( ent-g_entities, "cp \"...\n\"" );
-		return;
-	}
+// 	// Joe Kari: muted player can't callvote... hihihi ^^ 
+// 	if ( ent->client->pers.muted ) {
+// 		trap_SendServerCommand( ent-g_entities, "print \"You try to call a vote, but nobody can hear your voice.\n\"" );
+// 		trap_SendServerCommand( ent-g_entities, "cp \"...\n\"" );
+// 		return;
+// 	}
 	
 	// Joe Kari: a tips to avoid stOopid punk with fast computer to call a vote before anyone have time to join,
 	// allowing them to do everything they want... now you have to wait some time.
 	if ( level.time < ( g_voteMinLevelTime.integer * 1000 ) ) {
 		diff = ( g_voteMinLevelTime.integer * 1000 - level.time ) / 1000 ;
-		trap_SendServerCommand( ent-g_entities, va("print \"This level has just begun, wait %i seconds before calling a vote...\n\"", diff ) );
-		trap_SendServerCommand( ent-g_entities, va("cp \"Level has just begun, wait %i seconds\n\"", diff ) );
+		G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", va("Level has just begun, wait %i seconds before calling a vote...", diff) );
 		return;
 	}
 #endif
 	if ( level.voteTime ) {
-		trap_SendServerCommand( ent-g_entities, "print \"A vote is already in progress.\n\"" );
-		trap_SendServerCommand( ent-g_entities, "cp \"A vote is already in progress\n\"" );
+		G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", "A vote is already in progress." );
 		return;
 	}
 	
 	if ( ent->client->pers.voteCount >= g_maxVote.integer ) {
-		trap_SendServerCommand( ent-g_entities, "print \"You have reached your maximum number of votes.\n\"" );
-		trap_SendServerCommand( ent-g_entities, "cp \"Maximum number of votes reached\n\"" );
+		G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", "You have called the maximum number of votes." );
 		return;
 	}
 	
 #ifndef SMOKINGUNS
-	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
+	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {(sizeof(special)/sizeof(special[0]))
 #else
 	// Tequila: g_voteDelay can now be set to the number of seconds a player must wait between 2 votes
 	if ( ent->client->pers.lastVoteTime > 0 && level.time < ent->client->pers.lastVoteTime + g_voteDelay.integer * 1000 ) {
 		diff = ( ent->client->pers.lastVoteTime + g_voteDelay.integer * 1000 - level.time ) / 1000 ;
-		trap_SendServerCommand( ent-g_entities, va("print \"You can't call too many vote, wait %i seconds...\n\"", diff ) ) ;
-		trap_SendServerCommand( ent-g_entities, va("cp \"Can't call too many vote, wait %i seconds\n\"", diff ) ) ;
+		G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", va("You can't call too many votes, wait %i seconds.", diff) );
+		return;
+	}
+	if ( level.time <= level.voteTime + 10*1000 ) {
+		G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", va("Only allowed to call a vote each %i seconds.", 10) );
+ 		trap_SendServerCommand( ent-g_entities, va("cp \"Wait %i seconds...\n\"",
+			(level.voteTime + 10*1000 - level.time)/1000 +1) );
 		return;
 	}
 	
-	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR && (g_gametype.integer != GT_DUEL || ent->client->realspec)) {
-#endif
-		trap_SendServerCommand( ent-g_entities, "print \"Can't call a vote as spectator.\n\"" );
-		trap_SendServerCommand( ent-g_entities, "cp \"Can't call a vote as spectator\n\"" );
+ 	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR && g_humancount>1 && (g_gametype.integer != GT_DUEL || ent->client->realspec)) {// let spectators on an empty server change the map
+ #endif
+		G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", "Not allowed to call a vote as spectator." );
 		return;
 	}
 
@@ -1879,7 +2095,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			case '\n':
 			case '\r':
 			case ';':
-				trap_SendServerCommand( ent-g_entities, va("print \"Invalid vote string argument: %s\n\"",arg2) );
+				G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", va("Invalid vote string argument: %s.", arg2) );
 				return;
 			break;
 		}
@@ -1902,28 +2118,97 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		return;
 	}
 #else
+
+        if ( !strlen(arg1) ) {// if no vote type was specified
+	    if (g_allowVote.integer == 0) {// if no vote is allowed
+		G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", "Voting currently disabled." );
+		return;
+	    } else {// list the available votes
+		s = "The following votes are available:";
+		sep = ""; csep = ",";
+		if ( (g_allowVote.integer & 1) != 0) {s = va("%s%s ^2map_restart^3", s, sep);sep=csep;}
+		if ( (g_allowVote.integer & 2) != 0) {s = va("%s%s ^2nextmap^3", s, sep);sep=csep;}
+		if ( (g_allowVote.integer & 4) != 0) {s = va("%s%s ^2map^3", s, sep);sep=csep;}
+		if ( (g_allowVote.integer & 8) != 0) {s = va("%s%s ^2g_gametype^3", s, sep);sep=csep;}
+		if ( (g_allowVote.integer & 16) != 0) {s = va("%s%s ^2kick^3", s, sep);sep=csep;}
+		if ( (g_allowVote.integer & 32) != 0) {s = va("%s%s ^2kicknum^3", s, sep);sep=csep;}
+		if ( (g_allowVote.integer & 64) != 0) {s = va("%s%s ^2g_dowarmup^3", s, sep);sep=csep;}
+		if ( (g_allowVote.integer & 128) != 0) {s = va("%s%s ^2timelimit^3", s, sep);sep=csep;}
+		if ( (g_allowVote.integer & 256) != 0) {s = va("%s%s ^2fraglimit^3", s, sep);sep=csep;}
+		if ( (g_allowVote.integer & 512) != 0) {s = va("%s%s ^2mapcycle^3", s, sep);sep=csep;}
+		if ( (g_allowVote.integer & 1024) != 0) {s = va("%s%s ^2weapons^3", s, sep);sep=csep;}
+		G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ",  s);
+		return;
+	    }
+	}
+	
+	// correct vote types (aliases)
+	if ( !Q_stricmp( arg1, "special" )) {
+	    Q_strncpyz(arg1, "weapons", sizeof(arg1));
+	} else if ( !Q_stricmp( arg1, "specials" )) {
+	    Q_strncpyz(arg1, "weapons", sizeof(arg1));
+	} else if ( !Q_stricmp( arg1, "clientkick" )) {
+	    Q_strncpyz(arg1, "kicknum", sizeof(arg1));
+	} else if ( !Q_stricmp( arg1, "maps" )) {
+	    Q_strncpyz(arg1, "map", sizeof(arg1));
+	}
+	  
+	  
+	if        ( ( !Q_stricmp( arg1, "map_restart" )) && ((g_allowVote.integer & 1) != 0) ) {
+	} else if ( ( !Q_stricmp( arg1, "nextmap" ) )    && ((g_allowVote.integer & 2) != 0) ) {
+	} else if ( ( !Q_stricmp( arg1, "map" ) )        && ((g_allowVote.integer & 4) != 0) ) {
+	} else if ( ( !Q_stricmp( arg1, "g_gametype" ) ) && ((g_allowVote.integer & 8) != 0) ) {
+	} else if ( ( !Q_stricmp( arg1, "kick" ) )       && ((g_allowVote.integer & 16) != 0) && g_allowVoteKick.integer) {
+	} else if ( ( !Q_stricmp( arg1, "kicknum" ) )    && ((g_allowVote.integer & 32) != 0) && g_allowVoteKick.integer) {
+	} else if ( ( !Q_stricmp( arg1, "g_doWarmup" ) ) && ((g_allowVote.integer & 64) != 0) ) {
+	} else if ( ( !Q_stricmp( arg1, "timelimit" ) )  && ((g_allowVote.integer & 128) != 0) ) {
+	} else if ( ( !Q_stricmp( arg1, "fraglimit" ) )  && ((g_allowVote.integer & 256) != 0) ) {
+	} else if ( ( !Q_stricmp( arg1, "mapcycle" ) )   && ((g_allowVote.integer & 512) != 0) ) {
+	} else if ( ( !Q_stricmp( arg1, "weapons" ) )    && ((g_allowVote.integer & 1024) != 0) ) {
+	    if (!strlen(arg2)) {
+		Q_strncpyz(copy,"The available weapon specials include:",sizeof(copy));
+		sep = ""; csep = ",";
+		j = (sizeof(special)/sizeof(special[0]));
+		for (i=0;i<j;i++) {
+		    if (IsAvailableSpecial(special[i]))  {
+			s = va("%s%s ^2%s^3", copy, sep, special[i]);sep=csep;
+			Q_strncpyz(copy,s,sizeof(copy));      
+		    }
+		}
+		G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ",  copy);
+		return;
+	    }
+	} else {
+		if (strlen(arg1) && IsAvailableMap(arg1)) {
+			G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", "You lazy bum forgot to specify ^2map^3 as the vote type." );
+			Q_strncpyz(arg2, arg1, sizeof(arg2));// repair vote
+			Q_strncpyz(arg1, "map", sizeof(arg1));
+		} else {
+			G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", "This vote is currently disabled." );
+			return;
+		}
+	}
+
+ 	
 	// Validate argument, it can be an integer
 	if ( !Q_stricmp( arg1, "map_restart" ) && (!strlen(arg2) || !strcmp(arg2,va("%i",atoi(arg2)))) ) {
 	} else if ( !Q_stricmp( arg1, "nextmap" ) ) {
 	// Validate argument, it must be an available map
-	} else if ( !Q_stricmp( arg1, "map" ) && strlen(arg2) ) {
-		if ( ! IsAvailableMap(arg2) ) {
-			trap_SendServerCommand( ent-g_entities, va("print \"map not found: %s\n\"", arg2 ) );
-			G_LogPrintf( "Invalid callvote: %s: %s %s\n", ent->client->pers.netname, arg1, ConcatArgs(2) );
+	} else if ( !Q_stricmp( arg1, "map" ) ) {
+		if ( strlen(arg2) && !IsAvailableMap(arg2) ) {
+			G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", va("map not found or not available: %s", arg2 ) );
 			return;
 		}
 	// Validate argument, it must be an integer
 	} else if ( !Q_stricmp( arg1, "g_gametype" ) && !strcmp(arg2,va("%i",atoi(arg2))) ) {
 	// Validate argument, it must be a name
-	} else if ( !Q_stricmp( arg1, "mute" ) && strlen(arg2) ) {
-	// Validate argument, it must be a name
-	} else if ( !Q_stricmp( arg1, "unmute" ) && strlen(arg2) ) {
-	// Validate argument, it must be a name
+// 	} else if ( !Q_stricmp( arg1, "mute" ) && strlen(arg2) ) {
+// 	// Validate argument, it must be a name
+// 	} else if ( !Q_stricmp( arg1, "unmute" ) && strlen(arg2) ) {
+// 	// Validate argument, it must be a name
 	} else if ( !Q_stricmp( arg1, "kick" ) && strlen(arg2) ) {
 	// Validate argument, it must be an integer
 	} else if ( !Q_stricmp( arg1, "kicknum" ) && !strcmp(arg2,va("%i",atoi(arg2))) ) {
-	// Validate argument, it must be an integer (DEPRECATED)
-	} else if ( !Q_stricmp( arg1, "clientkick" ) && !strcmp(arg2,va("%i",atoi(arg2))) ) {
 	// Validate argument, it must be an integer
 	} else if ( !Q_stricmp( arg1, "g_doWarmup" ) && !strcmp(arg2,va("%i",atoi(arg2))) ) {
 	// Validate argument, it must be an integer
@@ -1931,19 +2216,59 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	// Validate argument, it must be an integer
 	} else if ( !Q_stricmp( arg1, "fraglimit" ) && !strcmp(arg2,va("%i",atoi(arg2))) ) {
 	} else if ( !Q_stricmp( arg1, "mapcycle" ) ) {
+	} else if ( !Q_stricmp( arg1, "weapons" ) ) {
+		if ( strlen(arg2) && !IsAvailableSpecial(arg2) ) {
+			G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", va("weapons special not found or not available: %s", arg2 ) );
+			return;
+		}
 	} else {
-		trap_SendServerCommand( ent-g_entities, va("print \"Invalid vote string command: %s\n\"", ConcatArgs(1) ) );
-		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, mute <player>, unmute <player>, kick <player>, kicknum <client id> [reason], g_doWarmup <integer>, timelimit <time>, fraglimit <frags>, mapcycle <mapcyclename>.\n\"" );
+		G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", "Invalid vote type." );
+		G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", "Valid vote types are: ^2nextmap^3, ^2map^3 <mapname>, ^2map_restart^3, ^2g_gametype^3 <num>, ^2kick^3 <player>, ^2clientkick^3 <clientnum>, ^2g_doWarmup^3 <integer>, ^2timelimit^3 <time>, ^2fraglimit^3 <frags>, ^2mapcycle^3 <mapcyclename>." );
 		// Tequila: Log failed callvote
 		G_LogPrintf( "Invalid callvote: %s: %s %s\n", ent->client->pers.netname, arg1, ConcatArgs(2) );
 		return;
 	}
 
-	if ( ( !Q_stricmp( arg1, "kick" ) || !Q_stricmp( arg1, "kicknum" ) | !Q_stricmp( arg1, "clientkick" ) )
-	&& !g_allowVoteKick.integer ) {
-		trap_SendServerCommand( ent-g_entities, "print \"Not allowed to vote kick here.\n\"" );
-		trap_SendServerCommand( ent-g_entities, "cp \"No vote kick here\n\"" );
+	if ( !Q_stricmp( arg1, "kick" ) || !Q_stricmp( arg1, "kicknum" ) ) {// 
+		int voter = ent-g_entities+1; // 0 in g_kickvotes is reserved for no vote/nobody.
+		int clientnum;
+		if (!Q_stricmp( arg1, "kick" )) {
+			clientnum = MyClientNumberForString(ConcatArgs(2));
+		} else {
+			clientnum = atoi(arg2);
+		}
+		if (clientnum>=0) {
+			cl = level.clients+clientnum;
+			if ( cl->pers.connected == CON_DISCONNECTED ) {
+				G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", "Invalid vote: client not found." );
+				return;
+			}
+			protected = Comma_ValueForIndex( g_protected.string, clientnum );
+			if (protected==1) {
+				G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", "You may not kick him. He is a well-known player." );
+				return;
+			}
+
+		} else {
+			G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", "Invalid vote: client not found." );
+			return;// in case something goes wrong
+		}
+
+		if (g_kickvotes[clientnum]==0) {
+			G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", "To hold this vote, a second player has to recall it!\n^1WARNING: ^3Kickvotes are logged." );
+			for ( i=0 ; i<level.maxclients ; i++ ) {
+				if (g_kickvotes[i]==voter) {// prevent vote enabling by a single person for all players
+					g_kickvotes[i] = 0;
+				}
+			}
+			g_kickvotes[clientnum]=voter;
+			G_LogPrintf( "callvote1: %s: kick %s, client %i\n", ent->client->pers.netname, cl->pers.netname, clientnum);
+
 		return;
+		} else if (g_kickvotes[clientnum]==voter) {
+			G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", "You have already called for this vote. It requires a 2nd call from a ^1different^3 player!" );
+			return;
+		}
 	}
 #endif
 
@@ -1956,37 +2281,76 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	// special case for g_gametype, check for bad values
 	if ( !Q_stricmp( arg1, "g_gametype" ) ) {
 		i = atoi( arg2 );
-#ifndef SMOKINGUNS
-		if( i == GT_SINGLE_PLAYER || i < GT_FFA || i >= GT_MAX_GAME_TYPE) {
-			trap_SendServerCommand( ent-g_entities, "print \"Invalid gametype.\n\"" );
-#else
-		if( i == GT_SINGLE_PLAYER || i < GT_FFA || i > GT_RTP) {
-			trap_SendServerCommand( ent-g_entities, va("print \"Invalid gametype: %s\n\"",arg2) );
-#endif
+
+		if( i == GT_SINGLE_PLAYER || i < GT_FFA || i > GT_BR) {
+			G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", "Invalid gametype." );
+ 			return;
+ 		}
+		
+		if (i == GT_SINGLE_PLAYER) {
+		} else if ( ( i == GT_FFA )  && ((g_allowedModes.integer & 1) != 0) ) {
+		} else if ( ( i == GT_DUEL ) && ((g_allowedModes.integer & 2) != 0) ) {
+		} else if ( ( i == GT_TEAM ) && ((g_allowedModes.integer & 4) != 0) ) { 
+		} else if ( ( i == GT_RTP )  && ((g_allowedModes.integer & 8) != 0) ) { 
+		} else if ( ( i == GT_BR )   && ((g_allowedModes.integer & 16) != 0) ) { 
+// 		} else if ( ( i == GT_CTF )  && ((g_allowedModes.integer & 32) != 0) ) {
+		} else {
+			G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", va("Gametype %s currently not available.", getGameName(i)) );
 			return;
 		}
 
-		Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %d", arg1, i );
-		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s %s", arg1, gameNames[i] );
+		Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %d; g_latchedgametype %d", arg1, i, i);
+		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s %d (%s)", arg1, i, getGameName(i) );
 	} else if ( !Q_stricmp( arg1, "map" ) ) {
+		if (!strlen(arg2)) {
+			char*	dirptr;
+			int	num;
+			int	dirlen;
+			num = trap_FS_GetFileList("maps","bsp",list, sizeof(list));
+			G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", va("%d maps are available:",num) );
+			dirptr = list;
+			for (i = 0; i < num; i++, dirptr += dirlen+1) {
+				dirlen = strlen(dirptr);
+				dirptr[dirlen-4]='\0';
+				if (IsAvailableMap(dirptr)) {
+					trap_SendServerCommand( ent-g_entities, va("print \" ^2 %s^7,\n\"", dirptr) );
+				}
+			}
+			return;
+		} else if (!IsAvailableMap(arg2)) {
+			G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", va("The map %s is not available on this server.", arg2) );
+			return;
+		}
 		// special case for map changes, we want to reset the nextmap setting
 		// this allows a player to change maps, but not upset the map rotation
-#ifndef SMOKINGUNS
-		char	s[MAX_STRING_CHARS];
 
-		trap_Cvar_VariableStringBuffer( "nextmap", s, sizeof(s) );
-		if (*s) {
-			Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s; set nextmap \"%s\"", arg1, arg2, s );
-		} else {
-			Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s", arg1, arg2 );
-		}
-#else
 		// Joe Kari : calling a vote for a /map command is not supposed to change 'nextmap' cvar
 		// We removed this code, this is not usefull anymore since I have modified server/sv_init.c to never
 		// turn 'nextmap' to 'map_restart 0'
-		Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s", arg1, arg2 );
-#endif
-		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
+		
+
+		i = g_gametype.integer;
+		trap_Cvar_Update(&g_latchedgametype);
+		if (g_latchedgametype.integer >= GT_FFA && g_latchedgametype.integer <= GT_BR) {
+			i = g_latchedgametype.integer;
+		}
+		if (i == GT_SINGLE_PLAYER) {
+		} else if ( ( i == GT_FFA )  && ((g_allowedModes.integer & 1) != 0) && ( !Q_strncasecmp( arg2, "dm_", 3 ) || IsPatchedMap(arg2)) ) {
+		} else if ( ( i == GT_DUEL ) && ((g_allowedModes.integer & 2) != 0) && ( !Q_strncasecmp( arg2, "du_", 3 ) ) ) {
+		} else if ( ( i == GT_TEAM ) && ((g_allowedModes.integer & 4) != 0) && ( !Q_strncasecmp( arg2, "dm_", 3 ) || IsPatchedMap(arg2)) ) {
+		} else if ( ( i == GT_RTP )  && ((g_allowedModes.integer & 8) != 0) && ( !Q_strncasecmp( arg2, "dm_", 3 ) || IsPatchedMap(arg2)) ) {
+		} else if ( ( i == GT_BR )   && ((g_allowedModes.integer & 16) != 0) && ( !Q_strncasecmp( arg2, "br_", 3 ) ) ) { 
+// 		} else if ( ( i == GT_CTF )  && ((g_allowedModes.integer & 32) != 0) && ( !Q_strncasecmp( arg2, "dm_", 3 ) ) ) {
+		} else {
+			G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", va("This map is not available for the gametype %d (%s).", i, getGameName(i)) );
+			return;
+		}
+
+		if (g_vstrInsteadOfMap.integer == 1)// instead of calling the map command, vstr is used instead. This creates a layer of abstraction, usuable via the server .cfg file. For instance, \callvote map dm_steamboat could not only change the map but also change game settings to make the map playable
+			Com_sprintf( level.voteString, sizeof( level.voteString ), "vstr %s",arg2 );
+		else
+			Com_sprintf( level.voteString, sizeof( level.voteString ), "map %s", arg2 );
+		Com_sprintf( level.voteDisplayString, sizeof( level.voteString ), "map %s (%s)", arg2, getGameName(i));
 #ifdef SMOKINGUNS
 	} else if ( !Q_stricmp( arg1, "mapcycle" ) ) {	// Joe Kari: allow player to vote for a mapcycle
 
@@ -2004,7 +2368,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		}
 
 		if ( !match ) {
-			trap_SendServerCommand( ent-g_entities, "print \"Unknown mapcycle. Available mapcycles are:\n\"" );
+			G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", "Unknown mapcycle. Available mapcycles are:" );
 			p = mapcycles;
 			while ( *( token = COM_Parse( &p ) )  )  {
 				Com_sprintf( buf ,  sizeof( buf ) , "print \"^5%s^7\n\"" , token ) ;
@@ -2018,60 +2382,52 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 
 	} else if ( !Q_stricmp( arg1, "kick" ) ) {
 		// Tequila: Replace kick command by safer sendaway one and merging other arguments
-		//Com_sprintf( level.voteString, sizeof( level.voteString ), "sendaway \"%s\"", ConcatArgs(2) );
-		
-		// Joe Kari: use of more standard kicknum command instead
-		arg_str = ConcatArgs(2) ;
-		clientnum = ClientNumberFromCleanName( arg_str );
-		if ( clientnum < 0 ) {
-			trap_SendServerCommand( ent-g_entities, va("print \"%s not found.\n\"", arg_str ) );
-			return;
-		}
-		Com_sprintf( level.voteString, sizeof( level.voteString ), "kicknum %i \"Kicked by vote.\"", clientnum );
-		Com_sprintf( level.voteDisplayString, sizeof( level.voteString ), "kick \"%s\"", arg_str );
-	} else if ( !Q_stricmp( arg1, "kicknum" ) ) {
-		arg_str = ConcatArgs(3) ;
-		Com_sprintf( level.voteString, sizeof( level.voteString ), "kicknum %s %s", arg2, arg_str );
-		Com_sprintf( level.voteDisplayString, sizeof( level.voteString ), "kicknum %s %s", arg2 , arg_str );
-	} else if ( !Q_stricmp( arg1, "mute" ) ) {
-		arg_str = ConcatArgs(2) ;
-		clientnum = ClientNumberFromCleanName( arg_str );
-		if ( clientnum < 0 ) {
-			trap_SendServerCommand( ent-g_entities, va("print \"%s not found.\n\"", arg_str ) );
-			return;
-		}
-		Com_sprintf( level.voteString, sizeof( level.voteString ), "mute %i", clientnum );
-		Com_sprintf( level.voteDisplayString, sizeof( level.voteString ), "mute \"%s\"", arg_str );
-	} else if ( !Q_stricmp( arg1, "unmute" ) ) {
-		arg_str = ConcatArgs(2) ;
-		clientnum = ClientNumberFromCleanName( arg_str );
-		if ( clientnum < 0 ) {
-			trap_SendServerCommand( ent-g_entities, va("print \"%s not found.\n\"", arg_str ) );
-			return;
-		}
-		Com_sprintf( level.voteString, sizeof( level.voteString ), "unmute %i", clientnum );
-		Com_sprintf( level.voteDisplayString, sizeof( level.voteString ), "unmute \"%s\"", arg_str );
+		Com_sprintf( level.voteString, sizeof( level.voteString ), "clientkick %i ^3was ^3kicked ^3by ^3vote", MyClientNumberForString(ConcatArgs(2)));
+		Com_sprintf( level.voteDisplayString, sizeof( level.voteString ), "kick %s ^3(client %i)", ConcatArgs(2), MyClientNumberForString(ConcatArgs(2)) );
+// 	} else if ( !Q_stricmp( arg1, "mute" ) ) {
+// 		arg_str = ConcatArgs(2) ;
+// 		clientnum = ClientNumberFromCleanName( arg_str );
+// 		if ( clientnum < 0 ) {
+// 			trap_SendServerCommand( ent-g_entities, va("print \"%s not found.\n\"", arg_str ) );
+// 			return;
+// 		}
+// 		Com_sprintf( level.voteString, sizeof( level.voteString ), "mute %i", clientnum );
+// 		Com_sprintf( level.voteDisplayString, sizeof( level.voteString ), "mute \"%s\"", arg_str );
+// 	} else if ( !Q_stricmp( arg1, "unmute" ) ) {
+// 		arg_str = ConcatArgs(2) ;
+// 		clientnum = ClientNumberFromCleanName( arg_str );
+// 		if ( clientnum < 0 ) {
+// 			trap_SendServerCommand( ent-g_entities, va("print \"%s not found.\n\"", arg_str ) );
+// 			return;
+// 		}
+// 		Com_sprintf( level.voteString, sizeof( level.voteString ), "unmute %i", clientnum );
+// 		Com_sprintf( level.voteDisplayString, sizeof( level.voteString ), "unmute \"%s\"", arg_str );
 #endif
 	} else if ( !Q_stricmp( arg1, "nextmap" ) ) {
 		char	s[MAX_STRING_CHARS];
 
 		trap_Cvar_VariableStringBuffer( "nextmap", s, sizeof(s) );
 		if (!*s) {
-			trap_SendServerCommand( ent-g_entities, "print \"nextmap not set.\n\"" );
+			G_SayTo( ent, ent, SAY_ALL, COLOR_YELLOW, "console: ", "nextmap is not set." );
 			return;
 		}
 		Com_sprintf( level.voteString, sizeof( level.voteString ), "vstr nextmap");
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
+	} else if ( !Q_stricmp( arg1, "weapons" ) ) {
+		char	s[MAX_STRING_CHARS];
+
+		Com_sprintf( level.voteString, sizeof( level.voteString ), "vstr weapons%s; map_restart", arg2);
+		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "^3weapons %s (restriction)", arg2 );
 	} else {
 		Com_sprintf( level.voteString, sizeof( level.voteString ), "%s \"%s\"", arg1, arg2 );
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
 	}
 
-	trap_SendServerCommand( -1, va("print \"%s called a vote.\n\"", ent->client->pers.netname ) );
+	trap_SendServerCommand( -1, va("print \"%s ^7called a vote:^3 %s^7.\n\"", ent->client->pers.netname, level.voteDisplayString ) );
 
 #ifdef SMOKINGUNS
 	// Tequila: Log the callvote string
-	G_LogPrintf( "callvote: %s : %s\n", ent->client->pers.netname, level.voteString);
+	G_LogPrintf( "callvote: %s: %s\n", ent->client->pers.netname, level.voteDisplayString );
 	PushMinilogf( "CALLVOTE: %i > %s", ent->s.number , level.voteString );
 #endif
 
@@ -2163,12 +2519,12 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 	}
 
 #ifdef SMOKINGUNS
-	// Joe Kari: muted player can't callvote... hihihi ^^ 
-	if ( ent->client->pers.muted ) {
-		trap_SendServerCommand( ent-g_entities, "print \"You try to call a vote, but nobody can hear your voice.\n\"" );
-		trap_SendServerCommand( ent-g_entities, "cp \"...\n\"" );
-		return;
-	}
+// 	// Joe Kari: muted player can't callvote... hihihi ^^ 
+// 	if ( ent->client->pers.muted ) {
+// 		trap_SendServerCommand( ent-g_entities, "print \"You try to call a vote, but nobody can hear your voice.\n\"" );
+// 		trap_SendServerCommand( ent-g_entities, "cp \"...\n\"" );
+// 		return;
+// 	}
 	
 	// Joe Kari: a tips to avoid stOopid punk with fast computer to call a vote before anyone have time to join,
 	// allowing them to do everything they want... now you have to wait some time.
@@ -2387,6 +2743,65 @@ void Cmd_SetViewpos_f( gentity_t *ent ) {
 }
 
 
+/*
+=================
+From CORKSCREW: additem command// patch additem: runtime-modification of maps
+
+Cmd_AddItem_f
+=================
+*/
+void Cmd_AddItem_f( gentity_t *ent ) {
+	char			buffer[1024];
+	char			buffer2[48];
+	int			len;
+	fileHandle_t	f;
+	char			filename[MAX_QPATH] = "powerups/";
+	char			map[MAX_QPATH];
+	char			serverinfo[MAX_INFO_STRING];
+
+	if ( !g_cheats.integer ) {
+		trap_SendServerCommand( ent-g_entities, va("print \"You must use devmap to issue this command.\n\""));
+		return;
+	}
+	if ( trap_Argc() != 2 ) {
+		trap_SendServerCommand( ent-g_entities, va("print \"usage: additem item\nexample: additem item_haste\n\""));
+		return;
+	}
+
+	trap_GetServerinfo( serverinfo, sizeof(serverinfo) );
+	Q_strncpyz( map, Info_ValueForKey( serverinfo, "mapname" ), sizeof(map) );
+
+	strcat(filename, map);
+	strcat(filename, ".txt");
+
+	trap_FS_FOpenFile( filename, &f, FS_APPEND );
+
+	trap_Argv( 1, buffer2, sizeof( buffer2 ) );
+
+	if ( ent->s.groundEntityNum ) { // we're on the ground, so spawnflags = 0;
+		Com_sprintf( buffer, sizeof(buffer),
+			"\n\n{\nclassname \"%s\"\nangle \"%i\"\norigin \"%i %i %i\"\n}\n",
+			buffer2,
+			(int)ent->s.apos.trBase[1],
+			(int)ent->s.pos.trBase[0],
+			(int)ent->s.pos.trBase[1],
+			(int)ent->s.pos.trBase[2]);
+		trap_SendServerCommand( ent-g_entities, va("print \"%s added at %s\n\"", buffer2, vtos( ent->s.pos.trBase) ) );
+	} else {
+		Com_sprintf( buffer, sizeof(buffer),
+			"\n\n{\nclassname \"%s\"\nangle \"%i\"\norigin \"%i %i %i\"\nspawnflags \"1\"\n}\n",
+			buffer2,
+			(int)ent->s.apos.trBase[1],
+			(int)ent->s.pos.trBase[0],
+			(int)ent->s.pos.trBase[1],
+			(int)ent->s.pos.trBase[2]);
+		trap_SendServerCommand( ent-g_entities, va("print \"suspended %s added at %s\n\"", buffer2, vtos( ent->s.pos.trBase ) ) );
+	}
+
+	trap_FS_Write( buffer, strlen( buffer ), f );
+
+	trap_FS_FCloseFile( f );
+}
 
 /*
 =================
@@ -2575,6 +2990,16 @@ void Cmd_BuyItem_f( gentity_t *ent, qboolean cgame) {
 	if(item->prize <= 0)
 		return;
 
+	if (IsItemAvailable(item->giTag, item->giType) == qfalse) {
+		if(!cgame)
+			trap_SendServerCommand( ent-g_entities, va("cp \"" S_COLOR_WHITE "%s\n\"", g_explanation.string));
+			trap_SendServerCommand( ent-g_entities, va("cp \"" S_COLOR_WHITE "%s\n\"", g_explanation.string));
+			trap_SendServerCommand( ent-g_entities, va("print \"" S_COLOR_RED "Item not available: %s!\n\"", g_explanation.string));
+		return;
+	}
+	
+	
+	
 	if(ent->client->ps.stats[STAT_MONEY] < item->prize){
 		if(!cgame)
 			trap_SendServerCommand( ent-g_entities, va("print \"Not Enough Money!\n\""));
@@ -2797,7 +3222,7 @@ void ClientCommand( int clientNum ) {
 
 	// ignore all other commands when at intermission
 	if (level.intermissiontime) {
-		Cmd_Say_f (ent, qfalse, qtrue);
+		//Cmd_Say_f (ent, qfalse, qtrue);// patch admin: don't spam commands at intermission
 		return;
 	}
 
@@ -2848,6 +3273,13 @@ void ClientCommand( int clientNum ) {
 	else if (Q_stricmp (cmd, "stats") == 0)
 		Cmd_Stats_f( ent );
 #ifdef SMOKINGUNS
+	// CORKSCREW add item command
+	else if (Q_stricmp (cmd, "entityvalues") == 0)
+		Cmd_EntityValues_f( ent );
+	else if (Q_stricmp (cmd, "aastrace") == 0)
+		Cmd_AASTrace_f( ent );
+	else if (Q_stricmp (cmd, "additem") == 0)// patch additem: add and remove things
+		Cmd_AddItem_f( ent );
 	else if (Q_stricmp (cmd, "dropweapon") == 0)
 		Cmd_DropWeapon_f( ent, 0 );
 	else if (Q_stricmp(cmd, "buy" ) == 0)

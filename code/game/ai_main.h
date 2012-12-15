@@ -59,6 +59,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	BFL_SEEK					0x0020000 // bot seeks around
 #define BFL_NOGOAL					0x0040000 // get no goal
 #define	BFL_ACT_BUTTON				0x0080000
+#define	BFL_CLIMB_UP				0x0160000
 #endif
 
 
@@ -234,7 +235,8 @@ typedef struct bot_state_s
 	float weaponchange_time;						//time the bot started changing weapons
 	float firethrottlewait_time;					//amount of time to wait
 	float firethrottleshoot_time;					//amount of time to shoot
-	float notblocked_time;							//last time the bot was not blocked
+	float last_blocked_time;						//last time the bot was blocked
+	float non_blocked_time;							//last time the bot was not blocked
 	float blockedbyavoidspot_time;					//time blocked by an avoid spot
 	float predictobstacles_time;					//last time the bot predicted obstacles
 	int predictobstacles_goalareanum;				//last goal areanum the bot predicted obstacles for
@@ -331,6 +333,7 @@ typedef struct bot_state_s
 #ifdef SMOKINGUNS
 	bot_orient_t orientation;
 	bot_goal_t	save_goal;
+	vec3_t myorigin;									//origin of the bot
 #endif
 } bot_state_t;
 

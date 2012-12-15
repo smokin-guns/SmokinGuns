@@ -157,10 +157,37 @@ static void SV_Map_f( void ) {
 	qboolean	killBots, cheat;
 	char		expanded[MAX_QPATH];
 	char		mapname[MAX_QPATH];
+	int			i;
+	client_t	*cl;
+	cvar_t      *gametype;
 
 	map = Cmd_Argv(1);
 	if ( !map ) {
 		return;
+	}
+	// force latched values to get set// patch DM on BR: if there is a BR map without a DM variant, you still can call for "dm_..."
+	gametype = Cvar_Get ("g_gametype", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH );
+
+	if(map && map[0] && map[1]){
+		if(map[2] == '_'){
+			char gt[4];
+			gt[0] = map[0];
+			gt[1] = map[1];
+			gt[2] = map[2];
+			gt[3] = '\0';
+
+			if(!Q_stricmp(gt,"dm_")){
+				if (gametype->integer==GT_BR) {
+					Com_sprintf (expanded, sizeof(expanded), "maps/%s.bsp", map);
+					expanded[5]='b';
+					expanded[6]='r';
+					if ( !(FS_ReadFile (expanded, NULL) == -1) ) {
+						map[0]='b';
+						map[1]='r';
+					}
+				}
+			}
+		}
 	}
 
 	// make sure the level exists before trying to change, so that
@@ -201,6 +228,14 @@ static void SV_Map_f( void ) {
 		}
 	}
 
+	if (sv_autorecord->integer && svs.initialized) {// patch demos: stop server-side demo recording when sv_autrecord is set
+		for (i=0, cl = svs.clients ; i < sv_maxclients->integer ; i++, cl++) {
+			if (cl->state >= CS_CONNECTED && cl->demorecording) {
+				CL_StopRecord( cl );
+			}
+		}
+	}
+
 	// save the map name here cause on a map restart we reload the q3config.cfg
 	// and thus nuke the arguments of the map command
 	Q_strncpyz(mapname, map, sizeof(mapname));
@@ -233,6 +268,8 @@ static void SV_MapRestart_f( void ) {
 	char		*denied;
 	qboolean	isBot;
 	int			delay;
+	int         j;// patch demos: stop server-side demo recording when sv_autrecord is set
+	client_t	*cl;
 
 	// make sure we aren't restarting twice in the same frame
 	if ( com_frameTime == sv.serverId ) {
@@ -272,6 +309,14 @@ static void SV_MapRestart_f( void ) {
 
 		SV_SpawnServer( mapname, qfalse );
 		return;
+	}
+
+	if (sv_autorecord->integer) {
+		for (j=0, cl = svs.clients ; j < sv_maxclients->integer ; j++, cl++) {
+			if (cl && cl->state && cl->state >= CS_CONNECTED && cl->demorecording) {
+				CL_StopRecord( cl );
+			}
+		}
 	}
 
 	// toggle the server bit so clients can detect that a
@@ -415,6 +460,57 @@ static void SV_Kick_f( void ) {
 
 	SV_DropClient( cl, "was kicked" );
 	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
+}
+
+/*
+==================
+SV_Kick_f
+
+Kick a user off of the server  FIXME: move to game
+==================
+*/
+static void SV_KickUnpure_f( void ) {
+	client_t	*cl;
+	int			i;
+
+	// make sure server is running
+	if ( !com_sv_running->integer ) {
+		Com_Printf( "Server is not running.\n" );
+		return;
+	}
+
+	if ( Cmd_Argc() != 2 ) {
+		Com_Printf ("Usage: kick <player name>\nkick all = kick everyone\n");
+		return;
+	}
+
+	cl = SV_GetPlayerByHandle();
+	if ( !cl ) {
+		if ( !Q_stricmp(Cmd_Argv(1), "all") ) {
+			for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
+				if ( !cl->state ) {
+					continue;
+				}
+				if ( cl->pureAuthentic != 2 || cl->netchan.remoteAddress.type == NA_BOT) {
+					continue;
+				}
+				if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
+					continue;
+				}
+				SV_DropClient( cl, "missed the correct .PK3 files. ^rPlease ^ropen ^rconsole ^r(^gShift^r+^gEsc^r) ^rand ^rtype ^g\\seta ^gcg_allowDownload ^g1 ^rand ^g\\reconnect^r." );
+				cl->lastPacketTime = svs.time;	// in case there is a funny zombie
+			}
+		}
+		return;
+	}
+	if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
+		SV_SendServerCommand(NULL, "print \"%s\"", "Cannot kick host player\n");
+		return;
+	}
+	if ( cl->pureAuthentic == 2 ) {
+	    SV_DropClient( cl, "missed the correct .PK3 files. ^rPlease ^ropen ^rconsole ^r(^gShift^r+^gEsc^r) ^rand ^rtype ^g\\seta ^gcg_allowDownload ^g1 ^rand ^g\\reconnect^r." );
+	    cl->lastPacketTime = svs.time;	// in case there is a funny zombie
+	}
 }
 
 #ifndef STANDALONE
@@ -1049,6 +1145,8 @@ Kick a user off of the server  FIXME: move to game
 */
 static void SV_KickNum_f( void ) {
 	client_t	*cl;
+	char		cmd_args[MAX_STRING_CHARS];// patch servercommands: enable the ability to provide a reason with clientkicks
+	int		i;
 
 	// make sure server is running
 	if ( !com_sv_running->integer ) {
@@ -1056,11 +1154,11 @@ static void SV_KickNum_f( void ) {
 		return;
 	}
 
-	if ( Cmd_Argc() != 2 ) {
+	if ( Cmd_Argc() < 2 ) {
 #ifndef SMOKINGUNS
 		Com_Printf ("Usage: kicknum <client number>\n");
 #else
-		Com_Printf ("Usage: clientkick <client number>\n");
+		Com_Printf ("Usage: clientkick <client number> [<reason>]\n");
 #endif
 		return;
 	}
@@ -1074,9 +1172,132 @@ static void SV_KickNum_f( void ) {
 		return;
 	}
 
-	SV_DropClient( cl, "was kicked" );
+	if ( Cmd_Argc() == 2 ) {
+		SV_DropClient( cl, "was ^3kicked^7!");
+		cl->lastPacketTime = svs.time;	// in case there is a funny zombie
+	} else {
+		cmd_args[0]=0;
+		for ( i=2 ; i<Cmd_Argc() ; i++ ) {
+			Q_strcat( cmd_args, sizeof(cmd_args), Cmd_Argv(i) );
+			if ( i != Cmd_Argc()-1 ) {
+				Q_strcat( cmd_args, sizeof(cmd_args), " " );
+			}
+		}
+		SV_DropClient( cl, cmd_args);
 	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
 }
+}
+
+/*
+==================// patch servercommands: set and forename penalty
+SV_SetName_f
+
+Sets a user's name
+==================
+*/
+static void SV_SetName_f( void ) {
+	client_t	*cl;
+	const char	*name;
+
+	// make sure server is running
+	if ( !com_sv_running->integer ) {
+		Com_Printf( "Server is not running.\n" );
+		return;
+	}
+
+	if ( Cmd_Argc() >= 2 ) {
+		cl = SV_GetPlayerByNum();
+		if ( !cl ) {
+			return;
+		}
+		if ( Cmd_Argc() == 2 ) {
+			Com_Printf ("forcename: %s: %s\n",Cmd_Argv(1),cl->name);
+			return;
+		} else {
+			name = Cmd_ArgsFrom(2);
+			cl->forcename = 1;
+			Q_strncpyz( cl->name, name, sizeof(cl->name) );
+			SV_UserinfoChanged( cl );
+			VM_Call( gvm, GAME_CLIENT_USERINFO_CHANGED, cl - svs.clients );
+			Com_Printf ("forcename: %s: %s\n",Cmd_Argv(1),cl->name);
+			return;
+		}
+	}
+	Com_Printf ("Usage: forcename <client number> [<name>]\n");
+	return;
+}
+/*
+==================
+SV_ForceName_f
+
+Sets a user's name
+==================
+*/
+static void SV_ForceName_f( void ) {
+	client_t	*cl;
+	const char	*name;
+
+	// make sure server is running
+	if ( !com_sv_running->integer ) {
+		Com_Printf( "Server is not running.\n" );
+		return;
+	}
+
+	if ( Cmd_Argc() >= 2 ) {
+		cl = SV_GetPlayerByNum();
+		if ( !cl ) {
+			return;
+		}
+		if ( Cmd_Argc() == 2 ) {
+			Com_Printf ("forcename: %s: %s\n",Cmd_Argv(1),cl->name);
+			return;
+		} else {
+			name = Cmd_ArgsFrom(2);
+			cl->forcename = 2;
+			Q_strncpyz( cl->name, name, sizeof(cl->name) );
+			SV_UserinfoChanged( cl );
+			VM_Call( gvm, GAME_CLIENT_USERINFO_CHANGED, cl - svs.clients );
+			Com_Printf ("forcename: %s: %s\n",Cmd_Argv(1),cl->name);
+			return;
+		}
+	}
+	Com_Printf ("Usage: forcename <client number> [<name>]\n");
+	return;
+}
+/*
+==================
+SV_ForceName_f
+
+Sets a user's name
+==================
+*/
+static void SV_LockName_f( void ) {
+	client_t	*cl;
+
+	// make sure server is running
+	if ( !com_sv_running->integer ) {
+		Com_Printf( "Server is not running.\n" );
+		return;
+	}
+
+	if ( Cmd_Argc() >= 2 ) {
+		cl = SV_GetPlayerByNum();
+		if ( !cl ) {
+			return;
+		}
+		if ( Cmd_Argc() == 2 ) {
+			Com_Printf ("lockname: %s: %d\n",Cmd_Argv(1),cl->forcename);
+			return;
+		} else {
+			cl->forcename = atoi(Cmd_Argv(2));
+			Com_Printf ("lockname: %s: %d\n",Cmd_Argv(1),cl->forcename);
+			return;
+		}
+	}
+	Com_Printf ("Usage: lockname <client number>\n");
+	return;
+}
+
 
 /*
 ================
@@ -1106,7 +1327,7 @@ static void SV_Status_f( void ) {
 			continue;
 		Com_Printf ("%3i ", i);
 		ps = SV_GameClientNum( i );
-		Com_Printf ("%5i ", ps->persistant[PERS_SCORE]);
+		Com_Printf ("%5i ", ps->clientNum==i?ps->persistant[PERS_SCORE]:0);//ps->persistant[PERS_SCORE]);// patch fix: let spectators do not assume the score of whom they spectate
 
 		if (cl->state == CS_CONNECTED)
 			Com_Printf ("CNCT ");
@@ -1314,6 +1535,85 @@ static void SV_ConSay_f(void) {
 	SV_SendServerCommand(NULL, "chat \"%s\"", text);
 }
 
+
+
+#ifdef SMOKINGUNS
+static void SV_ConPrintln_f(void) {// patch servercommands: println, big
+	char	*p;
+	char	text[MAX_STRING_CHARS-18];// OK?
+
+	// make sure server is running
+	if ( !com_sv_running->integer ) {
+		Com_Printf( "Server is not running.\n" );
+		return;
+	}
+
+	if ( Cmd_Argc () < 2 ) {
+		return;
+	}
+
+	strcpy (text, "console: ");
+	p = Cmd_Args();
+
+	if ( *p == '"' ) {
+		p++;
+		p[strlen(p)-1] = 0;
+	}
+
+	strcat(text, p);
+
+	SV_SendServerCommand(NULL, "print \"%s\n\"", SV_ConvertNewlines((char *)text));
+}
+
+static void SV_ConBig_f(void) {
+	char	*p;
+	char	text[1024];
+	client_t	*cl;
+
+	// make sure server is running
+	if ( !com_sv_running->integer ) {
+		Com_Printf( "Server is not running.\n" );
+		return;
+	}
+
+	if ( Cmd_Argc() < 3 ) {
+		Com_Printf ("Usage: big <clientid> <text>\n");
+		return;
+	}
+
+	cl = SV_GetPlayerByNum();
+	if (atoi(Cmd_Argv(1)) < 0) {
+		cl = NULL;
+	}
+
+
+//	if (atoi(Cmd_Argv(1))) {
+//	    Com_Printf ("Hi1 -1\n");
+
+////	    Com_Printf ("Hi2 -1\n");
+//	    if ( !cl ) {
+//		    return;
+//	    }
+////	    Com_Printf ("Hi3 -1\n");
+//	}
+
+
+	strcpy (text, "^3");
+	p = Cmd_ArgsFrom(2);
+
+	if ( *p == '"' ) {
+		p++;
+		p[strlen(p)-1] = 0;
+	}
+
+	strcat(text, p);
+
+	SV_SendServerCommand(cl, "cp \"" S_COLOR_WHITE "%s\n\"", text);
+}
+#endif
+
+
+#ifdef SMOKINGUNS
 /*
 ==================
 SV_ConTell_f
@@ -1321,10 +1621,9 @@ SV_ConTell_f
 Based on Urban Terror implementation
 ==================
 */
-#ifdef SMOKINGUNS
 static void SV_ConTell_f(void) {
 	char	*p;
-	char	text[1024];
+	char	text[MAX_STRING_CHARS-18];// OK?
 	client_t	*cl;
 
 	// make sure server is running
@@ -1343,7 +1642,7 @@ static void SV_ConTell_f(void) {
 		return;
 	}
 
-	strcpy (text, "console_tell: ");
+	strcpy (text, "^3private:^7 ");
 	p = Cmd_ArgsFrom(2);
 
 	if ( *p == '"' ) {
@@ -1353,7 +1652,7 @@ static void SV_ConTell_f(void) {
 
 	strcat(text, p);
 
-	SV_SendServerCommand(cl, "chat \"%s\"", text);
+	SV_SendServerCommand(cl, "print \"%s\n\"", SV_ConvertNewlines((char *)text));
 }
 #endif
 
@@ -1440,6 +1739,325 @@ static void SV_KillServer_f( void ) {
 	SV_Shutdown( "killserver" );
 }
 
+// 			Q_strlwr(name);        // !!!!!!!
+/*
+=======================================================================// patch demos: server-side recorded client demos
+
+SERVER-SIDE CLIENT DEMO RECORDING
+
+=======================================================================
+*/
+/*
+====================
+SVCL_WriteDemoMessage
+
+Dumps the current net message, prefixed by the length
+====================
+*/
+
+void SVCL_WriteDemoMessage (client_t *cl, msg_t *msg, int headerBytes ) {
+	int		len, swlen, clientnum;
+	playerState_t	*ps;
+	cvar_t	*fraglimit;
+
+	clientnum = cl - svs.clients;
+
+	MSG_WriteByte( msg, svc_EOF );//temporarily write svc_EOF
+	// write the packet sequence
+	FS_Write (&LittleLong( cl->netchan.outgoingSequence ), 4, cl->demofile);
+
+	// skip the packet sequencing information
+	len = msg->cursize - headerBytes;
+	swlen = LittleLong(len);
+	FS_Write (&swlen, 4, cl->demofile);
+	FS_Write ( msg->data + headerBytes, len, cl->demofile );
+	msg->cursize--;// forget about svc_EOF
+
+	ps = SV_GameClientNum( clientnum );
+	fraglimit = Cvar_Get("fraglimit", "30", CVAR_SERVERINFO);
+	if (!cl->savedemo && ps->pm_type!=PM_INTERMISSION && ps->clientNum==clientnum && ps->persistant[PERS_SCORE]>=(int)(fraglimit->integer*0.9)) {
+		cl->savedemo = qtrue;
+		Com_Printf ("Saverecord: %i: %s\n", clientnum, cl->name);
+	}
+}
+
+
+/*
+====================
+CL_StopRecording_f
+
+stoprecord <slot>
+
+stop recording a demo
+====================
+*/
+void CL_StopRecord( client_t	*cl ) {
+	int		len;
+	int         clientnum;
+	clientnum = cl - svs.clients;
+	fileHandle_t demofile;
+	char	*demoname;
+
+	if ( !cl->demorecording ) {
+		Com_Printf ("Not recording a demo for client %i.\n", clientnum);
+		return;
+	}
+
+	// remember handle and name
+	demofile = cl->demofile;
+	demoname = cl->demoName;
+	cl->demorecording = qfalse;
+
+	// finish up
+	len = -1;
+	FS_Write (&len, 4, demofile);
+	FS_Write (&len, 4, demofile);
+	FS_FCloseFile (demofile);
+
+	if (!sv_autorecord->integer) {
+		Com_Printf ("Stopped demo for client %i.\n", clientnum);
+	} else {
+		if (cl->savedemo) {
+			// keep demo
+			Com_Printf ("Stoprecord: %i: stop\n", clientnum);
+//			SV_SendServerCommand(NULL, "print \"%s^7's game was recorded as ^2http:/ /bb.game-host.org/oa/^3%s\n\"", cl->name, demoname);// 
+		} else {
+			Com_Printf ("Stoprecord: %i: abort\n", clientnum);
+			FS_HomeRemove(demoname);
+		}
+	}
+}
+void SVCL_StopRecord_f( void ) {
+	client_t	*cl;
+
+	// make sure server is running
+	if ( !com_sv_running->integer ) {
+		Com_Printf( "Server is not running.\n" );
+		return;
+	}
+
+	if ( Cmd_Argc() < 2 ) {
+		Com_Printf ("Usage: stoprecord <clientnumber>\n");
+		return;
+	}
+
+	cl = SV_GetPlayerByNum();
+	if ( !cl ) {
+		// error message was printed by SV_GetPlayerByNum
+		return;
+	}
+	CL_StopRecord(cl);
+}
+
+
+
+/*
+====================
+CL_Record_f
+
+record <slot> [<demoname>]
+
+Begins recording a demo from the current position
+====================
+*/
+void CL_Record( client_t	*cl, char *s ) {
+	char		name[MAX_OSPATH];
+	char		name_zip[MAX_OSPATH];
+	byte		bufData[MAX_MSGLEN];
+	msg_t	buf;
+	int			i;
+	int			len;
+	entityState_t	*ent;
+	entityState_t	nullstate;
+	int         clientnum;
+	char	*guid;
+	char	prefix[MAX_OSPATH];
+
+	clientnum = cl - svs.clients;
+
+	if ( cl->demorecording ) {
+		Com_Printf ("Already recording client %i.\n", clientnum);
+		return;
+	}
+
+//	if ( cl->state != CA_ACTIVE ) {
+//		Com_Printf ("You must be in a level to record.\n");
+//		return;
+//	}
+//  // sync 0 doesn't prevent recording, so not forcing it off .. everyone does g_sync 1 ; record ; g_sync 0 ..
+//	if ( NET_IsLocalAddress( cl->serverAddress ) && !Cvar_VariableValue( "g_synchronousClients" ) ) {
+//		Com_Printf (S_COLOR_YELLOW "WARNING: You should set 'g_synchronousClients 1' for smoother demo recording\n");
+//	}
+
+	if ( s ) {
+		Com_sprintf (name, sizeof(name), "demos/%s.dm_%d", s, PROTOCOL_VERSION );
+	} else {
+		int		number,n,a,b,c,d;
+		guid = Info_ValueForKey(cl->userinfo, "cl_guid");
+		if (!Q_stricmp(guid, "")) {
+			guid = "LONGGONE";
+		}
+		Q_strncpyz(prefix, guid, 9);
+
+		// scan for a free demo name
+		for ( number = 0 ; number <= 9999 ; number++ ) {
+			if(number < 0 || number > 9999)
+				number = 9999;
+			n = number;
+			a = n / 1000;
+			n -= a*1000;
+			b = n / 100;
+			n -= b*100;
+			c = n / 10;
+			n -= c*10;
+			d = n;
+
+			Com_sprintf (name, sizeof(name), "demos/%s_%s_%i%i%i%i.dm_%d", prefix, sv_mapname->string, a, b, c, d, PROTOCOL_VERSION );
+			Com_sprintf (name_zip, sizeof(name_zip), "demos/%s_%s_%i%i%i%i.dm_%d.zip", prefix, sv_mapname->string, a, b, c, d, PROTOCOL_VERSION );
+			Q_strlwr(name);
+			Q_strlwr(name_zip);
+			if (!FS_FileExists(name) && !FS_FileExists(name_zip)) {
+				break;	// file doesn't exist
+			}
+		}
+	}
+
+	// open the demo file
+
+	if (!sv_autorecord->integer) {
+		Com_Printf ("recording client %i to %s.\n", clientnum, name);
+	} else {
+		Com_Printf ("Record: %i: %s\n", clientnum, name);
+	}
+
+	cl->demofile = FS_FOpenFileWrite( name );
+	if ( !cl->demofile ) {
+		Com_Printf ("ERROR: couldn't open.\n");
+		return;
+	}
+	// don't start saving messages until a non-delta compressed message is received
+	cl->demowaiting = qtrue;
+	cl->savedemo = qfalse; // demo will not be saved if sv_autorecord 1 and cl's score is too low
+
+	Q_strncpyz( cl->demoName, name, sizeof( cl->demoName ) );
+
+	// write out the gamestate message
+	MSG_Init (&buf, bufData, sizeof(bufData));
+	MSG_Bitstream(&buf);
+
+	// NOTE, MRE: all server->client messages now acknowledge
+	MSG_WriteLong( &buf, cl->lastClientCommand );// 0007 - 000A
+
+	MSG_WriteByte (&buf, svc_gamestate);// 000B
+	MSG_WriteLong (&buf, cl->reliableSequence );// 000C - 000F
+
+
+	// write the configstrings
+	for ( i = 0 ; i < MAX_CONFIGSTRINGS ; i++ ) {
+		if (sv.configstrings[i][0]) {
+			MSG_WriteByte( &buf, svc_configstring );
+			MSG_WriteShort( &buf, i );
+			MSG_WriteBigString( &buf, sv.configstrings[i] );
+		}
+	}
+
+	// write the baselines
+	Com_Memset( &nullstate, 0, sizeof( nullstate ) );
+	for ( i = 0 ; i < MAX_GENTITIES; i++ ) {
+		ent = &sv.svEntities[i].baseline;
+		if ( !ent->number ) {
+			continue;
+		}
+		MSG_WriteByte( &buf, svc_baseline );
+		MSG_WriteDeltaEntity( &buf, &nullstate, ent, qtrue );
+	}
+
+	MSG_WriteByte( &buf, svc_EOF );
+
+	// finished writing the gamestate stuff
+
+	// write the client num
+	MSG_WriteLong(&buf, clientnum);
+	// write the checksum feed
+	MSG_WriteLong(&buf, sv.checksumFeed);
+
+	// finished writing the client packet
+	MSG_WriteByte( &buf, svc_EOF );
+
+	// write it to the demo file
+	len = LittleLong( cl->netchan.outgoingSequence-1 );
+	FS_Write (&len, 4, cl->demofile);// 0000 - 0003
+
+	len = LittleLong (buf.cursize);
+	FS_Write (&len, 4, cl->demofile);// 0004 - 0007
+	FS_Write (buf.data, buf.cursize, cl->demofile);// 0007 - ...
+
+	// the rest of the demo file will be copied from net messages
+	cl->demorecording = qtrue;
+}
+void SVCL_Record_f( void ) {
+	char		*s;
+	client_t	*cl;
+
+	s = 0;
+	// make sure server is running
+	if ( !com_sv_running->integer ) {
+		Com_Printf( "Server is not running.\n" );
+		return;
+	}
+
+	if ( Cmd_Argc() < 2 || Cmd_Argc() > 3) {
+		Com_Printf ("record <clientnumber> [<demoname>]\n");
+		return;
+	}
+
+	cl = SV_GetPlayerByNum();
+	if ( !cl ) {
+		// error message was printed by SV_GetPlayerByNum
+		return;
+	}
+
+	if ( Cmd_Argc() == 3 ) {
+		s = Cmd_Argv(2);
+//		Com_sprintf (name, sizeof(name), "demos/%s.dm_%d", s, PROTOCOL_VERSION );
+		CL_Record(cl,s);
+	} else {
+		CL_Record(cl,0);
+	}
+}
+
+void SVCL_SaveRecord_f( void ) {
+	char		*s;
+	client_t	*cl;
+	int         clientnum;
+
+
+	s = 0;
+	// make sure server is running
+	if ( !com_sv_running->integer ) {
+		Com_Printf( "Server is not running.\n" );
+		return;
+	}
+
+	if ( Cmd_Argc() != 2) {
+		Com_Printf ("saverecord <clientnumber>\n");
+		return;
+	}
+
+	cl = SV_GetPlayerByNum();
+	if ( !cl ) {
+		// error message was printed by SV_GetPlayerByNum
+		return;
+	}
+	if ( !cl->demorecording ) {
+		Com_Printf ("Not recording a demo for client %i.\n", cl - svs.clients);
+		return;
+	}
+	clientnum = cl - svs.clients;
+	cl->savedemo = qtrue;
+	Com_Printf ("Saverecord: %i: %s\n", clientnum, cl->name);
+}
+
 //===========================================================
 
 /*
@@ -1478,6 +2096,9 @@ void SV_AddOperatorCommands( void ) {
 		Cmd_AddCommand ("clientstatus", SV_ClientStatus_f);
 	}
 #endif
+	Cmd_AddCommand ("forcename", SV_ForceName_f);// patch servercomands
+	Cmd_AddCommand ("setname", SV_SetName_f);
+	Cmd_AddCommand ("lockname", SV_LockName_f);
 	Cmd_AddCommand ("clientkick", SV_KickNum_f);
 	Cmd_AddCommand ("status", SV_Status_f);
 	Cmd_AddCommand ("serverinfo", SV_Serverinfo_f);
@@ -1499,10 +2120,14 @@ void SV_AddOperatorCommands( void ) {
 	if( com_dedicated->integer ) {
 		Cmd_AddCommand ("say", SV_ConSay_f);
 #ifdef SMOKINGUNS
+		Cmd_AddCommand ("println", SV_ConPrintln_f);
 		Cmd_AddCommand ("tell", SV_ConTell_f);
+		Cmd_AddCommand ("big", SV_ConBig_f);
 #endif
 	}
-	
+ 	Cmd_AddCommand("record", SVCL_Record_f);
+ 	Cmd_AddCommand("stoprecord", SVCL_StopRecord_f);
+ 	Cmd_AddCommand("saverecord", SVCL_SaveRecord_f);
 	Cmd_AddCommand("rehashbans", SV_RehashBans_f);
 	Cmd_AddCommand("listbans", SV_ListBans_f);
 	Cmd_AddCommand("banaddr", SV_BanAddr_f);
@@ -1510,6 +2135,7 @@ void SV_AddOperatorCommands( void ) {
 	Cmd_AddCommand("bandel", SV_BanDel_f);
 	Cmd_AddCommand("exceptdel", SV_ExceptDel_f);
 	Cmd_AddCommand("flushbans", SV_FlushBans_f);
+	Cmd_AddCommand("kickUnpure", SV_KickUnpure_f);
 }
 
 /*

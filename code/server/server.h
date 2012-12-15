@@ -80,6 +80,8 @@ typedef struct {
 	char			*configstrings[MAX_CONFIGSTRINGS];
 	svEntity_t		svEntities[MAX_GENTITIES];
 
+	int             ent_contents[MAX_GENTITIES];
+
 	char			*entityParsePoint;	// used during game VM init
 
 	// the game virtual machine will update these on init and changes
@@ -96,6 +98,33 @@ typedef struct {
 
 
 
+//entity info
+typedef struct aas_entityinfo_s
+{
+	int		valid;			// true if updated this frame
+	int		type;			// entity type
+	int		flags;			// entity flags
+	float	ltime;			// local time
+	float	update_time;	// time between last and current update
+	int		number;			// number of the entity
+	vec3_t	origin;			// origin of the entity
+	vec3_t	angles;			// angles of the model
+	vec3_t	old_origin;		// for lerping
+	vec3_t	lastvisorigin;	// last visible origin
+	vec3_t	mins;			// bounding box minimums
+	vec3_t	maxs;			// bounding box maximums
+	int		groundent;		// ground entity
+	int		solid;			// solid type
+	int		modelindex;		// model used
+	int		modelindex2;	// weapons, CTF flags, etc
+	int		frame;			// model frame number
+	int		event;			// impulse events -- muzzle flashes, footsteps, etc
+	int		eventParm;		// even parameter
+	int		powerups;		// bit flags
+	int		weapon;			// determines weapon and flash model, etc
+	int		legsAnim;		// mask off ANIM_TOGGLEBIT
+	int		torsoAnim;		// mask off ANIM_TOGGLEBIT
+} aas_entityinfo_t;
 
 
 typedef struct {
@@ -145,6 +174,20 @@ typedef struct client_s {
 	char			lastClientCommandString[MAX_STRING_CHARS];
 	sharedEntity_t	*gentity;			// SV_GentityNum(clientnum)
 	char			name[MAX_NAME_LENGTH];			// extracted from userinfo, high bits masked
+	int			    forcename;
+
+	// demo information
+	char		demoName[MAX_QPATH];
+	qboolean	savedemo;
+	qboolean	demorecording;
+	qboolean	demowaiting;	// don't record until a non-delta message is received
+	fileHandle_t	demofile;
+	clientSnapshot_t *olddemoframe;
+
+	// cullentities
+	int		tracetimer[MAX_GENTITIES];
+	vec3_t	lasttrace[MAX_GENTITIES];
+
 
 	// downloading
 	char			downloadName[MAX_QPATH]; // if not empty string, we are downloading
@@ -168,6 +211,7 @@ typedef struct client_s {
 	int				timeoutCount;		// must timeout a few frames in a row so debugging doesn't break
 	clientSnapshot_t	frames[PACKET_BACKUP];	// updates can be delta'd from here
 	int				ping;
+	int				score;
 	int				rate;				// bytes / second
 	int				snapshotMsec;		// requests a snapshot every snapshotMsec unless rate choked
 	int				pureAuthentic;
@@ -230,6 +274,10 @@ typedef struct {
 	netadr_t	redirectAddress;			// for rcon return messages
 
 	netadr_t	authorizeAddress;			// for rcon return messages
+
+	int         next_div;
+	int         entity_div[MAX_GENTITIES];
+	vec3_t      origin_div[MAX_GENTITIES];
 } serverStatic_t;
 
 #define SERVER_MAXBANS	1024
@@ -277,6 +325,8 @@ extern	cvar_t	*sv_floodProtect;
 extern	cvar_t	*sv_lanForceRate;
 extern	cvar_t	*sv_strictAuth;
 extern	cvar_t	*sv_banFile;
+extern	cvar_t	*sv_autorecord;// patch demos
+extern	cvar_t	*sv_antiwallhack;// patch anti-wallhack
 extern	cvar_t	*sv_heartbeat;
 extern	cvar_t	*sv_flatline;
 
@@ -356,7 +406,8 @@ void SV_Heartbeat_f( void );
 // sv_snapshot.c
 //
 void SV_AddServerCommand( client_t *client, const char *cmd );
-void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg );
+// void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg );
+void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg, msg_t *msg_demo );
 void SV_WriteFrameToClient (client_t *client, msg_t *msg);
 void SV_SendMessageToClient( msg_t *msg, client_t *client );
 void SV_SendClientMessages( void );

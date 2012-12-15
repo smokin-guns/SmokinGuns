@@ -417,6 +417,136 @@ static void WhiskeyDie ( gentity_t *self, gentity_t *inflictor,
 	self->wait = level.time + WHISKEY_BURNTIME;
 	self->takedamage = qfalse;
 }
+void EternalFireThink( gentity_t *self){// patch additem: invisible_hurt, eternal_fire
+	if(self->wait <= level.time) {
+		G_AddEvent( self, EV_WHISKEY_BURNS, DirToByte(self->s.angles2));// visually reignite
+		self->wait = level.time + 5000;
+	}
+
+#define RANGE 30
+	// look for other whiskey pools that could be burned
+	if(self->s.apos.trDelta[0]){
+		int num, i;
+		int touch[MAX_GENTITIES];
+		vec3_t mins, maxs;
+
+		VectorSet(mins, -RANGE, -RANGE, -RANGE);
+		VectorSet(maxs, RANGE, RANGE, RANGE);
+
+		VectorAdd(self->r.currentOrigin, mins, mins);
+		VectorAdd(self->r.currentOrigin, maxs, maxs);
+
+		num = trap_EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
+
+		for(i = 0; i < num; i++){
+			gentity_t *hit = &g_entities[touch[i]];
+
+			if(!Q_stricmp(hit->classname, "whiskey_pool") &&
+				hit->s.apos.trDelta[0] == 0.0f){
+
+				G_AddEvent( hit, EV_WHISKEY_BURNS, DirToByte(hit->s.angles2));
+				hit->s.apos.trDelta[0] = 1;
+				hit->wait = level.time + WHISKEY_BURNTIME;
+			}
+
+			// make the dynamite explode
+			if(hit->r.contents & CONTENTS_TRIGGER2 && hit->takedamage){
+				G_Damage (hit, self, self->parent, NULL, NULL, 100, 0, MOD_MOLOTOV);
+			}
+		}
+	}
+	self->nextthink = level.time + 100;
+}
+void SP_eternal_fire(gentity_t *self) {
+	gentity_t	*pool;
+
+	pool = G_Spawn();
+	pool->classname = "whiskey_pool";
+
+	pool->r.svFlags = SVF_USE_CURRENT_ORIGIN;
+	pool->r.ownerNum = -1;
+// 	pool->r.ownerNum = self->s.number;
+// 	pool->parent = self;
+	pool->methodOfDeath = MOD_MOLOTOV;
+	pool->splashMethodOfDeath = MOD_MOLOTOV;
+
+	pool->s.pos.trType = TR_STATIONARY;
+	pool->s.pos.trTime = level.time;		// move a bit on the very first frame
+
+	VectorCopy(self->s.origin, pool->s.pos.trBase );
+	VectorCopy(self->s.origin, pool->r.currentOrigin);
+	
+	pool->touch = WhiskeyBurn;
+	pool->think = EternalFireThink;
+	pool->nextthink = level.time + 100;
+	pool->r.contents |= CONTENTS_TRIGGER;
+
+	pool->die = WhiskeyDie;
+	pool->health = 1;
+	pool->takedamage = qtrue;
+	
+	pool->wait = level.time + 5000;
+	pool->s.apos.trDelta[0] = 1;
+
+	pool->noise_index = G_SoundIndex( "sound/world/electro.wav" );
+
+#define RADIUS	30
+	// set the mins maxs
+	VectorSet(pool->r.mins, -RADIUS, -RADIUS, -RADIUS);
+	VectorSet(pool->r.maxs, RADIUS, RADIUS, RADIUS);
+
+	// normal(important for later marks on the ground
+	VectorCopy(self->s.angles2, pool->s.angles2);
+	
+	trap_LinkEntity(pool);
+}
+
+void InvisibleHurtThink( gentity_t *self){
+	self->nextthink = level.time + 100;
+}
+void SP_invisible_hurt(gentity_t *self) {
+	gentity_t	*pool;
+
+	pool = G_Spawn();
+	pool->classname = "whiskey_pool";
+
+	pool->r.svFlags = SVF_USE_CURRENT_ORIGIN;
+	pool->r.ownerNum = -1;
+// 	pool->r.ownerNum = self->s.number;
+// 	pool->parent = self;
+	pool->methodOfDeath = MOD_MOLOTOV;
+	pool->splashMethodOfDeath = MOD_MOLOTOV;
+
+	pool->s.pos.trType = TR_STATIONARY;
+	pool->s.pos.trTime = level.time;		// move a bit on the very first frame
+
+	VectorCopy(self->s.origin, pool->s.pos.trBase );
+	VectorCopy(self->s.origin, pool->r.currentOrigin);
+
+	pool->touch = WhiskeyBurn;
+	pool->think = InvisibleHurtThink;
+	pool->nextthink = level.time + 100;
+	pool->r.contents |= CONTENTS_TRIGGER;
+
+	pool->die = WhiskeyDie;
+	pool->health = 1;
+	pool->takedamage = qtrue;
+
+	pool->wait = level.time + 5000;
+	pool->s.apos.trDelta[0] = 1;
+
+	pool->noise_index = G_SoundIndex( "sound/world/electro.wav" );
+
+#define RADIUS	30
+	// set the mins maxs
+	VectorSet(pool->r.mins, -RADIUS, -RADIUS, -RADIUS);
+	VectorSet(pool->r.maxs, RADIUS, RADIUS, RADIUS);
+
+	// normal(important for later marks on the ground
+	VectorCopy(self->s.angles2, pool->s.angles2);
+
+	trap_LinkEntity(pool);
+}
 
 static gentity_t *SetWhiskeyPool (gentity_t *self, vec3_t origin, vec3_t normal, qboolean fire) {
 	gentity_t	*pool;

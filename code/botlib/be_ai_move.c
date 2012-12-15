@@ -656,10 +656,10 @@ int BotAvoidSpots(vec3_t origin, aas_reachability_t *reach, bot_avoidspot_t *avo
 
 	switch(reach->traveltype & TRAVELTYPE_MASK)
 	{
+		case TRAVEL_LADDER: checkbetween = qtrue; break;// patch bots: put priority on ladder travel
 		case TRAVEL_WALK: checkbetween = qtrue; break;
 		case TRAVEL_CROUCH: checkbetween = qtrue; break;
 		case TRAVEL_BARRIERJUMP: checkbetween = qtrue; break;
-		case TRAVEL_LADDER: checkbetween = qtrue; break;
 		case TRAVEL_WALKOFFLEDGE: checkbetween = qfalse; break;
 		case TRAVEL_JUMP: checkbetween = qfalse; break;
 		case TRAVEL_SWIM: checkbetween = qtrue; break;
@@ -1302,7 +1302,7 @@ void BotCheckBlocked(bot_movestate_t *ms, vec3_t dir, int checkbottom, bot_mover
 	
 	// Joe Kari: applying the patch of The Doctor: http://forum.smokin-guns.org/viewtopic.php?f=28&t=3075
 	//if (!trace.startsolid && (trace.ent != ENTITYNUM_WORLD && trace.ent != ENTITYNUM_NONE) )
-	if ( trace.ent != ENTITYNUM_WORLD && trace.ent != ENTITYNUM_NONE )
+	if ( trace.ent != ENTITYNUM_WORLD && trace.ent != ENTITYNUM_NONE )// patch bots: fixes some problems of bots running into things (removed !trace.startsolid && )
 	{
 		result->blocked = qtrue;
 		result->blockentity = trace.ent;
@@ -2933,10 +2933,10 @@ int BotReachabilityTime(aas_reachability_t *reach)
 {
 	switch(reach->traveltype & TRAVELTYPE_MASK)
 	{
+		case TRAVEL_LADDER: return 6;// patch bots: put priority on ladder travel
 		case TRAVEL_WALK: return 5;
 		case TRAVEL_CROUCH: return 5;
 		case TRAVEL_BARRIERJUMP: return 5;
-		case TRAVEL_LADDER: return 6;
 		case TRAVEL_WALKOFFLEDGE: return 5;
 		case TRAVEL_JUMP: return 5;
 		case TRAVEL_SWIM: return 5;
@@ -3325,10 +3325,10 @@ void BotMoveToGoal(bot_moveresult_t *result, int movestate, bot_goal_t *goal, in
 #endif //DEBUG
 			switch(reach.traveltype & TRAVELTYPE_MASK)
 			{
+				case TRAVEL_LADDER: *result = BotTravel_Ladder(ms, &reach); break;// patch bots: put priority on ladder travel
 				case TRAVEL_WALK: *result = BotTravel_Walk(ms, &reach); break;
 				case TRAVEL_CROUCH: *result = BotTravel_Crouch(ms, &reach); break;
 				case TRAVEL_BARRIERJUMP: *result = BotTravel_BarrierJump(ms, &reach); break;
-				case TRAVEL_LADDER: *result = BotTravel_Ladder(ms, &reach); break;
 				case TRAVEL_WALKOFFLEDGE: *result = BotTravel_WalkOffLedge(ms, &reach); break;
 				case TRAVEL_JUMP: *result = BotTravel_Jump(ms, &reach); break;
 				case TRAVEL_SWIM: *result = BotTravel_Swim(ms, &reach); break;
@@ -3434,10 +3434,10 @@ void BotMoveToGoal(bot_moveresult_t *result, int movestate, bot_goal_t *goal, in
 			//
 			switch(reach.traveltype & TRAVELTYPE_MASK)
 			{
+				case TRAVEL_LADDER: *result = BotTravel_Ladder(ms, &reach); break;// patch bots: put priority on ladder travel
 				case TRAVEL_WALK: *result = BotTravel_Walk(ms, &reach); break;//BotFinishTravel_Walk(ms, &reach); break;
 				case TRAVEL_CROUCH: /*do nothing*/ break;
 				case TRAVEL_BARRIERJUMP: *result = BotFinishTravel_BarrierJump(ms, &reach); break;
-				case TRAVEL_LADDER: *result = BotTravel_Ladder(ms, &reach); break;
 				case TRAVEL_WALKOFFLEDGE: *result = BotFinishTravel_WalkOffLedge(ms, &reach); break;
 				case TRAVEL_JUMP: *result = BotFinishTravel_Jump(ms, &reach); break;
 				case TRAVEL_SWIM: *result = BotTravel_Swim(ms, &reach); break;

@@ -24,12 +24,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 // bg_misc.c -- both games misc functions, all completely stateless
 
+#ifdef QAGAME
+#include "g_local.h"
+#include "../qcommon/q_shared.h"
+#else
 #include "../qcommon/q_shared.h"
 #include "bg_public.h"
+#endif
 
 #ifdef SMOKINGUNS
 vec3_t	playerMins = {-14, -14, MINS_Z};
 vec3_t	playerMaxs = {14, 14, MAXS_Z};
+// vec3_t	playerMins = {-15, -15, -24};
+// vec3_t	playerMaxs =  { 15,  15,  32};
+
 
 vec3_t gatling_mins = {-3, -3, 0.0};
 vec3_t gatling_maxs = {3, 3, 35};
@@ -1584,7 +1592,7 @@ gitem_t	bg_itemlist[] =
 		0,
 		0,
 		0,
-		0,// $
+		0,// $ price
 		0,
 /* precache */ "",
 /* sounds */ ""
@@ -2005,7 +2013,7 @@ gitem_t	bg_itemlist[] =
 /* icon */		"hud/weapons/dynamite",
 		3,
 /* pickup */	"Dynamite",
-		5,
+		2,// amount
 		IT_AMMO,
 		WP_DYNAMITE,
 		16,
@@ -2297,6 +2305,23 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 	int		upperBound;
 #else
 	int		belt = 1, i;
+
+	//--------- begin (nobots/nohumans item pickup fix)
+#ifdef QAGAME
+	gentity_t	*item_ent;
+	gentity_t *player_ent;
+	item_ent = &g_entities[ ent->number ];
+	player_ent = &g_entities[ ps->clientNum ];
+
+	if ( ( item_ent->flags & FL_NO_BOTS ) && ( player_ent->r.svFlags & SVF_BOT ) ) {
+		return qfalse;
+	}
+	// just to be symmetric, we have a nohumans option...
+	if ( ( item_ent->flags & FL_NO_HUMANS ) && !( player_ent->r.svFlags & SVF_BOT ) ) {
+		return qfalse;
+	}
+#endif
+	//---------- end (nobots/nohumans item pickup fix)
 
 // hika additional comments:
 // Molotovs, dynamites and knives are no longer affected by belt double ammo effect.
@@ -3392,18 +3417,38 @@ int BG_MapPrefix(char *map, int gametype){
 			gt[2] = map[2];
 			gt[3] = '\0';
 
-			if(!Q_stricmp(gt,"br_")){
-				return GT_BR;
-			} else if(!Q_stricmp(gt, "du_")){
+			if(!Q_stricmp(gt,"dm_")){
+				if (gametype==GT_BR) {
+					return GT_TEAM;
+				}
+			} else if (!Q_stricmp(gt,"du_")){
 				return GT_DUEL;
 			}
 		}
 	}
 
-	if(gametype == GT_SINGLE_PLAYER ||
-		    gametype == GT_DUEL ||
-		    gametype >= GT_BR)
-		return GT_FFA;
+
+// 	if(map && map[0] && map[1]){
+// 		if(map[2] == '_'){
+// 			char gt[4];
+// 
+// 			gt[0] = map[0];
+// 			gt[1] = map[1];
+// 			gt[2] = map[2];
+// 			gt[3] = '\0';
+// 
+// 			if(!Q_stricmp(gt,"br_")){
+// 				return GT_BR;
+// 			} else if(!Q_stricmp(gt, "du_")){
+// 				return GT_DUEL;
+// 			}
+// 		}
+// 	}
+// 
+// 	if(gametype == GT_SINGLE_PLAYER ||
+// 		    gametype == GT_DUEL ||
+// 		    gametype >= GT_BR)
+// 		return GT_FFA;
 
 	return gametype;
 }

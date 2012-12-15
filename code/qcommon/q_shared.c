@@ -69,6 +69,80 @@ const char *COM_GetExtension( const char *name )
 		return "";
 }
 
+/*
+===============
+Comma_SetValueAtIndex
+
+Changes the clientNum-th value in a comma-separated string.
+===============
+*/
+char *Comma_SetValueAtIndex( char *string, int clientNum, const char* value) {
+	int	comma,i,j;
+	static char substring[1024];
+
+	comma=0; i=0; j=0;
+	// copy the string up to the clientNum-th comma
+	while ( i < strlen(string) && comma < clientNum) {
+		substring[j++]=*(string+i);
+		if ( *(string+i) == ',') {
+			comma++;
+		}
+		i++;
+	}
+	substring[j] = 0;
+	// insert additional commas, if necessary
+	while ( comma < clientNum) {
+		substring[j++]=',';
+		comma++;
+	}
+	substring[j] = 0;
+	// skip the previous number
+	while ( i < strlen(string) && comma < clientNum+1) {
+		if ( *(string+i) == ',') {
+			comma++;
+			i--;
+		}
+		i++;
+	}
+	substring[j] = 0;
+	// insert the new value
+	strcat(substring,value);
+	j+=strlen(value);
+	substring[j] = 0;
+	// copy the remainder starting from the clientNum+1-th comma
+	while ( i < strlen(string) ) {
+		substring[j++]=*(string+i);
+		i++;
+	}
+	substring[j] = 0;
+	substring[j] = 0;
+	strcpy(string, substring);
+	return string;
+}
+/*
+===============
+Comma_ValueForIndex
+
+Searches a comma-separated string for the clientNum-th value.
+===============
+*/
+int Comma_ValueForIndex(const char *string, int clientNum ) {
+	int	comma,i,j;
+	static char substring[1024];
+
+	comma=0; i=0; j=0;
+	while ( i < strlen(string) && comma<clientNum+1 ) {
+		if ( *(string+i) == ',') {
+			comma++;
+		} else if (comma == clientNum) {
+			substring[j++]=*(string+i);
+		}
+		i++;
+	}
+	substring[j] = 0;
+
+	return atoi(substring);
+}
 
 /*
 ============

@@ -1480,8 +1480,11 @@ int BotChooseNBGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 	//if the bot is in solid or if the area the bot is in has no reachability links
 	if (!areanum || !AAS_AreaReachability(areanum))
 	{
+#ifdef DEBUG
+		botimport.Print(PRT_MESSAGE, "bot is in solid or area has no reachability links: %d %d\n",areanum,gs->lastreachabilityarea);
+#endif //DEBUG
 		//use the last valid area the bot was in
-		areanum = gs->lastreachabilityarea;
+		if (gs->lastreachabilityarea>0) {areanum = gs->lastreachabilityarea;}
 	} //end if
 	//remember the last area with reachabilities the bot was in
 	gs->lastreachabilityarea = areanum;
@@ -1569,7 +1572,12 @@ int BotChooseNBGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 						bestweight = weight;
 						bestitem = li;
 					} //end if
+			}
+#ifdef DEBUG
+			else {
+				botimport.Print(PRT_MESSAGE, "can't reach %d\n", li->entitynum);
 				} //end if
+#endif //DEBUG
 			} //end if
 		} //end if
 	} //end for

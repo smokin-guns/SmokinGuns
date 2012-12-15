@@ -1605,11 +1605,11 @@ int BotSynonymContext(bot_state_t *bs) {
 }
 
 #ifdef SMOKINGUNS
-int BotChooseBestWeapon(playerState_t *ps, int oldweapon){
+int BotChooseBestWeapon(playerState_t *ps, int oldweapon){// patch bot: adding molotov, dynamite and gatling
 	int i;
 
 	// first look for weapons which already have ammo in it
-	for(i=WP_DYNAMITE-1; i>0; i--){
+	for(i=WP_MOLOTOV; i>0; i--){// allow bots to use all weapons
 
 		if(ps->stats[STAT_WEAPONS] & (1 << i) &&
 			(ps->ammo[i] || ps->ammo[bg_weaponlist[i].clip])){
@@ -1636,26 +1636,13 @@ void BotChooseWeapon(bot_state_t *bs) {
 
 	if (bs->cur_ps.weaponstate == WEAPON_RAISING ||
 			bs->cur_ps.weaponstate == WEAPON_DROPPING) {
-#ifndef SMOKINGUNS
-		trap_EA_SelectWeapon(bs->client, bs->weaponnum);
-#else
 		bs->cmdweapon = bs->weaponnum;
-#endif
-	}
-	else {
-#ifndef SMOKINGUNS
-		newweaponnum = trap_BotChooseBestFightWeapon(bs->ws, bs->inventory);
-#else
+	} else {
 		newweaponnum = BotChooseBestWeapon(&bs->cur_ps, bs->weaponnum);
-#endif
 		if (bs->weaponnum != newweaponnum) bs->weaponchange_time = FloatTime();
 		bs->weaponnum = newweaponnum;
 		//BotAI_Print(PRT_MESSAGE, "bs->weaponnum = %d\n", bs->weaponnum);
-#ifndef SMOKINGUNS
-		trap_EA_SelectWeapon(bs->client, bs->weaponnum);
-#else
 		bs->cmdweapon = bs->weaponnum;
-#endif
 	}
 }
 
@@ -1669,7 +1656,39 @@ qboolean BotAI_FindNearestNode(qboolean valid, bot_state_t *bs, vec3_t org, vec3
 #endif
 void BotSetupForMovement(bot_state_t *bs) {
 	bot_initmove_t initmove;
+	bot_activategoal_t activategoal;
+	vec3_t forward;
+	int entitynum,i,dist,lastdist;
+	entitynum=0;
+	lastdist=1000000;
 
+// DEBUG treat gatling as activatable entity => no bsp entity
+//	for(i=0; i<MAX_GENTITIES; i++){
+//		if(!Q_stricmp("gatling", g_entities[i].classname)){
+//			VectorSubtract(g_entities[i].r.currentOrigin, bs->origin, forward);
+//			//the distance towards the gatling
+//			dist = VectorNormalize(forward);
+//			if (dist<1000 && (entitynum==0 || lastdist>dist)) {
+//				entitynum = i;
+//				lastdist = dist;
+//				BotAI_Print(PRT_MESSAGE, "picked a gatling %d", i);
+//			}
+//		}
+//	}
+//	if (entitynum>0) {
+//		if (BotGetActivateGoal(bs, entitynum, &activategoal)) {
+//			//memset(activategoal, 0, sizeof(bot_activategoal_t));
+//			//activategoal. = g_entities[i].
+//
+//			if (bs->activatestack && !bs->activatestack->inuse)
+//				bs->activatestack = NULL;
+//			// if not already trying to activate this entity
+//			if (!BotIsGoingToActivateEntity(bs, activategoal.goal.entitynum)) {
+//				BotAI_Print(PRT_MESSAGE, "go for gatling %d",entitynum);
+//				BotGoForActivateGoal(bs, &activategoal);
+//			}
+//		}
+//	}
 #ifdef SMOKINGUNS
 	// the first goal for the bot in br, if he has the goldbag is the escape area
 	/*if(g_gametype.integer == GT_BR &&
@@ -1715,6 +1734,9 @@ void BotSetupForMovement(bot_state_t *bs) {
 	//set the waterjump flag
 	if ((bs->cur_ps.pm_flags & PMF_TIME_WATERJUMP) && (bs->cur_ps.pm_time > 0)) {
 		initmove.or_moveflags |= MFL_WATERJUMP;
+	}
+	if ((bs->cur_ps.torsoAnim==BOTH_LADDER || bs->cur_ps.torsoAnim==BOTH_LADDER_STAND) && (bs->cur_ps.pm_time > 0)) {// thedoctor
+		initmove.or_moveflags |= MFL_AGAINSTLADDER;
 	}
 	//set presence type
 	if (bs->cur_ps.pm_flags & PMF_DUCKED) initmove.presencetype = PRESENCE_CROUCH;
@@ -2462,10 +2484,10 @@ float BotFeelingBad(bot_state_t *bs) {
 BotWantsToRetreat
 ==================
 */
-#ifndef SMOKINGUNS
+
 int BotWantsToRetreat(bot_state_t *bs) {
 	aas_entityinfo_t entinfo;
-
+#ifndef SMOKINGUNS
 	if (gametype == GT_CTF) {
 		//always retreat when carrying a CTF flag
 		if (BotCTFCarryingFlag(bs))
@@ -2506,11 +2528,12 @@ int BotWantsToRetreat(bot_state_t *bs) {
 	if (bs->ltgtype == LTG_GETFLAG)
 		return qtrue;
 	//
+#endif	
 	if (BotAggression(bs) < 50)
 		return qtrue;
 	return qfalse;
 }
-#endif
+
 
 /*
 ==================
@@ -2837,6 +2860,29 @@ void BotRoamGoal(bot_state_t *bs, vec3_t goal) {
 	VectorCopy(bestorg, goal);
 }
 
+int BotMoveInDir(bot_moveresult_t *moveresult, bot_state_t *bs, vec3_t direction, int distance, int movetype, int tfl) {
+	vec3_t newpoint;
+	aas_entityinfo_t entinfo;
+	bot_goal_t goal;
+
+
+	//get the enemy entity info
+	BotEntityInfo(bs->enemy, &entinfo);
+
+	VectorNormalize(direction);
+	VectorMA(bs->origin,distance,direction,newpoint);
+
+	goal.entitynum = bs->enemy;
+	goal.areanum = bs->lastenemyareanum;
+	VectorCopy(newpoint, goal.origin);
+	VectorSet(goal.mins, -8, -8, -8);
+	VectorSet(goal.maxs, 8, 8, 8);
+	//initialize the movement state
+	BotSetupForMovement(bs);
+	//move towards the goal
+	trap_BotMoveToGoal(moveresult, bs->ms, &goal, tfl);
+	return !moveresult->blocked;
+}
 /*
 ==================
 BotAttackMove
@@ -2850,8 +2896,21 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl) {
 	aas_entityinfo_t entinfo;
 	bot_moveresult_t moveresult;
 	bot_goal_t goal;
+    qboolean goback = qtrue;
 
 	attackentity = bs->enemy;
+	//get the enemy entity info
+	BotEntityInfo(attackentity, &entinfo);
+	//direction towards the enemy
+	VectorSubtract(entinfo.origin, bs->origin, forward);
+	//the distance towards the enemy
+	dist = VectorNormalize(forward);
+
+	//if the bot uses a gatling
+	if(dist>60 && bs->weaponnum == WP_GATLING && g_entities[bs->client].client->ps.stats[STAT_GATLING_MODE]) {
+		return moveresult;
+	}
+
 	//
 	if (bs->attackchase_time > FloatTime()) {
 		//create the chase goal
@@ -2871,23 +2930,38 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl) {
 	//
 	attack_skill = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_ATTACK_SKILL, 0, 1);
 	jumper = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_JUMPER, 0, 1);
+	jumper = 0.1f;
 	croucher = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_CROUCHER, 0, 1);
-	//if the bot is really stupid
-	if (attack_skill < 0.2) return moveresult;
+	if (bs->enemy && entinfo.weapon==WP_KNIFE) {// run!!!
+	    croucher = 0.0f;
+	    jumper = 0.0f;
+	} else {
+		if (bs->cur_ps.weapon == WP_KNIFE) {// knife = run
+			croucher = 0.04f;
+			jumper = 0.01f;
+		}
+		else if ((bs->flags & BFL_RELOAD) || (bs->flags & BFL_RELOAD2)) {// reload = jump'n'run
+			croucher = 0.05f;
+			jumper = 0.95f;
+		}
+		if (bs->cur_ps.groundEntityNum == ENTITYNUM_NONE) {// fall = crouch
+			croucher = 1.0f;
+			moveresult.type = MOVE_CROUCH;
+			return moveresult;
+		}
+	}
+
+
+//	//if the bot is really stupid
+//	if (attack_skill < 0.2) return moveresult;
 	//initialize the movement state
 	BotSetupForMovement(bs);
-	//get the enemy entity info
-	BotEntityInfo(attackentity, &entinfo);
-	//direction towards the enemy
-	VectorSubtract(entinfo.origin, bs->origin, forward);
-	//the distance towards the enemy
-	dist = VectorNormalize(forward);
+
 	VectorNegate(forward, backward);
 	//walk, crouch or jump
 	movetype = MOVE_WALK;
 	//
 	if (bs->attackcrouch_time < FloatTime() - 1) {
-#ifndef SMOKINGUNS
 		if (random() < jumper) {
 			movetype = MOVE_JUMP;
 		}
@@ -2895,11 +2969,6 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl) {
 		else if (bs->attackcrouch_time < FloatTime() - 1 && random() < croucher) {
 			bs->attackcrouch_time = FloatTime() + croucher * 5;
 		}
-#else
-		if (bs->attackcrouch_time < FloatTime() - 1 && random() < croucher) {
-			bs->attackcrouch_time = FloatTime() + croucher * 5;
-		}
-#endif
 	}
 	if (bs->attackcrouch_time > FloatTime()) movetype = MOVE_CROUCH;
 	//if the bot should jump
@@ -2912,34 +2981,60 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl) {
 			bs->attackjump_time = FloatTime() + 1;
 		}
 	}
-#ifndef SMOKINGUNS
-	if (bs->cur_ps.weapon == WP_GAUNTLET) {
-#else
-	if (bs->cur_ps.weapon == WP_KNIFE) {
-#endif
-		attack_dist = 0;
-		attack_range = 0;
+
+	if (bs->weaponnum == WP_KNIFE || (entinfo.weapon==WP_KNIFE && dist<200) || ((entinfo.flags & BFL_RELOAD || bs->flags & BFL_RELOAD2) && dist<140) || dist<70) {
+		// attack!
+		movetype = MOVE_WALK;
+		bs->weaponnum=WP_KNIFE;
+		if (dist<60 || (g_entities[bs->client].client->ps.ammo[WP_KNIFE]>1 && dist<1500)) {
+			if (dist<20) {
+				g_entities[bs->client].client->ps.stats[STAT_WP_MODE]=0;
 	}
-	else {
+			trap_EA_Attack(bs->client);
+		}
+		if (dist>40 || random() > 0.66) {
+			goback = qfalse;
+			if (BotMoveInDir(&moveresult, bs, forward, 400, movetype, tfl)) {
+				return moveresult;
+		}
+//			if (trap_BotMoveInDirection(bs->ms, forward, 400, movetype)) {
+//				return moveresult;
+//			}
+		} else {
+			if (BotMoveInDir(&moveresult, bs, backward, 400, movetype, tfl)) {
+		return moveresult;
+	}
+//			if (trap_BotMoveInDirection(bs->ms, backward, 400, movetype)) {
+//				return moveresult;
+//			}
+		}
+	}
+
+
+
+	if (bs->cur_ps.weapon == WP_KNIFE) {
+		attack_dist = 30;
+		attack_range = 0;
+	} else {
 		attack_dist = IDEAL_ATTACKDIST;
 		attack_range = 40;
 	}
-	//if the bot is stupid
-	if (attack_skill <= 0.4) {
-		//just walk to or away from the enemy
-		if (dist > attack_dist + attack_range) {
-			if (trap_BotMoveInDirection(bs->ms, forward, 400, movetype)) return moveresult;
-		}
-		if (dist < attack_dist - attack_range) {
-			if (trap_BotMoveInDirection(bs->ms, backward, 400, movetype)) return moveresult;
-		}
-		return moveresult;
-	}
+//	//if the bot is stupid
+//	if (attack_skill <= 0.4) {
+//		//just walk to or away from the enemy
+//		if (dist > attack_dist + attack_range) {
+//			if (trap_BotMoveInDirection(bs->ms, forward, 400, movetype)) return moveresult;
+//		}
+//		if (dist < attack_dist - attack_range) {
+//			if (trap_BotMoveInDirection(bs->ms, backward, 400, movetype)) return moveresult;
+//		}
+//		return moveresult;
+//	}
 	//increase the strafe time
 	bs->attackstrafe_time += bs->thinktime;
 	//get the strafe change time
-	strafechange_time = 0.4 + (1 - attack_skill) * 0.2;
-	if (attack_skill > 0.7) strafechange_time += crandom() * 0.2;
+	strafechange_time = 0.4 + (1 - attack_skill) * 0.3;// 0.4 + thedoctor
+	if (attack_skill > 0.7) strafechange_time += crandom() * 0.3;
 	//if the strafe direction should be changed
 	if (bs->attackstrafe_time > strafechange_time) {
 		//some magic number :)
@@ -2950,7 +3045,6 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl) {
 		}
 	}
 	//
-	for (i = 0; i < 2; i++) {
 		hordir[0] = forward[0];
 		hordir[1] = forward[1];
 		hordir[2] = 0;
@@ -2960,27 +3054,68 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl) {
 		//reverse the vector depending on the strafe direction
 		if (bs->flags & BFL_STRAFERIGHT) VectorNegate(sideward, sideward);
 		//randomly go back a little
-		if (random() > 0.9) {
-			VectorAdd(sideward, backward, sideward);
-		}
-		else {
+//		if (random() > 0.9) {
+//			VectorAdd(sideward, backward, sideward);
+//		} else {
 			//walk forward or backward to get at the ideal attack distance
-			if (dist > attack_dist + attack_range) {
+		if (bs->cur_ps.torsoAnim==BOTH_LADDER || bs->cur_ps.torsoAnim==BOTH_LADDER_STAND) {
+			VectorMA(sideward, 1, backward, sideward);// thedoctor: does not work?
+			VectorNormalize(sideward);
+		} else {
+			if (dist > attack_dist + attack_range || !goback) {
 				VectorAdd(sideward, forward, sideward);
 			}
 			else if (dist < attack_dist - attack_range) {
 				VectorAdd(sideward, backward, sideward);
 			}
 		}
+//		}
 		//perform the movement
-		if (trap_BotMoveInDirection(bs->ms, sideward, 400, movetype))
+		if (BotMoveInDir(&moveresult, bs, sideward, 400, movetype, tfl)) {
 			return moveresult;
+		} else {
 		//movement failed, flip the strafe direction
 		bs->flags ^= BFL_STRAFERIGHT;
-		bs->attackstrafe_time = 0;
+			bs->attackstrafe_time = - bs->thinktime*10;
+			CrossProduct(hordir, up, sideward);
+			//reverse the vector depending on the strafe direction
+			if (bs->flags & BFL_STRAFERIGHT) VectorNegate(sideward, sideward);
+			if (dist > attack_dist + attack_range || !goback) {
+				VectorAdd(sideward, forward, sideward);
 	}
+			else if (dist < attack_dist - attack_range) {
+				VectorAdd(sideward, backward, sideward);
+			}
+			if (BotMoveInDir(&moveresult, bs, sideward, 400, movetype, tfl)) {
+				return moveresult;
+			} else if (BotMoveInDir(&moveresult, bs, forward, 400, movetype, tfl)) {
+				return moveresult;
+			}
+		}
+//	if (trap_BotMoveInDirection(bs->ms, sideward, 400, movetype)) {
+//		return moveresult;
+//	} else {
+//		//movement failed, flip the strafe direction
+//		bs->flags ^= BFL_STRAFERIGHT;
+//		bs->attackstrafe_time = - bs->thinktime*10;
+//		CrossProduct(hordir, up, sideward);
+//		//reverse the vector depending on the strafe direction
+//		if (bs->flags & BFL_STRAFERIGHT) VectorNegate(sideward, sideward);
+//		if (dist > attack_dist + attack_range || !goback) {
+//			VectorAdd(sideward, forward, sideward);
+//		}
+//		else if (dist < attack_dist - attack_range) {
+//			VectorAdd(sideward, backward, sideward);
+//		}
+//		if (trap_BotMoveInDirection(bs->ms, sideward, 400, movetype)) {
+//			return moveresult;
+//		} else if (trap_BotMoveInDirection(bs->ms, forward, 400, movetype)) {
+//			return moveresult;
+//		}
+//	}
+
 	//bot couldn't do any usefull movement
-//	bs->attackchase_time = AAS_Time() + 6;
+	bs->attackchase_time = FloatTime() + 6;
 	return moveresult;
 }
 
@@ -3294,6 +3429,10 @@ int BotFindEnemy(bot_state_t *bs, int curenemy) {
 	float squaredist, cursquaredist;
 	aas_entityinfo_t entinfo, curenemyinfo;
 	vec3_t dir, angles;
+	vec3_t forward;
+	int entitynum,dist,lastdist;
+	entitynum=0;
+	lastdist=1000000;
 
 	alertness = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_ALERTNESS, 0, 1);
 	easyfragger = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_EASY_FRAGGER, 0, 1);
@@ -3372,14 +3511,8 @@ int BotFindEnemy(bot_state_t *bs, int curenemy) {
 		//calculate the distance towards the enemy
 		VectorSubtract(entinfo.origin, bs->origin, dir);
 		squaredist = VectorLengthSquared(dir);
-		//if this entity is not carrying a flag
-#ifndef SMOKINGUNS
-		if (!EntityCarriesFlag(&entinfo))
-		{
 			//if this enemy is further away than the current one
 			if (curenemy >= 0 && squaredist > cursquaredist) continue;
-		} //end if
-#endif
 		//if the bot has no
 		if (squaredist > Square(900.0 + alertness * 4000.0)) continue;
 		//if on the same team
@@ -3399,25 +3532,17 @@ int BotFindEnemy(bot_state_t *bs, int curenemy) {
 			VectorSubtract(bs->origin, entinfo.origin, dir);
 			vectoangles(dir, angles);
 			//if the bot isn't in the fov of the enemy
-#ifndef SMOKINGUNS
-			if (!InFieldOfVision(entinfo.angles, 90, angles)) {
-#else
 			if (!InFieldOfVision(entinfo.angles, 90, angles, bs->client)) {
-#endif
 				//update some stuff for this enemy
 				BotUpdateBattleInventory(bs, i);
 				//if the bot doesn't really want to fight
-#ifndef SMOKINGUNS
 				if (BotWantsToRetreat(bs)) continue;
-#endif
 			}
 		}
 		//found an enemy
 		bs->enemy = entinfo.number;
-#ifdef SMOKINGUNS
 		//bs->flags &= ~BFL_SEEK;
 		AIEnter_Battle_Chase(bs, "found enemy: enter chase");
-#endif
 		if (curenemy >= 0) bs->enemysight_time = FloatTime() - 2;
 		else bs->enemysight_time = FloatTime();
 		bs->enemysuicide = qfalse;
@@ -3425,6 +3550,31 @@ int BotFindEnemy(bot_state_t *bs, int curenemy) {
 		bs->enemyvisible_time = FloatTime();
 		return qtrue;
 	}
+
+// DEBUG: treat gatling as enemy => SEGFAULT
+//	for(i=0; i<MAX_GENTITIES; i++){
+//		if(!Q_stricmp("gatling", g_entities[i].classname)){
+//			VectorSubtract(g_entities[i].r.currentOrigin, bs->origin, forward);
+//			//the distance towards the gatling
+//			dist = VectorNormalize(forward);
+//			if (dist<1000 && (entitynum==0 || lastdist>dist)) {
+//				entitynum = i;
+//				lastdist = dist;
+//				BotAI_Print(PRT_MESSAGE, "picked a gatling %d", i);
+//			}
+//		}
+//	}
+//	if (entitynum>0) {
+//		bs->enemy = entinfo.number;
+//		//bs->flags &= ~BFL_SEEK;
+//		AIEnter_Battle_Chase(bs, "found enemy: enter chase");
+//		if (curenemy >= 0) bs->enemysight_time = FloatTime() - 2;
+//		else bs->enemysight_time = FloatTime();
+//		bs->enemysuicide = qfalse;
+//		bs->enemydeath_time = 0;
+//		bs->enemyvisible_time = FloatTime();
+//		return qtrue;
+//	}
 	return qfalse;
 }
 
@@ -3649,14 +3799,15 @@ void BotAimAtEnemy(bot_state_t *bs) {
 	int i;
 	float enemyvisible;
 #endif
-	float dist, f, aim_skill, aim_accuracy, speed, reactiontime;
-	vec3_t dir, bestorigin, end, start, groundtarget, cmdmove, enemyvelocity;
+	float dist, f, aim_skill, aim_accuracy, speed, reactiontime, angle;
+	vec3_t dir, bestorigin, end, start, groundtarget, cmdmove, enemyvelocity, forward;
 	vec3_t mins = {-4,-4,-4}, maxs = {4, 4, 4};
 	weaponinfo_t wi;
 	aas_entityinfo_t entinfo;
 	bot_goal_t goal;
 	bsp_trace_t trace;
 	vec3_t target;
+	int height;
 
 	//if the bot has no enemy
 	if (bs->enemy < 0) {
@@ -3961,6 +4112,50 @@ void BotAimAtEnemy(bot_state_t *bs) {
 			trap_EA_View(bs->client, bs->viewangles);
 		}
 	}
+	VectorSubtract(entinfo.origin, bs->origin, forward);
+	//the distance towards the enemy
+	// arctan arcsin
+	//
+	//
+	//       o
+	// 180  /|\   0=360
+	//  135 /_\  45
+	//      90
+	dist = VectorNormalize(forward);
+	if (bs->weaponnum == WP_KNIFE) {// throw knife
+		angle = 0.5*atan2( (dist*DEFAULT_GRAVITY),(1200*1200) );
+		angle = angle*50;
+		////height = 0;
+		////angle = 3.14159388/2-asin(((DEFAULT_GRAVITY*dist)/1200)*sqrt(2/((1200*1200-2*height*DEFAULT_GRAVITY)+sqrt((1200*1200-2*height*DEFAULT_GRAVITY)*(1200*1200-2*height*DEFAULT_GRAVITY) - (4*DEFAULT_GRAVITY*DEFAULT_GRAVITY)*(dist*dist+height*height)))));
+		//BotAI_Print(PRT_MESSAGE, "dist=%f, angle=%f, viewangle=%f\n",dist,angle,bs->viewangles[0]);
+		bs->viewangles[0]=360-angle;
+		bs->ideal_viewangles[PITCH]=bs->viewangles[0];
+		if (g_entities[bs->client].client->ps.ammo[WP_KNIFE]>1) {
+			g_entities[bs->client].client->ps.stats[STAT_WP_MODE]=1;
+		}
+		trap_EA_View(bs->client, bs->viewangles);
+	}
+	if (bs->weaponnum == WP_DYNAMITE) {// throw dynamite
+		angle = 0.5*atan2( (dist*DEFAULT_GRAVITY),140000 );
+		//BotAI_Print(PRT_MESSAGE, "dist=%f, angle=%f, viewangle=%f\n",dist,angle,bs->viewangles[0]);
+		angle = angle*25;
+		bs->viewangles[0]=360-angle;
+		bs->ideal_viewangles[PITCH]=bs->viewangles[0];
+		g_entities[bs->client].client->ps.stats[STAT_WP_MODE]=-5;
+		trap_EA_View(bs->client, bs->viewangles);
+	}
+	if (bs->weaponnum == WP_MOLOTOV) {// throw molotov
+		angle = 0.5*atan2( (dist*DEFAULT_GRAVITY),70000 );
+		//BotAI_Print(PRT_MESSAGE, "dist=%f, angle=%f, viewangle=%f\n",dist,angle,bs->viewangles[0]);
+		bs->viewangles[0]=360-angle;
+		bs->ideal_viewangles[PITCH]=bs->viewangles[0];
+		g_entities[bs->client].client->ps.stats[STAT_WP_MODE]=-1;
+		trap_EA_View(bs->client, bs->viewangles);
+	}
+//	if (bot_rocketjump.integer>0) {
+//		bs->viewangles[0]=ANGLE2SHORT(bot_rocketjump.integer);
+//		bs->ideal_viewangles[PITCH]=bs->viewangles[0];
+//	}
 }
 
 /*
@@ -3997,7 +4192,6 @@ void BotCheckBuy(bot_state_t *bs){
 	money = bs->cur_ps.stats[STAT_MONEY];
 	bs->flags &= ~BFL_ESCAPE;
 	bs->flags &= ~BFL_AVOID;
-	bs->buytime = level.time + 3000 + rand()%4000;
 
 	// first try to buy a weapon
 	for(i=1, mark = -1, mark2 = -1; ; i++){
@@ -4015,9 +4209,9 @@ void BotCheckBuy(bot_state_t *bs){
 			item->giType != IT_WEAPON)
 			continue;
 
-		// Todo: add gatling support
-		if(item->giTag == WP_GATLING)
-			continue;
+//		// Todo: add gatling support
+//		if(item->giTag == WP_GATLING)
+//			continue;
 
 		// don't buy if he already has that weapon
 		if( ((bs->cur_ps.stats[STAT_WEAPONS] & (1 << item->giTag) )
@@ -4028,9 +4222,9 @@ void BotCheckBuy(bot_state_t *bs){
 			continue;
 
 		// if the bot already has a better weapon
-		j = WP_REM58;
-		while(BG_FindPlayerWeapon(j, WP_DYNAMITE, &bs->cur_ps)){
-			j = BG_FindPlayerWeapon(j, WP_DYNAMITE, &bs->cur_ps);
+		j = WP_KNIFE;
+		while(BG_FindPlayerWeapon(j, WP_MOLOTOV+1, &bs->cur_ps)){
+			j = BG_FindPlayerWeapon(j, WP_MOLOTOV+1, &bs->cur_ps);
 
 			temp = BG_FindItemForWeapon(j);
 
@@ -4090,14 +4284,20 @@ void BotCheckBuy(bot_state_t *bs){
 		if(item->prize == 0 || item->weapon_sort != WS_MISC)
 			continue;
 
-		if(item->giTag == WP_MOLOTOV || item->giTag == WP_DYNAMITE || item->giTag == WP_KNIFE)
-			continue;
+		// don't buy WP_MOLOTOV, WP_DYNAMITE, WP_KNIFE
+		//if(random()>0.90 && item->giTag == WP_MOLOTOV)
+		//	continue;
+
+		if (random()>0.50 && item->giTag == WP_DYNAMITE) continue;//
+		//if(item->giTag == WP_KNIFE) continue;
 
 		if(item->giType == IT_ARMOR && bs->cur_ps.stats[STAT_ARMOR])
 			continue;
 
 		if(item->giType == IT_POWERUP && bs->cur_ps.powerups[item->giTag])
 			continue;
+
+		if (item->giTag==PW_SCOPE) continue;
 
 		if(mark == -1){
 			mark = i;
@@ -4129,7 +4329,7 @@ void BotCheckBuy(bot_state_t *bs){
 		money -= item->prize;
 		bought = qtrue ;
 	}
-
+	bs->buytime = level.time + 3000 + rand()%4000;// update the buytime only in case we buy something
 	bs->flags ^= BFL_BOUGHT;
 	BotChooseWeapon(bs);
 	
@@ -4686,6 +4886,8 @@ int BotFuncBreakableGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *act
 			(!bg_weaponlist[weapon].clip || !bs->cur_ps.ammo[bg_weaponlist[weapon].clip]))){
 			return qfalse;
 		}
+	} else {
+		activategoal->weapon = WP_KNIFE;
 	}
 	return qtrue;
 }
@@ -4723,6 +4925,7 @@ int BotFuncDoorActivateGoal(bot_state_t *bs, int bspent, bot_activategoal_t *act
 	activategoal->goal.areanum = bs->areanum;
 	VectorSet(activategoal->goal.mins, -8, -8, -8);
 	VectorSet(activategoal->goal.maxs, 8, 8, 8);
+	activategoal->weapon = WP_KNIFE;
 	return qtrue;
 }
 
@@ -5277,129 +5480,127 @@ extern vec3_t	playerMaxs;
 #endif
 void BotAIBlocked(bot_state_t *bs, bot_moveresult_t *moveresult, int activate) {
 	int movetype, bspent;
-	vec3_t hordir, start, end, mins, maxs, sideward, angles, up = {0, 0, 1};
+	vec3_t hordir, start, end, mins, maxs, sideward, direction, left, right, angles, forward, backward, up = {0, 0, 1};// patch bot: evasive maneuvers
 	aas_entityinfo_t entinfo;
 	bot_activategoal_t activategoal;
-#ifdef SMOKINGUNS
-	bsp_trace_t bsptrace;
-#ifdef OBSTACLEDEBUG
-	char *netname ;
-#endif
-#endif
+	char classname[128];
+	char model[MAX_INFO_STRING], tmpmodel[128];
+	vec3_t absmins, absmaxs;
+	int i,j;
+	gentity_t *ent;
 
-	// if the bot is not blocked by anything
-	if (!moveresult->blocked) {
-		bs->notblocked_time = FloatTime();
+	//BotAI_Print(PRT_MESSAGE, "time: %f\n", (FloatTime()-bs->last_blocked_time));
+	// if the bot is not blocked by anything or uses a gatling
+	if ((bs->weaponnum == WP_GATLING && g_entities[bs->client].client->ps.stats[STAT_GATLING_MODE]) || !moveresult->blocked && (bs->origin[0]!=bs->myorigin[0] && bs->origin[1]!=bs->myorigin[1])) {
+		if(FloatTime()-bs->last_blocked_time>1) {
+			bs->non_blocked_time = FloatTime();
+			VectorCopy(bs->origin,bs->myorigin);
 		return;
 	}
+	} else {
+		bs->last_blocked_time = FloatTime();
+			}
+
+	// climbing ladders (and possibly walls)
+//	if bot is climbing
+//     if there's a reachable ledge
+//		  //jump (go up) and move forward
+//     otherwise
+//        // random and crouch
+
+	// if we are blocked, but didn't get an entity, look for entities nearby
+	// this happens if he trace hits a wall before an entity, even though, the blocking reason is the entity
+	if (moveresult->blockentity==0) {
+		for (i=0; i<level.num_entities && moveresult->blockentity==0; i++) {
+			ent = &g_entities[i];
+			if (!ent) {break;}
+			if ((ent->r.contents & CONTENTS_MOVER) && !!Q_stricmp(ent->classname,"func_door_rotate")) {
+				VectorSubtract(ent->r.mins, g_entities[bs->entitynum].r.maxs, absmins);
+				VectorSubtract(ent->r.maxs, g_entities[bs->entitynum].r.mins, absmaxs);
+				VectorAdd(absmins, ent->r.currentOrigin, absmins);
+				VectorAdd(absmaxs, ent->r.currentOrigin, absmaxs);
+
+				for (j=0; j<3; j++)	{
+					if (bs->origin[j] < absmins[j] || bs->origin[j] > absmaxs[j]) {
+						break;
+		}
+					if (j==3) {
+						BotAI_Print(PRT_MESSAGE, "checking for doors nearby - found one\n");
+						moveresult->blockentity = i;
+						moveresult->blocked = qtrue;
+		}
+				} //end for
+	}
+	}
+	}
+
 	// if stuck in a solid area
-	if ( moveresult->type == RESULTTYPE_INSOLIDAREA ) {
-		// move in a random direction in the hope to get out
-		BotRandomMove(bs, moveresult);
-		//
-		return;
-	}
+//	if ( moveresult->type == RESULTTYPE_INSOLIDAREA ) {
+//		// move in a random direction in the hope to get out
+//		BotRandomMove(bs, moveresult);
+//		//
+//		return;
+//	}
+
 	// get info for the entity that is blocking the bot
 	BotEntityInfo(moveresult->blockentity, &entinfo);
-#ifdef OBSTACLEDEBUG
-	ClientName(bs->client, netname, sizeof(netname));
-	BotAI_Print(PRT_MESSAGE, "%s: I'm blocked by model %d\n", netname, entinfo.modelindex);
-#endif // OBSTACLEDEBUG
-	// if blocked by a bsp model and the bot wants to activate it
-	if (activate && entinfo.modelindex > 0 && entinfo.modelindex <= max_bspmodelindex) {
-		// find the bsp entity which should be activated in order to get the blocking entity out of the way
-		bspent = BotGetActivateGoal(bs, entinfo.number, &activategoal);
-		if (bspent) {
-			//
-			if (bs->activatestack && !bs->activatestack->inuse)
-				bs->activatestack = NULL;
-			// if not already trying to activate this entity
-			if (!BotIsGoingToActivateEntity(bs, activategoal.goal.entitynum)) {
-				//
-				BotGoForActivateGoal(bs, &activategoal);
-			}
-			// if ontop of an obstacle or
-			// if the bot is not in a reachability area it'll still
-			// need some dynamic obstacle avoidance, otherwise return
-			if (!(moveresult->flags & MOVERESULT_ONTOPOFOBSTACLE) &&
-				trap_AAS_AreaReachability(bs->areanum))
-				return;
-		}
-		else {
-			// enable any routing areas that were disabled
-			BotEnableActivateGoalAreas(&activategoal, qtrue);
-		}
-	}
-	// just some basic dynamic obstacle avoidance code
-	hordir[0] = moveresult->movedir[0];
-	hordir[1] = moveresult->movedir[1];
-	hordir[2] = 0;
-	// if no direction just take a random direction
-	if (VectorNormalize(hordir) < 0.1) {
-		VectorSet(angles, 0, 360 * random(), 0);
-		AngleVectors(angles, hordir, NULL, NULL);
-	}
-	//
-#ifndef SMOKINGUNS
-	//if (moveresult->flags & MOVERESULT_ONTOPOFOBSTACLE) movetype = MOVE_JUMP;
-	//else
-	movetype = MOVE_WALK;
-#else
-	if (moveresult->flags & MOVERESULT_ONTOPOFOBSTACLE) movetype = MOVE_JUMP;
-	else movetype = MOVE_WALK;
-#endif
-	// if there's an obstacle at the bot's feet and head then
-	// the bot might be able to crouch through
-	VectorCopy(bs->origin, start);
-	start[2] += 18;
-	VectorMA(start, 5, hordir, end);
-#ifndef SMOKINGUNS
-	VectorSet(mins, -16, -16, -24);
-	VectorSet(maxs, 16, 16, 4);
-	//
-	//bsptrace = AAS_Trace(start, mins, maxs, end, bs->entitynum, MASK_PLAYERSOLID);
-	//if (bsptrace.fraction >= 1) movetype = MOVE_CROUCH;
-#else
-	VectorCopy(playerMins, mins);
-	VectorCopy(playerMaxs, maxs);
-	//
-	BotAI_Trace(&bsptrace, start, mins, maxs, end, bs->entitynum, MASK_PLAYERSOLID);
-	if (bsptrace.fraction >= 1) {
-		movetype = MOVE_CROUCH;
-		bs->crouchtime = level.time;
-	}
-	if(bs->crouchtime + 1000 > level.time)
-		movetype = MOVE_CROUCH;
-#endif
 
-	// get the sideward vector
-	CrossProduct(hordir, up, sideward);
-	//
-	if (bs->flags & BFL_AVOIDRIGHT) VectorNegate(sideward, sideward);
-	// try to crouch straight forward?
-#ifndef SMOKINGUNS
-	if (movetype != MOVE_CROUCH || !trap_BotMoveInDirection(bs->ms, hordir, 400, movetype)) {
-#else
-	if (!trap_BotMoveInDirection(bs->ms, hordir, 400, movetype)) {
-#endif
-		// perform the movement
-		if (!trap_BotMoveInDirection(bs->ms, sideward, 400, movetype)) {
-			// flip the avoid direction flag
-			bs->flags ^= BFL_AVOIDRIGHT;
-			// flip the direction
-			// VectorNegate(sideward, sideward);
-			VectorMA(sideward, -1, hordir, sideward);
-			// move in the other direction
-			trap_BotMoveInDirection(bs->ms, sideward, 400, movetype);
-		}
+//	BotAI_Print(PRT_MESSAGE, g_entities[moveresult->blockentity].classname);
+	if (!Q_stricmp(g_entities[moveresult->blockentity].classname, "func_breakable")) {
+		BotAI_Print(PRT_MESSAGE, "BREAKABLE\n");
+		bs->weaponnum = WP_KNIFE;
+
+		// generally, look into the direction of the breakable
+		VectorCopy(moveresult->movedir,direction);
+		direction[2]=0;
+		VectorNormalize(direction);
+		vectoangles(direction, bs->viewangles);
+		trap_EA_View(bs->client, bs->viewangles);
+		trap_EA_Attack(bs->client);
+
+	} else if (bs->origin[0]!=bs->myorigin[0] && bs->origin[1]!=bs->myorigin[1]) {// DEBUG DOCTOR
+		// generally, look into the direction of the breakable
+		VectorCopy(moveresult->movedir,direction);
+		direction[2]=0;
+		VectorNormalize(direction);
+		vectoangles(direction, bs->ideal_viewangles);
+		//trap_EA_View(bs->client, bs->ideal_viewangles);
+		BotRandomMove(bs, moveresult);
 	}
-	//
-	if (bs->notblocked_time < FloatTime() - 0.4) {
+
+//	if (activate && entinfo.modelindex > 0 && entinfo.modelindex <= max_bspmodelindex && (FloatTime() - bs->last_blocked_time > 2) ) {
+//		// find the bsp entity which should be activated in order to get the blocking entity out of the way
+//		bspent = BotGetActivateGoal(bs, entinfo.number, &activategoal);
+//		if (bspent) {
+//			if (bs->activatestack && !bs->activatestack->inuse)
+//				bs->activatestack = NULL;
+//			// if not already trying to activate this entity
+//			if (!BotIsGoingToActivateEntity(bs, activategoal.goal.entitynum)) {
+//				BotAI_Print(PRT_MESSAGE, " and will\n");
+//				BotGoForActivateGoal(bs, &activategoal);
+//			} else {
+//				BotAI_Print(PRT_MESSAGE, " and already going to\n");
+//			}
+//			// if ontop of an obstacle or
+//			// if the bot is not in a reachability area it'll still
+//			// need some dynamic obstacle avoidance, otherwise return
+//			if (!(moveresult->flags & MOVERESULT_ONTOPOFOBSTACLE) &&
+//				trap_AAS_AreaReachability(bs->areanum))
+//				return;
+//		} else {
+//			// enable any routing areas that were disabled
+//			BotEnableActivateGoalAreas(&activategoal, qtrue);
+//			BotAI_Print(PRT_MESSAGE, " but can't\n");
+//		}
+//	}
+
+	if (bs->non_blocked_time < FloatTime() - 4) {
 		// just reset goals and hope the bot will go into another direction?
 		// is this still needed??
 		if (bs->ainode == AINode_Seek_NBG) bs->nbg_time = 0;
 		else if (bs->ainode == AINode_Seek_LTG) bs->ltg_time = 0;
 	}
+	VectorCopy(bs->origin,bs->myorigin);
 }
 
 /*
@@ -5597,12 +5798,12 @@ void BotCheckForGrenades(bot_state_t *bs, entityState_t *state) {
 
 	// if this is not a grenade
 	if (state->eType == ET_MISSILE && state->weapon == WP_DYNAMITE && state->apos.trDelta[0]){
-	} else if ((state->eType == ET_MISSILE || !Q_stricmp(g_entities[state->number].classname, "sprotz"))
-		&& state->apos.trDelta[0] && state->weapon == WP_MOLOTOV){
+		trap_BotAddAvoidSpot(bs->ms, state->pos.trBase, 600, AVOID_ALWAYS);
+	} else if ((!Q_stricmp(g_entities[state->number].classname, "whiskey_pool")) && state->apos.trDelta[0] == 1) {
+		trap_BotAddAvoidSpot(bs->ms, state->pos.trBase, 100, AVOID_ALWAYS);
 	} else return;
 
-	// try to avoid the grenade
-	trap_BotAddAvoidSpot(bs->ms, state->pos.trBase, 1000, AVOID_ALWAYS);
+
 
 	// add to list
 	/*if (bs->numexplosives >= MAX_EXPLOSIVES)

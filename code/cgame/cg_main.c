@@ -212,6 +212,7 @@ vmCvar_t	cg_oldPlasma;
 vmCvar_t	cg_trueLightning;
 #endif
 
+vmCvar_t	g_climbable;// patch g_climbable: shared between game and cgame for compiling issues
 vmCvar_t	cg_redTeamName;
 vmCvar_t	cg_blueTeamName;
 vmCvar_t	cg_currentSelectedPlayer;
@@ -254,6 +255,7 @@ vmCvar_t		cg_serverduellimit;
 vmCvar_t		cg_impactparticles;
 vmCvar_t		cg_gunsmoke;
 vmCvar_t		cg_addguns;
+vmCvar_t		cg_killmsg;
 vmCvar_t		cg_hitmsg;
 vmCvar_t		cg_hitfarmsg;
 vmCvar_t		cg_ownhitmsg;
@@ -263,6 +265,7 @@ vmCvar_t		cg_debug;
 vmCvar_t		cg_glowflares;
 vmCvar_t		cg_boostfps;
 vmCvar_t		cg_drawdebug;
+vmCvar_t		cg_drawspeed;
 
 //music volume
 vmCvar_t		cg_musicvolume;
@@ -440,8 +443,8 @@ static cvarTable_t		cvarTable[] = {
 #endif
 	{ &cg_blood, "com_blood", "1", CVAR_ARCHIVE },
 	{ &cg_synchronousClients, "g_synchronousClients", "0", 0 },	// communicated by systeminfo
-	{ &cg_redTeamName, "g_redteam", DEFAULT_REDTEAM_NAME, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO },
-	{ &cg_blueTeamName, "g_blueteam", DEFAULT_BLUETEAM_NAME, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO },
+	{ &cg_redTeamName, "g_redteam", DEFAULT_REDTEAM_NAME, CVAR_ARCHIVE | CVAR_SERVERINFO },// patch cleanup user variables
+	{ &cg_blueTeamName, "g_blueteam", DEFAULT_BLUETEAM_NAME, CVAR_ARCHIVE | CVAR_SERVERINFO },
 	{ &cg_currentSelectedPlayer, "cg_currentSelectedPlayer", "0", CVAR_ARCHIVE},
 	{ &cg_currentSelectedPlayerName, "cg_currentSelectedPlayerName", "", CVAR_ARCHIVE},
 	{ &cg_singlePlayer, "ui_singlePlayerActive", "0", CVAR_USERINFO},
@@ -472,7 +475,7 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_timescaleFadeSpeed, "cg_timescaleFadeSpeed", "0", 0},
 	{ &cg_timescale, "timescale", "1", 0},
 #ifndef SMOKINGUNS
-	{ &cg_scorePlum, "cg_scorePlums", "1", CVAR_USERINFO | CVAR_ARCHIVE},
+	{ &cg_scorePlum, "cg_scorePlums", "1", CVAR_ARCHIVE},
 	{ &cg_smoothClients, "cg_smoothClients", "0", CVAR_USERINFO | CVAR_ARCHIVE},
 #endif
 	{ &cg_cameraMode, "com_cameraMode", "0", CVAR_CHEAT},
@@ -495,7 +498,7 @@ static cvarTable_t		cvarTable[] = {
 	{ &sv_fps, "sv_fps", "20", 0 },
 	{ &cg_projectileNudge, "cg_projectileNudge", "0", CVAR_ARCHIVE },
 	{ &cg_optimizePrediction, "cg_optimizePrediction", "1", CVAR_ARCHIVE },
-	{ &cl_timeNudge, "cl_timeNudge", "0", CVAR_ARCHIVE },
+	{ &cl_timeNudge, "cl_timeNudge", "0", CVAR_ARCHIVE | CVAR_USERINFO },
 	{ &cg_latentSnaps, "cg_latentSnaps", "0", CVAR_USERINFO | CVAR_CHEAT },
 	{ &cg_latentCmds, "cg_latentCmds", "0", CVAR_USERINFO | CVAR_CHEAT },
 	{ &cg_plOut, "cg_plOut", "0", CVAR_USERINFO | CVAR_CHEAT },
@@ -522,6 +525,8 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_glowflares, "cg_glowflares", "1", CVAR_ARCHIVE },
 	{ &cg_boostfps, "cg_boostfps", "1", CVAR_ARCHIVE },
 	{ &cg_drawdebug, "cg_drawdebug", "0", CVAR_CHEAT },
+	{ &cg_drawspeed, "cg_drawspeed", "0", CVAR_ARCHIVE },
+	{ &cg_killmsg, "cg_killmsg", "0", CVAR_ARCHIVE },
 	{ &cg_hitmsg, "cg_hitmsg", "1", CVAR_ARCHIVE },
 	{ &cg_hitfarmsg, "cg_hitfarmsg", "1", CVAR_ARCHIVE },
 	{ &cg_ownhitmsg, "cg_ownhitmsg", "1", CVAR_ARCHIVE },
@@ -1919,7 +1924,7 @@ void CG_BuildSpectatorString(void) {
 		if (cgs.clientinfo[i].infoValid && cgs.clientinfo[i].team == TEAM_SPECTATOR
 			&& (cgs.gametype != GT_DUEL || client == -1 || cg.scores[client].realspec)) {
 #endif
-			Q_strcat(cg.spectatorList, sizeof(cg.spectatorList), va("%s     ", cgs.clientinfo[i].name));
+			Q_strcat(cg.spectatorList, sizeof(cg.spectatorList), va("^7%s^3,   ", cgs.clientinfo[i].name));// patch spectator-list: correctly colored
 		}
 	}
 	i = strlen(cg.spectatorList);

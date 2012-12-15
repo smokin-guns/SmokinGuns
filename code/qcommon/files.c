@@ -2648,6 +2648,24 @@ void FS_Which_f( void ) {
 }
 
 
+/*
+============
+FS_ReferencePak_f
+============
+*/
+void FS_AddReferencedPaks( const char *pakname ) {
+	searchpath_t	*s;
+	
+	for (s = fs_searchpaths; s; s = s->next) {
+		if (s->pack && 0==FS_PathCmp(s->pack->pakBasename,pakname)) {
+			if ( s->pack->referenced <= 0 ) {
+				s->pack->referenced |= FS_UI_REF;
+				Com_Printf ("referencePak: %s\n", s->pack->pakFilename );
+			}
+		}
+	}
+}
+
 //===========================================================================
 
 

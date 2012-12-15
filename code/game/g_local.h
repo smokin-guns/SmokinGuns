@@ -886,7 +886,8 @@ void SetClientViewAngle( gentity_t *ent, vec3_t angle );
 #ifndef SMOKINGUNS
 gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, qboolean isbot );
 #else
-gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, qboolean isbot, int mappart, gclient_t *client );
+//gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, qboolean isbot, int mappart, gclient_t *ent );
+gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, int mappart, gentity_t *ent );
 #endif
 void CopyToBodyQue( gentity_t *ent );
 void respawn (gentity_t *ent);
@@ -949,6 +950,9 @@ void DeathmatchScoreboardMessage (gentity_t *client);
 void FindIntermissionPoint( void );
 #else
 void FindIntermissionPoint( int mappart );
+#endif
+#ifdef SMOKINGUNS
+qboolean IsItemAvailable( int giTag, int giType );
 #endif
 void SetLeader(int team, int client);
 void CheckTeamLeader( int team );
@@ -1053,6 +1057,21 @@ void BotTestAAS(vec3_t origin);
 extern	level_locals_t	level;
 extern	gentity_t		g_entities[MAX_GENTITIES];
 
+extern	int		        g_kickvotes[MAX_CLIENTS];
+extern	vmCvar_t	g_latchedgametype;
+extern	vmCvar_t	g_climbable;
+extern	vmCvar_t	g_donotlog;
+extern	vmCvar_t	g_vstrInsteadOfMap;
+extern	vmCvar_t	g_explanation;
+extern	vmCvar_t	g_spectators;
+extern	vmCvar_t	g_allowedModes;
+extern	vmCvar_t	g_handicaps;
+extern	vmCvar_t	g_muted;
+extern	vmCvar_t	g_voteless;
+extern	vmCvar_t	g_lockedTeams;
+extern	vmCvar_t	g_protected;
+extern	vmCvar_t	g_removedItems;
+
 #define	FOFS(x) ((size_t)&(((gentity_t *)0)->x))
 
 extern	vmCvar_t	g_gametype;
@@ -1145,6 +1164,8 @@ extern	vmCvar_t	g_truePing;
 // this is for convenience - using "sv_fps.integer" is nice :)
 extern	vmCvar_t	sv_fps;
 //unlagged - server options
+extern	vmCvar_t	g_startingWeapon;
+
 
 // duel cvars
 extern	vmCvar_t	du_enabletrio;

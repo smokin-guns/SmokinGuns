@@ -228,13 +228,14 @@ void CG_LoadingClient( int clientNum ) {
 	}
 
 	Q_strncpyz( personality, Info_ValueForKey( info, "n" ), sizeof(personality) );
+	CG_LoadingString( personality );// patch colored loading screen: draw names before cleaning name
 	Q_CleanStr( personality );
 
 	if( cgs.gametype == GT_SINGLE_PLAYER ) {
 		trap_S_RegisterSound( va( "sound/player/announce/%s.wav", personality ), qtrue );
 	}
 
-	CG_LoadingString( personality );
+
 }
 
 
@@ -324,7 +325,7 @@ void CG_DrawInformation( void ) {
 #ifndef SMOKINGUNS
 	y = 180-32;
 #else
-	y = 30;
+	y = 18;// patch colored loading screen
 #endif
 
 	// don't print server lines if playing a local game
@@ -332,10 +333,10 @@ void CG_DrawInformation( void ) {
 	if ( !atoi( buf ) ) {
 		// server hostname
 		Q_strncpyz(buf, Info_ValueForKey( info, "sv_hostname" ), 1024);
-		Q_CleanStr(buf);
+		//Q_CleanStr(buf);
 		UI_DrawProportionalString( 320, y, buf,
-			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
-		y += PROP_HEIGHT;
+			UI_CENTER|UI_DROPSHADOW, colorWhite );
+		y += PROP_HEIGHT+10;
 
 		// pure server
 		s = Info_ValueForKey( sysInfo, "sv_pure" );
@@ -375,7 +376,8 @@ void CG_DrawInformation( void ) {
 	// cheats warning
 	s = Info_ValueForKey( sysInfo, "sv_cheats" );
 	if ( s[0] == '1' ) {
-		UI_DrawProportionalString( 320, y, "CHEATS ARE ENABLED",
+		y += PROP_HEIGHT;
+		UI_DrawProportionalString( 320, y, "^1CHEATS ARE ENABLED!",// patch colored loading screen
 			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 		y += PROP_HEIGHT;
 #ifndef SMOKINGUNS
@@ -437,6 +439,7 @@ void CG_DrawInformation( void ) {
 		s = "Unknown Gametype";
 		break;
 	}
+	y += PROP_HEIGHT;
 	UI_DrawProportionalString( 320, y, s,
 		UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 	y += PROP_HEIGHT;
