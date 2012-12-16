@@ -681,8 +681,10 @@ ifeq ($(PLATFORM),openbsd)
     USE_CURL_DLOPEN=0
   endif
 
+  # no shm_open on OpenBSD
+  USE_MUMBLE=0
+
   SHLIBEXT=so
-  SHLIBNAME=.$(SHLIBEXT)
   SHLIBCFLAGS=-fPIC
   SHLIBLDFLAGS=-shared $(LDFLAGS)
 
