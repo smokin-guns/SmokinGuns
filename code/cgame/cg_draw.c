@@ -2537,43 +2537,15 @@ for a few moments
 */
 void CG_CenterPrint( const char *str, int y, int charWidth ) {
 	char	*s;
-#ifdef SMOKINGUNS
-	int i;
-	qboolean remove = qfalse;
 
 	// play sound (new)
 	trap_S_StartSound (NULL, cg.snap->ps.clientNum, CHAN_ANNOUNCER, cgs.media.bang[rand()%3] );
-#endif
 
 	Q_strncpyz( cg.centerPrint, str, sizeof(cg.centerPrint) );
 
 	cg.centerPrintTime = cg.time;
 	cg.centerPrintY = y;
 	cg.centerPrintCharWidth = charWidth;
-
-#ifdef SMOKINGUNS
-	// remove "^" if nessecary
-	for(i = 0; cg.centerPrint[i]; i++){
-
-		// ignore if there are two of them
-		if(cg.centerPrint[i] == '^'){
-			remove = qtrue;
-			continue;
-		}
-
-		if(remove){
-			int j;
-
-			// move the others two steps further
-			for( j = i-1; cg.centerPrint[j+2]; j++){
-				cg.centerPrint[j] = cg.centerPrint[j+2];
-			}
-			cg.centerPrint[j] = '\0';
-			remove = qfalse;
-			i -= 2; // string had been moved back (2 shifts)
-		}
-	}
-#endif
 
 	// count the number of lines for centering
 	cg.centerPrintLines = 1;
