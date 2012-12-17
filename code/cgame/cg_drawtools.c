@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2012 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -789,7 +789,7 @@ void UI_DrawBannerString( int x, int y, const char* str, int style, vec4_t color
 
 	if ( style & UI_DROPSHADOW ) {
 		drawcolor[0] = drawcolor[1] = drawcolor[2] = 0;
-		drawcolor[3] = color[3];
+		drawcolor[3] = 0.5;// patch colored loading screen: implement colored dropshadows
 		UI_DrawBannerString2( x+2, y+2, str, drawcolor );
 	}
 
@@ -808,7 +808,10 @@ int UI_ProportionalStringWidth( const char* str ) {
 	while ( *s ) {
 		ch = *s & 127;
 		charWidth = propMap[ch][2];
-		if ( charWidth != -1 ) {
+		if ( Q_IsColorString( s ) ) {// patch colored loading screen: implement colored dropshadows
+			s += 2;
+			continue;
+		} else if ( charWidth != -1 ) {
 			width += charWidth;
 			width += PROP_GAP_WIDTH;
 		}
@@ -835,6 +838,7 @@ void UI_DrawProportionalString2( int x, int y, const char* str, vec4_t color, fl
 	float	fcol;
 	float	fwidth;
 	float	fheight;
+	vec4_t	newColor;
 
 	// draw the colored text
 	trap_R_SetColor( color );
@@ -846,7 +850,22 @@ void UI_DrawProportionalString2( int x, int y, const char* str, vec4_t color, fl
 	while ( *s )
 	{
 		ch = *s & 127;
-		if ( ch == ' ' ) {
+		// TheDoctor: Colored loading screen: implement colored dropshadows
+		if ( Q_IsColorString( s ) ) {
+			memcpy( newColor, g_color_table[ColorIndex(*(s+1))], sizeof( newColor ) );
+			newColor[3] = color[3];
+			if (color[0]!=1 && color[1]!=1 && color[2]!=1 && color[3]==0.5) {
+			    newColor[0]*=0.25;
+			    newColor[1]*=0.25;
+			    newColor[2]*=0.25;
+			    newColor[3]=0.85;
+			} else {
+			    newColor[3]=1;
+			}
+			trap_R_SetColor( newColor );
+			s += 2;
+			continue;
+		} else if ( ch == ' ' ) {
 			aw = (float)PROP_SPACE_WIDTH * cgs.screenXScale * sizeScale;
 		} else if ( propMap[ch][2] != -1 ) {
 			fcol = (float)propMap[ch][0] / 256.0f;
@@ -916,7 +935,7 @@ void UI_DrawProportionalString( int x, int y, const char* str, int style, vec4_t
 
 	if ( style & UI_DROPSHADOW ) {
 		drawcolor[0] = drawcolor[1] = drawcolor[2] = 0;
-		drawcolor[3] = color[3];
+		drawcolor[3] = 0.5;// patch colored loading screen: implement colored dropshadows
 		UI_DrawProportionalString2( x+2, y+2, str, drawcolor, sizeScale, cgs.media.charsetProp );
 	}
 

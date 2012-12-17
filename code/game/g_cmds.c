@@ -569,11 +569,6 @@ Let everyone know about a team change
 */
 void BroadcastTeamChange( gclient_t *client, int oldTeam )
 {
-#ifdef SMOKINGUNS
-	// int		clientNum;
-	// clientNum = client - level.clients;
-
-	
 	if(g_gametype.integer == GT_DUEL)
 		return;
 
@@ -581,31 +576,16 @@ void BroadcastTeamChange( gclient_t *client, int oldTeam )
 		return;
 
 	if ( client->sess.sessionTeam == TEAM_RED ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined %s.\n\"", client->pers.netname, g_redteam.string) );
+		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_YELLOW " joined %s.\n\"", client->pers.netname, g_redteam.string) );
 	} else if ( client->sess.sessionTeam == TEAM_BLUE ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined %s.\n\"", client->pers.netname, g_blueteam.string));
+		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_YELLOW " joined %s.\n\"", client->pers.netname, g_blueteam.string));
 	} else if ( client->sess.sessionTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR ) {
 		// Joe Kari: no need to shout, especially if I want to spec someone suspicious, I don't want to get caught.
 		//trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the spectators.\n\"", client->pers.netname));
 		trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " joined the spectators.\n\"", client->pers.netname));
 	} else if ( client->sess.sessionTeam == TEAM_FREE ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the gunfight.\n\"", client->pers.netname));
+		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_YELLOW " joined the gunfight.\n\"", client->pers.netname));
 	}
-#else
-	if ( client->sess.sessionTeam == TEAM_RED ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the red team.\n\"",
-			client->pers.netname) );
-	} else if ( client->sess.sessionTeam == TEAM_BLUE ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the blue team.\n\"",
-		client->pers.netname));
-	} else if ( client->sess.sessionTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the spectators.\n\"",
-		client->pers.netname));
-	} else if ( client->sess.sessionTeam == TEAM_FREE ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the battle.\n\"",
-		client->pers.netname));
-	}
-#endif
 }
 
 /*
