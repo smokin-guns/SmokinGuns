@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2012 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -242,9 +242,9 @@ vmCvar_t	cg_plOut;
 //unlagged - client options
 
 /*
-==========================
-SG Cvars // by Spoon
-==========================
+======================================
+SG Cvars // by Spoon, Hika, TheDoctor
+======================================
 */
 
 vmCvar_t		cg_buydebug;
@@ -254,6 +254,7 @@ vmCvar_t		cg_serverduellimit;
 vmCvar_t		cg_impactparticles;
 vmCvar_t		cg_gunsmoke;
 vmCvar_t		cg_addguns;
+vmCvar_t		cg_killmsg;
 vmCvar_t		cg_hitmsg;
 vmCvar_t		cg_hitfarmsg;
 vmCvar_t		cg_ownhitmsg;
@@ -516,6 +517,7 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_impactparticles, "cg_impactparticles", "2", CVAR_ARCHIVE },
 	{ &cg_gunsmoke, "cg_gunsmoke", "1", CVAR_ARCHIVE },
 	{ &cg_addguns, "cg_addguns", "1", CVAR_ARCHIVE },
+	{ &cg_killmsg, "cg_killmsg", "0", CVAR_ARCHIVE },
 	{ &cg_playownflysound, "cg_flysound", "0", CVAR_ARCHIVE },
 	{ &cg_showescape, "cg_showescape", "1", CVAR_ARCHIVE },
 	{ &cg_debug, "cg_debug", "0", CVAR_ARCHIVE },
