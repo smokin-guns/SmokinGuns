@@ -4084,42 +4084,46 @@ static void CG_DrawBuyMenu( void ) {
 
 		item = CG_GetBuyItem();
 
-		if(cg.snap->ps.stats[STAT_MONEY] < item->prize)
-			return;
-		// don't buy other special weapons if handling a gatling
-		if(item->giType == IT_WEAPON && bg_weaponlist[item->giTag].wp_sort == WPS_GUN &&
-			gatling){
-			CG_Printf("Can't buy special weapons when using a gatling gun.\n");
-			return;
-		}
-		if(item->giType == IT_WEAPON){
-			if (bg_weaponlist[item->giTag].wp_sort == WPS_PISTOL){
-
-				if(cg.snap->ps.stats[STAT_WEAPONS] & (1 << item->giTag) &&
-					(cg.snap->ps.stats[STAT_FLAGS] & SF_SEC_PISTOL))
-					return;
-
-			} else if ((cg.snap->ps.stats[STAT_WEAPONS] & (1 << item->giTag))
-				&& item->weapon_sort != WS_MISC){
+		if(cg.snap->ps.stats[STAT_MONEY] < item->prize){
+			// TheDoctor: if we cannot buy, don't get stuck in the menu
+			trap_S_StartSound(NULL, cg.snap->ps.clientNum, CHAN_ANNOUNCER, cgs.media.bang[1]);
+			cg.oldbutton = qtrue;
+		} else {
+			// don't buy other special weapons if handling a gatling
+			if(item->giType == IT_WEAPON && bg_weaponlist[item->giTag].wp_sort == WPS_GUN &&
+				gatling){
+				CG_Printf("Can't buy special weapons when using a gatling gun.\n");
 				return;
 			}
-		}
-		if(item->giTag == PW_BELT && cg.snap->ps.powerups[PW_BELT])
-			return;
-		if(item->giType == IT_ARMOR && cg.snap->ps.stats[STAT_ARMOR])
-			return;
-		if(item->giTag == PW_SCOPE && cg.snap->ps.powerups[PW_SCOPE])
-			return;
+			if(item->giType == IT_WEAPON){
+				if (bg_weaponlist[item->giTag].wp_sort == WPS_PISTOL){
 
-		trap_SendConsoleCommand(va("cg_buy %s\n", item->classname));
-//		trap_S_StartSound(NULL, cg.snap->ps.clientNum, CHAN_WEAPON, cgs.media.buySound);
-		cg.oldbutton = qtrue;
+					if(cg.snap->ps.stats[STAT_WEAPONS] & (1 << item->giTag) &&
+						(cg.snap->ps.stats[STAT_FLAGS] & SF_SEC_PISTOL))
+						return;
 
-		if(item->giType == IT_WEAPON && item->weapon_sort != WS_MISC && cgs.gametype != GT_DUEL){
-			// don't change to the weapon bought when handling a gatling
-			if(!gatling) {
-				cg.lastusedweapon = cg.weaponSelect;
-				cg.weaponSelect = item->giTag;
+				} else if ((cg.snap->ps.stats[STAT_WEAPONS] & (1 << item->giTag))
+					&& item->weapon_sort != WS_MISC){
+					return;
+				}
+			}
+			if(item->giTag == PW_BELT && cg.snap->ps.powerups[PW_BELT])
+				return;
+			if(item->giType == IT_ARMOR && cg.snap->ps.stats[STAT_ARMOR])
+				return;
+			if(item->giTag == PW_SCOPE && cg.snap->ps.powerups[PW_SCOPE])
+				return;
+
+			trap_SendConsoleCommand(va("cg_buy %s\n", item->classname));
+//			trap_S_StartSound(NULL, cg.snap->ps.clientNum, CHAN_WEAPON, cgs.media.buySound);
+			cg.oldbutton = qtrue;
+
+			if(item->giType == IT_WEAPON && item->weapon_sort != WS_MISC && cgs.gametype != GT_DUEL){
+				// don't change to the weapon bought when handling a gatling
+				if(!gatling) {
+					cg.lastusedweapon = cg.weaponSelect;
+					cg.weaponSelect = item->giTag;
+				}
 			}
 		}
 
