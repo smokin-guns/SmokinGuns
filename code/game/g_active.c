@@ -772,11 +772,11 @@ qboolean ClientInactivityTimer( gclient_t *client ) {
 		client->inactivityTime = level.time + g_inactivity.integer * 1000;
 		client->inactivityWarning = qfalse;
 	} else if ( !client->pers.localClient ) {
-		if ( level.time > client->inactivityTime ) {
+		if ( level.time > client->inactivityTime && g_humancount) {// TheDoctor: energy save
 			trap_DropClient( client - level.clients, "Dropped due to inactivity" );
 			return qfalse;
 		}
-		if ( level.time > client->inactivityTime - 10000 && !client->inactivityWarning ) {
+		if ( level.time > client->inactivityTime - 10000 && !client->inactivityWarning && g_humancount) {// TheDoctor: energy save
 			client->inactivityWarning = qtrue;
 			trap_SendServerCommand( client - level.clients, "cp \"Ten seconds until inactivity drop!\n\"" );
 		}
