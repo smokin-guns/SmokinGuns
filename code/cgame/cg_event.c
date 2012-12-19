@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2012 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -575,7 +575,8 @@ static void CG_Obituary( entityState_t *ent ) {
 		if(weapon){
 			if ( ent->eFlags & EF_SAME_TEAM )
 				CG_Printf("%s ^1teamkilled^7 %s with %s.\n", attackerName, targetName, bg_weaponlist[weapon].name );
-			else
+			else if ( cg_killmsg.integer == 1 )
+				// TheDoctor: optionally disable kill messages in chat window. They're still shown in the top right corner.
 				CG_Printf("%s killed %s with %s.\n", attackerName, targetName, bg_weaponlist[weapon].name );
 			return;
 		}
