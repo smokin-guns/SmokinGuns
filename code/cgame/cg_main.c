@@ -1907,9 +1907,6 @@ void CG_BuildSpectatorString(void) {
 	int i;
 	cg.spectatorList[0] = 0;
 	for (i = 0; i < MAX_CLIENTS; i++) {
-#ifndef SMOKINGUNS
-		if (cgs.clientinfo[i].infoValid && cgs.clientinfo[i].team == TEAM_SPECTATOR ) {
-#else
 		int j, client = -1;
 		// find scores for player
 		for(j = 0; j < cg.numScores; j++){
@@ -1920,17 +1917,17 @@ void CG_BuildSpectatorString(void) {
 		}
 		if (cgs.clientinfo[i].infoValid && cgs.clientinfo[i].team == TEAM_SPECTATOR
 			&& (cgs.gametype != GT_DUEL || client == -1 || cg.scores[client].realspec)) {
-#endif
-			Q_strcat(cg.spectatorList, sizeof(cg.spectatorList), va("%s     ", cgs.clientinfo[i].name));
+			// TheDoctor: correctly colored
+			if (*cg.spectatorList)
+				Q_strcat(cg.spectatorList, sizeof(cg.spectatorList), ",   ");
+			Q_strcat(cg.spectatorList, sizeof(cg.spectatorList), va(S_COLOR_WHITE "%s" S_COLOR_YELLOW, cgs.clientinfo[i].name));
 		}
 	}
 	i = strlen(cg.spectatorList);
 	if (i != cg.spectatorLen) {
 		cg.spectatorLen = i;
 		cg.spectatorWidth = -1;
-#ifdef SMOKINGUNS
 		Vector4Copy( colorWhite, cg.spectatorCurrentColor );
-#endif
 	}
 }
 
