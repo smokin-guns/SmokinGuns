@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2012 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -59,6 +59,7 @@ cvar_t	*sv_floodProtect;
 cvar_t	*sv_lanForceRate; // dedicated 1 (LAN) server forces local client rates to 99999 (bug #491)
 cvar_t	*sv_strictAuth;
 cvar_t	*sv_banFile;
+cvar_t  *sv_antiwallhack;		// TheDoctor: anti-wallhack
 cvar_t  *sv_heartbeat;			// Heartbeat string that is sent to the master
 cvar_t  *sv_flatline;			// If the master server supports it we can send a flatline
 					// when server is killed

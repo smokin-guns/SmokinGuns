@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2012 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -286,6 +286,17 @@ static void SV_AddEntToSnapshot( svEntity_t *svEnt, sharedEntity_t *gEnt, snapsh
 	eNums->numSnapshotEntities++;
 }
 
+// TheDoctor: Anti-wallhack
+static qboolean recentlySeen(client_t *viewer_cl,int ent_clnum) {
+	if (viewer_cl->tracetimer[ent_clnum] > sv.time+210+10) { // if the sv.time has been reset
+		viewer_cl->tracetimer[ent_clnum] = sv.time; // reset the tracetimer
+	} else if (viewer_cl->tracetimer[ent_clnum] > (sv.time+210-10)) { // if we have recently seen this entity, we are lazy and assume it is still visible
+		return qtrue;
+	}
+	return qfalse;
+}
+
+#define offsetrandom2(MIN,MAX) (((float)(rand() + 0.5f) / ((float)RAND_MAX + 1.0f)) * ((MAX)-(MIN)) + (MIN))
 /*
 ===============
 SV_AddEntitiesVisibleFromPoint
@@ -301,6 +312,8 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 	int		leafnum;
 	byte	*clientpvs;
 	byte	*bitvector;
+	client_t	*cl;
+	vec3_t	diff;
 
 	// during an error shutdown message we may need to transmit
 	// the shutdown message after the server has shutdown, so
@@ -364,7 +377,12 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		}
 
 		// broadcast entities are always sent
-		if ( ent->r.svFlags & SVF_BROADCAST ) {
+		cl = svs.clients+frame->ps.clientNum;
+		// broadcast only non-players. Warning: in case sv_antiwallhack equals 1,
+		// bots will be disappearing on dm_train when touching doors, unless you
+		// compensate with "recentlySeen".
+		if ( ent->r.svFlags & SVF_BROADCAST &&
+			(ent->s.eType != ET_PLAYER || sv_antiwallhack->integer == 0 || recentlySeen(cl,ent->s.clientNum))) {
 			SV_AddEntToSnapshot( svEnt, ent, eNums );
 			continue;
 		}
@@ -410,8 +428,16 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 			}
 		}
 
+		if (sv_antiwallhack->integer == 1 && (cl->netchan.remoteAddress.type != NA_BOT) && ent->s.eType == ET_PLAYER) {
+			if (!SV_IsPlayerVisibleFromPoint(origin,frame,ent,diff)) {
+				continue;
+
+			}
+		}
+
 		// add it
 		SV_AddEntToSnapshot( svEnt, ent, eNums );
+		// reset ps.pm_type?
 
 		// if it's a portal entity, add everything visible from its camera position
 		if ( ent->r.svFlags & SVF_PORTAL ) {
