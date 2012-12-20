@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2012 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -628,5 +628,224 @@ int SV_BotGetSnapshotEntity( int client, int sequence ) {
 		return -1;
 	}
 	return svs.snapshotEntities[(frame->first_entity + sequence) % svs.numSnapshotEntities].number;
+}
+
+
+/*
+==================
+InFieldOfVision
+==================
+InFieldOfVision(vec3_t viewer.angles, float fov, vec3_t enemy.angles, int viewer.clientnum)
+*/
+qboolean InFieldOfVision(vec3_t viewangles, float fov, vec3_t angles, int client)
+{
+	int i;
+	float diff, angle;
+//	int event = g_entities[client].s.event & ~EV_EVENT_BITS;
+//
+//	switch(event){
+//	case EV_FOOTSTEP:
+//	case EV_FOOTSTEP_METAL:
+//	case EV_FOOTSTEP_CLOTH:
+//	case EV_FOOTSTEP_GRASS:
+//	case EV_FOOTSTEP_SNOW:
+//	case EV_FOOTSTEP_SAND:
+//	case EV_FOOTSPLASH:
+//	case EV_FOOTWADE:
+//	case EV_SWIM:
+//	case EV_FALL_SHORT:
+//	case EV_FALL_MEDIUM:
+//	case EV_FALL_FAR:
+//	case EV_STEP_4:
+//	case EV_STEP_8:
+//	case EV_STEP_12:
+//	case EV_STEP_16:
+//	case EV_JUMP_PAD:
+//	case EV_JUMP:
+//	case EV_TAUNT:
+//	case EV_WATER_TOUCH:
+//	case EV_WATER_LEAVE:
+//	case EV_WATER_UNDER:
+//	case EV_WATER_CLEAR:
+//	case EV_ITEM_PICKUP:
+////	case EV_GLOBAL_ITEM_PICKUP:
+//	case EV_NOAMMO:
+//	case EV_NOAMMO_CLIP:
+//	case EV_CHANGE_WEAPON:
+//	case EV_FIRE_WEAPON:
+//	case EV_FIRE_WEAPON_DELAY:
+//	case EV_FIRE_WEAPON2:
+//	case EV_ALT_FIRE_WEAPON:
+//	case EV_BUILD_TURRET:
+//		return qtrue;
+//		break;
+//	}
+
+	for (i = 0; i < 2; i++) {
+		angle = AngleMod(viewangles[i]);
+		angles[i] = AngleMod(angles[i]);
+		diff = angles[i] - angle;
+
+		if (angles[i] > angle) {
+			if (diff > 180.0) diff -= 360.0;
+		}
+		else {
+			if (diff < -180.0) diff += 360.0;
+		}
+
+		if (diff > 0) {
+			if (diff > fov * 1.1f) return qfalse; // fov * 0.5
+		}
+		else {
+			if (diff < -fov * 1.1f) return qfalse;
+		}
+	}
+	return qtrue;
+}
+
+const int MEMORY = 210;
+#define offsetrandom(MIN,MAX) (((double)(rand() + 0.5) / ((double)RAND_MAX + 1)) * ((MAX)-(MIN)) + (MIN))
+/*
+ * Tests whether the player entity ent is visible from the point origin.
+ */
+qboolean SV_IsPlayerVisibleFromPoint( vec3_t origin, clientSnapshot_t *frame, sharedEntity_t *ent, vec3_t diff) {
+	int      i,contents_mask,goal_ent,viewer_clnum,ent_clnum,tries;
+	trace_t   tr;
+	vec3_t   start,end,dir,entangles,angles,temp,forward;
+	sharedEntity_t *viewer_ent;
+	client_t *viewer_cl;
+//	client_t *ent_cl;
+	playerState_t *viewer_ps, *ent_ps;
+	float pitch;
+
+	viewer_clnum = frame->ps.clientNum; // get the client number of the viewer
+	ent_clnum = ent->s.clientNum; // get the client number of the other player
+
+	if (viewer_clnum == ent_clnum) { // in case the viewer is the player entity
+		return qtrue; // we don't need to hide us from ourselves
+	}
+
+	viewer_ps = &frame->ps;
+	ent_ps = SV_GameClientNum(ent_clnum);
+
+	if (viewer_ps->pm_type != PM_NORMAL) { // if the viewer is dead or spectating
+		return qtrue; // let every entity be visible
+	}
+
+	if (ent_ps->pm_type != PM_NORMAL || (ent->s.weapon == WP_NONE)) { // if the player entity is dead or spectating
+		return qtrue;
+	}
+
+	viewer_cl = svs.clients+viewer_clnum; // get the client of the viewer
+//	ent_cl = svs.clients+ent_clnum; // get the client of the other player
+
+//	if (viewer_clnum > ent_clnum) { // if viewer_clnum > ent_clnum, we have already tested whether ent_clnum is able to see viewer_clnum.
+//		if (ent_cl->tracetimer[viewer_clnum] > sv.time) return qtrue; // and we could assume symmetry of SV_IsPlayerVisibleFromPoint
+//	}
+
+	if (viewer_cl->tracetimer[ent_clnum] > sv.time+MEMORY+10) { // if the sv.time has been reset
+		viewer_cl->tracetimer[ent_clnum] = sv.time; // reset the tracetimer
+	} else if (viewer_cl->tracetimer[ent_clnum] > (sv.time+MEMORY-10)) { // if we have recently seen this entity, we are lazy and assume it is still visible
+		// Com_Printf(va("client: %i, seen: %i\n", ent_clnum, viewer_cl->tracetimer[ent_clnum]));
+		return qtrue;
+	}
+
+	goal_ent = SV_NumForGentity(ent); // this might always be the same as ent_clnum
+	viewer_ent = SV_GentityNum(viewer_clnum);
+	contents_mask = CONTENTS_SOLID;// |CONTENTS_BODY will work for doors, but also for windows  |CONTENTS_PLAYERCLIP|CONTENTS_SOLID|CONTENTS_MOVER|CONTENTS_PLAYERCLIP
+
+//	if (seen->v.movetype == MOVETYPE_PUSH ) { //don't cull doors and plats :(
+//		return false;
+//	}
+
+//	if (sv_antiwallhack.value == 1)    //1 only check player models, 2 = check all ents
+//	if (strcmp(pr_strings + seen->v.classname, "player"))
+//	return qfalse;
+
+	// get camera origin (according to \cg_drawdebug 1)
+	start[0] = origin[0];
+	start[1] = origin[1];
+	start[2] = origin[2]+3.0f;
+	VectorCopy(viewer_ps->viewangles, angles);
+	AnglesNormalize180(angles);
+	pitch = angles[PITCH];
+	angles[PITCH] = 0;
+	angles[ROLL] = 0;
+	AngleVectors(angles, forward, NULL, NULL);
+	VectorScale(forward, (pitch/3.5f), temp);
+	VectorAdd( start, temp, start);
+
+	// if there is sufficient distance between viewer and player entity, check if player entity is within viewer's field of vision
+	VectorSubtract(ent->r.currentOrigin, start, dir);
+//	VectorAdd(ent->r.currentOrigin,dir,diff);// fill diff
+	VectorCopy(viewer_ent->s.pos.trBase,diff);// fill diff
+	vectoangles(dir, entangles);
+	dir[2]=0; // pretend, players are on the same level (the height should no be taken into account)
+	if (VectorLength(dir) > 1024) {// if it is not within close range (x,y-wise, not z-wise)
+		if (!InFieldOfVision(viewer_ps->viewangles, 60.f, entangles, ent_clnum)) {// If the player entity is not in the field of vision of the viewer
+//			 Com_Printf( va("behind: %i  vorg: %f,%f,%f  vang: %f,%f,%f  eorg: %f,%f,%f  dir: %f,%f,%f  eang: %f,%f,%f  ent: %i\n", viewer_clnum,origin[0],origin[1],origin[2],viewer_ps->viewangles[0],viewer_ps->viewangles[1],viewer_ps->viewangles[2],ent->r.currentOrigin[0],ent->r.currentOrigin[1],ent->r.currentOrigin[2],dir[0],dir[1],dir[2],entangles[0],entangles[1],entangles[2],ent_clnum));
+			return qtrue; // if the player entity is behind the viewer, abstain from any computations (and transmit the entity to hear sounds)
+//		} else {
+//			 Com_Printf( va("front: %i  vorg: %f,%f,%f  vang: %f,%f,%f  eorg: %f,%f,%f  dir: %f,%f,%f  eang: %f,%f,%f  ent: %i\n", viewer_clnum,origin[0],origin[1],origin[2],viewer_ps->viewangles[0],viewer_ps->viewangles[1],viewer_ps->viewangles[2],ent->r.currentOrigin[0],ent->r.currentOrigin[1],ent->r.currentOrigin[2],dir[0],dir[1],dir[2],entangles[0],entangles[1],entangles[2],ent_clnum));
+		}
+	}
+
+	// aim straight at the head of the entity from our eyes
+	end[0] = ent->r.currentOrigin[0];
+	end[1] = ent->r.currentOrigin[1];
+	end[2] = ent->r.currentOrigin[2]+ent->r.maxs[2];// "+3.0f" doesn't do it. "+ent->r.maxs[2]" is at the top of the BBox
+	VectorCopy(ent_ps->viewangles, angles);
+	AnglesNormalize180(angles);
+	pitch = angles[PITCH];
+	angles[PITCH] = 0;
+	angles[ROLL] = 0;
+	AngleVectors(angles, forward, NULL, NULL);
+	VectorScale(forward, (pitch/3.5f), temp);
+	VectorAdd( end, temp, end);
+
+
+
+	memset (&tr, 0, sizeof(tr));
+	tr.fraction = 1;
+
+	// check the head
+	SV_Trace(&tr, start, NULL, NULL, end, viewer_clnum, contents_mask, qfalse);
+	// Com_Printf(va("client: %i, trace: %f\n", ent->s.clientNum, tr.fraction));
+	if (tr.fraction == 1 || tr.entityNum==goal_ent) {// tr.fraction == 1 || if there is a line of sight to the entity
+		viewer_cl->tracetimer[ent_clnum] = sv.time + MEMORY;// update the trace timer so the entity will be visible the next 200 time units
+		return qtrue;// and signal the entity is visible
+	}
+	// Com_Printf(va("origin(%f %f %f) min(%f %f %f) max(%f %f %f)\n", start[0], start[1], start[2], mins[0],mins[1],mins[2],maxs[0],maxs[1],maxs[2]));
+
+	// check the last good offset
+	VectorAdd(ent->r.currentOrigin,viewer_cl->lasttrace[ent_clnum],end);
+	SV_Trace(&tr, start, NULL, NULL, end, viewer_clnum, contents_mask, qfalse);
+	// Com_Printf(va("client: %i, trace: %f\n", ent->s.clientNum, tr.fraction));
+	if (tr.fraction == 1 || tr.entityNum==goal_ent) {// tr.fraction == 1 || if there is a line of sight to the entity
+		viewer_cl->tracetimer[ent_clnum] = sv.time + MEMORY;// update the trace timer so the entity will be visible the next 200 time units
+		return qtrue;// and signal the entity is visible
+	}
+
+	// random
+	tries = (viewer_cl->tracetimer[ent_clnum]+(MEMORY*20) > sv.time)?8:2;// if we have seen an entity recently, we try hard to locate it again
+	for (i=0; i<tries; i++) {// Even if the head is not visible, other body parts might be. Let's check a few randomly selected points
+		end[0] = ent->r.currentOrigin[0] + offsetrandom(ent->r.mins[0], ent->r.maxs[0]);
+		end[1] = ent->r.currentOrigin[1] + offsetrandom(ent->r.mins[1], ent->r.maxs[1]);
+		end[2] = ent->r.currentOrigin[2] + offsetrandom(ent->r.mins[2], ent->r.maxs[2]+3.f);
+
+		SV_Trace(&tr, start, NULL, NULL, end, viewer_clnum, contents_mask, qfalse);
+		if (tr.fraction == 1 || tr.entityNum==goal_ent) {//  if there is a line of sight to the entity
+			// Com_Printf(va("found ent in %i hits\n", i));
+			viewer_cl->tracetimer[ent_clnum] = sv.time + MEMORY;// update the trace timer so the entity will be visible the next 200 time units
+			VectorSubtract(end, ent->r.currentOrigin, viewer_cl->lasttrace[ent_clnum]);// remember the offset
+			return qtrue;// and signal the entity is visible
+		}
+	}
+
+	viewer_cl->lasttrace[ent_clnum][0] = offsetrandom(ent->r.mins[0], ent->r.maxs[0]);
+	viewer_cl->lasttrace[ent_clnum][1] = offsetrandom(ent->r.mins[1], ent->r.maxs[1]);
+	viewer_cl->lasttrace[ent_clnum][2] = offsetrandom(ent->r.mins[2], ent->r.maxs[2]+3.f);
+
+	return (viewer_cl->tracetimer[ent_clnum] > sv.time);// returns true if the entity was visible within the last 200 time units
 }
 

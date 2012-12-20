@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2012 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -146,6 +146,10 @@ typedef struct client_s {
 	sharedEntity_t	*gentity;			// SV_GentityNum(clientnum)
 	char			name[MAX_NAME_LENGTH];			// extracted from userinfo, high bits masked
 
+	// cullentities
+	int		tracetimer[MAX_GENTITIES];
+	vec3_t	lasttrace[MAX_GENTITIES];
+
 	// downloading
 	char			downloadName[MAX_QPATH]; // if not empty string, we are downloading
 	fileHandle_t	download;			// file being downloaded
@@ -277,6 +281,7 @@ extern	cvar_t	*sv_floodProtect;
 extern	cvar_t	*sv_lanForceRate;
 extern	cvar_t	*sv_strictAuth;
 extern	cvar_t	*sv_banFile;
+extern	cvar_t	*sv_antiwallhack;
 extern	cvar_t	*sv_heartbeat;
 extern	cvar_t	*sv_flatline;
 
@@ -387,6 +392,7 @@ int			SV_BotLibSetup( void );
 int			SV_BotLibShutdown( void );
 int			SV_BotGetSnapshotEntity( int client, int ent );
 int			SV_BotGetConsoleMessage( int client, char *buf, int size );
+qboolean	SV_IsPlayerVisibleFromPoint( vec3_t origin, clientSnapshot_t *frame, sharedEntity_t *ent, vec3_t diff);
 
 int BotImport_DebugPolygonCreate(int color, int numPoints, vec3_t *points);
 void BotImport_DebugPolygonDelete(int id);
