@@ -2381,8 +2381,11 @@ void ClientSpawn(gentity_t *ent) {
 	client->specwatch = specwatch;
 #endif
 
-	// run the presend to set anything else
-	ClientEndFrame( ent );
+	// run the presend to set anything else, follow spectators wait
+	// until all clients have been reconnected after map_restart
+	if ( ent->client->sess.spectatorState != SPECTATOR_FOLLOW ) {
+		ClientEndFrame( ent );
+	}
 
 	// clear entity state values
 	BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
