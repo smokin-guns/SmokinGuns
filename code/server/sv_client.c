@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2012 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -626,6 +626,10 @@ void SV_DropClient( client_t *drop, const char *reason ) {
 		}
 	}
 
+	if (drop->demorecording) {// patch demos: stop recording on drop
+		CL_StopRecord( drop );
+	}
+
 	// Kill any download
 	SV_CloseDownload( drop );
 
@@ -689,6 +693,8 @@ static void SV_SendClientGameState( client_t *client ) {
 	entityState_t	*base, nullstate;
 	msg_t		msg;
 	byte		msgBuffer[MAX_MSGLEN];
+	msg_t		msg_fake;
+	byte		msgBuffer_fake[MAX_MSGLEN];
 
  	Com_DPrintf ("SV_SendClientGameState() for %s\n", client->name);
 	Com_DPrintf( "Going from CS_CONNECTED to CS_PRIMED for %s\n", client->name );
@@ -702,6 +708,7 @@ static void SV_SendClientGameState( client_t *client ) {
 	client->gamestateMessageNum = client->netchan.outgoingSequence;
 
 	MSG_Init( &msg, msgBuffer, sizeof( msgBuffer ) );
+	MSG_Init( &msg_fake, msgBuffer_fake, sizeof( msgBuffer_fake ) );
 
 	// NOTE, MRE: all server->client messages now acknowledge
 	// let the client know which reliable clientCommands we have received
@@ -711,7 +718,7 @@ static void SV_SendClientGameState( client_t *client ) {
 	// we have to do this cause we send the client->reliableSequence
 	// with a gamestate and it sets the clc.serverCommandSequence at
 	// the client side
-	SV_UpdateServerCommandsToClient( client, &msg );
+	SV_UpdateServerCommandsToClient( client, &msg, &msg_fake );
 
 	// send the gamestate
 	MSG_WriteByte( &msg, svc_gamestate );
@@ -781,6 +788,10 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 
 	// call the game begin function
 	VM_Call( gvm, GAME_CLIENT_BEGIN, client - svs.clients );
+
+	if (svs.initialized && sv_autorecord->integer && client->netchan.remoteAddress.type != NA_BOT) {
+		CL_Record(client, NULL);
+	}
 }
 
 /*

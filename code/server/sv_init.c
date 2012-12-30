@@ -645,6 +645,7 @@ void SV_Init (void)
 	sv_privateClients = Cvar_Get ("sv_privateClients", "0", CVAR_SERVERINFO);
 	sv_hostname = Cvar_Get ("sv_hostname", "noname", CVAR_SERVERINFO | CVAR_ARCHIVE );
 	sv_maxclients = Cvar_Get ("sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH);
+	sv_autorecord = Cvar_Get ("sv_autorecord", "0", CVAR_ARCHIVE );
 	sv_antiwallhack = Cvar_Get ("sv_antiwallhack", "0", CVAR_ARCHIVE);
 
 	sv_minRate = Cvar_Get ("sv_minRate", "0", CVAR_ARCHIVE | CVAR_SERVERINFO );
@@ -721,6 +722,10 @@ void SV_FinalMessage( char *message ) {
 	for ( j = 0 ; j < 2 ; j++ ) {
 		for (i=0, cl = svs.clients ; i < sv_maxclients->integer ; i++, cl++) {
 			if (cl->state >= CS_CONNECTED) {
+				if (cl->demorecording) {
+					CL_StopRecord( cl );
+				}  
+
 				// don't send a disconnect to a local client
 				if ( cl->netchan.remoteAddress.type != NA_LOOPBACK ) {
 					SV_SendServerCommand( cl, "print \"%s\n\"\n", message );
@@ -744,11 +749,22 @@ before Sys_Quit or Sys_Error
 ================
 */
 void SV_Shutdown( char *finalmsg ) {
+	int			i;
+	client_t	*cl;
+
 	if ( !com_sv_running || !com_sv_running->integer ) {
 		return;
 	}
 
 	Com_Printf( "----- Server Shutdown (%s) -----\n", finalmsg );
+
+	if (sv_autorecord->integer) {
+		for (i=0, cl = svs.clients ; i < sv_maxclients->integer ; i++, cl++) {
+			if (cl->state >= CS_CONNECTED && cl->demorecording) {
+				CL_StopRecord( cl );
+			}
+		}
+	}
 
 	NET_LeaveMulticast6();
 

@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2012 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -157,6 +157,8 @@ static void SV_Map_f( void ) {
 	qboolean	killBots, cheat;
 	char		expanded[MAX_QPATH];
 	char		mapname[MAX_QPATH];
+	int			i;
+	client_t	*cl;
 
 	map = Cmd_Argv(1);
 	if ( !map ) {
@@ -201,6 +203,15 @@ static void SV_Map_f( void ) {
 		}
 	}
 
+	// TheDoctor: patch demos: stop server-side demo recording when sv_autrecord is set
+	if (sv_autorecord->integer && svs.initialized) {
+		for (i=0, cl = svs.clients ; i < sv_maxclients->integer ; i++, cl++) {
+			if (cl->state >= CS_CONNECTED && cl->demorecording) {
+				CL_StopRecord( cl );
+			}
+		}
+	}
+
 	// save the map name here cause on a map restart we reload the q3config.cfg
 	// and thus nuke the arguments of the map command
 	Q_strncpyz(mapname, map, sizeof(mapname));
@@ -233,6 +244,8 @@ static void SV_MapRestart_f( void ) {
 	char		*denied;
 	qboolean	isBot;
 	int			delay;
+	int         j;
+	client_t	*cl;
 
 	// make sure we aren't restarting twice in the same frame
 	if ( com_frameTime == sv.serverId ) {
@@ -272,6 +285,15 @@ static void SV_MapRestart_f( void ) {
 
 		SV_SpawnServer( mapname, qfalse );
 		return;
+	}
+
+	// TheDoctor: patch demos: stop server-side demo recording when sv_autrecord is set
+	if (sv_autorecord->integer) {
+		for (j=0, cl = svs.clients ; j < sv_maxclients->integer ; j++, cl++) {
+			if (cl && cl->state && cl->state >= CS_CONNECTED && cl->demorecording) {
+				CL_StopRecord( cl );
+			}
+		}
 	}
 
 	// toggle the server bit so clients can detect that a
@@ -1173,43 +1195,43 @@ static void SV_ClientID_f( void ) {
 		Com_Printf( "Server is not running.\n" );
 		return;
 	}
-	
+
 	Com_Printf ("ID address         GUID                             name            \n");
 	Com_Printf ("-- --------------- -------------------------------- --------------- \n");
-	
+
 	for (i=0,cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++)
 	{
 		if (!cl->state)
 			continue;
-		
+
 		// ID
 		Com_Printf ("%2i ", i);
-		
+
 		// IP (or: loopback or bot)
 		s = NET_AdrToString( cl->netchan.remoteAddress );
 		Com_Printf ("%s", s);
 		l = 16 - strlen(s);
 		j = 0;
-		
+
 		do
 		{
 			Com_Printf(" ");
 			j++;
 		} while(j < l);
-		
+
 		// GUID
 		s = Info_ValueForKey (cl->userinfo, "cl_guid");
 		if (Q_stricmp (s, "") == 0)  s = "<null>" ;
 		Com_Printf ("%s", s);
 		l = 33 - strlen(s);
 		j = 0;
-		
+
 		do
 		{
 			Com_Printf(" ");
 			j++;
 		} while(j < l);
-		
+
 		// Name (should come last, easiest to parse it this way cause people may have all sort of char in her names)
 		Com_Printf ("%s^7\n", cl->name);
 	}
@@ -1228,9 +1250,8 @@ static void SV_ClientStatus_f( void ) {
 	int			i;
 	client_t	*cl;
 	const char		*s;
-	playerState_t	*ps;
 	int			ping;
-	
+
 	// Move to g_svcmds.c
 
 	// make sure server is running
@@ -1238,20 +1259,17 @@ static void SV_ClientStatus_f( void ) {
 		Com_Printf( "Server is not running.\n" );
 		return;
 	}
-	
-	
+
 	for (i=0,cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++)
 	{
 		if (!cl->state)
 			continue;
-		
-		ps = SV_GameClientNum( i );
-		
+
 		// ID
 		Com_Printf ("^5*** ID^7:%i  ", i);
 		// Name
 		Com_Printf ("^5name^7:%s^7\n", cl->name);
-		
+
 		// IP (or: loopback or bot)
 		s = NET_AdrToString( cl->netchan.remoteAddress );
 		Com_Printf ("^3IP^7:%s ", s);
@@ -1259,7 +1277,7 @@ static void SV_ClientStatus_f( void ) {
 		s = Info_ValueForKey (cl->userinfo, "cl_guid");
 		if (Q_stricmp (s, "") == 0)  s = "<null>" ;
 		Com_Printf ("^3GUID^7:%s\n", s);
-		
+
 		// Ping
 		if (cl->state == CS_CONNECTED)
 			Com_Printf ("^6ping^7:CONNECTED ");
@@ -1270,10 +1288,10 @@ static void SV_ClientStatus_f( void ) {
 			ping = cl->ping < 9999 ? cl->ping : 9999;
 			Com_Printf ("^6ping^7:%i ", ping);
 		}
-		
+
 		// Rate
 		Com_Printf ("^6rate^7:%i ", cl->rate);
-		
+
 		// Port
 		Com_Printf ("^6port^7:%i\n", cl->netchan.qport);
 	}
@@ -1440,6 +1458,322 @@ static void SV_KillServer_f( void ) {
 	SV_Shutdown( "killserver" );
 }
 
+/*
+=======================================================================// patch demos: server-side recorded client demos
+
+SERVER-SIDE CLIENT DEMO RECORDING
+
+=======================================================================
+*/
+/*
+====================
+SVCL_WriteDemoMessage
+
+Dumps the current net message, prefixed by the length
+====================
+*/
+
+void SVCL_WriteDemoMessage( client_t *cl, msg_t *msg, int headerBytes ) {
+	int		len, swlen, clientnum;
+	playerState_t	*ps;
+	cvar_t	*fraglimit;
+
+	clientnum = cl - svs.clients;
+
+	MSG_WriteByte( msg, svc_EOF );//temporarily write svc_EOF
+	// write the packet sequence
+	FS_Write (&LittleLong( cl->netchan.outgoingSequence ), 4, cl->demofile);
+
+	// skip the packet sequencing information
+	len = msg->cursize - headerBytes;
+	swlen = LittleLong(len);
+	FS_Write (&swlen, 4, cl->demofile);
+	FS_Write ( msg->data + headerBytes, len, cl->demofile );
+	msg->cursize--;// forget about svc_EOF
+
+	ps = SV_GameClientNum( clientnum );
+	fraglimit = Cvar_Get("fraglimit", "30", CVAR_SERVERINFO);
+	if (!cl->savedemo && ps->pm_type!=PM_INTERMISSION && ps->clientNum==clientnum && ps->persistant[PERS_SCORE]>=(int)(fraglimit->integer*0.9)) {
+		cl->savedemo = qtrue;
+		Com_Printf ("Saverecord: %i: %s\n", clientnum, cl->name);
+	}
+}
+
+
+/*
+====================
+CL_StopRecording_f
+
+stoprecord <slot>
+
+stop recording a demo
+====================
+*/
+void CL_StopRecord( client_t *cl ) {
+	int		len;
+	int         clientnum;
+	clientnum = cl - svs.clients;
+	fileHandle_t demofile;
+	char	*demoname;
+
+	if ( !cl->demorecording ) {
+		Com_Printf ("Not recording a demo for client %i.\n", clientnum);
+		return;
+	}
+
+	// remember handle and name
+	demofile = cl->demofile;
+	demoname = cl->demoName;
+	cl->demorecording = qfalse;
+
+	// finish up
+	len = -1;
+	FS_Write (&len, 4, demofile);
+	FS_Write (&len, 4, demofile);
+	FS_FCloseFile (demofile);
+
+	if (!sv_autorecord->integer) {
+		Com_Printf ("Stopped demo for client %i.\n", clientnum);
+	} else {
+		if (cl->savedemo) {
+			// keep demo
+			Com_Printf ("Stoprecord: %i: stop\n", clientnum);
+//			SV_SendServerCommand(NULL, "print \"%s" S_COLOR_WHITE "'s game was recorded as " S_COLOR_GREEN "http:/ /demos.smokin-guns.org/" S_COLOR_YELLOW "%s\n\"", cl->name, demoname);
+		} else {
+			Com_Printf ("Stoprecord: %i: abort\n", clientnum);
+			FS_HomeRemove(demoname);
+		}
+	}
+}
+void SVCL_StopRecord_f( void ) {
+	client_t	*cl;
+
+	// make sure server is running
+	if ( !com_sv_running->integer ) {
+		Com_Printf( "Server is not running.\n" );
+		return;
+	}
+
+	if ( Cmd_Argc() < 2 ) {
+		Com_Printf ("Usage: stoprecord <clientnumber>\n");
+		return;
+	}
+
+	cl = SV_GetPlayerByNum();
+	if ( !cl ) {
+		// error message was printed by SV_GetPlayerByNum
+		return;
+	}
+	CL_StopRecord(cl);
+}
+
+
+
+/*
+====================
+CL_Record_f
+
+record <slot> [<demoname>]
+
+Begins recording a demo from the current position
+====================
+*/
+void CL_Record( client_t *cl, char *s ) {
+	char		name[MAX_OSPATH];
+	char		name_zip[MAX_OSPATH];
+	byte		bufData[MAX_MSGLEN];
+	msg_t	buf;
+	int			i;
+	int			len;
+	entityState_t	*ent;
+	entityState_t	nullstate;
+	int         clientnum;
+	char	*guid;
+	char	prefix[MAX_OSPATH];
+
+	clientnum = cl - svs.clients;
+
+	if ( cl->demorecording ) {
+		Com_Printf ("Already recording client %i.\n", clientnum);
+		return;
+	}
+
+//	if ( cl->state != CA_ACTIVE ) {
+//		Com_Printf ("You must be in a level to record.\n");
+//		return;
+//	}
+//  // sync 0 doesn't prevent recording, so not forcing it off .. everyone does g_sync 1 ; record ; g_sync 0 ..
+//	if ( NET_IsLocalAddress( cl->serverAddress ) && !Cvar_VariableValue( "g_synchronousClients" ) ) {
+//		Com_Printf (S_COLOR_YELLOW "WARNING: You should set 'g_synchronousClients 1' for smoother demo recording\n");
+//	}
+
+	if ( s ) {
+		Com_sprintf (name, sizeof(name), "demos/%s.dm_%d", s, PROTOCOL_VERSION );
+	} else {
+		int		number,n,a,b,c,d;
+		guid = Info_ValueForKey(cl->userinfo, "cl_guid");
+		if (!Q_stricmp(guid, "")) {
+			guid = "LONGGONE";
+		}
+		Q_strncpyz(prefix, guid, 9);
+
+		// scan for a free demo name
+		for ( number = 0 ; number <= 9999 ; number++ ) {
+			if(number < 0 || number > 9999)
+				number = 9999;
+			n = number;
+			a = n / 1000;
+			n -= a*1000;
+			b = n / 100;
+			n -= b*100;
+			c = n / 10;
+			n -= c*10;
+			d = n;
+
+			Com_sprintf (name, sizeof(name), "demos/%s_%s_%i%i%i%i.dm_%d", prefix, sv_mapname->string, a, b, c, d, PROTOCOL_VERSION );
+			Com_sprintf (name_zip, sizeof(name_zip), "demos/%s_%s_%i%i%i%i.dm_%d.zip", prefix, sv_mapname->string, a, b, c, d, PROTOCOL_VERSION );
+			Q_strlwr(name);
+			Q_strlwr(name_zip);
+			if (!FS_FileExists(name) && !FS_FileExists(name_zip)) {
+				break;	// file doesn't exist
+			}
+		}
+	}
+
+	// open the demo file
+
+	if (!sv_autorecord->integer) {
+		Com_Printf ("recording client %i to %s.\n", clientnum, name);
+	} else {
+		Com_Printf ("Record: %i: %s\n", clientnum, name);
+	}
+
+	cl->demofile = FS_FOpenFileWrite( name );
+	if ( !cl->demofile ) {
+		Com_Printf ("ERROR: couldn't open.\n");
+		return;
+	}
+	// don't start saving messages until a non-delta compressed message is received
+	cl->demowaiting = qtrue;
+	cl->savedemo = qfalse; // demo will not be saved if sv_autorecord 1 and cl's score is too low
+
+	Q_strncpyz( cl->demoName, name, sizeof( cl->demoName ) );
+
+	// write out the gamestate message
+	MSG_Init (&buf, bufData, sizeof(bufData));
+	MSG_Bitstream(&buf);
+
+	// NOTE, MRE: all server->client messages now acknowledge
+	MSG_WriteLong( &buf, cl->lastClientCommand );// 0007 - 000A
+
+	MSG_WriteByte (&buf, svc_gamestate);// 000B
+	MSG_WriteLong (&buf, cl->reliableSequence );// 000C - 000F
+
+
+	// write the configstrings
+	for ( i = 0 ; i < MAX_CONFIGSTRINGS ; i++ ) {
+		if (sv.configstrings[i][0]) {
+			MSG_WriteByte( &buf, svc_configstring );
+			MSG_WriteShort( &buf, i );
+			MSG_WriteBigString( &buf, sv.configstrings[i] );
+		}
+	}
+
+	// write the baselines
+	Com_Memset( &nullstate, 0, sizeof( nullstate ) );
+	for ( i = 0 ; i < MAX_GENTITIES; i++ ) {
+		ent = &sv.svEntities[i].baseline;
+		if ( !ent->number ) {
+			continue;
+		}
+		MSG_WriteByte( &buf, svc_baseline );
+		MSG_WriteDeltaEntity( &buf, &nullstate, ent, qtrue );
+	}
+
+	MSG_WriteByte( &buf, svc_EOF );
+
+	// finished writing the gamestate stuff
+
+	// write the client num
+	MSG_WriteLong(&buf, clientnum);
+	// write the checksum feed
+	MSG_WriteLong(&buf, sv.checksumFeed);
+
+	// finished writing the client packet
+	MSG_WriteByte( &buf, svc_EOF );
+
+	// write it to the demo file
+	len = LittleLong( cl->netchan.outgoingSequence-1 );
+	FS_Write (&len, 4, cl->demofile);// 0000 - 0003
+
+	len = LittleLong (buf.cursize);
+	FS_Write (&len, 4, cl->demofile);// 0004 - 0007
+	FS_Write (buf.data, buf.cursize, cl->demofile);// 0007 - ...
+
+	// the rest of the demo file will be copied from net messages
+	cl->demorecording = qtrue;
+}
+
+void SVCL_Record_f( void ) {
+	char		*s;
+	client_t	*cl;
+
+	s = 0;
+	// make sure server is running
+	if ( !com_sv_running->integer ) {
+		Com_Printf( "Server is not running.\n" );
+		return;
+	}
+
+	if ( Cmd_Argc() < 2 || Cmd_Argc() > 3) {
+		Com_Printf ("record <clientnumber> [<demoname>]\n");
+		return;
+	}
+
+	cl = SV_GetPlayerByNum();
+	if ( !cl ) {
+		// error message was printed by SV_GetPlayerByNum
+		return;
+	}
+
+	if ( Cmd_Argc() == 3 ) {
+		s = Cmd_Argv(2);
+//		Com_sprintf (name, sizeof(name), "demos/%s.dm_%d", s, PROTOCOL_VERSION );
+		CL_Record(cl,s);
+	} else {
+		CL_Record(cl,0);
+	}
+}
+
+void SVCL_SaveRecord_f( void ) {
+	client_t	*cl;
+	int			clientnum;
+
+	// make sure server is running
+	if ( !com_sv_running->integer ) {
+		Com_Printf( "Server is not running.\n" );
+		return;
+	}
+
+	if ( Cmd_Argc() != 2) {
+		Com_Printf ("saverecord <clientnumber>\n");
+		return;
+	}
+
+	cl = SV_GetPlayerByNum();
+	if ( !cl ) {
+		// error message was printed by SV_GetPlayerByNum
+		return;
+	}
+	if ( !cl->demorecording ) {
+		Com_Printf ("Not recording a demo for client %i.\n", cl - svs.clients);
+		return;
+	}
+	clientnum = cl - svs.clients;
+	cl->savedemo = qtrue;
+	Com_Printf ("Saverecord: %i: %s\n", clientnum, cl->name);
+}
+
 //===========================================================
 
 /*
@@ -1502,7 +1836,9 @@ void SV_AddOperatorCommands( void ) {
 		Cmd_AddCommand ("tell", SV_ConTell_f);
 #endif
 	}
-	
+ 	Cmd_AddCommand("record", SVCL_Record_f);
+ 	Cmd_AddCommand("stoprecord", SVCL_StopRecord_f);
+ 	Cmd_AddCommand("saverecord", SVCL_SaveRecord_f);
 	Cmd_AddCommand("rehashbans", SV_RehashBans_f);
 	Cmd_AddCommand("listbans", SV_ListBans_f);
 	Cmd_AddCommand("banaddr", SV_BanAddr_f);
