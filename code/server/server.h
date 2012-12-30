@@ -146,6 +146,14 @@ typedef struct client_s {
 	sharedEntity_t	*gentity;			// SV_GentityNum(clientnum)
 	char			name[MAX_NAME_LENGTH];			// extracted from userinfo, high bits masked
 
+	// demo information
+	char		demoName[MAX_QPATH];
+	qboolean	savedemo;
+	qboolean	demorecording;
+	qboolean	demowaiting;	// don't record until a non-delta message is received
+	fileHandle_t	demofile;
+	clientSnapshot_t *olddemoframe;
+
 	// cullentities
 	int		tracetimer[MAX_GENTITIES];
 	vec3_t	lasttrace[MAX_GENTITIES];
@@ -281,6 +289,7 @@ extern	cvar_t	*sv_floodProtect;
 extern	cvar_t	*sv_lanForceRate;
 extern	cvar_t	*sv_strictAuth;
 extern	cvar_t	*sv_banFile;
+extern	cvar_t	*sv_autorecord;
 extern	cvar_t	*sv_antiwallhack;
 extern	cvar_t	*sv_heartbeat;
 extern	cvar_t	*sv_flatline;
@@ -356,12 +365,15 @@ void SV_WriteVoipToClient( client_t *cl, msg_t *msg );
 // sv_ccmds.c
 //
 void SV_Heartbeat_f( void );
+void SVCL_WriteDemoMessage( client_t *cl, msg_t *msg, int headerBytes );
+void CL_Record( client_t *cl, char *s );
+void CL_StopRecord( client_t *cl );
 
 //
 // sv_snapshot.c
 //
 void SV_AddServerCommand( client_t *client, const char *cmd );
-void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg );
+void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg, msg_t *msg_demo );
 void SV_WriteFrameToClient (client_t *client, msg_t *msg);
 void SV_SendMessageToClient( msg_t *msg, client_t *client );
 void SV_SendClientMessages( void );

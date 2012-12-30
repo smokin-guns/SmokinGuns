@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2012 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -1708,6 +1708,7 @@ Append information about this game to the log file
 void LogExit( const char *string ) {
 	int				i, numSorted;
 	gclient_t		*cl;
+	qtime_t q;
 #ifndef SMOKINGUNS
 	qboolean won = qtrue;
 #endif
@@ -1730,6 +1731,8 @@ void LogExit( const char *string ) {
 			level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE] );
 	}
 
+	trap_RealTime(&q);
+
 	for (i=0 ; i < numSorted ; i++) {
 		int		ping;
 
@@ -1744,7 +1747,8 @@ void LogExit( const char *string ) {
 
 		ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
 
-		G_LogPrintf( "score: %i  ping: %i  client: %i %s\n", cl->ps.persistant[PERS_SCORE], ping, level.sortedClients[i],	cl->pers.netname );
+		// TheDoctor: patch demo: extended score log entry for demo recording
+		G_LogPrintf( "score: %i  ping: %i  client: %i  date: %s  name: %s\n", cl->ps.persistant[PERS_SCORE], ping, level.sortedClients[i], va("%02i.%02i.%04i %02i:%02i", q.tm_mday, q.tm_mon+1, 1900+q.tm_year,q.tm_hour,q.tm_min), cl->pers.netname );
 #ifndef SMOKINGUNS
 		if (g_singlePlayer.integer && g_gametype.integer == GT_TOURNAMENT) {
 			if (g_entities[cl - level.clients].r.svFlags & SVF_BOT && cl->ps.persistant[PERS_RANK] == 0) {
