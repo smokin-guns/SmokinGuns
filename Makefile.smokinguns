@@ -1,6 +1,6 @@
 ########################################################################
 # Based on ioQuake3 commit see https://github.com/ioquake/ioq3
-IOQ3_GITHUB_COMMIT = 543812ae84
+IOQ3_GITHUB_COMMIT = f6c98fd29f
 ########################################################################
 ifeq ($(BUILD_CLIENT),)
   # Build client by default
