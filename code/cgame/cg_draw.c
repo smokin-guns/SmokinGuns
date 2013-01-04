@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2012 Smokin' Guns
+Copyright (C) 2005-2013 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -933,6 +933,36 @@ static float CG_DrawAttacker( float y ) {
 #endif
 
 /*
+================
+CG_DrawSpeedMeter
+By TheDoctor
+================
+*/
+static float CG_DrawSpeedMeter( float y ) {
+	char        *s;
+	int         w;
+	vec_t       *vel;
+	int         speed;
+	
+	/* speed meter can get in the way of the scoreboard */
+	if ( cg.scoreBoardShowing ) {
+		return y;
+	}
+
+	vel = cg.snap->ps.velocity;
+	/* ignore vertical component of velocity */
+	speed = sqrt(vel[0] * vel[0] + vel[1] * vel[1]);
+
+	s = va( "%iu/s", speed );
+
+	w = CG_DrawStrlen( s ) * 11;
+
+	CG_Text_Paint(640-w, y + 5 + BIGCHAR_HEIGHT, 0.4f, colorWhite, s, 0, 0, 3);
+	return y + BIGCHAR_HEIGHT + 4;
+}
+
+
+/*
 ==================
 CG_DrawSnapshot
 ==================
@@ -1542,7 +1572,9 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 	if ( cg_drawTimer.integer ) {
 		y = CG_DrawTimer( y );
 	}
-#ifdef SMOKINGUNS
+	if ( cg_drawspeed.integer ) {
+		y = CG_DrawSpeedMeter( y );
+	}
 	if ( cg_drawdebug.integer ) {
 	// Draw debug info on the upper right
 		y = CG_DrawDebugCvars( y );
@@ -1551,7 +1583,7 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 	}
 
 	y = CG_DrawDeathMessages( y );
-#else
+#ifndef SMOKINGUNS
 	if ( cg_drawAttacker.integer ) {
 		y = CG_DrawAttacker( y );
 	}
