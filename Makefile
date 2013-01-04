@@ -1170,10 +1170,10 @@ ifndef SDK_GAME
 	@echo "Building ioquake3 in $(B):"
 else
 	@echo "Building $(SDK_GAME) in $(B):"
-  ifdef IOQ3_REVISION
-# IOQ3_REVISION can be defined in Makefile.local for SDK_GAMENAME mainteners
-# to keep trace of the ioquake3 supported revision
-	@echo "  IOQ3_REVISION: $(IOQ3_REVISION)"
+  ifdef IOQ3_GITHUB_COMMIT
+# IOQ3_GITHUB_COMMIT can be defined in Makefile.local for SDK_GAMENAME maintainers
+# to keep trace of the ioquake3 supported upstream
+	@echo "  IOQ3_COMMIT: $(IOQ3_GITHUB_COMMIT)"
   endif
 endif
 	@echo "  PLATFORM: $(PLATFORM)"

@@ -1,6 +1,7 @@
 ########################################################################
 # Based on ioQuake3 revision
 IOQ3_REVISION = 1993
+IOQ3_GITHUB_COMMIT = c7a68bf283
 ########################################################################
 ifeq ($(BUILD_CLIENT),)
   # Build client by default
