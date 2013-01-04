@@ -168,6 +168,14 @@ ifndef USE_OLD_VM64
 USE_OLD_VM64=0
 endif
 
+ifndef FRAMEBUFFER_AND_GLSL_SUPPORT
+FRAMEBUFFER_AND_GLSL_SUPPORT=0
+endif
+
+ifndef BUILD_SDK_DIFF
+SDK_DIFF=0
+endif
+
 #############################################################################
 
 BD=$(BUILD_DIR)/debug-$(PLATFORM)-$(ARCH)
