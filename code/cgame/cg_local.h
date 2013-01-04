@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2003 Iron Claw Interactive
-Copyright (C) 2005-2012 Smokin' Guns
+Copyright (C) 2005-2013 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -1822,6 +1822,8 @@ extern	vmCvar_t		cg_debug;
 extern	vmCvar_t		cg_glowflares;
 extern	vmCvar_t		cg_boostfps;
 extern	vmCvar_t		cg_drawdebug;
+extern	vmCvar_t		cg_drawspeed;
+
 
 //extern	vmCvar_t		cg_teamredcount;
 //extern	vmCvar_t		cg_teambluecount;
