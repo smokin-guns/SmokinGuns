@@ -639,7 +639,7 @@ qboolean FS_FileInPathExists(const char *testpath)
 {
 	FILE *filep;
 
-	filep = fopen(testpath, "rb");
+	filep = fopeni(testpath, "rb");
 	
 	if(filep)
 	{
@@ -1196,7 +1196,7 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
 			dir = search->dir;
 		
 			netpath = FS_BuildOSPath(dir->path, dir->gamedir, filename);
-			filep = fopen (netpath, "rb");
+			filep = fopeni (netpath, "rb");
 
 			if(filep)
 			{
@@ -1331,7 +1331,7 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
 		dir = search->dir;
 
 		netpath = FS_BuildOSPath(dir->path, dir->gamedir, filename);
-		filep = fopen(netpath, "rb");
+		filep = fopeni(netpath, "rb");
 
 		if (filep == NULL)
 		{
