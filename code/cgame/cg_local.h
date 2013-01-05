@@ -487,6 +487,7 @@ typedef struct {
 	
 	byte c1RGBA[4];
 	byte c2RGBA[4];
+#endif
 
 	int				score;			// updated by score servercmds
 	int				location;		// location index for team mode
