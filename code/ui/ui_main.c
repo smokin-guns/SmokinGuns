@@ -98,8 +98,7 @@ static const char *teamArenaGameTypes[] = {
 	"CTF",
 	"1FCTF",
 	"OVERLOAD",
-	"HARVESTER",
-	"TEAMTOURNAMENT"
+	"HARVESTER"
 #else
 	"DM",
 	"DUEL",
