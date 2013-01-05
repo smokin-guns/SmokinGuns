@@ -402,7 +402,7 @@ void SCR_DrawVoipSender( void ) {
 
 	if (!cl_voipShowSender->integer)
 		return; // They don't want this on :(
-	else if (cls.state != CA_ACTIVE)
+	else if (clc.state != CA_ACTIVE)
 		return;  // not connected to a server.
 	else if (!cl_connectedToVoipServer)
 		return;  // server doesn't support VoIP.
