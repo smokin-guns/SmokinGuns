@@ -95,15 +95,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #define HOMEPATH_NAME_MACOSX		PRODUCT_SHORTNAME
   // We support LEGACY_PROTOCOL 68 with 1.2, but this will removed on a later
   // release. We just want 1.2 client can connect to 1.1 server until all online
-  // server supports PROTOCOL 69
+  // server supports PROTOCOL 70
   #define LEGACY_PROTOCOL
 
   // PRODUCT_VERSION will be used for sg_version cvar
   #ifndef PRODUCT_VERSION
-    #define PRODUCT_VERSION	"1.1"
+    #define PRODUCT_VERSION	"1.2"
   #endif
   #ifndef SG_RELEASE
-    #define SG_RELEASE	20120528
+    #define SG_RELEASE	20130106
   #endif
 
   #ifndef XSTRING
