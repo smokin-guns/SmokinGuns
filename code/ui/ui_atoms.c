@@ -156,7 +156,14 @@ void UI_LoadBestScores(const char *map, int game)
 	fileHandle_t f;
 	postGameInfo_t newInfo;
 	int protocol, protocolLegacy;
-	
+
+#ifdef SMOKINGUNS
+	// Tequila: Minor fix to not try to load anything when map is not defined here
+	//          In some case that's involves not critical bad file loading tries
+	if (map==NULL)
+		return ;
+#endif
+
 	memset(&newInfo, 0, sizeof(postGameInfo_t));
 	Com_sprintf(fileName, MAX_QPATH, "games/%s_%i.game", map, game);
 	if (trap_FS_FOpenFile(fileName, &f, FS_READ) >= 0) {
