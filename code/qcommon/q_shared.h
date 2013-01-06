@@ -93,6 +93,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #define HOMEPATH_NAME_UNIX		".smokinguns"
   #define HOMEPATH_NAME_WIN			PRODUCT_NAME
   #define HOMEPATH_NAME_MACOSX		PRODUCT_SHORTNAME
+  // We support LEGACY_PROTOCOL 68 with 1.2, but this will removed on a later
+  // release. We just want 1.2 client can connect to 1.1 server until all online
+  // server supports PROTOCOL 69
+  #define LEGACY_PROTOCOL
 
   // PRODUCT_VERSION will be used for sg_version cvar
   #ifndef PRODUCT_VERSION
