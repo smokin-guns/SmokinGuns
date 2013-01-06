@@ -340,7 +340,7 @@ void R_GLSLProgs_Init( void ) {
 	while (i--) {
 		len = -1;
 
-		if (com_developer && com_developer->integer) {
+		if (ri.Cvar_VariableIntegerValue("com_developer")) {
 			len = ri.FS_ReadFile( va("%s.cfg",glsl_progs[i].name), &buffer );
 		}
 
@@ -363,7 +363,7 @@ void R_GLSLProgs_Init( void ) {
 				program[len]=0;
 				glsl_progs[i].program = (char *)program;
 				ri.Printf( PRINT_ALL, "Loaded %s GLSL program (%i bytes)\n", glsl_progs[i].name, len );
-				if (com_developer && com_developer->integer) {
+				if (ri.Cvar_VariableIntegerValue("com_developer")) {
 					ri.Printf( PRINT_DEVELOPER, "==== %s GLSL source ====\n%s\n", glsl_progs[i].name, glsl_progs[i].program );
 				}
 			}

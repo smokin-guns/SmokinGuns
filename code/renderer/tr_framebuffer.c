@@ -588,7 +588,7 @@ void printShaderInfoLog(GLuint obj)
 		infoLog = (char *)ri.Malloc(infologLength);
 		qglGetShaderInfoLog(obj, infologLength, &charsWritten, infoLog);
 		ri.Printf( PRINT_ALL, "----- Shader InfoLog -----\n" );;
-		ri.Printf( PRINT_ALL, infoLog );
+		ri.Printf( PRINT_ALL, "%s\n", infoLog );
 		ri.Free(infoLog);
 	}
 }
@@ -606,7 +606,7 @@ void printProgramInfoLog(GLuint obj)
 		infoLog = (char *)ri.Malloc(infologLength);
 		qglGetProgramInfoLog(obj, infologLength, &charsWritten, infoLog);
 		ri.Printf( PRINT_ALL, "----- Program InfoLog -----\n" );;
-		ri.Printf( PRINT_ALL, infoLog );
+		ri.Printf( PRINT_ALL, "%s\n", infoLog );
 		ri.Free(infoLog);
 	}
 }
@@ -933,7 +933,7 @@ void R_FrameBuffer_Init( void ) {
 		framebufferSupported = qfalse;
 		ri.Cvar_Set("r_ext_framebuffer","0");
 		ri.Printf( PRINT_WARNING, "ERROR: Framebuffer rendering path disabled: Not enough color buffers available\n");
-		Cbuf_AddText( "vid_restart\n" ); // Reset the video without FBO
+		ri.Cmd_ExecuteText(EXEC_APPEND, "vid_restart"); // Reset the video without FBO
 		return;
 	}
 
@@ -968,7 +968,7 @@ void R_FrameBuffer_Init( void ) {
 		framebufferSupported = qfalse;
 		ri.Cvar_Set("r_ext_framebuffer","0");
 		ri.Printf( PRINT_WARNING, "ERROR: Framebuffer rendering path disabled: Framebuffer creation failed\n");
-		Cbuf_AddText( "vid_restart\n" ); // Reset the video without FBO
+		ri.Cmd_ExecuteText(EXEC_APPEND, "vid_restart"); // Reset the video without FBO
 		return;
 	}
 
