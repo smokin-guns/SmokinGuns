@@ -58,7 +58,9 @@ cvar_t	*cl_voipDefaultGain;
 cvar_t	*cl_voip;
 #endif
 
+#ifdef USE_RENDERER_DLOPEN
 cvar_t	*cl_renderer;
+#endif
 
 cvar_t	*cl_nodelta;
 cvar_t	*cl_debugMove;
