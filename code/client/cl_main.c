@@ -4270,6 +4270,10 @@ void CL_GlobalServers_f( void ) {
 				com_gamename->string, Cmd_Argv(2));
 		}
 	}
+#ifdef LEGACY_PROTOCOL
+	else if (!strcmp(Cmd_Argv(2), Cvar_VariableString("com_legacyprotocol")))
+		Com_sprintf(command, sizeof(command), "getservers %s", Cmd_Argv(2));
+#endif
 	else
 		Com_sprintf(command, sizeof(command), "getservers %s %s",
 			com_gamename->string, Cmd_Argv(2));

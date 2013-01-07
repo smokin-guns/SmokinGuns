@@ -7176,7 +7176,7 @@ static void RequestAllMasterServer(char *ptr)
 
 	for ( masterNum = 1 ; masterNum <= MAX_MASTER_SERVERS ; masterNum ++ )
 	{
-		trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %s full empty\n", masterNum, ptr));
+		trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %s full empty\n", masterNum-1, ptr));
 	}
 }
 
@@ -7225,7 +7225,7 @@ static void UI_StartServerRefresh(qboolean full)
 #endif
 
 		ptr = UI_Cvar_VariableString("debug_protocol");
-		if (!strlen(ptr)) {
+		if (strlen(ptr)) {
 #ifdef SMOKINGUNS
 			if ( ui_netSource.integer == UIAS_GLOBALS)
 				RequestAllMasterServer( ptr );
