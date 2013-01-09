@@ -1,6 +1,6 @@
 ########################################################################
 # Based on ioQuake3 commit see https://github.com/ioquake/ioq3
-IOQ3_GITHUB_COMMIT = b5eb31b4f6
+IOQ3_GITHUB_COMMIT = faa0cb04c1
 ########################################################################
 ifeq ($(BUILD_CLIENT),)
   # Build client by default
@@ -24,7 +24,7 @@ ifeq ($(BUILD_GAME_QVM),)
 endif
 ifeq ($(FRAMEBUFFER_AND_GLSL_SUPPORT),)
   # Build renderer with frambuffer and GLSL support by default
-  FRAMEBUFFER_AND_GLSL_SUPPORT = 1
+  FRAMEBUFFER_AND_GLSL_SUPPORT = 0
 endif
 ifeq ($(BUILD_SDK_DIFF),)
   BUILD_SDK_DIFF   = 1
