@@ -40,7 +40,7 @@ static void G_KnifeThink( gentity_t *self ) {
 		self->r.ownerNum, mask);
 
 	if(trace.fraction == 1){
-		self->s.groundEntityNum = -1;
+		self->s.groundEntityNum = ENTITYNUM_NONE;
 	}
 
 	if(level.time > self->wait)
