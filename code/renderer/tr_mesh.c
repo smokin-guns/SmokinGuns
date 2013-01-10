@@ -1,22 +1,21 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
 
-This file is part of Smokin' Guns.
+This file is part of Quake III Arena source code.
 
-Smokin' Guns is free software; you can redistribute it
+Quake III Arena source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Smokin' Guns is distributed in the hope that it will be
+Quake III Arena source code is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Smokin' Guns; if not, write to the Free Software
+along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
@@ -42,22 +41,22 @@ static float ProjectRadius( float r, vec3_t location )
 	p[1] = fabs( r );
 	p[2] = -dist;
 
-	projected[0] = p[0] * tr.viewParms.projectionMatrix[0] +
+	projected[0] = p[0] * tr.viewParms.projectionMatrix[0] + 
 		           p[1] * tr.viewParms.projectionMatrix[4] +
 				   p[2] * tr.viewParms.projectionMatrix[8] +
 				   tr.viewParms.projectionMatrix[12];
 
-	projected[1] = p[0] * tr.viewParms.projectionMatrix[1] +
+	projected[1] = p[0] * tr.viewParms.projectionMatrix[1] + 
 		           p[1] * tr.viewParms.projectionMatrix[5] +
 				   p[2] * tr.viewParms.projectionMatrix[9] +
 				   tr.viewParms.projectionMatrix[13];
 
-	projected[2] = p[0] * tr.viewParms.projectionMatrix[2] +
+	projected[2] = p[0] * tr.viewParms.projectionMatrix[2] + 
 		           p[1] * tr.viewParms.projectionMatrix[6] +
 				   p[2] * tr.viewParms.projectionMatrix[10] +
 				   tr.viewParms.projectionMatrix[14];
 
-	projected[3] = p[0] * tr.viewParms.projectionMatrix[3] +
+	projected[3] = p[0] * tr.viewParms.projectionMatrix[3] + 
 		           p[1] * tr.viewParms.projectionMatrix[7] +
 				   p[2] * tr.viewParms.projectionMatrix[11] +
 				   tr.viewParms.projectionMatrix[15];
@@ -135,7 +134,7 @@ static int R_CullModel( md3Header_t *header, trRefEntity_t *ent ) {
 			}
 		}
 	}
-
+	
 	// calculate a bounding box in the current coordinate system
 	for (i = 0 ; i < 3 ; i++) {
 		bounds[0][i] = oldFrame->bounds[0][i] < newFrame->bounds[0][i] ? oldFrame->bounds[0][i] : newFrame->bounds[0][i];
@@ -232,7 +231,7 @@ int R_ComputeLOD( trRefEntity_t *ent ) {
 	}
 
 	lod += r_lodbias->integer;
-
+	
 	if ( lod >= tr.currentModel->numLods )
 		lod = tr.currentModel->numLods - 1;
 	if ( lod < 0 )
@@ -309,7 +308,7 @@ void R_AddMD3Surfaces( trRefEntity_t *ent ) {
 	// when the surfaces are rendered, they don't need to be
 	// range checked again.
 	//
-	if ( (ent->e.frame >= tr.currentModel->md3[0]->numFrames)
+	if ( (ent->e.frame >= tr.currentModel->md3[0]->numFrames) 
 		|| (ent->e.frame < 0)
 		|| (ent->e.oldframe >= tr.currentModel->md3[0]->numFrames)
 		|| (ent->e.oldframe < 0) ) {
@@ -390,9 +389,9 @@ void R_AddMD3Surfaces( trRefEntity_t *ent ) {
 
 		// stencil shadows can't do personal models unless I polyhedron clip
 		if ( !personalModel
-			&& r_shadows->integer == 2
+			&& r_shadows->integer == 2 
 			&& fogNum == 0
-			&& !(ent->e.renderfx & ( RF_NOSHADOW | RF_DEPTHHACK ) )
+			&& !(ent->e.renderfx & ( RF_NOSHADOW | RF_DEPTHHACK ) ) 
 			&& shader->sort == SS_OPAQUE ) {
 			R_AddDrawSurf( (void *)surface, tr.shadowShader, 0, qfalse );
 		}

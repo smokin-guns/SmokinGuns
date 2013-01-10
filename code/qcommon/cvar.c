@@ -1,22 +1,21 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
 
-This file is part of Smokin' Guns.
+This file is part of Quake III Arena source code.
 
-Smokin' Guns is free software; you can redistribute it
+Quake III Arena source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Smokin' Guns is distributed in the hope that it will be
+Quake III Arena source code is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Smokin' Guns; if not, write to the Free Software
+along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
@@ -88,7 +87,7 @@ static cvar_t *Cvar_FindVar( const char *var_name ) {
 	long hash;
 
 	hash = generateHashValue(var_name);
-
+	
 	for (var=hashTable[hash] ; var ; var=var->hashNext) {
 		if (!Q_stricmp(var_name, var->name)) {
 			return var;
@@ -105,7 +104,7 @@ Cvar_VariableValue
 */
 float Cvar_VariableValue( const char *var_name ) {
 	cvar_t	*var;
-
+	
 	var = Cvar_FindVar (var_name);
 	if (!var)
 		return 0;
@@ -120,7 +119,7 @@ Cvar_VariableIntegerValue
 */
 int Cvar_VariableIntegerValue( const char *var_name ) {
 	cvar_t	*var;
-
+	
 	var = Cvar_FindVar (var_name);
 	if (!var)
 		return 0;
@@ -135,7 +134,7 @@ Cvar_VariableString
 */
 char *Cvar_VariableString( const char *var_name ) {
 	cvar_t *var;
-
+	
 	var = Cvar_FindVar (var_name);
 	if (!var)
 		return "";
@@ -150,7 +149,7 @@ Cvar_VariableStringBuffer
 */
 void Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize ) {
 	cvar_t *var;
-
+	
 	var = Cvar_FindVar (var_name);
 	if (!var) {
 		*buffer = 0;
@@ -330,7 +329,7 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 #endif
 
 	var = Cvar_FindVar (var_name);
-
+	
 	if(var)
 	{
 		var_value = Cvar_Validate(var, var_value, qfalse);
@@ -354,7 +353,7 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 				var->latchedString = CopyString(var_value);
 			}
 		}
-
+		
 		// Make sure the game code cannot mark engine-added variables as gamecode vars
 		if(var->flags & CVAR_VM_CREATED)
 		{
@@ -425,12 +424,12 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 
 		return NULL;
 	}
-
+	
 	var = &cvar_indexes[index];
-
+	
 	if(index >= cvar_numIndexes)
 		cvar_numIndexes = index + 1;
-
+		
 	var->name = CopyString (var_name);
 	var->string = CopyString (var_value);
 	var->modified = qtrue;
@@ -607,9 +606,9 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force ) {
 
 	var->modified = qtrue;
 	var->modificationCount++;
-
+	
 	Z_Free (var->string);	// free the old value string
-
+	
 	var->string = CopyString(value);
 	var->value = atof (var->string);
 	var->integer = atoi (var->string);

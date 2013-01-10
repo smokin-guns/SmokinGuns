@@ -1,22 +1,21 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
 
-This file is part of Smokin' Guns.
+This file is part of Quake III Arena source code.
 
-Smokin' Guns is free software; you can redistribute it
+Quake III Arena source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Smokin' Guns is distributed in the hope that it will be
+Quake III Arena source code is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Smokin' Guns; if not, write to the Free Software
+along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
@@ -99,7 +98,7 @@ float CM_DistanceFromLineSquared(vec3_t p, vec3_t lp1, vec3_t lp2, vec3_t dir) {
 	int j;
 
 	CM_ProjectPointOntoVector(p, lp1, dir, proj);
-	for (j = 0; j < 3; j++)
+	for (j = 0; j < 3; j++) 
 		if ((proj[j] > lp1[j] && proj[j] > lp2[j]) ||
 			(proj[j] < lp1[j] && proj[j] < lp2[j]))
 			break;
@@ -258,7 +257,7 @@ void CM_TestInLeaf( traceWork_t *tw, cLeaf_t *leaf ) {
 		if ( !(b->contents & tw->contents)) {
 			continue;
 		}
-
+		
 		CM_TestBoxInBrush( tw, b );
 		if ( tw->trace.allsolid ) {
 			return;
@@ -284,7 +283,7 @@ void CM_TestInLeaf( traceWork_t *tw, cLeaf_t *leaf ) {
 			if ( !(patch->contents & tw->contents)) {
 				continue;
 			}
-
+			
 			if ( CM_PositionTestInPatchCollide( tw, patch->pc ) ) {
 				tw->trace.startsolid = tw->trace.allsolid = qtrue;
 				tw->trace.fraction = 0;
@@ -644,7 +643,7 @@ void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
 		}
 		return;
 	}
-
+	
 	if (enterFrac < leaveFrac) {
 		if (enterFrac > -1 && enterFrac < tw->trace.fraction) {
 			if (enterFrac < 0) {
@@ -713,7 +712,7 @@ void CM_TraceThroughLeaf( traceWork_t *tw, cLeaf_t *leaf ) {
 			if ( !(patch->contents & tw->contents) ) {
 				continue;
 			}
-
+			
 			CM_TraceThroughPatch( tw, patch );
 			if ( !tw->trace.fraction ) {
 				return;
@@ -1106,7 +1105,7 @@ void CM_TraceThroughTree( traceWork_t *tw, int num, float p1f, float p2f, vec3_t
 	if ( frac > 1 ) {
 		frac = 1;
 	}
-
+		
 	midf = p1f + (p2f - p1f)*frac;
 
 	mid[0] = p1[0] + frac*(p2[0] - p1[0]);
@@ -1123,7 +1122,7 @@ void CM_TraceThroughTree( traceWork_t *tw, int num, float p1f, float p2f, vec3_t
 	if ( frac2 > 1 ) {
 		frac2 = 1;
 	}
-
+		
 	midf = p1f + (p2f - p1f)*frac2;
 
 	mid[0] = p1[0] + frac2*(p2[0] - p1[0]);
@@ -1413,7 +1412,7 @@ void CM_TransformedBoxTrace( trace_t *results, const vec3_t start, const vec3_t 
 	VectorSubtract( end_l, origin, end_l );
 
 	// rotate start and end into the models frame of reference
-	if ( model != BOX_MODEL_HANDLE &&
+	if ( model != BOX_MODEL_HANDLE && 
 		(angles[0] || angles[1] || angles[2]) ) {
 		rotated = qtrue;
 	} else {

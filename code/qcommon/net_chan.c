@@ -1,22 +1,21 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
 
-This file is part of Smokin' Guns.
+This file is part of Quake III Arena source code.
 
-Smokin' Guns is free software; you can redistribute it
+Quake III Arena source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Smokin' Guns is distributed in the hope that it will be
+Quake III Arena source code is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Smokin' Guns; if not, write to the Free Software
+along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
@@ -87,7 +86,7 @@ called to open a channel to a remote system
 void Netchan_Setup(netsrc_t sock, netchan_t *chan, netadr_t adr, int qport, int challenge, qboolean compat)
 {
 	Com_Memset (chan, 0, sizeof(*chan));
-
+	
 	chan->sock = sock;
 	chan->remoteAddress = adr;
 	chan->qport = qport;
@@ -250,7 +249,7 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 	// XOR unscramble all data in the packet after the header
 //	Netchan_UnScramblePacket( msg );
 
-	// get sequence numbers
+	// get sequence numbers		
 	MSG_BeginReadingOOB( msg );
 	sequence = MSG_ReadLong( msg );
 
@@ -327,11 +326,11 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 			, sequence );
 		}
 	}
-
+	
 
 	//
 	// if this is the final framgent of a reliable message,
-	// bump incoming_reliable_sequence
+	// bump incoming_reliable_sequence 
 	//
 	if ( fragmented ) {
 		// TTimo
@@ -365,7 +364,7 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 			return qfalse;
 		}
 
-		Com_Memcpy( chan->fragmentBuffer + chan->fragmentLength,
+		Com_Memcpy( chan->fragmentBuffer + chan->fragmentLength, 
 			msg->data + msg->readcount, fragmentLength );
 
 		chan->fragmentLength += fragmentLength;
@@ -396,7 +395,7 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 		// TTimo
 		// clients were not acking fragmented messages
 		chan->incomingSequence = sequence;
-
+		
 		return qtrue;
 	}
 
@@ -668,7 +667,7 @@ int NET_StringToAdr( const char *s, netadr_t *a, netadrtype_t family )
 			*port = '\0';
 			port++;
 		}
-
+		
 		search = base;
 	}
 

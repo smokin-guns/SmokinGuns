@@ -1,22 +1,21 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
 
-This file is part of Smokin' Guns.
+This file is part of Quake III Arena source code.
 
-Smokin' Guns is free software; you can redistribute it
+Quake III Arena source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Smokin' Guns is distributed in the hope that it will be
+Quake III Arena source code is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Smokin' Guns; if not, write to the Free Software
+along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
@@ -28,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 All bones should be an identity orientation to display the mesh exactly
 as it is specified.
 
-For all other frames, the bones represent the transformation from the
+For all other frames, the bones represent the transformation from the 
 orientation of the bone in the base frame to the orientation in this
 frame.
 
@@ -89,9 +88,9 @@ void RB_SurfaceAnim( md4Surface_t *surface ) {
 
 	frameSize = (size_t)( &((md4Frame_t *)0)->bones[ header->numBones ] );
 
-	frame = (md4Frame_t *)((byte *)header + header->ofsFrames +
+	frame = (md4Frame_t *)((byte *)header + header->ofsFrames + 
 			backEnd.currentEntity->e.frame * frameSize );
-	oldFrame = (md4Frame_t *)((byte *)header + header->ofsFrames +
+	oldFrame = (md4Frame_t *)((byte *)header + header->ofsFrames + 
 			backEnd.currentEntity->e.oldframe * frameSize );
 
 	RB_CheckOverflow( surface->numVerts, surface->numTriangles * 3 );

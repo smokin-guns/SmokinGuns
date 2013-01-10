@@ -1,22 +1,21 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
 
-This file is part of Smokin' Guns.
+This file is part of Quake III Arena source code.
 
-Smokin' Guns is free software; you can redistribute it
+Quake III Arena source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Smokin' Guns is distributed in the hope that it will be
+Quake III Arena source code is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Smokin' Guns; if not, write to the Free Software
+along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
@@ -427,7 +426,7 @@ static qboolean R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_
 		ri.Printf( PRINT_WARNING, "R_LoadMD3: %s has no frames\n", mod_name );
 		return qfalse;
 	}
-
+    
 	// swap all the frames
     frame = (md3Frame_t *) ( (byte *)mod->md3[lod] + mod->md3[lod]->ofsFrames );
     for ( i = 0 ; i < mod->md3[lod]->numFrames ; i++, frame++) {
@@ -465,7 +464,7 @@ static qboolean R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_
         LL(surf->ofsSt);
         LL(surf->ofsXyzNormals);
         LL(surf->ofsEnd);
-
+		
 		if ( surf->numVerts > SHADER_MAX_VERTEXES ) {
 			ri.Printf(PRINT_WARNING, "R_LoadMD3: %s has more than %i verts on a surface (%i).\n",
 				mod_name, SHADER_MAX_VERTEXES, surf->numVerts );
@@ -476,7 +475,7 @@ static qboolean R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_
 				mod_name, SHADER_MAX_INDEXES / 3, surf->numTriangles );
 			return qfalse;
 		}
-
+	
 		// change to surface identifier
 		surf->ident = SF_MD3;
 
@@ -520,7 +519,7 @@ static qboolean R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_
 
 		// swap all the XyzNormals
         xyz = (md3XyzNormal_t *) ( (byte *)surf + surf->ofsXyzNormals );
-        for ( j = 0 ; j < surf->numVerts * surf->numFrames ; j++, xyz++ )
+        for ( j = 0 ; j < surf->numVerts * surf->numFrames ; j++, xyz++ ) 
 		{
             xyz->xyz[0] = LittleShort( xyz->xyz[0] );
             xyz->xyz[1] = LittleShort( xyz->xyz[1] );
@@ -533,7 +532,7 @@ static qboolean R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_
 		// find the next surface
 		surf = (md3Surface_t *)( (byte *)surf + surf->ofsEnd );
 	}
-
+    
 	return qtrue;
 }
 
@@ -929,7 +928,7 @@ static qboolean R_LoadMD4( model_t *mod, void *buffer, const char *mod_name ) {
 	}
 
     // we don't need to swap tags in the renderer, they aren't used
-
+    
 	// swap all the frames
 	frameSize = (size_t)( &((md4Frame_t *)0)->bones[ md4->numBones ] );
     for ( i = 0 ; i < md4->numFrames ; i++) {
@@ -958,7 +957,7 @@ static qboolean R_LoadMD4( model_t *mod, void *buffer, const char *mod_name ) {
 			LL(surf->numVerts);
 			LL(surf->ofsVerts);
 			LL(surf->ofsEnd);
-
+			
 			if ( surf->numVerts > SHADER_MAX_VERTEXES ) {
 				ri.Printf(PRINT_WARNING, "R_LoadMD4: %s has more than %i verts on a surface (%i).\n",
 					mod_name, SHADER_MAX_VERTEXES, surf->numVerts );
@@ -975,7 +974,7 @@ static qboolean R_LoadMD4( model_t *mod, void *buffer, const char *mod_name ) {
 
 			// lowercase the surface name so skin compares are faster
 			Q_strlwr( surf->name );
-
+		
 			// register the shaders
 			sh = R_FindShader( surf->shader, LIGHTMAP_NONE, qtrue );
 			if ( sh->defaultShader ) {
@@ -1189,7 +1188,7 @@ void R_GetAnimTag( mdrHeader_t *mod, int framenum, const char *tagName, md3Tag_t
 R_LerpTag
 ================
 */
-int R_LerpTag( orientation_t *tag, qhandle_t handle, int startFrame, int endFrame,
+int R_LerpTag( orientation_t *tag, qhandle_t handle, int startFrame, int endFrame, 
 					 float frac, const char *tagName ) {
 	md3Tag_t	*start, *end;
 #ifdef RAVENMD4
@@ -1234,7 +1233,7 @@ int R_LerpTag( orientation_t *tag, qhandle_t handle, int startFrame, int endFram
 			return qfalse;
 		}
 	}
-
+	
 	frontLerp = frac;
 	backLerp = 1.0f - frac;
 
@@ -1264,7 +1263,7 @@ void R_ModelBounds( qhandle_t handle, vec3_t mins, vec3_t maxs ) {
 	if(model->type == MOD_BRUSH) {
 		VectorCopy( model->bmodel->bounds[0], mins );
 		VectorCopy( model->bmodel->bounds[1], maxs );
-
+		
 		return;
 	} else if (model->type == MOD_MESH) {
 		md3Header_t	*header;
@@ -1275,7 +1274,7 @@ void R_ModelBounds( qhandle_t handle, vec3_t mins, vec3_t maxs ) {
 
 		VectorCopy( frame->bounds[0], mins );
 		VectorCopy( frame->bounds[1], maxs );
-
+		
 		return;
 	} else if (model->type == MOD_MD4) {
 		md4Header_t	*header;
@@ -1286,7 +1285,7 @@ void R_ModelBounds( qhandle_t handle, vec3_t mins, vec3_t maxs ) {
 
 		VectorCopy( frame->bounds[0], mins );
 		VectorCopy( frame->bounds[1], maxs );
-
+		
 		return;
 #ifdef RAVENMD4
 	} else if (model->type == MOD_MDR) {
@@ -1298,12 +1297,12 @@ void R_ModelBounds( qhandle_t handle, vec3_t mins, vec3_t maxs ) {
 
 		VectorCopy( frame->bounds[0], mins );
 		VectorCopy( frame->bounds[1], maxs );
-
+		
 		return;
 #endif
 	} else if(model->type == MOD_IQM) {
 		iqmData_t *iqmData;
-
+		
 		iqmData = model->modelData;
 
 		if(iqmData->bounds)

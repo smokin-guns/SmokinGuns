@@ -1,22 +1,21 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
 
-This file is part of Smokin' Guns.
+This file is part of Quake III Arena source code.
 
-Smokin' Guns is free software; you can redistribute it
+Quake III Arena source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Smokin' Guns is distributed in the hope that it will be
+Quake III Arena source code is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Smokin' Guns; if not, write to the Free Software
+along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
@@ -94,7 +93,7 @@ portable_samplepair_t s_rawsamples[MAX_RAW_STREAMS][MAX_RAW_SAMPLES];
 // ====================================================================
 
 
-void S_Base_SoundInfo(void) {
+void S_Base_SoundInfo(void) {	
 	Com_Printf("----- Sound Info -----\n" );
 	if (!s_soundStarted) {
 		Com_Printf ("sound system not started\n");
@@ -210,7 +209,7 @@ void S_ChannelSetup( void ) {
 	while (--q > p) {
 		*(channel_t **)q = q-1;
 	}
-
+	
 	*(channel_t **)q = NULL;
 	freelist = p + MAX_CHANNELS - 1;
 	Com_DPrintf("Channel memory manager started\n");
@@ -296,7 +295,7 @@ static sfx_t *S_FindName( const char *name ) {
 		}
 		s_numSfx++;
 	}
-
+	
 	sfx = &s_knownSfx[i];
 	Com_Memset (sfx, 0, sizeof(*sfx));
 	strcpy (sfx->soundName, name);
@@ -313,7 +312,7 @@ S_DefaultSound
 =================
 */
 void S_DefaultSound( sfx_t *sfx ) {
-
+	
 	int		i;
 
 	sfx->soundLength = 512;
@@ -427,7 +426,7 @@ void S_SpatializeOrigin (vec3_t origin, int master_vol, int *left_vol, int *righ
     vec3_t		vec;
 
 	const float dist_mult = SOUND_ATTENUATE;
-
+	
 	// calculate stereo seperation and distance attenuation
 	VectorSubtract(origin, listener_origin, source_vec);
 
@@ -436,7 +435,7 @@ void S_SpatializeOrigin (vec3_t origin, int master_vol, int *left_vol, int *righ
 	if (dist < 0)
 		dist = 0;			// close enough to be at full volume
 	dist *= dist_mult;		// different attenuation levels
-
+	
 	VectorRotate( source_vec, listener_axis, vec );
 
 	dot = -vec[1];
@@ -568,7 +567,7 @@ static void S_Base_StartSoundEx( vec3_t origin, int entityNum, int entchannel, s
 
 	ch = s_channels;
 	inplay = 0;
-	for ( i = 0; i < MAX_CHANNELS ; i++, ch++ ) {
+	for ( i = 0; i < MAX_CHANNELS ; i++, ch++ ) {		
 		if (ch->entnum == entityNum && ch->thesfx == sfx) {
 			if (time - ch->allocTime < 50) {
 //				if (Cvar_VariableValue( "cg_showmiss" )) {
@@ -684,7 +683,7 @@ so sound doesn't stutter.
 */
 void S_Base_ClearSoundBuffer( void ) {
 	int		clear;
-
+		
 	if (!s_soundStarted)
 		return;
 
@@ -915,14 +914,14 @@ void S_AddLoopSounds (void) {
 
 		// allocate a channel
 		ch = &loop_channels[numLoopChannels];
-
+		
 		if (left_total > 255) {
 			left_total = 255;
 		}
 		if (right_total > 255) {
 			right_total = 255;
 		}
-
+		
 		ch->master_vol = 127;
 		ch->leftvol = left_total;
 		ch->rightvol = right_total;
@@ -1124,7 +1123,7 @@ void S_Base_Respatialize( int entityNum, const vec3_t head, vec3_t axis[3], int 
 	VectorCopy(axis[1], listener_axis[1]);
 	VectorCopy(axis[2], listener_axis[2]);
 
-	// update spatialization for dynamic sounds
+	// update spatialization for dynamic sounds	
 	ch = s_channels;
 	for ( i = 0 ; i < MAX_CHANNELS ; i++, ch++ ) {
 		if ( !ch->thesfx ) {
@@ -1216,7 +1215,7 @@ void S_Base_Update( void ) {
 				total++;
 			}
 		}
-
+		
 		Com_Printf ("----(%i)---- painted: %i\n", total, s_paintedtime);
 	}
 
@@ -1233,7 +1232,7 @@ void S_GetSoundtime(void)
 	static	int		buffers;
 	static	int		oldsamplepos;
 	int		fullsamples;
-
+	
 	fullsamples = dma.samples / dma.channels;
 
 	if( CL_VideoRecording( ) )
@@ -1248,7 +1247,7 @@ void S_GetSoundtime(void)
 	if (samplepos < oldsamplepos)
 	{
 		buffers++;					// buffer wrapped
-
+		
 		if (s_paintedtime > 0x40000000)
 		{	// time to chop things off to avoid 32 bit limits
 			buffers = 0;

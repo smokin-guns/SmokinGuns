@@ -22,13 +22,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 /*****************************************************************************
-* name:		be_ai_move.c
-*
-* desc:		bot movement AI
-*
-* $Archive: /source/stable/code/botlib/be_ai_move.c $
-*
-*****************************************************************************/
+ * name:		be_ai_move.c
+ *
+ * desc:		bot movement AI
+ *
+ * $Archive: /MissionPack/code/botlib/be_ai_move.c $
+ *
+ *****************************************************************************/
 
 #include "../qcommon/q_shared.h"
 #include "l_memory.h"
