@@ -2486,8 +2486,6 @@ void CG_PlayTalkSound(void);
 
 int CG_Cvar_VariableInteger(const char *cvar);
 void CG_SetupFrustum( void );
-int CG_CullPointAndRadius(vec3_t pt, float radius);
-int CG_CullBoundingBox(vec3_t box_vertex[8]);
 qboolean CG_IsEntityVisible(centity_t *cent, vec_t max_sight);
 qboolean CG_IsLocalEntityVisible(localEntity_t *lent, vec_t max_sight);
 qboolean CG_EntityVectors(centity_t *cent, vec3_t origin, vec3_t box_vertex[8]);

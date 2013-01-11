@@ -1327,7 +1327,7 @@ Imported from Q3 Engine ./code/renderer/tr_main.c
 Returns CULL_IN, CULL_CLIP, or CULL_OUT
 =================
 */
-int CG_CullPointAndRadius(vec3_t pt, float radius) {
+static int CG_CullPointAndRadius(vec3_t pt, float radius) {
 	int		i;
 	float	dist;
 	cplane_t	*frust;
@@ -1363,7 +1363,7 @@ Imported from Q3 Engine ./code/renderer/tr_main.c
 Returns CULL_IN, CULL_CLIP, or CULL_OUT
 =================
 */
-int CG_CullBoundingBox(vec3_t box_vertex[8]) {
+static int CG_CullBoundingBox(vec3_t box_vertex[8]) {
 	int		i, j;
 	float	dists[8];
 	cplane_t	*frust;
