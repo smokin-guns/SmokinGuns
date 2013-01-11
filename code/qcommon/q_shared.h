@@ -1303,7 +1303,7 @@ typedef struct playerState_s {
 #ifdef SMOKINGUNS_MOD	// Only used by SG mod
 	int			oldbuttons;
 #endif
-	int			pmove_framecount;	// FIXME: don't transmit over the network
+	int			pmove_framecount;
 #ifndef SMOKINGUNS_MOD	// Not used by SG mod
 	int			jumppad_frame;
 #endif
