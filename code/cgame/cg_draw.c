@@ -3799,7 +3799,7 @@ static void CG_SetupItemMenu(void){
 			(item->giTag == PW_BELT && cg.snap->ps.powerups[PW_BELT] && item->giType == IT_POWERUP) ||
 			(item->giType == IT_ARMOR && cg.snap->ps.stats[STAT_ARMOR])||
 			(item->giType == IT_POWERUP && item->giTag == PW_SCOPE && cg.snap->ps.powerups[PW_SCOPE]) ||
-			(((item->giTag == WP_DYNAMITE || item->giTag == WP_KNIFE || WP_MOLOTOV) && item->giType == IT_WEAPON) &&
+			(((item->giTag == WP_DYNAMITE || item->giTag == WP_KNIFE || item->giTag == WP_MOLOTOV) && item->giType == IT_WEAPON) &&
 			cg.snap->ps.ammo[item->giTag] >= bg_weaponlist[item->giTag].maxAmmo)))
 		{
 			menu_items[count].inventory = qtrue;
@@ -4135,13 +4135,14 @@ static void CG_DrawBuyMenu( void ) {
 					&& item->weapon_sort != WS_MISC){
 					return;
 				}
+			} else {
+				if(item->giTag == PW_BELT && cg.snap->ps.powerups[PW_BELT])
+					return;
+				if(item->giType == IT_ARMOR && cg.snap->ps.stats[STAT_ARMOR])
+					return;
+				if(item->giTag == PW_SCOPE && cg.snap->ps.powerups[PW_SCOPE])
+					return;
 			}
-			if(item->giTag == PW_BELT && cg.snap->ps.powerups[PW_BELT])
-				return;
-			if(item->giType == IT_ARMOR && cg.snap->ps.stats[STAT_ARMOR])
-				return;
-			if(item->giTag == PW_SCOPE && cg.snap->ps.powerups[PW_SCOPE])
-				return;
 
 			trap_SendConsoleCommand(va("cg_buy %s\n", item->classname));
 //			trap_S_StartSound(NULL, cg.snap->ps.clientNum, CHAN_WEAPON, cgs.media.buySound);
