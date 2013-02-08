@@ -1575,6 +1575,10 @@ void CL_RequestMotd( void ) {
 	Com_Printf( "Resolving %s\n", UPDATE_SERVER_NAME );
 	if ( !NET_StringToAdr( UPDATE_SERVER_NAME, &cls.updateServer, NA_IP ) ) {
 		Com_Printf( "Couldn't resolve address\n" );
+#ifdef SMOKINGUNS
+		end = Sys_Milliseconds();
+		Com_Printf( "Failed to resolve %s after %i msec\n", UPDATE_SERVER_NAME, end - start );
+#endif
 		return;
 	}
 	cls.updateServer.port = BigShort( PORT_UPDATE );
@@ -1664,6 +1668,10 @@ void CL_RequestAuthorization( void ) {
 #ifndef SMOKINGUNS
 	char	nums[64];
 	int		i, j, l;
+#else
+	int		start, end;
+
+	start = Sys_Milliseconds();
 #endif
 	cvar_t	*fs;
 
@@ -1671,6 +1679,10 @@ void CL_RequestAuthorization( void ) {
 		Com_Printf( "Resolving %s\n", AUTHORIZE_SERVER_NAME );
 		if ( !NET_StringToAdr( AUTHORIZE_SERVER_NAME, &cls.authorizeServer, NA_IP ) ) {
 			Com_Printf( "Couldn't resolve address\n" );
+#ifdef SMOKINGUNS
+			end = Sys_Milliseconds();
+			Com_Printf( "Failed to resolve %s after %i msec\n", AUTHORIZE_SERVER_NAME, end - start );
+#endif
 			return;
 		}
 
@@ -1681,6 +1693,10 @@ void CL_RequestAuthorization( void ) {
 			BigShort( cls.authorizeServer.port ) );
 	}
 	if ( cls.authorizeServer.type == NA_BAD ) {
+#ifdef SMOKINGUNS
+		end = Sys_Milliseconds();
+		Com_Printf( "Skipping requesting authorization to %s after %i msec\n", AUTHORIZE_SERVER_NAME, end - start );
+#endif
 		return;
 	}
 
@@ -1711,6 +1727,9 @@ void CL_RequestAuthorization( void ) {
 	fs = Cvar_Get ("sa_engine_inuse", "1", CVAR_ROM );
 
 	NET_OutOfBandPrint(NS_CLIENT, cls.authorizeServer, "getClientAuthorize %i \"%s\"", fs->integer, Cvar_InfoString(CVAR_USERINFO));
+
+	end = Sys_Milliseconds();
+	Com_Printf( "CL_RequestAuthorization: %i msec\n", end - start );
 #endif
 }
 #endif

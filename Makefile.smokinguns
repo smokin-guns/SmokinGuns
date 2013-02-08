@@ -77,7 +77,7 @@ BASEGAME_CFLAGS = -DSMOKINGUNS -DPRODUCT_RELEASE=\"$(RELEASE)\" -DPRODUCT_VERSIO
 #BASEGAME_CFLAGS += -DFS_MISSING -DFS_FOPENI
 
 # Tequila: Fixed svn support for file using Q3_VERSION define
-SDK_OBJ_USING_SVN = \
+SDK_OBJ_WITH_VERSION_SUPPORT = \
 	$(B)/ded/common.o \
 	$(B)/ded/sys_main.o \
 	$(B)/ded/sys_unix.o \

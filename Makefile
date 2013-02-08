@@ -2472,11 +2472,16 @@ ifeq ($(USE_GIT),1)
   $(B)/client/cl_console.o : .git/index
   $(B)/client/common.o : .git/index
   $(B)/ded/common.o : .git/index
-ifneq ($(SDK_OBJ_USING_SVN),)
-  $(SDK_OBJ_USING_SVN): .git/index
+ifneq ($(SDK_OBJ_WITH_VERSION_SUPPORT),)
+  $(SDK_OBJ_WITH_VERSION_SUPPORT): .git/index
 endif
 endif
 
+# Extra dependencies to ensure sdk diff if included
+ifneq ($(SDK_DIFF),0)
+  $(B)/client/cl_main.o : build/sdk_diff.h
+  $(B)/client/sys_main.o : build/sdk_diff.h
+endif
 
 #############################################################################
 ## GAME MODULE RULES
