@@ -794,7 +794,7 @@ wall:
 
 		// look if the weapon is able to shoot through the wall
 		shootthru = BG_ShootThruWall(&damage, tr.endpos, muzzle, tr.surfaceFlags, endpos,
-			trap_Trace_New);
+			trap_Trace);
 	}
 	// Avoid compilation warning
 	if (tent) {
@@ -1409,7 +1409,7 @@ void weapon_dynamite_fire (gentity_t *ent) {
 	VectorSet(maxs, 8, 8, 8);
 
 	do {
-		trap_Trace_New( &tr, muzzle, mins, maxs, muzzle, -1, MASK_SOLID );
+		trap_Trace( &tr, muzzle, mins, maxs, muzzle, -1, MASK_SOLID );
 
 		if(tr.startsolid){
 			// A solid is detected, move forward the starting vector position
@@ -1442,7 +1442,7 @@ void weapon_molotov_fire (gentity_t *ent) {
 	VectorSet(maxs, 8, 8, 8);
 
 	do {
-		trap_Trace_New( &tr, muzzle, mins, maxs, muzzle, -1, MASK_SOLID );
+		trap_Trace( &tr, muzzle, mins, maxs, muzzle, -1, MASK_SOLID );
 
 		if(tr.startsolid){
 			// A solid is detected, move forward the starting vector position

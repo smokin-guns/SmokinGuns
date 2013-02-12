@@ -317,7 +317,7 @@ void G_TouchTriggers( gentity_t *ent ) {
 				muzzle[2] = hit->r.currentOrigin[2];
 
 				//find the nearest obstacle
-				trap_Trace_New (&tr, muzzle, NULL, NULL, hit->r.currentOrigin, ent->client->ps.clientNum, MASK_SHOT);
+				trap_Trace(&tr, muzzle, NULL, NULL, hit->r.currentOrigin, ent->client->ps.clientNum, MASK_SHOT);
 
 				dist1 = Distance(muzzle, tr.endpos);
 				dist2 = Distance(muzzle, hit->r.currentOrigin);

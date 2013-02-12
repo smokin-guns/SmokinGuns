@@ -447,7 +447,7 @@ static void Gatling_Think( gentity_t *self) {
 	} else {
 		trace_t trace;
 
-		trap_Trace_New(&trace, self->r.currentOrigin, gatling_mins, gatling_maxs,
+		trap_Trace(&trace, self->r.currentOrigin, gatling_mins, gatling_maxs,
 			self->r.currentOrigin, self->s.number, CONTENTS_BODY);
 
 		if((trace.allsolid || trace.startsolid) && trace.entityNum < MAX_CLIENTS){
@@ -554,7 +554,7 @@ void G_GatlingBuildUp( gentity_t *ent ) {
 
 	// check if gatling can be built up on this terrain (must be almost planar)
 	/*if(!BG_PlanarCheck(ent->r.currentOrigin, client->ps.clientNum,
-		ent->r.mins, ent->r.maxs, trap_Trace_New) ){
+		ent->r.mins, ent->r.maxs, trap_Trace) ){
 		return;
 	}*/ // planar check is done in pmove now
 
@@ -617,7 +617,7 @@ qboolean G_CanEntityBeActivated(gentity_t *player, gentity_t *target, qboolean e
 	VectorMA (muzzle, 8192, forward, end);
 
 	//find the nearest obstacle in the line
-	trap_Trace_New (&tr, muzzle, NULL, NULL, end, player->client->ps.clientNum, MASK_SHOT);
+	trap_Trace(&tr, muzzle, NULL, NULL, end, player->client->ps.clientNum, MASK_SHOT);
 
 	if(tr.entityNum != target->s.number){
 		return qfalse;

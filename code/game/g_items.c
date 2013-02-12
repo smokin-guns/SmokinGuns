@@ -959,11 +959,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 
 		// drop to floor
 		VectorSet( dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096 );
-#ifndef SMOKINGUNS
 		trap_Trace( &tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID );
-#else
-		trap_Trace_New( &tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID );
-#endif
 
 		if ( tr.startsolid ) {
 #ifndef SMOKINGUNS
@@ -972,7 +968,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 			return;
 #else
 			if(ent->item->giType == IT_POWERUP && ent->item->giTag == PW_GOLD){
-				trap_Trace_New( &tr, ent->s.origin, mins, maxs, dest, ent->s.number, MASK_SOLID );
+				trap_Trace( &tr, ent->s.origin, mins, maxs, dest, ent->s.number, MASK_SOLID );
 			}
 
 			if(tr.startsolid){
@@ -1336,11 +1332,7 @@ void G_RunItem( gentity_t *ent ) {
 	} else {
 		mask = MASK_PLAYERSOLID & ~CONTENTS_BODY;//MASK_SOLID;
 	}
-#ifndef SMOKINGUNS
 	trap_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin,
-#else
-	trap_Trace_New( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin,
-#endif
 		ent->r.ownerNum, mask );
 
 	VectorCopy( tr.endpos, ent->r.currentOrigin );
