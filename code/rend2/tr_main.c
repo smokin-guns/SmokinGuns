@@ -1,6 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2005-2013 Smokin' Guns
 
 This file is part of Quake III Arena source code.
 
@@ -678,6 +679,60 @@ int R_CullLocalBox(vec3_t localBounds[2]) {
 =================
 R_CullBox
 
+Same as R_CullLocalBox, but in world space.
+Smokin' Guns specific function, made available for the mod.
+
+Returns CULL_IN, CULL_CLIP, or CULL_OUT
+=================
+*/
+#ifdef SMOKINGUNS
+int R_CullBox2 (vec3_t transformedBounds[8]) {
+	int		i, j;
+	float	dists[8];
+	cplane_t	*frust;
+	int			anyBack;
+	int			front, back;
+
+	if ( r_nocull->integer ) {
+		return CULL_CLIP;
+	}
+
+	// check against frustum planes
+	anyBack = 0;
+	for (i = 0 ; i < 4 ; i++) {
+		frust = &tr.viewParms.frustum[i];
+
+		front = back = 0;
+		for (j = 0 ; j < 8 ; j++) {
+			dists[j] = DotProduct(transformedBounds[j], frust->normal);
+			if ( dists[j] > frust->dist ) {
+				front = 1;
+				if ( back ) {
+					break;		// a point is in front
+				}
+			} else {
+				back = 1;
+			}
+		}
+		if ( !front ) {
+			// all points were behind one of the planes
+			return CULL_OUT;
+		}
+		anyBack |= back;
+	}
+
+	if ( !anyBack ) {
+		return CULL_IN;		// completely inside frustum
+	}
+
+	return CULL_CLIP;		// partially clipped
+}
+#endif
+
+/*
+=================
+R_CullBox
+
 Returns CULL_IN, CULL_CLIP, or CULL_OUT
 =================
 */
@@ -1247,6 +1302,18 @@ void R_SetupProjectionZ(viewParms_t *dest)
 	}
 
 }
+
+/*
+=================
+R_GetFrustumPlane
+Smokin' Guns specific function, made available for the mod.
+=================
+*/
+#ifdef SMOKINGUNS
+void R_GetFrustumPlane( cplane_t frustum[4] ) {
+	Com_Memcpy( frustum, tr.viewParms.frustum, sizeof(cplane_t) * 4 );
+}
+#endif
 
 /*
 ===============

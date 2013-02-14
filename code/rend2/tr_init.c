@@ -1,6 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2005-2013 Smokin' Guns
 
 This file is part of Quake III Arena source code.
 
@@ -22,6 +23,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tr_init.c -- functions that are not called every frame
 
 #include "tr_local.h"
+#ifdef SMOKINGUNS
+#include "../qcommon/q_check.h"
+#endif
 
 glconfig_t  glConfig;
 glRefConfig_t glRefConfig;
@@ -223,6 +227,10 @@ int		max_polys;
 cvar_t	*r_maxpolyverts;
 int		max_polyverts;
 
+#ifdef SMOKINGUNS
+cvar_t	*r_debugRenderer;
+#endif
+
 /*
 ** InitOpenGL
 **
@@ -338,7 +346,19 @@ vidmode_t r_vidModes[] =
 	{ "Mode  8: 1280x1024",		1280,	1024,	1 },
 	{ "Mode  9: 1600x1200",		1600,	1200,	1 },
 	{ "Mode 10: 2048x1536",		2048,	1536,	1 },
+#ifndef SMOKINGUNS
 	{ "Mode 11: 856x480 (wide)",856,	480,	1 }
+#else
+	{ "Mode 11: 856x480 (wide)",856,	480,	1 },
+	{ "Mode 12: 1280x800 (wide)",1280,	800,	1 },
+	{ "Mode 13: 1366x768 (wide)",1366,	768,	1 },
+	{ "Mode 14: 1440x900 (wide)",1440,	900,	1 },
+	{ "Mode 15: 1680x1050 (wide)",1680,	1050,	1 },
+	{ "Mode 16: 1920x1080 (wide)",1920,	1080,	1 },
+	{ "Mode 17: 1920x1200 (wide)",1920,	1200,	1 },
+	{ "Mode 18: 2560x1600 (wide)",2560,	1600,	1 },
+	{ "Mode 19: 1280x720 (16:9 HD)",1280,720,	1 }
+#endif
 };
 static int	s_numVidModes = ARRAY_LEN( r_vidModes );
 
@@ -1550,6 +1570,14 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 	re.inPVS = R_inPVS;
 
 	re.TakeVideoFrame = RE_TakeVideoFrame;
+
+	// Smokin' Guns specific exported functions
+#ifdef SMOKINGUNS
+	re.CullBox = R_CullBox2;
+	re.CullPointAndRadius = R_CullPointAndRadius;
+	re.GetFrustumPlane = R_GetFrustumPlane;
+	r_debugRenderer = ri.Cvar_Get( "r_debugRenderer", va("%li",(chk_ref)&re), CVAR_ROM);
+#endif
 
 	return &re;
 }

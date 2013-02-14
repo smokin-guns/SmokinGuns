@@ -1,6 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2005-2013 Smokin' Guns
 
 This file is part of Quake III Arena source code.
 
@@ -1067,7 +1068,12 @@ typedef struct drawSurf_s {
 #define	MAX_FACE_POINTS		64
 
 #define	MAX_PATCH_SIZE		32			// max dimensions of a patch mesh in map file
+#ifndef SMOKINGUNS
 #define	MAX_GRID_SIZE		65			// max dimensions of a grid mesh in memory
+#else
+// Joe Kari: Attempt to allow lowering of r_subdivisions without exceeding the MAX_GRID_SIZE limit
+#define	MAX_GRID_SIZE		129			// x2 on this value
+#endif
 
 // when cgame directly specifies a polygon, it becomes a srfPoly_t
 // as soon as it is called
@@ -2181,6 +2187,11 @@ int R_CullLocalBox (vec3_t bounds[2]);
 int R_CullPointAndRadiusEx( const vec3_t origin, float radius, const cplane_t* frustum, int numPlanes );
 int R_CullPointAndRadius( const vec3_t origin, float radius );
 int R_CullLocalPointAndRadius( const vec3_t origin, float radius );
+
+#ifdef SMOKINGUNS
+int R_CullBox2 (vec3_t transformedBounds[8]);
+void R_GetFrustumPlane( cplane_t frustum[4] );
+#endif
 
 void R_SetupProjection(viewParms_t *dest, float zProj, float zFar, qboolean computeFrustum);
 void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms, orientationr_t *or );

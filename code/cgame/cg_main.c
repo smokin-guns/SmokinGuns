@@ -603,15 +603,8 @@ void CG_RegisterCvars( void ) {
 	// If it is set "maliciously" from command line ... what the hell ...
 	// The client will get a "Bad cgame system trap" message, when used in a VM
 #ifdef SMOKINGUNS
-	trap_Cvar_VariableStringBuffer( "cl_renderer", var, sizeof( var ) );
-	CG_Printf(S_COLOR_CYAN "Used rendered is %s\n",var);
-	if ( !strcmp(var,"rend2") ) {
-		CG_Printf(S_COLOR_CYAN "Disabling unsupported stuff for this renderer\n");
-		sa_engine_inuse = 0;
-	} else {
-		trap_Cvar_VariableStringBuffer( "sa_engine_inuse", var, sizeof( var ) );
-		sa_engine_inuse = atoi( var );
-	}
+	trap_Cvar_VariableStringBuffer( "sa_engine_inuse", var, sizeof( var ) );
+	sa_engine_inuse = atoi( var );
 #endif
 
 	forceModelModificationCount = cg_forceModel.modificationCount;
@@ -2407,7 +2400,7 @@ void CG_LoadMenus(const char *menuFile) {
 #else
 	len = trap_FS_FOpenFile( "ui/hud.txt", &f, FS_READ );
 	if (!f) {
-		trap_Error( va( S_COLOR_RED "menu file not found: ui/hud.txt, unable to continue!\n" ) );
+		CG_Error( S_COLOR_RED "menu file not found: ui/hud.txt, unable to continue!" );
 	}
 #endif
 
