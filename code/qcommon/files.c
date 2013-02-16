@@ -317,41 +317,6 @@ FILE*	missingFiles = NULL;
 #define __func__ "(unknown)"
 #endif
 
-#ifndef FS_FOPENI
-#define fopeni fopen
-#else
-/*
-==============
-fopeni
-Load a system file avoiding case sensitivity
-Needed for game dev on Unix platform
-==============
-*/
-static FILE	*fopeni( char *path, const char *mode ) {
-	char **pFiles = NULL ;
-	char dir[MAX_STRING_CHARS];
-	char file[MAX_STRING_CHARS];
-	char filter[MAX_STRING_CHARS];
-	int len = 0, found = 0;
-
-	Q_strncpyz( dir, path, MAX_STRING_CHARS );
-	Q_strncpyz( dir, Sys_Dirname(dir), MAX_STRING_CHARS );
-	Q_strncpyz( file, path, MAX_STRING_CHARS );
-	Com_sprintf( filter, MAX_STRING_CHARS, "*/%s", Sys_Basename(file));
-	len = strlen(filter) - 1 ;
-
-	pFiles = Sys_ListFiles( dir, NULL, filter, &found, qfalse );
-	while ( found-- && pFiles[found] != 0 ) {
-		if (strlen(pFiles[found]) != len) continue ;
-		Com_sprintf( file, MAX_STRING_CHARS, "%s%s", dir, pFiles[found]);
-		path = file ;
-		break ;
-	}
-	Sys_FreeFileList( pFiles );
-	return fopen( path, mode );
-}
-#endif
-
 /*
 ==============
 FS_Initialized
@@ -639,7 +604,7 @@ qboolean FS_FileInPathExists(const char *testpath)
 {
 	FILE *filep;
 
-	filep = fopeni(testpath, "rb");
+	filep = Sys_FOpen(testpath, "rb");
 	
 	if(filep)
 	{
@@ -714,7 +679,7 @@ fileHandle_t FS_SV_FOpenFileWrite( const char *filename ) {
 	}
 
 	Com_DPrintf( "writing to: %s\n", ospath );
-	fsh[f].handleFiles.file.o = fopen( ospath, "wb" );
+	fsh[f].handleFiles.file.o = Sys_FOpen( ospath, "wb" );
 
 	Q_strncpyz( fsh[f].name, filename, sizeof( fsh[f].name ) );
 
@@ -759,7 +724,7 @@ long FS_SV_FOpenFileRead(const char *filename, fileHandle_t *fp)
 		Com_Printf( "FS_SV_FOpenFileRead (fs_homepath): %s\n", ospath );
 	}
 
-	fsh[f].handleFiles.file.o = fopeni( ospath, "rb" );
+	fsh[f].handleFiles.file.o = Sys_FOpen( ospath, "rb" );
 	fsh[f].handleSync = qfalse;
 	if (!fsh[f].handleFiles.file.o)
 	{
@@ -775,7 +740,7 @@ long FS_SV_FOpenFileRead(const char *filename, fileHandle_t *fp)
 				Com_Printf( "FS_SV_FOpenFileRead (fs_basepath): %s\n", ospath );
 			}
 
-			fsh[f].handleFiles.file.o = fopeni( ospath, "rb" );
+			fsh[f].handleFiles.file.o = Sys_FOpen( ospath, "rb" );
 			fsh[f].handleSync = qfalse;
 		}
 
@@ -917,7 +882,7 @@ fileHandle_t FS_FOpenFileWrite( const char *filename ) {
 	// enabling the following line causes a recursive function call loop
 	// when running with +set logfile 1 +set developer 1
 	//Com_DPrintf( "writing to: %s\n", ospath );
-	fsh[f].handleFiles.file.o = fopen( ospath, "wb" );
+	fsh[f].handleFiles.file.o = Sys_FOpen( ospath, "wb" );
 
 	Q_strncpyz( fsh[f].name, filename, sizeof( fsh[f].name ) );
 
@@ -962,7 +927,7 @@ fileHandle_t FS_FOpenFileAppend( const char *filename ) {
 		return 0;
 	}
 
-	fsh[f].handleFiles.file.o = fopeni( ospath, "ab" );
+	fsh[f].handleFiles.file.o = Sys_FOpen( ospath, "ab" );
 	fsh[f].handleSync = qfalse;
 	if (!fsh[f].handleFiles.file.o) {
 		f = 0;
@@ -1201,7 +1166,7 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
 			dir = search->dir;
 
 			netpath = FS_BuildOSPath(dir->path, dir->gamedir, filename);
-			filep = fopeni (netpath, "rb");
+			filep = Sys_FOpen(netpath, "rb");
 
 			if(filep)
 			{
@@ -1335,7 +1300,7 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
 		dir = search->dir;
 
 		netpath = FS_BuildOSPath(dir->path, dir->gamedir, filename);
-		filep = fopeni(netpath, "rb");
+		filep = Sys_FOpen(netpath, "rb");
 
 		if (filep == NULL)
 		{
@@ -3377,7 +3342,7 @@ static void FS_Startup( const char *gameName )
 
 #ifdef FS_MISSING
 	if (missingFiles == NULL && fs_missingfiles->integer) {
-		missingFiles = fopen( "missing.txt", "ab" );
+		missingFiles = Sys_FOpen( "\\missing.txt", "ab" );
 	}
 #endif
 	Com_Printf( "%d files in pk3 files\n", fs_packFiles );

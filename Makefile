@@ -1688,8 +1688,8 @@ endif
 
 ifeq ($(FRAMEBUFFER_AND_GLSL_SUPPORT),1)
   Q3ROBJ += \
-    $(B)/renderer/tr_framebuffer.o \
-    $(B)/renderer/tr_glslprogs.o
+    $(B)/renderergl1/tr_framebuffer.o \
+    $(B)/renderergl1/tr_glslprogs.o
 endif
 
 ifeq ($(ARCH),i386)

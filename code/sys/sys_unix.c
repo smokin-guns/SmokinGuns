@@ -315,6 +315,51 @@ const char *Sys_Dirname( char *path )
 }
 
 /*
+==============
+Sys_FOpen
+==============
+Define SYS_FOPEN_NOCASE to load a system file avoiding case sensitivity,
+this can be needed for game dev on Unix platform
+*/
+FILE *Sys_FOpen( const char *ospath, const char *mode ) {
+	struct stat buf;
+#ifdef SYS_FOPEN_NOCASE
+	char dir[MAX_STRING_CHARS];
+	char path[MAX_STRING_CHARS];
+	char filter[MAX_STRING_CHARS];
+	char **pFiles = NULL ;
+	int len = 0, found = 0;
+
+	Q_strncpyz( dir, ospath, MAX_STRING_CHARS );
+	Q_strncpyz( dir, Sys_Dirname(dir), MAX_STRING_CHARS );
+	Q_strncpyz( path, ospath, MAX_STRING_CHARS );
+	Com_sprintf( filter, MAX_STRING_CHARS, "*/%s", Sys_Basename(path));
+	len = strlen(filter) - 1 ;
+
+	pFiles = Sys_ListFiles( dir, NULL, filter, &found, qfalse );
+	while ( found-- && pFiles[found] != 0 ) {
+		if (strlen(pFiles[found]) != len) continue ;
+		Com_sprintf( path, MAX_STRING_CHARS, "%s%s", dir, pFiles[found]);
+		break ;
+	}
+	Sys_FreeFileList( pFiles );
+
+	// check if path exists and is a directory
+	if ( !stat( path, &buf ) && S_ISDIR( buf.st_mode ) )
+		return NULL;
+
+	return fopen( path, mode );
+#else
+
+	// check if path exists and is a directory
+	if ( !stat( ospath, &buf ) && S_ISDIR( buf.st_mode ) )
+		return NULL;
+
+	return fopen( ospath, mode );
+#endif
+}
+
+/*
 ==================
 Sys_Mkdir
 ==================
