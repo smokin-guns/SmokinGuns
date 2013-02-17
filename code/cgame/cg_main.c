@@ -268,9 +268,6 @@ vmCvar_t		cg_boostfps;
 vmCvar_t		cg_drawdebug;
 vmCvar_t		cg_drawspeed;
 
-//music volume
-vmCvar_t		cg_musicvolume;
-
 //talk sound
 vmCvar_t		cg_talksound;
 
@@ -533,9 +530,6 @@ static cvarTable_t		cvarTable[] = {
 	{ &cg_hitmsg, "cg_hitmsg", "1", CVAR_ARCHIVE },
 	{ &cg_hitfarmsg, "cg_hitfarmsg", "1", CVAR_ARCHIVE },
 	{ &cg_ownhitmsg, "cg_ownhitmsg", "1", CVAR_ARCHIVE },
-
-	//music volume
-	{ &cg_musicvolume, "cg_musicvolume", "0.25", CVAR_ARCHIVE },
 
 	//talk sound
 	{ &cg_talksound, "cg_talksound", "1", CVAR_ARCHIVE },
@@ -2026,7 +2020,11 @@ CG_PlayMusic
 
 ======================
 */
-#define	MUSICFADE_TIME	10000
+
+// Fading time is 10 seconds
+#define	MUSICFADE_TIME		10000
+// Wait at least 100 ms before trying to adjust music fading volume
+#define	MUSICFADE_TIMESTEP	100
 
 void CG_PlayMusic( void ) {
 	char	parm1[MAX_QPATH], parm2[MAX_QPATH];
@@ -2036,7 +2034,7 @@ void CG_PlayMusic( void ) {
 
 	// if it's duel and startup, don't play anything
 	if(cgs.gametype == GT_DUEL && cg.introend >= cg.time){
-		trap_Cvar_Set("s_musicvolume", "0.0");
+		trap_Cvar_Set("s_musicfading", "0.0");
 		return;
 	}
 
@@ -2044,57 +2042,59 @@ void CG_PlayMusic( void ) {
 		if ( cg.custommusic_started) {
 			return;
 		} else {
-			char	*s;
-			// make sure volume is at user's set level, in case of a fade in/out earlier
-			trap_Cvar_VariableStringBuffer("cg_musicvolume", buffer, sizeof(buffer));
-			trap_Cvar_Set("s_musicvolume", va("%f", cg_musicvolume.value));
-
 			// read and parse name of custom wav file
-			s = (char *)CG_ConfigString( CS_MUSIC );
+			char *s = (char *)CG_ConfigString( CS_MUSIC );
 			Q_strncpyz( parm1, COM_Parse( &s ), sizeof( parm1 ) );
 			Q_strncpyz( parm2, COM_Parse( &s ), sizeof( parm2 ) );
 			cg.custommusic_started = qtrue;
 		}
 	} else { // random music system
+		static float fading = 0.0f ;
+		static int fadingtime = 0 ;
+
 		if ( !cg.musicfile )
 			return;
 
-		trap_Cvar_VariableStringBuffer("cg_musicvolume", buffer, sizeof(buffer));
-		cg.s_volume = atof(buffer);
+		// Avoid to try to set music fade volume too often
+		if (cg.time < fadingtime)
+			return;
+		else
+			fadingtime = cg.time + MUSICFADE_TIMESTEP;
 
 		//fade in
 		fadetime = cg.time - cg.playmusic_starttime;
 		if(fadetime < MUSICFADE_TIME && fadetime >= 0 && cg.playmusic_starttime){
-			float	newvolume;
 
-			newvolume = (float)fadetime/MUSICFADE_TIME*(float)cg.s_volume;
+			fading = (float)fadetime/MUSICFADE_TIME;
 
-			/*CG_Printf("%f %i", cg.s_volume, fadetime);
-			CG_Printf(" %f\n", newvolume);*/
-
-			trap_Cvar_Set("s_musicvolume", va("%f", newvolume));
+			trap_Cvar_Set("s_musicfading", va("%f", fading));
 			return;
 		}
 
 		//fade out
 		fadetime = cg.playmusic_endtime - cg.time;
 		if(fadetime < MUSICFADE_TIME && fadetime >= 0 && cg.playmusic_endtime){
-			float	newvolume;
 
-			newvolume = (float)fadetime/MUSICFADE_TIME*(float)cg.s_volume;
+			fading = (float)fadetime/MUSICFADE_TIME;
 
-			/*CG_Printf("%f %i", cg.s_volume, fadetime);
-			CG_Printf(" %f\n", newvolume);*/
-
-			trap_Cvar_Set("s_musicvolume", va("%f", newvolume));
+			trap_Cvar_Set("s_musicfading", va("%f", fading));
 			return;
 		}
 
-		if(cg.playmusic_starttime)
-			trap_Cvar_Set("s_musicvolume", va("%f", cg.s_volume));
+		if(cg.playmusic_starttime < cg.playmusic_endtime && fading < 1.0f) {
+			trap_Cvar_Set("s_musicfading", "1.0");
+			fading = 1.0f;
+			// We want to avoid to set s_musicfading at the end of fade-out
+			cg.playmusic_starttime = cg.playmusic_endtime + MUSICFADE_TIMESTEP;
+		}
 
 		if(cg.playmusic_endtime > cg.time)
 			return;
+
+		if (fading > 0.0f) {
+			trap_Cvar_Set("s_musicfading", "0.0");
+			fading = 0.0f;
+		}
 
 		if(CG_CheckTrackStats())
 			CG_ClearTrackStats();
@@ -3044,7 +3044,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	CG_StartMusic();
 #else
 	CG_SelectMusic();
-	trap_Cvar_Set("s_musicvolume", "0.0");
+	trap_Cvar_Set("s_musicfading", "0.0");
 #endif
 
 	CG_LoadingString( "" );

@@ -1,6 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2013 Smokin' Guns
 
 This file is part of Quake III Arena source code.
 
@@ -1460,7 +1461,11 @@ void S_UpdateBackgroundTrack( void ) {
 		{
 			// add to raw buffer
 			S_Base_RawSamples(0, fileSamples, s_backgroundStream->info.rate,
+#ifdef SMOKINGUNS
+				s_backgroundStream->info.width, s_backgroundStream->info.channels, raw, s_musicVolume->value * s_musicFading->value, -1);
+#else
 				s_backgroundStream->info.width, s_backgroundStream->info.channels, raw, s_musicVolume->value, -1);
+#endif
 		}
 		else
 		{

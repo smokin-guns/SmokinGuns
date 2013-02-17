@@ -910,7 +910,6 @@ typedef struct {
 
 	int		playmusic_endtime;
 	int		playmusic_starttime;
-	float	s_volume;
 	int		oldTrackNum;
 
 	// new view vectors (controlling view for dying scenes)
@@ -1830,9 +1829,6 @@ extern	vmCvar_t		cg_drawspeed;
 
 //extern	vmCvar_t		cg_teamredcount;
 //extern	vmCvar_t		cg_teambluecount;
-
-//music volume, controlled by cgame
-extern	vmCvar_t		cg_musicvolume;
 
 //talk sound
 extern	vmCvar_t		cg_talksound;

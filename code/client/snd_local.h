@@ -1,6 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2013 Smokin' Guns
 
 This file is part of Quake III Arena source code.
 
@@ -195,6 +196,9 @@ extern	int		s_rawend[MAX_RAW_STREAMS];
 
 extern cvar_t *s_volume;
 extern cvar_t *s_musicVolume;
+#ifdef SMOKINGUNS
+extern cvar_t *s_musicFading;
+#endif
 extern cvar_t *s_muted;
 extern cvar_t *s_doppler;
 

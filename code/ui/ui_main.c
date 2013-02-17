@@ -211,10 +211,6 @@ Q_EXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3, i
 #ifdef SMOKINGUNS
 #ifndef _WIN32
 	Send_KeyBindings();
-
-	// set the musicvolume
-	if(Menus_AnyFullScreenVisible())
-		trap_Cvar_Set("s_musicvolume", va("%f", trap_Cvar_VariableValue( "cg_musicvolume" )));
 #endif
 #endif
 	switch ( command ) {

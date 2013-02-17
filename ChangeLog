@@ -1,3 +1,14 @@
+Changes in SG 1.2
+******************
+***** CHANGES ****
+- engine source synchronized with ioQuake3 SDK
+- merged many enhancements by TheDoctor (To be detailed)
+- Replaced cg_musicVolume with s_musicFading new engine cvar handling, so the
+  game doesn't force the config to be write each time music volume is fading-in
+  or fading-out. This avoid to hurt a little the system performance when player
+  is listening Smokin'Guns in-game music as the config was written as often as
+  FPS times by seconds. Also fading volume is now only set 10 times by seconds max.
+
 Changes in SG 1.1
 ******************
 ***** CHANGES ****

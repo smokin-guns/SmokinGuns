@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2005 Stuart Dalton (badcdev@gmail.com)
+Copyright (C) 2013 Smokin' Guns
 
 This file is part of Quake III Arena source code.
 
@@ -2061,7 +2062,11 @@ void S_AL_StartBackgroundTrack( const char *intro, const char *loop )
 	qalSourceQueueBuffers(musicSource, NUM_MUSIC_BUFFERS, musicBuffers);
 
 	// Set the initial gain property
+#ifdef SMOKINGUNS
+	S_AL_Gain(musicSource, s_alGain->value * s_musicVolume->value * s_musicFading->value);
+#else
 	S_AL_Gain(musicSource, s_alGain->value * s_musicVolume->value);
+#endif
 
 	// Start playing
 	qalSourcePlay(musicSource);
@@ -2104,7 +2109,11 @@ void S_AL_MusicUpdate( void )
 	}
 
 	// Set the gain property
+#ifdef SMOKINGUNS
+	S_AL_Gain(musicSource, s_alGain->value * s_musicVolume->value * s_musicFading->value);
+#else
 	S_AL_Gain(musicSource, s_alGain->value * s_musicVolume->value);
+#endif
 }
 
 
