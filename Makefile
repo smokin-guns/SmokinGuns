@@ -186,6 +186,10 @@ ifndef USE_INTERNAL_SPEEX
 USE_INTERNAL_SPEEX=1
 endif
 
+ifndef USE_INTERNAL_OGG
+USE_INTERNAL_OGG=1
+endif
+
 ifndef USE_INTERNAL_OPUS
 USE_INTERNAL_OPUS=1
 endif
@@ -235,6 +239,7 @@ UIDIR=$(MOUNT_DIR)/ui
 Q3UIDIR=$(MOUNT_DIR)/q3_ui
 JPDIR=$(MOUNT_DIR)/jpeg-8c
 SPEEXDIR=$(MOUNT_DIR)/libspeex
+OGGDIR=$(MOUNT_DIR)/libogg-1.3.0
 OPUSDIR=$(MOUNT_DIR)/opus-1.0.2
 OPUSFILEDIR=$(MOUNT_DIR)/opusfile-0.2
 ZDIR=$(MOUNT_DIR)/zlib
@@ -375,10 +380,6 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu"))
     endif
   endif
 
-  ifeq ($(USE_CODEC_VORBIS),1)
-    CLIENT_LIBS += -lvorbisfile -lvorbis -logg
-  endif
-
   ifeq ($(USE_MUMBLE),1)
     CLIENT_LIBS += -lrt
   endif
@@ -443,10 +444,6 @@ ifeq ($(PLATFORM),darwin)
 
   ifeq ($(USE_FREETYPE),1)
     BASE_CFLAGS += $(FREETYPE_CFLAGS)
-  endif
-
-  ifeq ($(USE_CODEC_VORBIS),1)
-    CLIENT_LIBS += -lvorbisfile -lvorbis -logg
   endif
 
   BASE_CFLAGS += -D_THREAD_SAFE=1
@@ -554,10 +551,6 @@ ifeq ($(PLATFORM),mingw32)
     endif
   endif
 
-  ifeq ($(USE_CODEC_VORBIS),1)
-    CLIENT_LIBS += -lvorbisfile -lvorbis -logg
-  endif
-
   ifeq ($(ARCH),x86)
     # build 32bit
     BASE_CFLAGS += -m32
@@ -635,10 +628,6 @@ ifeq ($(PLATFORM),freebsd)
     endif
   endif
 
-  ifeq ($(USE_CODEC_VORBIS),1)
-    CLIENT_LIBS += -lvorbisfile -lvorbis -logg
-  endif
-
   # cross-compiling tweaks
   ifeq ($(ARCH),i386)
     ifeq ($(CROSS_COMPILING),1)
@@ -689,10 +678,6 @@ ifeq ($(PLATFORM),openbsd)
     ifneq ($(USE_OPENAL_DLOPEN),1)
       CLIENT_LIBS += $(THREAD_LIBS) -lossaudio -lopenal
     endif
-  endif
-
-  ifeq ($(USE_CODEC_VORBIS),1)
-    CLIENT_LIBS += -lvorbisfile -lvorbis -logg
   endif
 
   ifeq ($(USE_CURL),1)
@@ -940,6 +925,8 @@ endif
 
 ifeq ($(USE_CODEC_VORBIS),1)
   CLIENT_CFLAGS += -DUSE_CODEC_VORBIS
+  CLIENT_LIBS += -lvorbisfile -lvorbis
+  NEED_OGG=1
 endif
 
 ifeq ($(USE_CODEC_OPUS),1)
@@ -951,7 +938,16 @@ ifeq ($(USE_CODEC_OPUS),1)
 
     CLIENT_CFLAGS += -I$(OPUSFILEDIR)/include
   else
-    CLIENT_LIBS += -lopusfile -lopus -logg
+    CLIENT_LIBS += -lopusfile -lopus
+  endif
+  NEED_OGG=1
+endif
+
+ifeq ($(NEED_OGG),1)
+  ifeq ($(USE_INTERNAL_OGG),1)
+    CLIENT_CFLAGS += -I$(OGGDIR)/include
+  else
+    CLIENT_LIBS += -logg
   endif
 endif
 
@@ -1937,6 +1933,14 @@ Q3OBJ += \
 endif
 endif
 
+ifeq ($(NEED_OGG),1)
+ifeq ($(USE_INTERNAL_OGG),1)
+Q3OBJ += \
+  $(B)/client/bitwise.o \
+  $(B)/client/framing.o
+endif
+endif
+
 ifeq ($(USE_INTERNAL_ZLIB),1)
 Q3OBJ += \
   $(B)/client/adler32.o \
@@ -2565,6 +2569,9 @@ $(B)/client/%.o: $(BLIBDIR)/%.c
 	$(DO_BOT_CC)
 
 $(B)/client/%.o: $(SPEEXDIR)/%.c
+	$(DO_CC)
+
+$(B)/client/%.o: $(OGGDIR)/src/%.c
 	$(DO_CC)
 
 $(B)/client/opus/%.o: $(OPUSDIR)/src/%.c
