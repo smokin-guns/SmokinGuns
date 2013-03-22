@@ -10,42 +10,42 @@ BASEDIR=smokinguns
 
 BIN_OBJ="
 	build/release-darwin-x86_64/smokinguns.x86_64
-	build/release-darwin-i386/smokinguns.i386
+	build/release-darwin-x86/smokinguns.x86
 	build/release-darwin-ppc/smokinguns.ppc
 "
 BIN_DEDOBJ="
 	build/release-darwin-x86_64/smokinguns_dedicated.x86_64
-	build/release-darwin-i386/smokinguns_dedicated.i386
+	build/release-darwin-x86/smokinguns_dedicated.x86
 	build/release-darwin-ppc/smokinguns_dedicated.ppc
 "
 BASE_OBJ="
 	build/release-darwin-x86_64/$BASEDIR/cgamex86_64.dylib
-	build/release-darwin-i386/$BASEDIR/cgamei386.dylib
+	build/release-darwin-x86/$BASEDIR/cgamex86.dylib
 	build/release-darwin-ppc/$BASEDIR/cgameppc.dylib
 	build/release-darwin-x86_64/$BASEDIR/uix86_64.dylib
-	build/release-darwin-i386/$BASEDIR/uii386.dylib
+	build/release-darwin-x86/$BASEDIR/uix86.dylib
 	build/release-darwin-ppc/$BASEDIR/uippc.dylib
 	build/release-darwin-x86_64/$BASEDIR/qagamex86_64.dylib
-	build/release-darwin-i386/$BASEDIR/qagamei386.dylib
+	build/release-darwin-x86/$BASEDIR/qagamex86.dylib
 	build/release-darwin-ppc/$BASEDIR/qagameppc.dylib
 "
 MPACK_OBJ="
 	build/release-darwin-x86_64/$MPACKDIR/cgamex86_64.dylib
-	build/release-darwin-i386/$MPACKDIR/cgamei386.dylib
+	build/release-darwin-x86/$MPACKDIR/cgamex86.dylib
 	build/release-darwin-ppc/$MPACKDIR/cgameppc.dylib
 	build/release-darwin-x86_64/$MPACKDIR/uix86_64.dylib
-	build/release-darwin-i386/$MPACKDIR/uii386.dylib
+	build/release-darwin-x86/$MPACKDIR/uix86.dylib
 	build/release-darwin-ppc/$MPACKDIR/uippc.dylib
 	build/release-darwin-x86_64/$MPACKDIR/qagamex86_64.dylib
-	build/release-darwin-i386/$MPACKDIR/qagamei386.dylib
+	build/release-darwin-x86/$MPACKDIR/qagamex86.dylib
 	build/release-darwin-ppc/$MPACKDIR/qagameppc.dylib
 "
 RENDER_OBJ="
 	build/release-darwin-x86_64/renderer_opengl1_x86_64.dylib
-	build/release-darwin-i386/renderer_opengl1_i386.dylib
+	build/release-darwin-x86/renderer_opengl1_x86.dylib
 	build/release-darwin-ppc/renderer_opengl1_ppc.dylib
 	build/release-darwin-x86_64/renderer_opengl2_x86_64.dylib
-	build/release-darwin-i386/renderer_opengl2_i386.dylib
+	build/release-darwin-x86/renderer_opengl2_x86.dylib
 	build/release-darwin-ppc/renderer_opengl2_ppc.dylib
 "
 
@@ -132,11 +132,11 @@ fi
 
 echo;echo
 
-# i386 client and server
-if [ -d build/release-darwin-i386 ]; then
-	rm -r build/release-darwin-i386
+# x86 client and server
+if [ -d build/release-darwin-x86 ]; then
+	rm -r build/release-darwin-x86
 fi
-(ARCH=i386 CC=gcc-4.0 CFLAGS=$X86_CFLAGS LDFLAGS=$X86_LDFLAGS make -j$NCPU) || exit 1;
+(ARCH=x86 CC=gcc-4.0 CFLAGS=$X86_CFLAGS LDFLAGS=$X86_LDFLAGS make -j$NCPU) || exit 1;
 
 echo;echo
 
@@ -194,7 +194,7 @@ echo "
 	</plist>
 	" > $DESTDIR/$APPBUNDLE/Contents/Info.plist
 
-# Make UB's from previous builds of i386, x86_64 and ppc binaries
+# Make UB's from previous builds of x86, x86_64 and ppc binaries
 lipo -create -o $DESTDIR/$APPBUNDLE/Contents/MacOS/$BINARY $BIN_OBJ
 lipo -create -o $DESTDIR/$APPBUNDLE/Contents/MacOS/$DEDBIN $BIN_DEDOBJ
 
