@@ -426,7 +426,23 @@ ifeq ($(PLATFORM),darwin)
     OPTIMIZEVM += -arch x86_64 -mfpmath=sse
   endif
 
-  BASE_CFLAGS += -m32 -fno-strict-aliasing -DMACOS_X -fno-common -pipe
+  ifeq ($(CROSS_COMPILING),1)
+    ifeq ($(ARCH),ppc)
+      CC=powerpc-apple-darwin10-gcc
+      RANLIB=powerpc-apple-darwin10-ranlib
+    else
+      ifeq ($(ARCH),x86)
+        CC=i686-apple-darwin10-gcc
+        RANLIB=i686-apple-darwin10-ranlib
+      else
+        $(error Architecture $(ARCH) is not supported when cross compiling)
+      endif
+    endif
+  else
+    TOOLS_CFLAGS += -DMACOS_X
+  endif
+
+  BASE_CFLAGS += -fno-strict-aliasing -DMACOS_X -fno-common -pipe
 
   ifeq ($(USE_OPENAL),1)
     ifneq ($(USE_OPENAL_DLOPEN),1)
@@ -466,8 +482,6 @@ ifeq ($(PLATFORM),darwin)
   SHLIBLDFLAGS=-dynamiclib $(LDFLAGS) -Wl,-U,_com_altivec
 
   NOTSHLIBCFLAGS=-mdynamic-no-pic
-
-  TOOLS_CFLAGS += -DMACOS_X
 
 else # ifeq darwin
 
@@ -847,6 +861,14 @@ endif #OpenBSD
 endif #NetBSD
 endif #IRIX
 endif #SunOS
+
+ifndef CC
+  CC=gcc
+endif
+
+ifndef RANLIB
+  RANLIB=gcc
+endif
 
 ifneq ($(HAVE_VM_COMPILED),true)
   BASE_CFLAGS += -DNO_VM_COMPILED
@@ -2016,7 +2038,7 @@ ifneq ($(strip $(LIBSDLMAIN)),)
 ifneq ($(strip $(LIBSDLMAINSRC)),)
 $(LIBSDLMAIN) : $(LIBSDLMAINSRC)
 	cp $< $@
-	ranlib $@
+	$(RANLIB) $@
 endif
 endif
 
