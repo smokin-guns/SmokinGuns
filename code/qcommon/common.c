@@ -2570,8 +2570,9 @@ static void Com_WriteCDKey( const char *filename, const char *ikey ) {
 out:
 #ifndef _WIN32
 	umask(savedumask);
+#else
+	;
 #endif
-	return;
 }
 #endif
 
