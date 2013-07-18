@@ -1,53 +1,6 @@
 #!/bin/bash
 CC=gcc-4.0
-APPBUNDLE="Smokin' Guns.app"
 BINARY=smokinguns.ub
-DEDBIN=smokinguns_dedicated.ub
-PKGINFO=APPLSG
-ICNS=misc/smokinguns.icns
-DESTDIR=build/release-darwin-ub
-BASEDIR=smokinguns
-
-BIN_OBJ="
-	build/release-darwin-x86_64/smokinguns.x86_64
-	build/release-darwin-x86/smokinguns.x86
-	build/release-darwin-ppc/smokinguns.ppc
-"
-BIN_DEDOBJ="
-	build/release-darwin-x86_64/smokinguns_dedicated.x86_64
-	build/release-darwin-x86/smokinguns_dedicated.x86
-	build/release-darwin-ppc/smokinguns_dedicated.ppc
-"
-BASE_OBJ="
-	build/release-darwin-x86_64/$BASEDIR/cgamex86_64.dylib
-	build/release-darwin-x86/$BASEDIR/cgamex86.dylib
-	build/release-darwin-ppc/$BASEDIR/cgameppc.dylib
-	build/release-darwin-x86_64/$BASEDIR/uix86_64.dylib
-	build/release-darwin-x86/$BASEDIR/uix86.dylib
-	build/release-darwin-ppc/$BASEDIR/uippc.dylib
-	build/release-darwin-x86_64/$BASEDIR/qagamex86_64.dylib
-	build/release-darwin-x86/$BASEDIR/qagamex86.dylib
-	build/release-darwin-ppc/$BASEDIR/qagameppc.dylib
-"
-MPACK_OBJ="
-	build/release-darwin-x86_64/$MPACKDIR/cgamex86_64.dylib
-	build/release-darwin-x86/$MPACKDIR/cgamex86.dylib
-	build/release-darwin-ppc/$MPACKDIR/cgameppc.dylib
-	build/release-darwin-x86_64/$MPACKDIR/uix86_64.dylib
-	build/release-darwin-x86/$MPACKDIR/uix86.dylib
-	build/release-darwin-ppc/$MPACKDIR/uippc.dylib
-	build/release-darwin-x86_64/$MPACKDIR/qagamex86_64.dylib
-	build/release-darwin-x86/$MPACKDIR/qagamex86.dylib
-	build/release-darwin-ppc/$MPACKDIR/qagameppc.dylib
-"
-RENDER_OBJ="
-	build/release-darwin-x86_64/renderer_opengl1_x86_64.dylib
-	build/release-darwin-x86/renderer_opengl1_x86.dylib
-	build/release-darwin-ppc/renderer_opengl1_ppc.dylib
-	build/release-darwin-x86_64/renderer_opengl2_x86_64.dylib
-	build/release-darwin-x86/renderer_opengl2_x86.dylib
-	build/release-darwin-ppc/renderer_opengl2_ppc.dylib
-"
 
 cd `dirname $0`
 if [ ! -f Makefile ]; then
@@ -99,7 +52,7 @@ if [ -z $X86_64_SDK ] || [ -z $X86_SDK ] || [ -z $PPC_SDK ]; then
 ERROR: This script is for building a Universal Binary.  You cannot build
        for a different architecture unless you have the proper Mac OS X SDKs
        installed.  If you just want to to compile for your own system run
-       'make' instead of this script."
+       'make-macosx.sh' instead of this script."
 	exit 1
 fi
 
@@ -117,35 +70,32 @@ WARNING: in order to build a binary with maximum compatibility you must
 sleep 3
 fi
 
-if [ ! -d $DESTDIR ]; then
-	mkdir -p $DESTDIR
-fi
-
 # For parallel make on multicore boxes...
 NCPU=`sysctl -n hw.ncpu`
 
 # x86_64 client and server
-if [ -d build/release-release-x86_64 ]; then
-	rm -r build/release-darwin-x86_64
-fi
+#if [ -d build/release-release-x86_64 ]; then
+#	rm -r build/release-darwin-x86_64
+#fi
 (ARCH=x86_64 CC=gcc-4.0 CFLAGS=$X86_64_CFLAGS LDFLAGS=$X86_64_LDFLAGS make -j$NCPU) || exit 1;
 
 echo;echo
 
 # x86 client and server
-if [ -d build/release-darwin-x86 ]; then
-	rm -r build/release-darwin-x86
-fi
+#if [ -d build/release-darwin-x86 ]; then
+#	rm -r build/release-darwin-x86
+#fi
 (ARCH=x86 CC=gcc-4.0 CFLAGS=$X86_CFLAGS LDFLAGS=$X86_LDFLAGS make -j$NCPU) || exit 1;
 
 echo;echo
 
 # PPC client and server
-if [ -d build/release-darwin-ppc ]; then
-	rm -r build/release-darwin-ppc
-fi
+#if [ -d build/release-darwin-ppc ]; then
+#	rm -r build/release-darwin-ppc
+#fi
 (ARCH=ppc CC=gcc-4.0 CFLAGS=$PPC_CFLAGS LDFLAGS=$PPC_LDFLAGS make -j$NCPU) || exit 1;
 
+<<<<<<< HEAD
 echo;echo
 
 echo "Creating .app bundle $DESTDIR/$APPBUNDLE"
@@ -206,3 +156,9 @@ cp code/libs/macosx/*.dylib $DESTDIR/$APPBUNDLE/Contents/MacOS/
 lipo build/release-darwin-ppc/smokinguns.ppc build/release-darwin-i386/smokinguns.i386 -create -output "$DESTDIR/$APPBUNDLE/Contents/MacOS/$BINARY"
 lipo build/release-darwin-ppc/smokinguns_dedicated.ppc build/release-darwin-i386/smokinguns_dedicated.i386 -create -output "$DESTDIR/$APPBUNDLE/Contents/MacOS/$DEDBIN"
 cp code/libs/macosx/*.dylib "$DESTDIR/$APPBUNDLE/Contents/MacOS/"
+=======
+echo
+
+# use the following shell script to build a universal application bundle
+"./make-macosx-app.sh" release
+>>>>>>> b7f5971... Another pass at the Mac OS X make scripts.
