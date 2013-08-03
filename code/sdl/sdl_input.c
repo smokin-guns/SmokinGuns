@@ -1007,7 +1007,7 @@ void IN_Frame( void )
 	if ( (vidRestartTime != 0) && (vidRestartTime < Sys_Milliseconds()) )
 	{
 		vidRestartTime = 0;
-		Cbuf_AddText( "vid_restart" );
+		Cbuf_AddText( "vid_restart\n" );
 	}
 }
 
