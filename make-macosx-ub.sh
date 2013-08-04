@@ -1,18 +1,11 @@
 #!/bin/bash
 CC=gcc-4.0
-BINARY=smokinguns.ub
 
 cd `dirname $0`
 if [ ! -f Makefile ]; then
 	echo "This script must be run from the smokinguns build directory"
 	exit 1
 fi
-
-SG_VERSION=`grep '^VERSION *=' Makefile.local | sed -e 's/.*= *\(.*\)/\1/'`
-
-# We only care if we're >= 10.4, not if we're specifically Tiger.
-# "8" is the Darwin major kernel version.
-TIGERHOST=`uname -r |perl -w -p -e 's/\A(\d+)\..*\Z/$1/; $_ = (($_ >= 8) ? "1" : "0");'`
 
 # we want to use the oldest available SDK for max compatiblity. However 10.4 and older
 # can not build 64bit binaries, making 10.5 the minimum version.   This has been tested 
@@ -95,70 +88,7 @@ echo;echo
 #fi
 (ARCH=ppc CC=gcc-4.0 CFLAGS=$PPC_CFLAGS LDFLAGS=$PPC_LDFLAGS make -j$NCPU) || exit 1;
 
-<<<<<<< HEAD
-echo;echo
-
-echo "Creating .app bundle $DESTDIR/$APPBUNDLE"
-if [ ! -d "$DESTDIR/$APPBUNDLE/Contents/MacOS/$BASEDIR" ]; then
-	mkdir -p "$DESTDIR/$APPBUNDLE/Contents/MacOS/$BASEDIR" || exit 1;
-fi
-if [ ! -d "$DESTDIR/$APPBUNDLE/Contents/Resources" ]; then
-	mkdir -p "$DESTDIR/$APPBUNDLE/Contents/Resources"
-fi
-cp $ICNS "$DESTDIR/$APPBUNDLE/Contents/Resources/smokinguns.icns" || exit 1;
-echo $PKGINFO > "$DESTDIR/$APPBUNDLE/Contents/PkgInfo"
-echo "
-	<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-	<!DOCTYPE plist
-		PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\"
-		\"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
-	<plist version=\"1.0\">
-	<dict>
-		<key>CFBundleDevelopmentRegion</key>
-		<string>English</string>
-		<key>CFBundleExecutable</key>
-		<string>$BINARY</string>
-		<key>CFBundleGetInfoString</key>
-		<string>Smokin' Guns $SG_VERSION</string>
-		<key>CFBundleIconFile</key>
-		<string>smokinguns.icns</string>
-		<key>CFBundleIdentifier</key>
-		<string>net.smokin-guns.www</string>
-		<key>CFBundleInfoDictionaryVersion</key>
-		<string>6.0</string>
-		<key>CFBundleName</key>
-		<string>smokinguns</string>
-		<key>CFBundlePackageType</key>
-		<string>APPL</string>
-		<key>CFBundleShortVersionString</key>
-		<string>$SG_VERSION</string>
-		<key>CFBundleSignature</key>
-		<string>$PKGINFO</string>
-		<key>CFBundleVersion</key>
-		<string>$SG_VERSION</string>
-		<key>NSExtensions</key>
-		<dict/>
-		<key>NSPrincipalClass</key>
-		<string>NSApplication</string>
-	</dict>
-	</plist>
-	" > $DESTDIR/$APPBUNDLE/Contents/Info.plist
-
-# Make UB's from previous builds of x86, x86_64 and ppc binaries
-lipo -create -o $DESTDIR/$APPBUNDLE/Contents/MacOS/$BINARY $BIN_OBJ
-lipo -create -o $DESTDIR/$APPBUNDLE/Contents/MacOS/$DEDBIN $BIN_DEDOBJ
-
-cp $RENDER_OBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/
-cp $BASE_OBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/$BASEDIR/
-cp $MPACK_OBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/$MPACKDIR/
-cp code/libs/macosx/*.dylib $DESTDIR/$APPBUNDLE/Contents/MacOS/
-
-lipo build/release-darwin-ppc/smokinguns.ppc build/release-darwin-i386/smokinguns.i386 -create -output "$DESTDIR/$APPBUNDLE/Contents/MacOS/$BINARY"
-lipo build/release-darwin-ppc/smokinguns_dedicated.ppc build/release-darwin-i386/smokinguns_dedicated.i386 -create -output "$DESTDIR/$APPBUNDLE/Contents/MacOS/$DEDBIN"
-cp code/libs/macosx/*.dylib "$DESTDIR/$APPBUNDLE/Contents/MacOS/"
-=======
 echo
 
 # use the following shell script to build a universal application bundle
 "./make-macosx-app.sh" release
->>>>>>> b7f5971... Another pass at the Mac OS X make scripts.
