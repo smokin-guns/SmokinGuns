@@ -2530,6 +2530,9 @@ void CL_InitServerInfo( serverInfo_t *server, netadr_t *address ) {
 	server->game[0] = '\0';
 	server->gameType = 0;
 	server->netType = 0;
+	server->punkbuster = 0;
+	server->g_humanplayers = 0;
+	server->g_needpass = 0;
 }
 
 #define MAX_SERVERSPERPACKET	256
@@ -3982,23 +3985,8 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 
 	// add this to the list
 	cls.numlocalservers = i+1;
-	cls.localServers[i].adr = from;
-	cls.localServers[i].clients = 0;
-	cls.localServers[i].hostName[0] = '\0';
-	cls.localServers[i].mapName[0] = '\0';
-	cls.localServers[i].maxClients = 0;
-	cls.localServers[i].maxPing = 0;
-	cls.localServers[i].minPing = 0;
-	cls.localServers[i].ping = -1;
-	cls.localServers[i].game[0] = '\0';
-	cls.localServers[i].gameType = 0;
-	cls.localServers[i].netType = from.type;
-#ifndef SMOKINGUNS
-	cls.localServers[i].punkbuster = 0;
-#endif
-	cls.localServers[i].g_humanplayers = 0;
-	cls.localServers[i].g_needpass = 0;
-									 
+	CL_InitServerInfo( &cls.localServers[i], &from );
+
 	Q_strncpyz( info, MSG_ReadString( msg ), MAX_INFO_STRING );
 	if (strlen(info)) {
 		if (info[strlen(info)-1] != '\n') {
