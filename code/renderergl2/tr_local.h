@@ -1092,6 +1092,7 @@ typedef struct {
 	int		num_frames;
 	int		num_surfaces;
 	int		num_joints;
+	int		num_poses;
 	struct srfIQModel_s	*surfaces;
 
 	float		*positions;
