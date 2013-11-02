@@ -2530,7 +2530,9 @@ void CL_InitServerInfo( serverInfo_t *server, netadr_t *address ) {
 	server->game[0] = '\0';
 	server->gameType = 0;
 	server->netType = 0;
+#ifndef SMOKINGUNS
 	server->punkbuster = 0;
+#endif
 	server->g_humanplayers = 0;
 	server->g_needpass = 0;
 }
