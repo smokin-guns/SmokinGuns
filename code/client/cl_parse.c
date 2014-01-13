@@ -719,7 +719,7 @@ void CL_ParseVoip ( msg_t *msg ) {
 	const int packetsize = MSG_ReadShort(msg);
 	const int flags = MSG_ReadBits(msg, VOIP_FLAGCNT);
 	char encoded[1024];
-	int seqdiff = sequence - clc.voipIncomingSequence[sender];
+	int seqdiff;
 	int written = 0;
 	int i;
 
@@ -767,6 +767,8 @@ void CL_ParseVoip ( msg_t *msg ) {
 	cls.voipTime = cls.realtime + 500; // Aka half a second
 	cls.voipSender = sender;
 #endif
+
+	seqdiff = sequence - clc.voipIncomingSequence[sender];
 
 	// This is a new "generation" ... a new recording started, reset the bits.
 	if (generation != clc.voipIncomingGeneration[sender]) {
