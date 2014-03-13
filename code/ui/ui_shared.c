@@ -1244,7 +1244,7 @@ commandDef_t commandList[] =
 	{"show", &Script_Show},							// group/name
 	{"hide", &Script_Hide},							// group/name
 	{"setcolor", &Script_SetColor},					// works on this
-	{"open", &Script_Open},							// nenu
+	{"open", &Script_Open},							// menu
 	{"conditionalopen", &Script_ConditionalOpen},	// menu
 	{"close", &Script_Close},						// menu
 	{"setasset", &Script_SetAsset},					// works on this
@@ -3946,6 +3946,7 @@ void Item_OwnerDraw_Paint(itemDef_t *item) {
 void Item_Paint(itemDef_t *item) {
 	vec4_t red;
 	menuDef_t *parent;
+
 	red[0] = red[3] = 1;
 	red[1] = red[2] = 0;
 
