@@ -27,4 +27,5 @@
 	loadMenu { "ui/pop_quit.menu" }
 	loadMenu { "ui/pop_error.menu" }
 	loadMenu { "ui/pop_vid_restart.menu" }
+	loadMenu { "ui/pop_sound_restart.menu" }
 }

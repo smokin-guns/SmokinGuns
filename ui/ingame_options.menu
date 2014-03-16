@@ -41,12 +41,25 @@ itemDef {
     	}
 
 	itemDef {
+		name options
+		group grpOptions
+		text "Crosshair:"
+		rect 198 50 18 18
+		ownerdraw UI_CROSSHAIR
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 0
+		textaligny 20
+		textscale .28
+		forecolor 1 1 1 1
+		visible 1
+		}
+	itemDef {
       		name options
 		group grpOptions
       		type ITEM_TYPE_YESNO
 		text "Identify Target:"
 		cvar "cg_drawCrosshairNames"
-		rect ROW1 50 192 18
+		rect ROW1 70 192 18
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 128
       		textaligny 20
@@ -61,7 +74,7 @@ itemDef {
       		type ITEM_TYPE_YESNO
 		text "Auto Download:"
 		cvar "cl_allowDownload"
-		rect ROW1 70 192 18
+		rect ROW1 90 192 18
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 128
       		textaligny 20
@@ -75,7 +88,7 @@ itemDef {
       		type ITEM_TYPE_YESNO
 		text "Show FPS:"
 		cvar "cg_drawfps"
-		rect ROW1 90 192 18
+		rect ROW1 110 192 18
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 128
       		textaligny 20
@@ -89,7 +102,7 @@ itemDef {
       		type ITEM_TYPE_YESNO
 		text "Show Time:"
 		cvar "cg_drawTimer"
-		rect ROW1 110 192 18
+		rect ROW1 130 192 18
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 128
       		textaligny 20
@@ -104,7 +117,7 @@ itemDef {
       		type ITEM_TYPE_YESNO
 		text "Taunts Off:"
 		cvar "cg_noTaunt"
-		rect ROW1 130 192 18
+		rect ROW1 150 192 18
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 128
       		textaligny 20
@@ -118,7 +131,7 @@ itemDef {
       		type ITEM_TYPE_YESNO
 		text "Team Chats Only:"
 		cvar "cg_teamChatsOnly"
-		rect ROW1 150 192 18
+		rect ROW1 170 192 18
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 128
       		textaligny 20
@@ -133,7 +146,7 @@ itemDef {
       		type ITEM_TYPE_YESNO
 		text "In Game Video:"
 		cvar "r_inGameVideo"
-		rect ROW1 170 192 18
+		rect ROW1 190 192 18
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 128
       		textaligny 20
@@ -147,7 +160,7 @@ itemDef {
       		type ITEM_TYPE_YESNO
 		text "Show Hit Message(Target):"
 		cvar "cg_hitmsg"
-		rect ROW1 190 192 18
+		rect ROW1 210 192 18
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 128
       		textaligny 20
@@ -161,7 +174,7 @@ itemDef {
       		type ITEM_TYPE_YESNO
 		text "Show Hit Message(Myself):"
 		cvar "cg_ownhitmsg"
-		rect ROW1 210 192 18
+		rect ROW1 230 192 18
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 128
       		textaligny 20
@@ -175,21 +188,6 @@ itemDef {
       		type ITEM_TYPE_YESNO
 		text "Play Own Flysound:"
 		cvar "cg_flysound"
-		rect ROW1 230 192 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 20
-		textscale .28     
-      		forecolor 1 1 1 1
-      		visible 1 
-    		}
-
-	itemDef {
-      		name options
-		group grpOptions
-      		type ITEM_TYPE_YESNO
-		text "Indicate BR-Escape:"
-		cvar "cg_showescape"
 		rect ROW1 250 192 18
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 128
