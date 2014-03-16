@@ -1015,7 +1015,22 @@ itemDef {
 	textalignx 0
 	textaligny 25
 	textscale .3
-	text "Enter IP Address of Favorite Server"
+	text "Enter Net Address of Favorite Server"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_addfilter
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 3
+	textalignx 0
+	textaligny 25
+	textscale .3
+	text "Enter Four Letter Filter and Description"
 	forecolor 1 1 1 1
 	decoration 
 	visible 0
@@ -1065,6 +1080,20 @@ itemDef {
 	decoration 
 	visible 0
 	}
+
+
+/*itemDef {
+      	name fadebox
+      	style WINDOW_STYLE_FILLED
+ 	background "ui/assets/fadebox.tga"
+	forecolor 0 0 0 1
+	backcolor 0 0 0 1
+	rect 0 0 640 480
+      	visible 1 
+	decoration
+    	}*/
+
+
 
 
 }

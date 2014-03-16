@@ -38,7 +38,7 @@ itemDef {
 	style 0
 	text "Name:"
 	cvar "name"
-	maxchars 26
+	maxPaintChars 26
    	rect 100 100 256 20
    	textalign ITEM_ALIGN_LEFT
    	textalignx 10

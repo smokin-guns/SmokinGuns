@@ -247,7 +247,7 @@ itemDef {
 	style 0
 	text "Name:"
 	cvar "ui_findplayer"
-	maxChars 20
+	maxPaintChars 26
       	rect 20 48 215 32 
       	textalign ITEM_ALIGN_LEFT		
       	textalignx 0

@@ -3,34 +3,33 @@
 {
 \\ SETUP MENU \\
 
-menuDef {
-    	name "system_menu"
-    	visible 0
-    	fullscreen 0
-	rect 0 50 640 371
-    	focusColor 1 .75 0 1
-    	style 1
-    	border 1
-	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ; fadeout fadebox ; hide grpSystem ; show graphics }
-	onEsc { close system_menu ; close setup_menu ; open main }
+	menuDef {
+		name "system_menu"
+		visible 0
+		fullscreen 0
+		rect 0 50 640 371
+		focusColor 1 .75 0 1
+		style 1
+		border 1
+		onOpen { setitemcolor fadebox backcolor 0 0 0 1 ; fadeout fadebox ; hide grpSystem ; hide grpOpenGLExt ; show graphics }
+		onEsc { close system_menu ; close setup_menu ; open main }
+		disableColor .5 .5 .5 1
 
 
-itemDef {
-	name window
-	group grpSystembutton
-	rect 2 2 632 371	
-	style WINDOW_STYLE_FILLED
-	border 1
-	bordercolor .5 .5 .5 .5
-	forecolor 1 1 1 1
-	backcolor 0 0 0 .5
-	visible 1
-	decoration
-}
+		itemDef {
+			name window
+			group grpSystembutton
+			rect 2 2 632 371
+			style WINDOW_STYLE_FILLED
+			border 1
+			bordercolor .5 .5 .5 .5
+			forecolor 1 1 1 1
+			backcolor 0 0 0 .5
+			visible 1
+			decoration
+		}
 
-
-
-// 	System		//
+//  System  //
 
 itemDef {
 	name ctr_graphics
@@ -40,294 +39,735 @@ itemDef {
 	group grpSystembutton
 	style WINDOW_STYLE_FILLED
 	background "ui/wq3_assets/button.tga"
-	rect 90 330 100 26
+	rect 30 330 100 26
 	textalign 1
 	textalignx 50
 	textaligny 20
 	forecolor 1 1 1 1
-	backcolor 1 1 1 1 
+	backcolor 1 1 1 1
 	visible 1
-	action { play "sound/misc/menu3.wav" ; 
-	hide grpSystem ; show graphics }
-	mouseEnter { show message_graphics; show ctr_graphics_alt } 
-	mouseExit { hide message_graphics; hide ctr_graphics_alt } 
+	action { play "sound/misc/menu3.wav" ; hide grpSystem ; show graphics }
+	mouseEnter { show message_graphics; show ctr_graphics_alt }
+	mouseExit { hide message_graphics; hide ctr_graphics_alt }
 	}
 itemDef {
-      	name ctr_graphics_alt
+	name ctr_graphics_alt
 	group grpControlbutton
 	style WINDOW_STYLE_SHADER
 	background "ui/wq3_assets/button_selected.tga"
- 	rect 90 330 100 26
-      	visible 0
-	decoration	  
-    	}
+	rect 30 330 100 26
+	visible 0
+	decoration
+	}
 
-
+// Left side //
 	itemDef {
-    	name graphics				
+		name graphics
 		group grpSystem
 		text "Quality:"
-   		type ITEM_TYPE_MULTI	
+		type ITEM_TYPE_MULTI
 		cvar "ui_glCustom"
 		cvarFloatList { "High Quality" 0 "Normal" 1 "Fast" 2 "Fastest" 3 "Custom" 4 }
-		rect 192 20 256 18
-   		textalign ITEM_ALIGN_RIGHT
-   		textalignx 128 
-   		textaligny 20
-		textscale .28        
-   		forecolor 1 1 1 1
-   		visible 0 
+		rect 32 50 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
 		action { uiScript update "ui_glCustom" }
 	}
 
 	itemDef {
-  		name graphics
+		name graphics
 		group grpSystem
-   		type ITEM_TYPE_EDITFIELD
-		text "GL Driver:"
-		cvar "r_gldriver"
-		rect 192 40 256 18
-   		textalign ITEM_ALIGN_RIGHT
-  		textalignx 128
-   		textaligny 20
-		textscale .28       
-   		forecolor 1 1 1 1
-   		visible 0 
-		decoration
-	}
-
-	itemDef {
-   		name graphics
-		group grpSystem
-      		type ITEM_TYPE_YESNO
-		text "GL Extensions:"
-		cvar "r_allowExtensions"
-		rect 192 60 256 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 20
-		textscale .28       
-      		forecolor 1 1 1 1
-      		visible 0
-		action { uiScript glCustom }
-	}
-	
-	itemDef {
-   		name graphics
-		group grpSystem
-   		type ITEM_TYPE_MULTI	
+		type ITEM_TYPE_MULTI
 		text "Video Mode:"
 		cvar "r_mode"
-		cvarFloatList { "320*240" 0 "400*300" 1 "512*384" 2 "640*480" 3 "800*600" 4 "960*720" 5 "1024*768" 6 "1152*864" 7 "1280*1024" 8 "1600*1200" 9 "2048*1536" 10 "856*480 Wide Screen" 11 "1280*800 Wide Screen" 12 "1440*900 Wide Screen" 13 "1366*768 Wide Screen" 14 "1680*1050 Wide Screen" 15 "1920*1080 Wide Screen" 16 "1920*1200 Wide Screen" 17 "2560*1600 Wide Screen" 18 }
-		rect 192 80 256 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 20
-		textscale .28       
-      		forecolor 1 1 1 1
-      		visible 0 
+		cvarFloatList {
+			"320*240" 0 "400*300" 1 "512*384" 2 "640*480" 3 "800*600" 4
+			"960*720" 5 "1024*768" 6 "1152*864" 7 "1280*1024" 8 "1600*1200" 9
+			"2048*1536" 10 "856*480 Wide Screen" 11 "1280*800 Wide Screen" 12
+			"1366*768 Wide Screen" 13 "1440*900 Wide Screen" 14 "1680*1050 Wide Screen" 15
+			"1920*1080 Wide Screen" 16 "1920*1200 Wide Screen" 17 "2560*1600 Wide Screen" 18
+			"1280x720 (16:9 HD)" 19
+		}
+		rect 32 70 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
 		action { uiScript glCustom }
 	}
 
 	itemDef {
-   		name graphics
+		name graphics
 		group grpSystem
-   		type ITEM_TYPE_MULTI
+		type ITEM_TYPE_MULTI
 		text "Color Depth:"
 		cvar "r_colorbits"
 		cvarFloatList { "Desktop Default" 0 "16-bit" 16 "32-bit" 32 }
-		rect 192 100 256 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 20
-		textscale .28      
-      		forecolor 1 1 1 1
-      		visible 0 
+		rect 32 90 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
 		action { uiScript glCustom ; uiScript update "r_colorbits" }
 	}
 
 	itemDef {
-   		name graphics
+		name graphics
 		group grpSystem
-   		type ITEM_TYPE_MULTI
-		text "Refresh Rate:"
-		cvar "r_displayRefresh"
-		cvarFloatList { "Default" 0 "60" 60 "70" 70 "72" 72 "75" 75 "85" 85 "100" 100 "120" 120 }
-		rect 192 120 256 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 20
-		textscale .28      
-      		forecolor 1 1 1 1
-      		visible 0 
-		action { uiScript glCustom ; uiScript update "r_displayRefresh" }
-	}
-
-	itemDef {
-   		name graphics
-		group grpSystem
-      		type ITEM_TYPE_YESNO
+		type ITEM_TYPE_YESNO
 		text "Fullscreen:"
 		cvar "r_fullscreen"
-		rect 192 140 256 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 20
-		textscale .28        
-      		forecolor 1 1 1 1
-      		visible 0 
+		rect 32 110 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
 		action { uiScript glCustom }
 	}
 
 	itemDef {
-      		name graphics
+		name graphics
 		group grpSystem
-      		type ITEM_TYPE_MULTI			
+		type ITEM_TYPE_MULTI
 		text "Lighting:"
 		cvar "r_vertexlight"
 		cvarFloatList { "Light Map (high)" 0 "Vertex (low)" 1  }
-		rect 192 160 256 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 20
-		textscale .28       
-      		forecolor 1 1 1 1
-      		visible 0 
+		rect 32 130 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
 		action { uiScript glCustom }
 	}
 
 	itemDef {
-   		name graphics
+		name graphics
 		group grpSystem
-    		type ITEM_TYPE_MULTI
+		type ITEM_TYPE_MULTI
 		text "Models Detail:"
 		cvar "r_lodbias"
 		cvarFloatList { "Low" 2 "Medium" 1 "High" 0 }
-		rect 96 180 192 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 20
-		textscale .28       
-      		forecolor 1 1 1 1
-      		visible 0 
+		rect 32 150 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
 		action { uiScript glCustom ; uiScript update "r_lodbias" }
 	}
 
 	itemDef {
-   		name graphics
+		name graphics
 		group grpSystem
-    		type ITEM_TYPE_MULTI
-		text "Curves Detail:"
-		cvar "r_subdivisions"
-		cvarFloatList { "Very Low" 20 "Low" 12 "Medium" 4 "High" 2 "Very High" 1 "Perfect" 0 }
-		rect 320 180 192 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 20
-		textscale .28       
-      		forecolor 1 1 1 1
-      		visible 0 
-		action { uiScript glCustom ; uiScript update "r_subdivisions" }
-	}
-
-	itemDef {
-   		name graphics
-		group grpSystem
-    		type ITEM_TYPE_MULTI
-		text "Far-clipping distance:"
-		cvar "ui_farclip"
-		cvarFloatList { "Close" 3 "Medium" 2 "Far" 1 "Never" 0 }
-		rect 96 200 192 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 20
-		textscale .28       
-      		forecolor 1 1 1 1
-      		visible 0 
-		action { uiScript glCustom ; uiScript update "ui_farclip" }
-	}
-
-	itemDef {
-   		name graphics
-		group grpSystem
-    		type ITEM_TYPE_MULTI
-		text "Map Detail:"
-		cvar "cg_mapLOD"
-		cvarFloatList { "Low" 0 "Medium" 1 "High" 2 "Cinematic" 3 }
-		rect 320 200 192 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 20
-		textscale .28       
-      		forecolor 1 1 1 1
-      		visible 0 
-		action { uiScript glCustom ; uiScript update "cg_mapLOD" }
-	}
-
-	itemDef {
-  		name graphics
-		group grpSystem
-   		type ITEM_TYPE_MULTI
+		type ITEM_TYPE_MULTI
 		text "Texture Detail:"
 		cvar "r_picmip"
-		cvarFloatList { "Low" 2 "Normal" 1 "High" 0 }
-		rect 96 220 192 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 20
-		textscale .28        
-      		forecolor 1 1 1 1
-      		visible 0 
+		cvarFloatList { "Low" 2 "Medium" 1 "High" 0 }
+		rect 32 170 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
 		action { uiScript glCustom }
 	}
-	
+
 	itemDef {
-      		name graphics
+		name graphics
 		group grpSystem
-      		type ITEM_TYPE_MULTI
+		type ITEM_TYPE_MULTI
 		text "Texture Quality:"
 		cvar "r_texturebits"
 		cvarFloatList { "Default" 0 "16 bit" 16 "32 bit" 32 }
-		rect 320 220 192 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 20
-		textscale .28        
-      		forecolor 1 1 1 1
-      		visible 0 
-   	}
+		rect 32 190 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+	}
 
 	itemDef {
-      		name graphics
+		name graphics
 		group grpSystem
-      		type ITEM_TYPE_MULTI
+		type ITEM_TYPE_MULTI
 		text "Texture Filter:"
 		cvar "r_texturemode"
 		cvarStrList { "Bilinear", "GL_LINEAR_MIPMAP_NEAREST", "Trilinear", "GL_LINEAR_MIPMAP_LINEAR"  }
-		rect 192 240 256 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 20
-		textscale .28      
-      		forecolor 1 1 1 1
-      		visible 0 
+		rect 32 210 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
 		action { uiScript glCustom }
 		}
+
 	itemDef {
-      		name graphics
+		name graphics
 		group grpSystem
-      		type ITEM_TYPE_YESNO
+		type ITEM_TYPE_MULTI
+		text "Curves Detail:"
+		cvar "r_subdivisions"
+		cvarFloatList { "Very Low" 20 "Low" 12 "Medium" 4 "High" 2 "Very High" 1 "Perfect" 0 }
+		rect 32 230 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		action { uiScript update "r_subdivisions" ; uiScript glCustom }
+	}
+
+	itemDef {
+		name graphics
+		group grpSystem
+		type ITEM_TYPE_MULTI
+		text "Far-clipping distance:"
+		cvar "ui_farclip"
+		cvarFloatList { "Close" 3 "Medium" 2 "Far" 1 "Never" 0 }
+		rect 32 250 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		action { uiScript update "ui_farclip" ; uiScript glCustom }
+	}
+
+	itemDef {
+		name graphics
+		group grpSystem
+		type ITEM_TYPE_MULTI
+		text "Map Detail:"
+		cvar "cg_mapLOD"
+		cvarFloatList { "Low" 0 "Medium" 1 "High" 2 "Cinematic" 3 }
+		rect 32 270 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		action { uiScript update "cg_mapLOD" ; uiScript glCustom }
+	}
+
+// Right side //
+	itemDef {
+		name graphics
+		group grpOpenGLExt
+		type ITEM_TYPE_YESNO
+		text "GL Extensions:"
+		cvar "r_allowExtensions"
+		rect 352 30 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 160
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+	}
+
+	itemDef {
+		name graphics
+		group grpOpenGLExt
+		type ITEM_TYPE_YESNO
 		text "Compress Textures:"
 		cvar "r_ext_compressed_textures"
-		rect 192 260 256 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 20
-		textscale .28       
-      		forecolor 1 1 1 1
-      		visible 0 
-		action { uiScript glCustom }
+		rect 352 50 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 160
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "r_allowExtensions"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name graphics
+		group grpOpenGLExt
+		type ITEM_TYPE_YESNO
+		text "MultiTexture:"
+		cvar "r_ext_multitexture"
+		rect 352 70 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 160
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "r_allowExtensions"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name graphics
+		group grpOpenGLExt
+		type ITEM_TYPE_YESNO
+		text "Compiled Vertex Array:"
+		cvar "r_ext_compiled_vertex_array"
+		rect 352 90 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 160
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "r_allowExtensions"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name graphics
+		group grpOpenGLExt
+		type ITEM_TYPE_YESNO
+		text "Texture Env Add:"
+		cvar "r_ext_texture_env_add"
+		rect 352 110 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 160
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "r_allowExtensions"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name graphics
+		group grpOpenGLExt
+		type ITEM_TYPE_YESNO
+		text "Anisotropic filtering:"
+		cvar "r_ext_texture_filter_anisotropic"
+		rect 352 130 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 160
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "r_allowExtensions"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name graphics
+		group grpOpenGLExt
+		type ITEM_TYPE_MULTI
+		text "Max Anisotropy:"
+		cvar "r_ext_max_anisotropy"
+		cvarFloatList { "2x" 2 "4x" 4 "6x" 6 "8x" 8 "16x" 16 "24x" 24 "Max" 99999 }
+		rect 352 150 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 160
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "r_allowExtensions"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name graphics
+		group grpOpenGLExt
+		type ITEM_TYPE_YESNO
+		text "Round Images down:"
+		cvar "r_roundImagesDown"
+		rect 352 170 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 160
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "r_allowExtensions"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name graphics
+		group grpOpenGLExt
+		type ITEM_TYPE_MULTI
+		text "Anti-aliasing:"
+		cvar "r_ext_multisample"
+		cvarFloatList { "None" 0 "2x" 2 "4x" 4 }
+		rect 352 190 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 160
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "r_allowExtensions"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name graphics
+		group grpOpenGLExt
+		type ITEM_TYPE_YESNO
+		text "Simple Mipmaps:"
+		cvar "r_simpleMipMaps"
+		rect 352 210 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 160
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "r_allowExtensions"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name graphics
+		group grpOpenGLExt
+		type ITEM_TYPE_YESNO
+		text "Ignore FastPath:"
+		cvar "r_ignoreFastPath"
+		rect 352 230 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 160
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "r_allowExtensions"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name graphics
+		group grpOpenGLExt
+		type ITEM_TYPE_YESNO
+		text "GreyScale filtering:"
+		cvar "r_greyscale"
+		rect 352 250 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 160
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "r_allowExtensions"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name graphics
+		group grpOpenGLExt
+		type ITEM_TYPE_BUTTON
+		text "Reset extensions to default"
+		rect 352 270 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 220
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 0.5
+		visible 0
+		action {
+			setcvar r_allowExtensions					1
+			setcvar r_ext_compressed_textures			0
+			setcvar r_ext_multitexture					1
+			setcvar r_ext_compiled_vertex_array			1
+			setcvar r_ext_texture_env_add				1
+			setcvar r_ext_texture_filter_anisotropic	0
+			setcvar r_ext_max_anisotropy				2
+			setcvar r_roundImagesDown					1
+			setcvar r_ext_multisample					0
+			setcvar r_simpleMipMaps						1
+			setcvar r_ignoreFastPath					1
+			setcvar r_greyscale							0
+			setcvar r_ext_framebuffer					0
+			setcvar r_ext_framebuffer_bloom				0
+			setcvar r_ext_framebuffer_bloom_sharpness	0.75
+			setcvar r_ext_framebuffer_bloom_brightness	0.85
+			setcvar r_ext_framebuffer_rotoscope			0
+			setcvar r_ext_framebuffer_rotoscope_zedge	0
 		}
+		cvartest "r_allowExtensions"
+		disableCvar { "0" }
+	}
+
+//  Effects //
+	itemDef {
+		name effects
+		group grpOpenGLExt
+		type ITEM_TYPE_YESNO
+		text "FrameBuffer:"
+		cvar "r_ext_framebuffer"
+		rect 352 30 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 140
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+	}
+
+	itemDef {
+		name effects
+		group grpOpenGLExt
+		text "Bloom"
+		rect 352 50 256 20
+		textalign ITEM_ALIGN_CENTER
+		textalignx 140
+		textaligny 18
+		textscale .28
+		forecolor 1 .75 0 1
+		visible 0
+	}
+
+	itemDef {
+		name effects
+		group grpOpenGLExt
+		type ITEM_TYPE_YESNO
+		text "Bloom effect:"
+		cvar "r_ext_framebuffer_bloom"
+		rect 352 70 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 140
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "r_ext_framebuffer"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name effects
+		group grpOpenGLExt
+		type ITEM_TYPE_MULTI
+		text "Blur size:"
+		cvar "r_ext_framebuffer_blur_size"
+		cvarFloatList { "2" 2 "4" 4 "8" 8 "16" 16 "32" 32 "64" 64 "128" 128 "256" 256 "512" 512 "1024" 1024 }
+		rect 352 90 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 140
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "r_ext_framebuffer"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name effects
+		group grpOpenGLExt
+		type ITEM_TYPE_MULTI
+		text "Blur samples:"
+		cvar "r_ext_framebuffer_blur_samples"
+		cvarFloatList { "5" 5 "7" 7 "9" 9 }
+		rect 352 110 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 140
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "r_ext_framebuffer"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name effects
+		group grpOpenGLExt
+		type ITEM_TYPE_SLIDER
+		text "Blur amount:"
+		cvarfloat "r_ext_framebuffer_blur_amount" 7 1 128
+		rect 352 136 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 140
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "r_ext_framebuffer"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name effects
+		group grpOpenGLExt
+		type ITEM_TYPE_SLIDER
+		text "Bloom sharpness:"
+		cvarfloat "r_ext_framebuffer_bloom_sharpness" 0.75 0 1
+		rect 352 156 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 140
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "r_ext_framebuffer"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name effects
+		group grpOpenGLExt
+		type ITEM_TYPE_SLIDER
+		text "Bloom brightness:"
+		cvarfloat "r_ext_framebuffer_bloom_brightness" 0.85 0 1
+		rect 352 176 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 140
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "r_ext_framebuffer"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name effects
+		group grpOpenGLExt
+		text "Rotoscope"
+		rect 352 190 256 20
+		textalign ITEM_ALIGN_CENTER
+		textalignx 140
+		textaligny 18
+		textscale .28
+		forecolor 1 .75 0 1
+		visible 0
+	}
+
+	itemDef {
+		name effects
+		group grpOpenGLExt
+		type ITEM_TYPE_YESNO
+		text "Rotoscope effect:"
+		cvar "r_ext_framebuffer_rotoscope"
+		rect 352 210 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 140
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "r_ext_framebuffer"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name effects
+		group grpOpenGLExt
+		type ITEM_TYPE_YESNO
+		text "Rotoscope on depth edge:"
+		cvar "r_ext_framebuffer_rotoscope_zedge"
+		rect 322 230 286 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 170
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "r_ext_framebuffer"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name effects
+		group grpOpenGLExt
+		type ITEM_TYPE_BUTTON
+		text "Reset framebuffer effects to default"
+		rect 352 270 256 20
+		textalign ITEM_ALIGN_CENTER
+		textalignx 120
+		textaligny 18
+		textscale .28
+		forecolor 1 1 1 0.5
+		visible 0
+		action {
+			setcvar r_ext_framebuffer					0
+			setcvar r_ext_framebuffer_bloom				0
+			setcvar r_ext_framebuffer_blur_size			256
+			setcvar r_ext_framebuffer_blur_amount		7
+			setcvar r_ext_framebuffer_blur_samples		9
+			setcvar r_ext_framebuffer_bloom_sharpness	0.75
+			setcvar r_ext_framebuffer_bloom_brightness	0.85
+			setcvar r_ext_framebuffer_rotoscope			0
+			setcvar r_ext_framebuffer_rotoscope_zedge	0
+		}
+		cvartest "r_ext_framebuffer"
+		disableCvar { "0" }
+	}
+
+// Bottom buttons //
+itemDef {
+	name effects
+	text "OpenGL extensions"
+	type 1
+	group grpOpenGLExt
+	textscale .3
+	style WINDOW_STYLE_FILLED
+	background "ui/wq3_assets/button.tga"
+	rect 280 294 150 26
+	textalign 1
+	textalignx 75
+	textaligny 20
+	forecolor 1 1 1 1
+	backcolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu3.wav" ; hide grpOpenGLExt ; show graphics }
+	mouseEnter { show ctr_effects_alt }
+	mouseExit { hide ctr_effects_alt }
+	}
+itemDef {
+	name graphics
+	text "Other effects"
+	type 1
+	group grpOpenGLExt
+	textscale .3
+	style WINDOW_STYLE_FILLED
+	background "ui/wq3_assets/button.tga"
+	rect 280 294 150 26
+	textalign 1
+	textalignx 75
+	textaligny 20
+	forecolor 1 1 1 1
+	backcolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu3.wav" ; hide grpOpenGLExt ; show effects }
+	mouseEnter { show ctr_effects_alt }
+	mouseExit { hide ctr_effects_alt }
+	cvartest "r_allowExtensions"
+	disableCvar { "0" }
+	}
+itemDef {
+	name ctr_effects_alt
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/wq3_assets/button_selected.tga"
+	rect 280 294 150 26
+	visible 0
+	decoration
+	}
 
 itemDef {
 	name graphics
@@ -337,30 +777,26 @@ itemDef {
 	textscale .3
 	style WINDOW_STYLE_FILLED
 	background "ui/wq3_assets/button.tga"
-	rect 270 294 100 26
+	rect 450 294 100 26
 	textalign 1
 	textalignx 50
 	textaligny 20
 	forecolor 1 1 1 1
-	backcolor 1 1 1 1 
+	backcolor 1 1 1 1
 	visible 1
-	action { play "sound/misc/menu3.wav" ; 
-	open vid_restart_popmenu }
-	mouseEnter { show ctr_apply_alt } 
-	mouseExit { hide ctr_apply_alt } 
-		}
+	action { play "sound/misc/menu3.wav" ; open vid_restart_popmenu }
+	mouseEnter { show ctr_apply_alt }
+	mouseExit { hide ctr_apply_alt }
+	}
 itemDef {
-      	name ctr_apply_alt
+	name ctr_apply_alt
 	group grpControlbutton
 	style WINDOW_STYLE_SHADER
 	background "ui/wq3_assets/button_selected.tga"
- 	rect 270 294 100 26
-      	visible 0
-	decoration	  
-    	}
-
-	
-    		
+	rect 450 294 100 26
+	visible 0
+	decoration
+	}
 
 
 itemDef {
@@ -371,33 +807,32 @@ itemDef {
 	group grpSystembutton
 	style WINDOW_STYLE_FILLED
 	background "ui/wq3_assets/button.tga"
-	rect 210 330 100 26
+	rect 150 330 100 26
 	textalign 1
 	textalignx 50
 	textaligny 20
 	forecolor 1 1 1 1
-	backcolor 1 1 1 1 
+	backcolor 1 1 1 1
 	visible 1
-	action { play "sound/misc/menu3.wav" ; 
-	hide grpSystem ; show driver }
-	mouseEnter { show message_driver ; show ctr_driver_alt } 
-	mouseExit { hide message_driver ; hide ctr_driver_alt } 
+	action { play "sound/misc/menu3.wav" ; hide grpSystem ; hide grpOpenGLExt ; show driver }
+	mouseEnter { show message_driver ; show ctr_driver_alt }
+	mouseExit { hide message_driver ; hide ctr_driver_alt }
 	}
 itemDef {
-      	name ctr_driver_alt
+	name ctr_driver_alt
 	group grpControlbutton
 	style WINDOW_STYLE_SHADER
 	background "ui/wq3_assets/button_selected.tga"
- 	rect 210 330 100 26
-      	visible 0
-	decoration	  
-    	}
+	rect 150 330 100 26
+	visible 0
+	decoration
+	}
 
 	itemDef {
 		name driver
 		group grpSystem
-		rect 93 32 454 256	
-		text "Driver Information" 
+		rect 93 8 454 256
+		text "Driver Information"
 		textalign 1
 		textscale .333
 		textalignx 227
@@ -406,11 +841,11 @@ itemDef {
 		visible 0
 		decoration
 	}
-	
+
 	itemDef {
 		name driver
 		group grpSystem
-		rect 120 70 400 300	
+		rect 120 30 400 300
 		ownerdraw UI_GLINFO
 		textalign 0
 		textalignx 0
@@ -420,9 +855,8 @@ itemDef {
 		visible 0
 		decoration
 		style 1
-		
+
 	}
- 	
 
 
 itemDef {
@@ -433,197 +867,603 @@ itemDef {
 	group grpSystembutton
 	style WINDOW_STYLE_FILLED
 	background "ui/wq3_assets/button.tga"
-	rect 330 330 100 26
+	rect 510 330 100 26
 	textalign 1
 	textalignx 50
 	textaligny 20
 	forecolor 1 1 1 1
-	backcolor 1 1 1 1 
+	backcolor 1 1 1 1
 	visible 1
-	action { play "sound/misc/menu3.wav" ; 
-	hide grpSystem ; show other }
-	mouseEnter { show message_other ; show ctr_other_alt } 
-	mouseExit { hide message_other ; hide ctr_other_alt} 	
+	action { play "sound/misc/menu3.wav" ; hide grpSystem ; hide grpOpenGLExt ; show other }
+	mouseEnter { show message_other ; show ctr_other_alt }
+	mouseExit { hide message_other ; hide ctr_other_alt }
 	}
 itemDef {
-      	name ctr_other_alt
+	name ctr_other_alt
 	group grpControlbutton
 	style WINDOW_STYLE_SHADER
 	background "ui/wq3_assets/button_selected.tga"
- 	rect 330 330 100 26
-      	visible 0
-	decoration	  
-    	}
-itemDef {
-      	name other			
-	group grpSystem
-      	style 1
-	text "Display"
-	rect 256 8 128 20
-      	textalign ITEM_ALIGN_CENTER
-      	textalignx 64 
-      	textaligny 20
-	textscale .3         
-      	forecolor 1 .75 0 1
-      	visible 0 
+	rect 510 330 100 26
+	visible 0
 	decoration
-    	}
-	
-		itemDef {
-      		name other			
+	}
+
+	itemDef {
+		name other
 		group grpSystem
-      		type ITEM_TYPE_SLIDER
+		style 1
+		text "Display"
+		rect 256 8 128 20
+		textalign ITEM_ALIGN_CENTER
+		textalignx 64
+		textaligny 20
+		textscale .3
+		forecolor 1 .75 0 1
+		visible 0
+		decoration
+	}
+
+	itemDef {
+		name other
+		group grpSystem
+		type ITEM_TYPE_SLIDER
 		text "Brightness:"
 		cvarfloat "r_gamma" 1 0.5 2
- 		rect 192 45 256 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128 
-      		textaligny 12
-		textscale .28        
-      		forecolor 1 1 1 1
-      		visible 0 
-    		}
+		rect 192 35 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		}
 
 	itemDef {
-      		name other
+		name other
 		group grpSystem
-      		type ITEM_TYPE_SLIDER
+		type ITEM_TYPE_SLIDER
 		text "Screen Size:"
 		cvarfloat "cg_viewsize" 100 30 100
-		rect 192 65 256 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 12
-		textscale .28        
-      		forecolor 1 1 1 1
-      		visible 0 
-    		}
-
-itemDef {
-      	name other			
-	group grpSystem
-      	style 1
-	text "Sound"
-	rect 256 100 128 20
-      	textalign ITEM_ALIGN_CENTER
-      	textalignx 64 
-      	textaligny 20
-	textscale .3
-      	forecolor 1 .75 0 1
-      	visible 0 
-	decoration
-    	}
+		rect 192 55 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+	}
+	itemDef {
+		name other
+		group grpSystem
+		style 1
+		text "Network"
+		rect 256 82 128 20
+		textalign 1
+		textalignx 64
+		textaligny 20
+		textscale .3
+		forecolor 1 .75 0 1
+		visible 0
+		decoration
+	}
 
 	itemDef {
-      		name other
+		name other
 		group grpSystem
-      		type ITEM_TYPE_SLIDER
-		text "Effects Volume:"
-		cvarfloat "s_volume" 0.7 0 1
-		rect 192 137 256 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 12
-		textscale .28       
-      		forecolor 1 1 1 1
-      		visible 0 
-    		}
-	
-	itemDef {
-      		name other
-		group grpSystem
-      		type ITEM_TYPE_SLIDER
-		text "Music Volume:"
-		cvarfloat "cg_musicvolume" 0.25 0 1
-		rect 192 157 256 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 12
-		textscale .28       
-      		forecolor 1 1 1 1
-      		visible 0 
-    		}
-
-	itemDef {
-      		name other
-		group grpSystem
-      		type ITEM_TYPE_MULTI
-		text "Sound Quality:"
-		cvar "s_khz"
-		cvarFloatList { "22 khz (high)" 22 "11 khz (low)" 11 }
-		rect 192 177 256 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 20
-		textscale .28        
-      		forecolor 1 1 1 1
-      		visible 0 
-    		}
-
-	itemDef {
-      		name other
-		group grpSystem
-      		type ITEM_TYPE_YESNO
-		text "Doppler Sound:"
-		cvar "s_doppler"
-		rect 192 197 256 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 20
-		textscale .28       
-      		forecolor 1 1 1 1
-      		visible 0 
-    		}
-
-	itemDef {
-      		name other
-		group grpSystem
-      		type ITEM_TYPE_MULTI
-		text "Talk Sound:"
-		cvar "cg_talksound"
-		cvarFloatList { "None" 0 "Default" 1 "8 Bit" 2 "Magic" 3 "Indian Arrow" 4 }
-		rect 192 217 256 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 20
-		textscale .28       
-      		forecolor 1 1 1 1
-      		visible 0 
-    		}
-
-
-itemDef {
-      	name other			
-	group grpSystem
-      	style 1
-	text "Network"
-	rect 256 252 128 20
-      	textalign 1
-      	textalignx 64 
-      	textaligny 20
-	textscale .3        
-      	forecolor 1 .75 0 1
-      	visible 0 
-	decoration
-    	}
-
-	itemDef {
-      		name other
-		group grpSystem
-      		type ITEM_TYPE_MULTI
+		type ITEM_TYPE_MULTI
 		text "Net Data Rate:"
 		cvar "rate"
 		cvarFloatList { "<=28.8k" 2500 "33.6k" 3000 "56k" 4000 "ISDN" 5000 "LAN/CABLE/xDSl" 25000  }
-		rect 192 279 256 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 20
-		textscale .28       
-      		forecolor 1 1 1 1
-      		visible 0 
-			action { uiScript update ui_setRate }
-   		}
+		rect 192 104 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 20
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		action { uiScript update ui_setRate }
+	}
+	itemDef {
+		name other
+		group grpSystem
+		style 1
+		text "Console"
+		rect 256 138 128 20
+		textalign 1
+		textalignx 64
+		textaligny 20
+		textscale .3
+		forecolor 1 .75 0 1
+		visible 0
+		decoration
+	}
 
+	itemDef {
+		name other
+		group grpSystem
+		type ITEM_TYPE_MULTI
+		text "Type:"
+		cvar "cl_consoleType"
+		cvarFloatList { "Classic" 0 "Color" 1 }
+		rect 192 160 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 20
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+	}
+
+	itemDef {
+		name other
+		group grpSystem
+		type ITEM_TYPE_SLIDER
+		text "Red color:"
+		cvarfloat "cl_consoleColorRed" 1 0 1
+		rect 64 185 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 12
+		textscale .28
+		forecolor 1 0.7 0.7 1
+		visible 0
+		cvartest "cl_consoleType"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name other
+		group grpSystem
+		type ITEM_TYPE_SLIDER
+		text "Green color:"
+		cvarfloat "cl_consoleColorGreen" 1 0 1
+		rect 64 205 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 12
+		textscale .28
+		forecolor 0.7 1 0.7 1
+		visible 0
+		cvartest "cl_consoleType"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name other
+		group grpSystem
+		type ITEM_TYPE_SLIDER
+		text "Blue color:"
+		cvarfloat "cl_consoleColorBlue" 1 0 1
+		rect 320 185 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 12
+		textscale .28
+		forecolor 0.7 0.7 1 1
+		visible 0
+		cvartest "cl_consoleType"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name other
+		group grpSystem
+		type ITEM_TYPE_SLIDER
+		text "Transparency:"
+		cvarfloat "cl_consoleTransparency" 1 0 1
+		rect 320 205 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+	}
+
+//  Sound  //
+itemDef {
+	name ctr_sound
+	text "Sound"
+	type 1
+	textscale .3
+	group grpSystembutton
+	style WINDOW_STYLE_FILLED
+	background "ui/wq3_assets/button.tga"
+	rect 270 330 100 26
+	textalign 1
+	textalignx 50
+	textaligny 20
+	forecolor 1 1 1 1
+	backcolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu3.wav" ; hide grpSystem ; hide grpOpenGLExt ; show sound }
+	mouseEnter { show message_sound ; show ctr_sound_alt }
+	mouseExit { hide message_sound ; hide ctr_sound_alt }
+	}
+itemDef {
+	name ctr_sound_alt
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/wq3_assets/button_selected.tga"
+	rect 270 330 100 26
+	visible 0
+	decoration
+	}
+
+	itemDef {
+		name sound
+		group grpSystem
+		style 1
+		text "General"
+		rect 128 10 128 20
+		textalign ITEM_ALIGN_CENTER
+		textalignx 64
+		textaligny 18
+		textscale .3
+		forecolor 1 .75 0 1
+		visible 0
+		decoration
+	}
+
+	itemDef {
+		name sound
+		group grpSystem
+		type ITEM_TYPE_EDITFIELD
+		text "Current sound backend:"
+		cvar "s_backend"
+		rect 64 40 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 12
+		textscale .28
+		forecolor .5 .5 .5 1
+		visible 0
+		cvartest "s_backend"
+		enableCvar { "no" }
+	}
+
+	itemDef {
+		name sound
+		group grpSystem
+		type ITEM_TYPE_SLIDER
+		text "Effects Volume:"
+		cvarfloat "s_volume" 0.7 0 1
+		rect 64 70 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+	}
+
+	itemDef {
+		name sound
+		group grpSystem
+		type ITEM_TYPE_SLIDER
+		text "Music Volume:"
+		cvarfloat "cg_musicvolume" 0.25 0 1
+		rect 64 90 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+	}
+
+	itemDef {
+		name sound
+		group grpSystem
+		type ITEM_TYPE_YESNO
+		text "Doppler Sound:"
+		cvar "s_doppler"
+		rect 64 130 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+	}
+
+	itemDef {
+		name sound
+		group grpSystem
+		type ITEM_TYPE_MULTI
+		text "Talk Sound:"
+		cvar "cg_talksound"
+		cvarFloatList { "None" 0 "Default" 1 "8 Bit" 2 "Magic" 3 "Indian Arrow" 4 }
+		rect 64 150 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 128
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+	}
+
+itemDef {
+	name sound
+	text "Restart sound"
+	type 1
+	group grpSystem
+	textscale .3
+	style WINDOW_STYLE_FILLED
+	background "ui/wq3_assets/button.tga"
+	rect 260 294 120 26
+	textalign 1
+	textalignx 60
+	textaligny 20
+	forecolor 1 1 1 1
+	backcolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu3.wav" ; open sound_restart_popmenu }
+	mouseEnter { show ctr_restart_sound_alt }
+	mouseExit { hide ctr_restart_sound_alt }
+	}
+itemDef {
+	name ctr_restart_sound_alt
+	group grpControlbutton
+	style WINDOW_STYLE_SHADER
+	background "ui/wq3_assets/button_selected.tga"
+	rect 260 294 120 26
+	visible 0
+	decoration
+	}
+
+	itemDef {
+		name sound
+		group grpSystem
+		style 1
+		text "OpenAL Support"
+		rect 384 10 128 20
+		textalign ITEM_ALIGN_CENTER
+		textalignx 64
+		textaligny 18
+		textscale .3
+		forecolor 1 .75 0 1
+		visible 0
+		decoration
+	}
+
+	itemDef {
+		name sound
+		group grpSystem
+		type ITEM_TYPE_YESNO
+		text "Enable OpenAL:"
+		cvar "s_useOpenAL"
+		rect 320 40 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 160
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+	}
+
+	itemDef {
+		name sound
+		group grpSystem
+		type ITEM_TYPE_EDITFIELD
+		text "Driver:"
+		cvar "s_alDriver"
+		rect 320 60 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 160
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "s_useOpenAL"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name sound
+		group grpSystem
+		type ITEM_TYPE_MULTI
+		cvar "s_alDevice"
+		alAvailableDevicesList
+		text "Device:"
+		rect 320 80 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 160
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "s_useOpenAL"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name sound
+		group grpSystem
+		type ITEM_TYPE_YESNO
+		text "Capture sound for VoIP:"
+		cvar "s_alCapture"
+		rect 320 100 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 160
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "s_useOpenAL"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name sound
+		group grpSystem
+		type ITEM_TYPE_YESNO
+		text "Load sound in cache:"
+		cvar "s_alPrecache"
+		rect 320 120 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 160
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "s_useOpenAL"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name sound
+		group grpSystem
+		type ITEM_TYPE_SLIDER
+		text "Sound gain:"
+		cvarfloat "s_alGain" 1 0 2
+		rect 320 140 280 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 160
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "s_useOpenAL"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name sound
+		group grpSystem
+		type ITEM_TYPE_NUMERICFIELD
+		text "Gain value:"
+		cvar "s_alGain"
+		rect 320 160 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 160
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "s_useOpenAL"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name sound
+		group grpSystem
+		type ITEM_TYPE_BUTTON
+		text "Reset gain"
+		style WINDOW_STYLE_FILLED
+		background "ui/wq3_assets/button.tga"
+		rect 572 156 60 18
+		textalign 1
+		textalignx 30
+		textaligny 13
+		textscale .2
+		backcolor 1 1 1 1
+		forecolor 1 1 1 1
+		visible 0
+		action { setcvar s_alGain 1 }
+		mouseEnter { show ctr_sound_reset_gain }
+		mouseExit { hide ctr_sound_reset_gain }
+		cvartest "s_useOpenAL"
+		disableCvar { "0" }
+	}
+	itemDef {
+		name ctr_sound_reset_gain
+		group grpControlbutton
+		style WINDOW_STYLE_SHADER
+		background "ui/wq3_assets/button_selected.tga"
+		rect 572 156 60 18
+		visible 0
+		decoration
+		cvartest "s_useOpenAL"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name sound
+		group grpSystem
+		type ITEM_TYPE_MULTI
+		text "Sources support:"
+		cvar "s_alSources"
+		cvarFloatList { "Min=16" 16 "Some=32" 32 "medium=64" 64 "Default=96" 96 "Max=128" 128 }
+		rect 320 180 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 160
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "s_useOpenAL"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name sound
+		group grpSystem
+		type ITEM_TYPE_SLIDER
+		text "Doppler speed:"
+		cvarfloat "s_alDopplerSpeed" 2200 0 10000
+		rect 320 200 180 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 160
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "s_useOpenAL"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name sound
+		group grpSystem
+		type ITEM_TYPE_NUMERICFIELD
+		text "Doppler speed:"
+		cvar "s_alDopplerSpeed"
+		rect 320 220 256 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 160
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "s_useOpenAL"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name sound
+		group grpSystem
+		type ITEM_TYPE_BUTTON
+		text "Reset speed"
+		style WINDOW_STYLE_FILLED
+		background "ui/wq3_assets/button.tga"
+		rect 572 216 60 18
+		textalign 1
+		textalignx 30
+		textaligny 13
+		textscale .2
+		backcolor 1 1 1 1
+		forecolor 1 1 1 1
+		visible 0
+		action { setcvar s_alDopplerSpeed 2200 }
+		mouseEnter { show ctr_sound_reset_speed }
+		mouseExit { hide ctr_sound_reset_speed }
+		cvartest "s_useOpenAL"
+		disableCvar { "0" }
+	}
+	itemDef {
+		name ctr_sound_reset_speed
+		group grpControlbutton
+		style WINDOW_STYLE_SHADER
+		background "ui/wq3_assets/button_selected.tga"
+		rect 572 216 60 18
+		visible 0
+		decoration
+		cvartest "s_useOpenAL"
+		disableCvar { "0" }
+	}
+
+//  VoIP  //
 itemDef {
 	name ctr_voip
 	text "VoIP"
@@ -632,101 +1472,568 @@ itemDef {
 	group grpSystembutton
 	style WINDOW_STYLE_FILLED
 	background "ui/wq3_assets/button.tga"
-	rect 450 330 100 26
+	rect 390 330 100 26
 	textalign 1
 	textalignx 50
 	textaligny 20
 	forecolor 1 1 1 1
-	backcolor 1 1 1 1 
+	backcolor 1 1 1 1
 	visible 1
-	action { play "sound/misc/menu3.wav" ; 
-	hide grpSystem ; show voip }
-	mouseEnter { show message_voip ; show ctr_voip_alt } 
-	mouseExit { hide message_voip ; hide ctr_voip_alt} 	
+	action { play "sound/misc/menu3.wav" ; hide grpSystem ; hide grpOpenGLExt ; show voip }
+	mouseEnter { show message_voip ; show ctr_voip_alt }
+	mouseExit { hide message_voip ; hide ctr_voip_alt }
 	}
 itemDef {
-      	name ctr_voip_alt
+	name ctr_voip_alt
 	group grpControlbutton
 	style WINDOW_STYLE_SHADER
 	background "ui/wq3_assets/button_selected.tga"
- 	rect 450 330 100 26
-      	visible 0
-	decoration	  
-    	}
-    	
-itemDef {
-      	name voip			
-	group grpSystem
-      	style 1
-	text "Mumble support"
-	rect 256 215 128 20
-      	textalign ITEM_ALIGN_CENTER
-      	textalignx 64 
-      	textaligny 20
-	textscale .3         
-      	forecolor 1 .75 0 1
-      	visible 0 
+	rect 390 330 100 26
+	visible 0
 	decoration
-    	}
-    	
+	}
+
 	itemDef {
-      		name voip
+		name voip
 		group grpSystem
-      		type ITEM_TYPE_YESNO
-		text "Mumble link support:"
-		cvar "cl_useMumble"
-		rect 192 242 256 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 20
-		textscale .28       
-      		forecolor 1 1 1 1
-      		visible 0 
-    		}
+		style 1
+		text "VoIP Support"
+		rect 256 8 128 20
+		textalign ITEM_ALIGN_CENTER
+		textalignx 64
+		textaligny 18
+		textscale .3
+		forecolor 1 .75 0 1
+		visible 0
+		decoration
+	}
+
 	itemDef {
-      		name voip
+		name voip
 		group grpSystem
-      		type ITEM_TYPE_SLIDER
-		text "Mumble distance scaler:"
-		cvarfloat "cl_mumbleScale" 0.0254 0 0.2
-		rect 192 270 256 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 12
-		textscale .28       
-      		forecolor 1 1 1 1
-      		visible 0 
-    		}
+		type ITEM_TYPE_YESNO
+		text "Enable VoIP:"
+		cvar "cl_voip"
+		rect 50 30 270 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 192
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+	}
+
 	itemDef {
-      		name voip
+		name voip
 		group grpSystem
-			type ITEM_TYPE_NUMERICFIELD
-		text "Mumble distance scale:"
-		cvar "cl_mumbleScale"
-		rect 192 290 256 18
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 12
-		textscale .28       
-      		forecolor 1 1 1 1
-      		visible 0 
-    		}
+		type ITEM_TYPE_YESNO
+		text "Show VoIP volume meter:"
+		cvar "cl_voipShowMeter"
+		rect 320 30 270 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 192
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "cl_voip"
+		disableCvar { "0" }
+	}
+
 	itemDef {
-      		name voip
+		name voip
 		group grpSystem
-			type ITEM_TYPE_BUTTON
-		text "Reset scale"
+		type ITEM_TYPE_YESNO
+		text "Show VoIP sender:"
+		cvar "cl_voipShowSender"
+		rect 50 50 270 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 192
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "cl_voip"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name voip
+		group grpSystem
+		type ITEM_TYPE_MULTI
+		text "VoIP shown sender pos:"
+		cvar "cl_voipSenderPos"
+		cvarFloatList { "Bottom left" 0 "bottom right" 1 "top right" 2 "top middle" 3 "bottom middle" 4 "Bottom left 2" 5 }
+		rect 320 50 300 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 192
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "cl_voip"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name voip
+		group grpSystem
+		type ITEM_TYPE_YESNO
+		text "Send voice when speaking:"
+		cvar "cl_voipUseVAD"
+		rect 100 70 330 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 220
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "cl_voip"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name voip
+		group grpSystem
+		type ITEM_TYPE_SLIDER
+		text "Speaking level detection threshold:"
+		cvarfloat "cl_voipVADThreshold" 0.25 0 1
+		rect 100 90 330 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 220
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "cl_voip"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name voip
+		group grpSystem
+		type ITEM_TYPE_NUMERICFIELD
+		text "Threshold value:"
+		cvar "cl_voipVADThreshold"
+		rect 100 110 330 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 220
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "cl_voip"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name voip
+		group grpSystem
+		type ITEM_TYPE_BUTTON
+		text "Reset threshold"
 		style WINDOW_STYLE_FILLED
 		background "ui/wq3_assets/button.tga"
-		rect 440 278 120 25
+		rect 440 90 120 25
 		textalign 1
 		textalignx 60
 		textaligny 18
-		textscale .28       
-     		backcolor 1 1 1 1
-     		forecolor 1 1 1 1
-      		visible 0 
-     		action { setcvar cl_mumbleScale 0.0254 }
-    		}
+		textscale .28
+		backcolor 1 1 1 1
+		forecolor 1 1 1 1
+		visible 0
+		action { setcvar cl_voipVADThreshold 0.25 }
+		mouseEnter { show ctr_voip_reset_vad }
+		mouseExit { hide ctr_voip_reset_vad }
+		cvartest "cl_voip"
+		disableCvar { "0" }
+	}
+	itemDef {
+		name ctr_voip_reset_vad
+		group grpControlbutton
+		style WINDOW_STYLE_SHADER
+		background "ui/wq3_assets/button_selected.tga"
+		rect 440 90 120 25
+		visible 0
+		decoration
+		cvartest "cl_voip"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name voip
+		group grpSystem
+		type ITEM_TYPE_SLIDER
+		text "Voice gain during capture:"
+		cvarfloat "cl_voipGainDuringCapture" 0.2 0 1
+		rect 100 130 330 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 220
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "cl_voip"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name voip
+		group grpSystem
+		type ITEM_TYPE_NUMERICFIELD
+		text "Capture gain value:"
+		cvar "cl_voipGainDuringCapture"
+		rect 100 150 330 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 220
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "cl_voip"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name voip
+		group grpSystem
+		type ITEM_TYPE_BUTTON
+		text "Reset gain"
+		style WINDOW_STYLE_FILLED
+		background "ui/wq3_assets/button.tga"
+		rect 440 130 120 25
+		textalign 1
+		textalignx 60
+		textaligny 18
+		textscale .28
+		backcolor 1 1 1 1
+		forecolor 1 1 1 1
+		visible 0
+		action { setcvar cl_voipGainDuringCapture 0.2 }
+		mouseEnter { show ctr_voip_reset_gain }
+		mouseExit { hide ctr_voip_reset_gain }
+		cvartest "cl_voip"
+		disableCvar { "0" }
+	}
+	itemDef {
+		name ctr_voip_reset_gain
+		group grpControlbutton
+		style WINDOW_STYLE_SHADER
+		background "ui/wq3_assets/button_selected.tga"
+		rect 440 130 120 25
+		visible 0
+		decoration
+		cvartest "cl_voip"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name voip
+		group grpSystem
+		type ITEM_TYPE_SLIDER
+		text "Voice denoising power:"
+		cvarfloat "cl_voipCaptureMult" 2 0 4
+		rect 100 170 330 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 220
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "cl_voip"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name voip
+		group grpSystem
+		type ITEM_TYPE_NUMERICFIELD
+		text "Denoising power value:"
+		cvar "cl_voipCaptureMult"
+		rect 100 190 330 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 220
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "cl_voip"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name voip
+		group grpSystem
+		type ITEM_TYPE_BUTTON
+		text "Reset denoising"
+		style WINDOW_STYLE_FILLED
+		background "ui/wq3_assets/button.tga"
+		rect 440 170 120 25
+		textalign 1
+		textalignx 60
+		textaligny 18
+		textscale .28
+		backcolor 1 1 1 1
+		forecolor 1 1 1 1
+		visible 0
+		action { setcvar cl_voipCaptureMult 2 }
+		mouseEnter { show ctr_voip_reset_denoising }
+		mouseExit { hide ctr_voip_reset_denoising }
+		cvartest "cl_voip"
+		disableCvar { "0" }
+	}
+	itemDef {
+		name ctr_voip_reset_denoising
+		group grpControlbutton
+		style WINDOW_STYLE_SHADER
+		background "ui/wq3_assets/button_selected.tga"
+		rect 440 170 120 25
+		visible 0
+		decoration
+		cvartest "cl_voip"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name voip
+		group grpSystem
+		type ITEM_TYPE_SLIDER
+		text "Default VoIP gain:"
+		cvarfloat "cl_voipDefaultGain" 0 0 4
+		rect 100 210 330 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 220
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "cl_voip"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name voip
+		group grpSystem
+		type ITEM_TYPE_NUMERICFIELD
+		text "Default gain value:"
+		cvar "cl_voipDefaultGain"
+		rect 100 230 330 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 220
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "cl_voip"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name voip
+		group grpSystem
+		type ITEM_TYPE_BUTTON
+		text "Reset voip gain"
+		style WINDOW_STYLE_FILLED
+		background "ui/wq3_assets/button.tga"
+		rect 440 210 120 25
+		textalign 1
+		textalignx 60
+		textaligny 18
+		textscale .28
+		backcolor 1 1 1 1
+		forecolor 1 1 1 1
+		visible 0
+		action { setcvar cl_voipDefaultGain 0 }
+		mouseEnter { show ctr_voip_reset_defaultgain_alt }
+		mouseExit { hide ctr_voip_reset_defaultgain_alt }
+		cvartest "cl_voip"
+		disableCvar { "0" }
+	}
+	itemDef {
+		name ctr_voip_reset_defaultgain_alt
+		group grpControlbutton
+		style WINDOW_STYLE_SHADER
+		background "ui/wq3_assets/button_selected.tga"
+		rect 440 210 120 25
+		visible 0
+		decoration
+		cvartest "cl_voip"
+		disableCvar { "0" }
+	}
+
+// Mumble VoIP client support //
+itemDef {
+	name voip
+	group grpSystem
+	style 1
+	text "Mumble support"
+	rect 256 248 128 20
+	textalign ITEM_ALIGN_CENTER
+	textalignx 64
+	textaligny 18
+	textscale .3
+	forecolor 1 .75 0 1
+	visible 0
+	decoration
+	}
+
+	itemDef {
+		name voip
+		group grpSystem
+		type ITEM_TYPE_YESNO
+		text "Mumble link support:"
+		cvar "cl_useMumble"
+		rect 100 270 330 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 220
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+	}
+
+	itemDef {
+		name voip
+		group grpSystem
+		type ITEM_TYPE_SLIDER
+		text "Mumble distance scale:"
+		cvarfloat "cl_mumbleScale" 0.0254 0 0.2
+		rect 100 290 330 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 220
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "cl_useMumble"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name voip
+		group grpSystem
+		type ITEM_TYPE_NUMERICFIELD
+		text "Mumble distance scale:"
+		cvar "cl_mumbleScale"
+		rect 100 310 330 20
+		textalign ITEM_ALIGN_RIGHT
+		textalignx 220
+		textaligny 12
+		textscale .28
+		forecolor 1 1 1 1
+		visible 0
+		cvartest "cl_useMumble"
+		disableCvar { "0" }
+	}
+
+	itemDef {
+		name voip
+		group grpSystem
+		type ITEM_TYPE_BUTTON
+		text "Reset scale"
+		style WINDOW_STYLE_FILLED
+		background "ui/wq3_assets/button.tga"
+		rect 440 290 120 25
+		textalign 1
+		textalignx 60
+		textaligny 18
+		textscale .28
+		backcolor 1 1 1 1
+		forecolor 1 1 1 1
+		visible 0
+		action { setcvar cl_mumbleScale 0.0254 }
+		mouseEnter { show ctr_voip_reset_scale }
+		mouseExit { hide ctr_voip_reset_scale }
+		cvartest "cl_useMumble"
+		disableCvar { "0" }
+	}
+	itemDef {
+		name ctr_voip_reset_scale
+		group grpControlbutton
+		style WINDOW_STYLE_SHADER
+		background "ui/wq3_assets/button_selected.tga"
+		rect 440 290 120 25
+		visible 0
+		decoration
+		cvartest "cl_useMumble"
+		disableCvar { "0" }
+	}
+
+//	MESSAGES	//
+
+itemDef {
+	name message_voip
+	group grpSystem
+	style 0
+	rect 320 430 128 30
+	textalign 1
+	textstyle 3
+	textalignx 0
+	textaligny 25
+	textscale .3
+	text "Edit Voice over IP Settings"
+	forecolor 1 1 1 1
+	decoration
+	visible 0
+	}
+itemDef {
+	name message_graphics
+	group grpSystem
+	style 0
+	rect 320 430 128 30
+	textalign 1
+	textstyle 3
+	textalignx 0
+	textaligny 25
+	textscale .3
+	text "Edit Graphics Settings"
+	forecolor 1 1 1 1
+	decoration
+	visible 0
+	}
+itemDef {
+	name message_sound
+	group grpSystem
+	style 0
+	rect 320 430 128 30
+	textalign 1
+	textstyle 3
+	textalignx 0
+	textaligny 25
+	textscale .3
+	text "Edit Sound Settings"
+	forecolor 1 1 1 1
+	decoration
+	visible 0
+	}
+itemDef {
+	name message_driver
+	group grpSystem
+	style 0
+	rect 320 430 128 30
+	textalign 1
+	textstyle 3
+	textalignx 0
+	textaligny 25
+	textscale .3
+	text "Show driver informations"
+	forecolor 1 1 1 1
+	decoration
+	visible 0
+	}
+itemDef {
+	name message_other
+	group grpSystem
+	style 0
+	rect 320 430 128 30
+	textalign 1
+	textstyle 3
+	textalignx 0
+	textaligny 25
+	textscale .3
+	text "Edit other Settings"
+	forecolor 1 1 1 1
+	decoration
+	visible 0
+	}
 }
 }

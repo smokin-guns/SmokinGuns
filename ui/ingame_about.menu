@@ -64,7 +64,7 @@ itemDef {
 	type 4
       	style 0	
 	text "Score Limit:" 
-	cvarTest ui_sv_gametype
+	cvarTest "ui_sv_gametype"
 	hideCvar { "0" ; "1" ; "2" ; "3" }
 	maxPaintChars 12
 	cvar ui_sv_scorelimit 
@@ -82,7 +82,7 @@ itemDef {
 	type 4
       	style 0	
 	text "Frag Limit:"
-	cvarTest ui_sv_gametype
+	cvarTest "ui_sv_gametype"
 	showCvar { "0" ; "2"; "3"}
 	maxPaintChars 12
 	cvar ui_sv_fraglimit 
@@ -100,7 +100,7 @@ itemDef {
 	type 4
       	style 0	
 	text "Duel Limit:"
-	cvarTest ui_sv_gametype
+	cvarTest "ui_sv_gametype"
 	showCvar { "1"}
 	maxPaintChars 12
 	cvar ui_sv_duellimit 
@@ -268,7 +268,7 @@ itemDef {
 	type 4
       	style 0	
 	text "Smokin' Guns Version:"
-	cvar ui_sv_wq_version
+	cvar ui_sv_sg_version
       	textalign ITEM_ALIGN_RIGHT		
       	textalignx 128
       	textaligny 12

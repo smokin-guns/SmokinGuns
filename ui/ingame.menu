@@ -120,6 +120,8 @@ itemdef
       	forecolor 1 1 1 1
 	backcolor 1 1 1 1 
       	visible 1 
+	cvarTest "sv_running"
+	enableCvar { "1" }
 	action { open ingame_bots }
 	mouseEnter {show addbot_alt }
       	mouseExit { hide addbot_alt}

@@ -78,7 +78,7 @@ itemDef {
 
 itemDef {
 	name address
-	text "IP Address"
+	text "Net Address"
 	style 0
 	decoration
 	textscale .3
@@ -92,7 +92,7 @@ itemDef {
 	}
 itemDef {
 	name address
-	text "IP Address"
+	text "Net Address"
 	style 0
 	decoration
 	textscale .3
@@ -106,12 +106,11 @@ itemDef {
 itemDef {
 	name addressEntry
 	style 1
-	maxchars 20
+	maxchars 32
 	maxPaintChars 12
 	text ":"
 	textscale .25
 	TYPE 4
-	maxchars 21
 	cvar "ui_favoriteAddress"
 	rect 35 106 120 20
 	textalign 0
