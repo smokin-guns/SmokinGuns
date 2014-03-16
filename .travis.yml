@@ -2,7 +2,8 @@ language: c
 compiler:
   - gcc
   - clang
-  - i686-w64-mingw32-gcc
+# Broken for Smokin'Guns 1.1
+#  - i686-w64-mingw32-gcc
 
 script: ./travis-ci-build.sh
 
