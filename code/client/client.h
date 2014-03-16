@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2010 Smokin' Guns
+Copyright (C) 2005-2014 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -546,6 +546,9 @@ void CL_ParseServerMessage( msg_t *msg );
 void	CL_ServerInfoPacket( netadr_t from, msg_t *msg );
 void	CL_LocalServers_f( void );
 void	CL_GlobalServers_f( void );
+#ifdef SMOKINGUNS
+void	CL_GlobalServersAllMaster_f( void );
+#endif
 void	CL_FavoriteServers_f( void );
 void	CL_Ping_f( void );
 qboolean CL_UpdateVisiblePings_f( int source );
