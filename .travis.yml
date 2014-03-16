@@ -12,10 +12,4 @@ before_install:
   - sudo apt-get install -q -y libgl1-mesa-dev libsdl1.2-dev libvorbis-dev libfreetype6-dev mingw-w64
 
 notifications:
-  email: true
-
-branches:
-  only:
-    - master
-    - ioq3-synchro
-
+  email: false

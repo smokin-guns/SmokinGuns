@@ -2594,7 +2594,8 @@ endif
 
 clean: clean-debug clean-release
 ifeq ($(PLATFORM),mingw32)
-	@$(MAKE) -C $(NSISDIR) clean
+# Don't build nsis for Smokin' Guns until it is supported
+#	@$(MAKE) -C $(NSISDIR) clean
 else
 # Don't build lokisetup for Smokin' Guns until it is supported
 #	@$(MAKE) -C $(LOKISETUPDIR) clean
