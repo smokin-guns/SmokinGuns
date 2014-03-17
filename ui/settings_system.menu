@@ -1142,7 +1142,7 @@ itemDef {
 		group grpSystem
 		type ITEM_TYPE_SLIDER
 		text "Music Volume:"
-		cvarfloat "cg_musicvolume" 0.25 0 1
+		cvarfloat "s_musicvolume" 0.25 0 1
 		rect 64 90 256 20
 		textalign ITEM_ALIGN_RIGHT
 		textalignx 128
