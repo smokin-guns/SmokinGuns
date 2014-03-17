@@ -31,7 +31,7 @@ ifeq ($(BUILD_SDK_DIFF),)
 endif
 ifeq ($(USE_CODEC_VORBIS),)
   # FIXME: Build with Codec Vorbis support by default but not on mingw32 build
-  ifeq ($(COMPILE_PLATFORM),mingw32)
+  ifeq ($(PLATFORM),mingw32)
     USE_CODEC_VORBIS = 0
   else
     USE_CODEC_VORBIS = 1
@@ -39,7 +39,7 @@ ifeq ($(USE_CODEC_VORBIS),)
 endif
 ifeq ($(USE_FREETYPE),)
   # FIXME: Build with Freetype support by default but not on mingw32 build
-  ifeq ($(COMPILE_PLATFORM),mingw32)
+  ifeq ($(PLATFORM),mingw32)
     USE_FREETYPE   = 0
   else
     USE_FREETYPE   = 1
