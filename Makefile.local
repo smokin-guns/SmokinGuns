@@ -8,9 +8,12 @@
 # a script setting SG_BASEPATH environment to the path you would prefer
 #DEFAULT_BASEDIR = /usr/share/games/smokinguns
 
+# BASEGAME_CFLAGS should only contain -D options dedicated to the game to keep
+# it not compiler dependent. It will be used by cc but also q3lcc in any build.
+
 # Use -DSYS_FOPEN_NOCASE if you are MODing under Unix (content out of PK3)
-#STANDALONE_CFLAGS += -DSYS_FOPEN_NOCASE
-#STANDALONE_CFLAGS += -DFS_MISSING -DSYS_FOPEN_NOCASE
+#BASEGAME_CFLAGS += -DSYS_FOPEN_NOCASE
+#BASEGAME_CFLAGS += -DFS_MISSING -DSYS_FOPEN_NOCASE
 
 -include Makefile.smokinguns
 #-include Makefile.SGMod
