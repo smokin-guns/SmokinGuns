@@ -24,7 +24,7 @@ ifeq ($(BUILD_GAME_QVM),)
 endif
 ifeq ($(FRAMEBUFFER_AND_GLSL_SUPPORT),)
   # Build renderer with framebuffer and GLSL support by default
-  FRAMEBUFFER_AND_GLSL_SUPPORT = 0
+  FRAMEBUFFER_AND_GLSL_SUPPORT = 1
 endif
 ifeq ($(BUILD_SDK_DIFF),)
   BUILD_SDK_DIFF   = 1

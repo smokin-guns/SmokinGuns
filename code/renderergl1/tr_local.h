@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2005-2013 Smokin' Guns
+Copyright (C) 2005-2014 Smokin' Guns
 
 This file is part of Smokin' Guns.
 
@@ -970,14 +970,6 @@ extern backEndState_t	backEnd;
 extern trGlobals_t	tr;
 extern glstate_t	glState;		// outside of TR since it shouldn't be cleared during ref re-init
 
-#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
-//same as above
-extern qboolean	framebufferSupported;
-extern qboolean	glslSupported;
-extern qboolean	multisampleSupported;
-extern qboolean	useFrameBuffer;
-#endif
-
 //
 // cvars
 //
@@ -1082,7 +1074,6 @@ extern	cvar_t	*r_printShaders;
 extern cvar_t	*r_marksOnTriangleMeshes;
 
 #ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
-extern cvar_t	*r_ext_framebuffer;
 extern cvar_t	*r_ext_framebuffer_bloom;
 extern cvar_t	*r_ext_framebuffer_blur_size;
 extern cvar_t	*r_ext_framebuffer_blur_amount;
@@ -1095,6 +1086,9 @@ extern cvar_t	*r_ext_framebuffer_rotoscope;
 extern cvar_t	*r_ext_framebuffer_rotoscope_zedge;
 
 extern cvar_t	*r_ext_framebuffer_multisample;
+
+// Needed in tr_backend.c
+extern qboolean	useFrameBuffer;
 #endif
 
 //====================================================================

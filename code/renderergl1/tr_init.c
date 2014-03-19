@@ -176,7 +176,6 @@ cvar_t	*r_maxpolyverts;
 int		max_polyverts;
 
 #ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
-cvar_t	*r_ext_framebuffer;
 cvar_t	*r_ext_framebuffer_bloom;
 cvar_t	*r_ext_framebuffer_blur_size;
 cvar_t	*r_ext_framebuffer_blur_amount;
@@ -1180,7 +1179,6 @@ void R_Register( void )
 
 #ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
 	// Framebuffer variables
-	r_ext_framebuffer = ri.Cvar_Get( "r_ext_framebuffer", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_framebuffer_bloom = ri.Cvar_Get( "r_ext_framebuffer_bloom", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_framebuffer_blur_size = ri.Cvar_Get( "r_ext_framebuffer_blur_size", "256", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_framebuffer_blur_amount = ri.Cvar_Get( "r_ext_framebuffer_blur_amount", "7", CVAR_ARCHIVE);

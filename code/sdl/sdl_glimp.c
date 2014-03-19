@@ -66,6 +66,9 @@ cvar_t *r_allowSoftwareGL; // Don't abort out if a hardware visual can't be obta
 cvar_t *r_allowResize; // make window resizable
 cvar_t *r_centerWindow;
 cvar_t *r_sdlDriver;
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+cvar_t *r_ext_framebuffer;
+#endif
 
 void (APIENTRYP qglActiveTextureARB) (GLenum texture);
 void (APIENTRYP qglClientActiveTextureARB) (GLenum texture);
@@ -108,6 +111,10 @@ void (APIENTRYP qglGetProgramiv) (GLuint, GLenum, GLint *);
 void (APIENTRYP qglGetProgramInfoLog) (GLuint, GLsizei, GLsizei *, GLchar *);
 void (APIENTRYP qglGetShaderiv) (GLuint, GLenum, GLint *);
 void (APIENTRYP qglGetShaderInfoLog) (GLuint, GLsizei, GLsizei *, GLchar *);
+
+qboolean framebufferSupported;
+qboolean glslSupported;
+qboolean multisampleSupported;
 #endif
 
 /*
@@ -842,6 +849,9 @@ void GLimp_Init( void )
 	r_sdlDriver = ri.Cvar_Get( "r_sdlDriver", "", CVAR_ROM );
 	r_allowResize = ri.Cvar_Get( "r_allowResize", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_centerWindow = ri.Cvar_Get( "r_centerWindow", "0", CVAR_ARCHIVE | CVAR_LATCH );
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+	r_ext_framebuffer = ri.Cvar_Get( "r_ext_framebuffer", "0", CVAR_ARCHIVE | CVAR_LATCH);
+#endif
 
 	if( ri.Cvar_VariableIntegerValue( "com_abnormalExit" ) )
 	{

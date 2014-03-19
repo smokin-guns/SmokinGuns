@@ -2,7 +2,7 @@
  *      tr_framebuffer.c
  *
  *      Copyright 2007 Gord Allott <gordallott@gmail.com>
- *      Copyright (C) 2005-2010 Smokin' Guns
+ *      Copyright (C) 2005-2014 Smokin' Guns
  *
  *      This file is part of Smokin' Guns.
  *
@@ -47,7 +47,6 @@
 
 #include "tr_local.h"
 #include "tr_glslprogs.h"
-#include "qgl.h"
 
 #ifndef GL_DEPTH_STENCIL_EXT
 #define GL_DEPTH_STENCIL_EXT GL_DEPTH_STENCIL_NV
@@ -57,12 +56,9 @@
 #define GL_UNSIGNED_INT_24_8_EXT GL_UNSIGNED_INT_24_8_NV
 #endif
 
-qboolean	framebufferSupported;
-qboolean	glslSupported;
 qboolean	packedDepthStencilSupported;
 qboolean	depthTextureSupported;
 qboolean	separateDepthStencilSupported;
-qboolean	multisampleSupported;
 
 // Tequila: FBO Multisample support is still WIP
 #define DISABLE_FBO_MULTISAMPLE_SUPPORT

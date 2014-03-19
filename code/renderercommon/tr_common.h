@@ -82,6 +82,14 @@ extern qboolean  textureFilterAnisotropic;
 extern int       maxAnisotropy;
 extern float     displayAspect;
 
+#ifdef FRAMEBUFFER_AND_GLSL_SUPPORT
+// Needed in sdl_glimp.c
+extern qboolean framebufferSupported;
+extern qboolean glslSupported;
+extern qboolean multisampleSupported;
+extern cvar_t *r_ext_framebuffer;
+#endif
+
 //
 // cvars
 //
