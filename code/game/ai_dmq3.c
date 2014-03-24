@@ -5498,6 +5498,9 @@ extern vec3_t	playerMins;
 extern vec3_t	playerMaxs;
 #endif
 void BotAIBlocked(bot_state_t *bs, bot_moveresult_t *moveresult, int activate) {
+#ifdef OBSTACLEDEBUG
+	char netname[MAX_NETNAME];
+#endif
 	int movetype, bspent;
 	// TheDoctor: Support for evasive maneuvers
 	vec3_t hordir, sideward, direction, left, right, angles, forward, backward, up = {0, 0, 1};
