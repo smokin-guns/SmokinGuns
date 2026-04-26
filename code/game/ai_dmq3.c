@@ -2924,7 +2924,7 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl) {
 	float attack_dist, attack_range;
 	vec3_t forward, backward, sideward, hordir, up = {0, 0, 1};
 	aas_entityinfo_t entinfo;
-	bot_moveresult_t moveresult;
+	bot_moveresult_t moveresult = {0};
 	bot_goal_t goal;
     qboolean goback = qtrue;
 
