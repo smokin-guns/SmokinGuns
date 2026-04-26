@@ -4227,6 +4227,9 @@ void BotCheckBuy(bot_state_t *bs){
 			item->giType != IT_WEAPON)
 			continue;
 
+		// if too expensive
+		if(item->prize > money)
+			continue;
 
 		// don't buy if he already has that weapon
 		if( ((bs->cur_ps.stats[STAT_WEAPONS] & (1 << item->giTag) )
@@ -4254,26 +4257,21 @@ void BotCheckBuy(bot_state_t *bs){
 
 		if(qcontinue) continue;
 
-		if(mark == -1){
-			mark = i;
-			continue;
-		}
-
-		if(item->prize <= money &&
-			(item->prize > (bg_itemlist+mark)->prize ||
-			item->prize > (bg_itemlist+mark2)->prize)){
+		if (mark == -1 || item->prize > (bg_itemlist+mark)->prize) {
 			mark2 = mark;
 			mark = i;
+		} else if (mark2 == -1 || item->prize > (bg_itemlist+mark2)->prize) {
+			mark2 = i;
 		}
 	}
 
-	// now buy the weapon
+	// now buy the weapon from the top 2
 	if(rand()%2 || mark2 == -1)
 		item = bg_itemlist+mark;
 	else
 		item = bg_itemlist+mark2;
 
-	if(mark != -1 || mark2 != -1){
+	if(mark != -1){
 		trap_EA_Command(bs->client, va("cg_buy %s", item->classname));
 		money -= item->prize;
 		bought = qtrue ;
