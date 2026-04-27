@@ -86,7 +86,7 @@ int Sys_MilliSeconds(void)
 //===========================================================================
 qboolean ValidClientNumber(int num, char *str)
 {
-	if (num < 0 || num > botlibglobals.maxclients)
+	if (num < 0 || num >= botlibglobals.maxclients)
 	{
 		//weird: the disabled stuff results in a crash
 		botimport.Print(PRT_ERROR, "%s: invalid client number %d, [0, %d]\n",
