@@ -1,0 +1,6 @@
+The Rust companion depends on open-source crates declared in Cargo.toml and
+locked to exact versions in Cargo.lock. Their license metadata is available
+from crates.io and the corresponding upstream repositories.
+
+The companion source code is licensed under GNU GPL version 2 or (at your
+option) any later version. See LICENSE.txt.

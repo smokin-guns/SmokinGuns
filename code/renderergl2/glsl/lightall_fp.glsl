@@ -1,4 +1,5 @@
 uniform sampler2D u_DiffuseMap;
+uniform int       u_AlphaTest;
 
 #if defined(USE_LIGHTMAP)
 uniform sampler2D u_LightMap;
@@ -164,7 +165,7 @@ vec3 EnvironmentBRDF(float gloss, float NE, vec3 specular)
 {
   #if 1
 	// from http://blog.selfshadow.com/publications/s2013-shading-course/lazarov/s2013_pbs_black_ops_2_notes.pdf
-	vec4 t = vec4( 1/0.96, 0.475, (0.0275 - 0.25 * 0.04)/0.96,0.25 ) * gloss;
+	vec4 t = vec4( 1.0/0.96, 0.475, (0.0275 - 0.25 * 0.04)/0.96,0.25 ) * gloss;
 	t += vec4( 0.0, 0.0, (0.015 - 0.75 * 0.04)/0.96,0.75 );
 	float a0 = t.x * min( t.y, exp2( -9.28 * NE ) ) + t.z;
 	float a1 = t.w;
@@ -365,6 +366,11 @@ void main()
 #endif
 
 	vec4 diffuse = texture2D(u_DiffuseMap, texCoords);
+	float alpha = diffuse.a * var_Color.a;
+	if ((u_AlphaTest == 1 && alpha == 0.0) ||
+	    (u_AlphaTest == 2 && alpha >= 0.5) ||
+	    (u_AlphaTest == 3 && alpha < 0.5))
+		discard;
 
 #if defined(USE_LIGHT) && !defined(USE_FAST_LIGHT)
   #if defined(USE_LIGHTMAP)
@@ -590,5 +596,5 @@ void main()
 	gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(1.0 / r_framebufferGamma));
 #endif
 
-	gl_FragColor.a = diffuse.a * var_Color.a;
+	gl_FragColor.a = alpha;
 }

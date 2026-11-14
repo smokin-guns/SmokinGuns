@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smokin' Guns Web</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, sans-serif; }
+    body { margin: 0; background: #111; color: #eee; }
+    #setup { max-width: 42rem; margin: 3rem auto; padding: 1.5rem; }
+    #game { display: none; width: 100vw; height: 100vh; }
+    canvas { display: block; width: 100%; height: 100%; object-fit: contain; }
+    #loading-panel { position: fixed; z-index: 2; inset: auto 1rem 1rem; margin: auto; width: min(36rem, calc(100vw - 4rem)); padding: 1rem; background: #181818ee; border: 1px solid #777; }
+    #loading-panel[hidden] { display: none; }
+    #loading-progress { display: block; width: 100%; height: 1.2rem; }
+    #loading-message { margin: 0 0 .5rem; }
+    #loading-retry[hidden] { display: none; }
+    button, input { margin: .5rem 0; }
+    #status { min-height: 1.5em; color: #ccc; white-space: pre-wrap; }
+    label { display: block; margin-top: 1rem; }
+    label input { display: block; width: min(100%, 32rem); box-sizing: border-box; }
+    label input[type="checkbox"] { display: inline; width: auto; }
+    #server-browser { margin: 1rem 0; padding: 1rem; border: 1px solid #555; }
+    #servers { width: 100%; margin: .5rem 0; }
+    #server-list { margin: .5rem 0; padding-left: 1.5rem; }
+    #server-list button { width: 100%; text-align: left; }
+  </style>
+</head>
+<body>
+  <main id="setup">
+    <h1>Smokin' Guns Web</h1>
+    <p>The official Smokin' Guns 1.1 game data downloads in small, cacheable
+      pieces the first time you start. The browser saves it on this device.
+      Optional local <code>.pk3</code> packages can also be added.</p>
+    <p><a href="./Smokin_Guns_LICENSE.txt">Game data license</a> ·
+      <a href="./COPYING.txt">Engine source license</a></p>
+    <section id="server-browser" aria-labelledby="server-browser-title">
+      <h2 id="server-browser-title">Multiplayer servers</h2>
+      <p>Download and run the local companion, then paste the code from its window here.</p>
+      <ul>
+        <li><a href="./downloads/smokinguns-companion-linux-x64-v0.5.0.zip">Linux x64 companion</a></li>
+        <li><a href="./downloads/smokinguns-companion-linux-arm64-v0.5.0.zip">Linux ARM64 companion</a></li>
+        <li><a href="./downloads/smokinguns-companion-windows-x64-v0.5.0.zip">Windows x64 companion</a></li>
+        <li><a href="./downloads/smokinguns-companion-windows-arm64-v0.5.0.zip">Windows ARM64 companion</a></li>
+        <li><a href="./downloads/smokinguns-companion-source-v0.5.0.zip">Companion source code (Rust)</a></li>
+      </ul>
+      <label>One-time pairing code
+        <input id="pairing-code" type="text" inputmode="text" autocomplete="off" placeholder="Paste companion code">
+      </label>
+      <div><button id="pair" type="button">Pair companion</button>
+        <button id="reset-pairing" type="button" hidden>Reset pairing</button>
+        <button id="search-servers" type="button" disabled>Get new list</button></div>
+      <p id="directory-status" role="status">Pair with the local companion to search.</p>
+      <ul id="server-list" aria-label="Available servers"></ul>
+    </section>
+    <input id="packages" type="file" accept=".pk3" multiple>
+    <div><button id="start">Start client</button></div>
+    <p id="status" role="status">Ready.</p>
+  </main>
+  <main id="game">
+    <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+    <section id="loading-panel" role="status" aria-live="polite" hidden>
+      <p id="loading-message">Preparing game…</p>
+      <progress id="loading-progress" aria-label="Game loading progress"></progress>
+      <button id="loading-retry" type="button" hidden>Reload and retry</button>
+    </section>
+  </main>
+
+  <script src="./transport.js"></script>
+  <script type="module">
+    const setup = document.querySelector('#setup');
+    const game = document.querySelector('#game');
+    const status = document.querySelector('#status');
+    const fileInput = document.querySelector('#packages');
+    const startButton = document.querySelector('#start');
+    const loadingPanel = document.querySelector('#loading-panel');
+    const loadingMessage = document.querySelector('#loading-message');
+    const loadingProgress = document.querySelector('#loading-progress');
+    const loadingRetry = document.querySelector('#loading-retry');
+    const directoryStatus = document.querySelector('#directory-status');
+    const serverList = document.querySelector('#server-list');
+    const pairButton = document.querySelector('#pair');
+    const resetPairingButton = document.querySelector('#reset-pairing');
+    const searchButton = document.querySelector('#search-servers');
+    const companionBase = new URLSearchParams(location.search).get('companion') || 'http://127.0.0.1:8765';
+    let companionToken = sessionStorage.getItem('sg-companion-token') || '';
+    let selectedServer = null;
+    const browserBuild = 'webgl2-renderer-fix-13';
+
+    async function prepareGameData(module, homePath) {
+      const manifestUrl = new URL('./game-data/manifest.json', document.baseURI);
+      const response = await fetch(manifestUrl, { cache: 'no-cache' });
+      if (!response.ok) throw new Error(`Game data manifest returned HTTP ${response.status}`);
+      const manifest = await response.json();
+      if (typeof manifest.version !== 'string' || !Array.isArray(manifest.files)) {
+        throw new Error('The game data manifest is invalid.');
+      }
+
+      const markerPath = `${homePath}/.web-game-data-version`;
+      const total = manifest.files.reduce((sum, file) => sum + file.size, 0);
+      const setProgress = (loaded, message) => {
+        loadingPanel.hidden = false;
+        loadingProgress.max = total || 1;
+        loadingProgress.value = loaded;
+        const percent = total ? Math.floor(loaded * 100 / total) : 100;
+        loadingMessage.textContent = `${message} ${percent}% (${(loaded / 1048576).toFixed(0)} / ${(total / 1048576).toFixed(0)} MiB)`;
+      };
+
+      let savedFiles = {};
+      let needsPersist = true;
+      try {
+        const saved = JSON.parse(module.FS.readFile(markerPath, { encoding: 'utf8' }));
+        if (saved && saved.files && typeof saved.files === 'object') {
+          savedFiles = saved.files;
+          needsPersist = saved.version !== manifest.version;
+        }
+      } catch (_) { /* No persistent game-data cache yet. */ }
+
+      let completed = 0;
+      for (const file of manifest.files) {
+        if (typeof file.path !== 'string' || file.path.startsWith('/') ||
+            file.path.split(/[\\/]/).some((part) => !part || part === '.' || part === '..') ||
+            !Number.isSafeInteger(file.size) || file.size < 0 ||
+            typeof file.version !== 'string' || !Array.isArray(file.chunks)) {
+          throw new Error('The game data manifest contains an invalid file entry.');
+        }
+        const target = `${homePath}/${file.path}`;
+        try {
+          if (savedFiles[file.path] === file.version && module.FS.stat(target).size === file.size) {
+            completed += file.size;
+            setProgress(completed, 'Using saved game data…');
+            continue;
+          }
+        } catch (_) { /* Download this file into the browser cache. */ }
+        const temporary = `${target}.download`;
+        module.FS.mkdirTree(target.slice(0, target.lastIndexOf('/')));
+        try { module.FS.unlink(temporary); } catch (_) { /* No interrupted download. */ }
+        const stream = module.FS.open(temporary, 'w');
+        let position = 0;
+        try {
+          for (const chunk of file.chunks) {
+            if (!Number.isSafeInteger(chunk.size) || chunk.size < 0 ||
+                typeof chunk.sha256 !== 'string' || typeof chunk.url !== 'string') {
+              throw new Error(`Invalid chunk metadata for ${file.path}`);
+            }
+            const chunkResponse = await fetch(new URL(chunk.url, manifestUrl));
+            if (!chunkResponse.ok) throw new Error(`Could not download game data (HTTP ${chunkResponse.status})`);
+            let bytes;
+            if (chunkResponse.body) {
+              const reader = chunkResponse.body.getReader();
+              bytes = new Uint8Array(chunk.size);
+              let offset = 0;
+              while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                if (offset + value.byteLength > bytes.byteLength) throw new Error(`Oversized chunk for ${file.path}`);
+                bytes.set(value, offset);
+                offset += value.byteLength;
+                setProgress(completed + position + offset, `Downloading ${file.path}…`);
+              }
+              if (offset !== bytes.byteLength) throw new Error(`Incomplete chunk for ${file.path}`);
+            } else {
+              bytes = new Uint8Array(await chunkResponse.arrayBuffer());
+            }
+            const digest = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)))
+              .map((byte) => byte.toString(16).padStart(2, '0')).join('');
+            if (bytes.byteLength !== chunk.size || digest !== chunk.sha256) {
+              throw new Error(`Game data chunk verification failed for ${file.path}`);
+            }
+            module.FS.write(stream, bytes, 0, bytes.byteLength, position);
+            position += bytes.byteLength;
+            setProgress(completed + position, `Downloading ${file.path}…`);
+          }
+          if (position !== file.size) throw new Error(`Downloaded size mismatch for ${file.path}`);
+          module.FS.close(stream);
+          module.FS.rename(temporary, target);
+          needsPersist = true;
+        } catch (error) {
+          try { module.FS.close(stream); } catch (_) { /* Stream already closed. */ }
+          try { module.FS.unlink(temporary); } catch (_) { /* Partial file cleanup. */ }
+          throw error;
+        }
+        completed += file.size;
+      }
+
+      if (needsPersist) {
+        const saved = {
+          version: manifest.version,
+          files: Object.fromEntries(manifest.files.map((file) => [file.path, file.version])),
+        };
+        module.FS.writeFile(markerPath, JSON.stringify(saved));
+        setProgress(total, 'Saving game data…');
+        await new Promise((resolve, reject) => {
+          module.FS.syncfs(false, (error) => error ? reject(error) : resolve());
+        });
+      }
+      return needsPersist;
+    }
+    if (companionToken) {
+      pairButton.disabled = true;
+      document.querySelector('#pairing-code').disabled = true;
+      searchButton.disabled = false;
+      resetPairingButton.hidden = false;
+      directoryStatus.textContent = 'Paired with this companion. Choose Get new list to discover servers.';
+    }
+
+    async function companionRequest(route, options = {}) {
+      const response = await fetch(new URL(route, companionBase), {
+        ...options,
+        targetAddressSpace: 'loopback',
+        headers: { ...(companionToken ? { Authorization: `Bearer ${companionToken}` } : {}), ...options.headers }
+      });
+      const body = await response.json();
+      if (!response.ok) {
+        if (response.status === 401) {
+          companionToken = '';
+          sessionStorage.removeItem('sg-companion-token');
+          pairButton.disabled = false;
+          document.querySelector('#pairing-code').disabled = false;
+          resetPairingButton.hidden = true;
+          searchButton.disabled = true;
+        }
+        throw new Error(body.error || `Companion returned HTTP ${response.status}`);
+      }
+      return body;
+    }
+
+    pairButton.addEventListener('click', async () => {
+      directoryStatus.textContent = 'Pairing with local companion…';
+      try {
+        const data = await companionRequest('/api/pair', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: document.querySelector('#pairing-code').value.trim() })
+        });
+        companionToken = data.token;
+        sessionStorage.setItem('sg-companion-token', companionToken);
+        pairButton.disabled = true;
+        document.querySelector('#pairing-code').disabled = true;
+        resetPairingButton.hidden = false;
+        searchButton.disabled = false;
+        directoryStatus.textContent = 'Paired. Choose Get new list to discover servers.';
+      } catch (error) { directoryStatus.textContent = `Pairing failed: ${error.message}`; }
+    });
+
+    resetPairingButton.addEventListener('click', async () => {
+      resetPairingButton.disabled = true;
+      directoryStatus.textContent = 'Resetting pairing…';
+      try {
+        const data = await companionRequest('/api/reset-pairing', { method: 'POST' });
+        companionToken = '';
+        sessionStorage.removeItem('sg-companion-token');
+        selectedServer = null;
+        serverList.replaceChildren();
+        document.querySelector('#pairing-code').value = data.code;
+        document.querySelector('#pairing-code').disabled = false;
+        pairButton.disabled = false;
+        searchButton.disabled = true;
+        resetPairingButton.hidden = true;
+        directoryStatus.textContent = 'Pairing reset. Pair again with the new one-use code.';
+      } catch (error) {
+        directoryStatus.textContent = `Could not reset pairing: ${error.message}`;
+      } finally {
+        resetPairingButton.disabled = false;
+      }
+    });
+
+    searchButton.addEventListener('click', async () => {
+      searchButton.disabled = true;
+      serverList.replaceChildren();
+      directoryStatus.textContent = 'Searching…';
+      try {
+        await companionRequest('/api/refresh', { method: 'POST' });
+        const data = await companionRequest('/api/servers');
+        if (!Array.isArray(data.servers)) throw new Error('Companion returned an invalid server list.');
+        let count = 0;
+        for (const server of data.servers) {
+          if (!server || typeof server.name !== 'string' || typeof server.id !== 'string') continue;
+          const item = document.createElement('li');
+          const choose = document.createElement('button');
+          choose.type = 'button';
+          choose.textContent = `${server.name} — ${server.map || 'unknown map'} — ${server.players}/${server.maxPlayers} — ${server.ping} ms`;
+          choose.addEventListener('click', () => {
+            selectedServer = server;
+            directoryStatus.textContent = `${server.name} selected. Start the client to join.`;
+          });
+          item.append(choose);
+          serverList.append(item);
+          count++;
+        }
+        directoryStatus.textContent = count
+          ? `${count} server${count === 1 ? '' : 's'} found. Select one to join.`
+          : 'No responding servers found. Check the companion log and try again.';
+      } catch (error) {
+        directoryStatus.textContent = `Search failed: ${error.message}`;
+      } finally {
+        searchButton.disabled = !companionToken;
+      }
+    });
+
+    startButton.addEventListener('click', async () => {
+      startButton.disabled = true;
+      status.textContent = 'Starting engine…';
+      setup.style.display = 'none';
+      game.style.display = 'block';
+      loadingPanel.hidden = false;
+      loadingMessage.textContent = 'Starting the game…';
+      loadingProgress.removeAttribute('value');
+
+      try {
+        const args = [
+          '+set', 'fs_basepath', '/',
+          '+set', 'fs_homepath', '/home/web_user/.smokinguns',
+          '+set', 'com_hunkMegs', '512',
+          '+cinematic', 'idlogo.RoQ'
+        ];
+        if (selectedServer) {
+          if (!companionToken) throw new Error('Pair this browser with the local companion first.');
+          const wsBase = companionBase.replace(/^http:/, 'ws:').replace(/^https:/, 'wss:');
+          const socket = globalThis.SGWebTransport.connect(
+            `${wsBase}/udp/${selectedServer.id}`, companionToken);
+          socket.addEventListener('open', () => { status.textContent = 'Gateway connected.'; });
+          socket.addEventListener('close', () => { status.textContent = 'Gateway disconnected.'; });
+          if (socket.readyState !== WebSocket.OPEN) {
+            await new Promise((resolve, reject) => {
+              const timeout = setTimeout(() => reject(new Error('Timed out connecting to the local companion.')), 10000);
+              socket.addEventListener('open', () => { clearTimeout(timeout); resolve(); }, { once: true });
+              socket.addEventListener('error', () => { clearTimeout(timeout); reject(new Error('Could not connect to the local companion.')); }, { once: true });
+            });
+          }
+          args.push('+connect', 'websocket');
+        }
+        const { default: createClient } = await import(`./smokinguns_opengl2.wasm32.js?build=${browserBuild}`);
+        await createClient({
+          arguments: args,
+          canvas: document.querySelector('#canvas'),
+          print: (...args) => console.log(...args),
+          printErr: (...args) => {
+            console.error(...args);
+            status.textContent = String(args.join(' '));
+          },
+          setStatus: (message) => {
+            if (!message) {
+              loadingPanel.hidden = true;
+              return;
+            }
+            loadingPanel.hidden = false;
+            const progress = message.match(/Downloading data\.\.\. \((\d+)\/(\d+)\)/);
+            if (progress) {
+              const loaded = Number(progress[1]);
+              const total = Number(progress[2]);
+              loadingProgress.max = total || 1;
+              loadingProgress.value = loaded;
+              const loadedMiB = (loaded / (1024 * 1024)).toFixed(0);
+              const totalMiB = (total / (1024 * 1024)).toFixed(0);
+              const percent = total ? Math.floor(loaded * 100 / total) : 0;
+              loadingMessage.textContent = `Downloading game assets… ${percent}% (${loadedMiB} / ${totalMiB} MiB)`;
+            } else {
+              loadingProgress.removeAttribute('value');
+              loadingMessage.textContent = message;
+            }
+          },
+          monitorRunDependencies: (remaining) => {
+            if (remaining > 0 && !/^(Downloading |Saving game data|Using saved game data)/.test(loadingMessage.textContent)) {
+              loadingPanel.hidden = false;
+      loadingRetry.hidden = true;
+              loadingProgress.removeAttribute('value');
+              loadingMessage.textContent = `Preparing game… (${remaining} loading step${remaining === 1 ? '' : 's'} remaining)`;
+            }
+          },
+          locateFile: (path) => {
+            const asset = new URL(path, import.meta.url);
+            if (path.endsWith('.wasm')) asset.searchParams.set('build', browserBuild);
+            return asset.href;
+          },
+          preRun: [(module) => {
+            const homePath = '/home/web_user/.smokinguns';
+            const dependency = 'smokinguns-web-storage';
+            module.addRunDependency(dependency);
+
+            (async () => {
+              module.FS.mkdirTree(homePath);
+              module.FS.mount(module.IDBFS, {}, homePath);
+              await new Promise((resolve, reject) => {
+                module.FS.syncfs(true, (error) => error ? reject(error) : resolve());
+              });
+
+              const downloadedGameData = await prepareGameData(module, homePath);
+              const gamePath = `${homePath}/smokinguns`;
+              for (const file of fileInput.files) {
+                const name = file.name.split(/[\\/]/).pop();
+                if (!/^[\w.-]+\.pk3$/i.test(name)) continue;
+                module.FS.writeFile(`${gamePath}/${name}`, new Uint8Array(await file.arrayBuffer()));
+              }
+
+              if (fileInput.files.length) {
+                await new Promise((resolve, reject) => {
+                  module.FS.syncfs(false, (error) => error ? reject(error) : resolve());
+                });
+              }
+              if (downloadedGameData) status.textContent = 'Game data saved for next time.';
+            })().then(() => module.removeRunDependency(dependency)).catch((error) => {
+              console.error('Browser storage setup failed:', error);
+              status.textContent = `Storage setup failed: ${error.message}`;
+              loadingPanel.hidden = false;
+              loadingProgress.removeAttribute('value');
+              loadingMessage.textContent = `Game data setup failed: ${error.message}. Reload to retry.`;
+              loadingRetry.hidden = false;
+            });
+          }]
+        });
+      } catch (error) {
+        if (globalThis.SGWebTransport) globalThis.SGWebTransport.close();
+        console.error('Could not start the browser client:', error);
+        status.textContent = `Could not start the client: ${error.message}`;
+        game.style.display = 'none';
+        setup.style.display = 'block';
+        startButton.disabled = false;
+      }
+    });
+
+    loadingRetry.addEventListener('click', () => location.reload());
+  </script>
+</body>
+</html>

@@ -45,7 +45,7 @@ float getLinearDepth(sampler2D depthMap, const vec2 tex, const float zFarDivZNea
 
 float ambientOcclusion(sampler2D depthMap, const vec2 tex, const float zFarDivZNear, const float zFar)
 {
-	float result = 0;
+	float result = 0.0;
 
 	float sampleZ = zFar * getLinearDepth(depthMap, tex, zFarDivZNear);
 

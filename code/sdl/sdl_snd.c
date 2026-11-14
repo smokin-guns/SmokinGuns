@@ -43,6 +43,9 @@ cvar_t *s_sdlMixSamps;
 /* The audio callback. All the magic happens here. */
 static int dmapos = 0;
 static int dmasize = 0;
+#ifdef __EMSCRIPTEN__
+static SDL_AudioDeviceID sdlAudioDevice;
+#endif
 
 /*
 ===============
@@ -137,10 +140,14 @@ SNDDMA_Init
 */
 qboolean SNDDMA_Init(void)
 {
-	char drivername[128];
 	SDL_AudioSpec desired;
 	SDL_AudioSpec obtained;
 	int tmp;
+#ifndef __EMSCRIPTEN__
+	char drivername[128];
+#else
+	const char *drivername;
+#endif
 
 	if (snd_inited)
 		return qtrue;
@@ -166,9 +173,16 @@ qboolean SNDDMA_Init(void)
 
 	Com_Printf( "OK\n" );
 
+#ifdef __EMSCRIPTEN__
+	drivername = SDL_GetCurrentAudioDriver();
+	if (!drivername)
+		drivername = "(UNKNOWN)";
+	Com_Printf("SDL audio driver is \"%s\".\n", drivername);
+#else
 	if (SDL_AudioDriverName(drivername, sizeof (drivername)) == NULL)
 		strcpy(drivername, "(UNKNOWN)");
 	Com_Printf("SDL audio driver is \"%s\".\n", drivername);
+#endif
 
 	memset(&desired, '\0', sizeof (desired));
 	memset(&obtained, '\0', sizeof (obtained));
@@ -201,9 +215,18 @@ qboolean SNDDMA_Init(void)
 	desired.channels = (int) s_sdlChannels->value;
 	desired.callback = SNDDMA_AudioCallback;
 
+#ifdef __EMSCRIPTEN__
+	sdlAudioDevice = SDL_OpenAudioDevice(NULL, 0, &desired, &obtained, 0);
+	if (!sdlAudioDevice)
+#else
 	if (SDL_OpenAudio(&desired, &obtained) == -1)
+#endif
 	{
+#ifdef __EMSCRIPTEN__
+		Com_Printf("SDL_OpenAudioDevice() failed: %s\n", SDL_GetError());
+#else
 		Com_Printf("SDL_OpenAudio() failed: %s\n", SDL_GetError());
+#endif
 		SDL_QuitSubSystem(SDL_INIT_AUDIO);
 		return qfalse;
 	}
@@ -240,7 +263,11 @@ qboolean SNDDMA_Init(void)
 	dma.buffer = calloc(1, dmasize);
 
 	Com_Printf("Starting SDL audio callback...\n");
+#ifdef __EMSCRIPTEN__
+	SDL_PauseAudioDevice(sdlAudioDevice, 0);
+#else
 	SDL_PauseAudio(0);  // start callback.
+#endif
 
 	Com_Printf("SDL audio initialized.\n");
 	snd_inited = qtrue;
@@ -265,8 +292,17 @@ SNDDMA_Shutdown
 void SNDDMA_Shutdown(void)
 {
 	Com_Printf("Closing SDL audio device...\n");
+#ifdef __EMSCRIPTEN__
+	if (sdlAudioDevice)
+	{
+		SDL_PauseAudioDevice(sdlAudioDevice, 1);
+		SDL_CloseAudioDevice(sdlAudioDevice);
+		sdlAudioDevice = 0;
+	}
+#else
 	SDL_PauseAudio(1);
 	SDL_CloseAudio();
+#endif
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 	free(dma.buffer);
 	dma.buffer = NULL;
@@ -284,7 +320,11 @@ Send sound to device if buffer isn't really the dma buffer
 */
 void SNDDMA_Submit(void)
 {
+#ifdef __EMSCRIPTEN__
+	SDL_UnlockAudioDevice(sdlAudioDevice);
+#else
 	SDL_UnlockAudio();
+#endif
 }
 
 /*
@@ -294,5 +334,9 @@ SNDDMA_BeginPainting
 */
 void SNDDMA_BeginPainting (void)
 {
+#ifdef __EMSCRIPTEN__
+	SDL_LockAudioDevice(sdlAudioDevice);
+#else
 	SDL_LockAudio();
+#endif
 }

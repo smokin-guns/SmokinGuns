@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #else
 #	include <SDL.h>
 #endif
+#include <ctype.h>
 
 #include "tr_local.h"
 
@@ -178,8 +179,105 @@ void (APIENTRY * qglRenderbufferStorageMultisampleEXT)(GLenum target, GLsizei sa
 // GL_ARB_draw_buffers
 void (APIENTRY * qglDrawBuffersARB)(GLsizei n, const GLenum *bufs);
 
+#ifdef __EMSCRIPTEN__
+extern GLboolean APIENTRY glIsShader(GLuint shader);
+extern GLboolean APIENTRY glIsProgram(GLuint program);
+extern void APIENTRY glDeleteShader(GLuint shader);
+extern void APIENTRY glDeleteProgram(GLuint program);
+extern void APIENTRY glGetShaderiv(GLuint shader, GLenum pname, GLint *params);
+extern void APIENTRY glGetProgramiv(GLuint program, GLenum pname, GLint *params);
+extern void APIENTRY glGetShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei *length, GLchar *infoLog);
+extern void APIENTRY glGetProgramInfoLog(GLuint program, GLsizei maxLength, GLsizei *length, GLchar *infoLog);
+
+static void APIENTRY GLimp_GLES_DeleteObjectARB(GLhandleARB object)
+{
+	if (glIsShader(object))
+		glDeleteShader(object);
+	else if (glIsProgram(object))
+		glDeleteProgram(object);
+}
+
+static void APIENTRY GLimp_GLES_GetObjectParameterivARB(GLhandleARB object, GLenum pname, GLint *params)
+{
+	if (glIsShader(object))
+		glGetShaderiv(object, pname, params);
+	else
+		glGetProgramiv(object, pname, params);
+}
+
+static void APIENTRY GLimp_GLES_GetInfoLogARB(GLhandleARB object, GLsizei maxLength,
+	GLsizei *length, GLcharARB *infoLog)
+{
+	if (glIsShader(object))
+		glGetShaderInfoLog(object, maxLength, length, infoLog);
+	else
+		glGetProgramInfoLog(object, maxLength, length, infoLog);
+}
+#endif
+
+static void *GLimp_GetProcAddress(const char *name)
+{
+	void *proc = SDL_GL_GetProcAddress(name);
+#ifdef __EMSCRIPTEN__
+	char coreName[128];
+	size_t length;
+	if (qglesMajorVersion < 3)
+		return proc;
+	/* ARB_shader_objects combines shader/program calls that GLES splits. */
+	if (!Q_stricmp(name, "glDeleteObjectARB"))
+		return (void *)GLimp_GLES_DeleteObjectARB;
+	if (!Q_stricmp(name, "glGetObjectParameterivARB"))
+		return (void *)GLimp_GLES_GetObjectParameterivARB;
+	if (!Q_stricmp(name, "glGetInfoLogARB"))
+		return (void *)GLimp_GLES_GetInfoLogARB;
+	if (proc)
+		return proc;
+	if (!Q_stricmp(name, "glCreateShaderObjectARB"))
+		return SDL_GL_GetProcAddress("glCreateShader");
+	if (!Q_stricmp(name, "glCreateProgramObjectARB"))
+		return SDL_GL_GetProcAddress("glCreateProgram");
+	if (!Q_stricmp(name, "glAttachObjectARB"))
+		return SDL_GL_GetProcAddress("glAttachShader");
+	if (!Q_stricmp(name, "glDetachObjectARB"))
+		return SDL_GL_GetProcAddress("glDetachShader");
+	if (!Q_stricmp(name, "glCompileShaderARB"))
+		return SDL_GL_GetProcAddress("glCompileShader");
+	if (!Q_stricmp(name, "glLinkProgramARB"))
+		return SDL_GL_GetProcAddress("glLinkProgram");
+	if (!Q_stricmp(name, "glUseProgramObjectARB"))
+		return SDL_GL_GetProcAddress("glUseProgram");
+	if (!Q_stricmp(name, "glValidateProgramARB"))
+		return SDL_GL_GetProcAddress("glValidateProgram");
+	length = strlen(name);
+	if (length > 3 && (!Q_stricmp(name + length - 3, "ARB") || !Q_stricmp(name + length - 3, "EXT")))
+	{
+		if (length >= sizeof(coreName))
+			return NULL;
+		memcpy(coreName, name, length - 3);
+		coreName[length - 3] = '\0';
+		proc = SDL_GL_GetProcAddress(coreName);
+	}
+#endif
+	return proc;
+}
+
+#define SDL_GL_GetProcAddress GLimp_GetProcAddress
+
 static qboolean GLimp_HaveExtension(const char *ext)
 {
+#ifdef __EMSCRIPTEN__
+	if (qglesMajorVersion >= 3 &&
+	    (!Q_stricmp(ext, "GL_ARB_vertex_program") ||
+	     !Q_stricmp(ext, "GL_ARB_vertex_buffer_object") ||
+	     !Q_stricmp(ext, "GL_ARB_shader_objects") ||
+	     !Q_stricmp(ext, "GL_ARB_vertex_shader") ||
+	     !Q_stricmp(ext, "GL_ARB_shading_language_100") ||
+	     !Q_stricmp(ext, "GL_EXT_framebuffer_object") ||
+	     !Q_stricmp(ext, "GL_ARB_texture_non_power_of_two") ||
+	     !Q_stricmp(ext, "GL_EXT_framebuffer_blit") ||
+	     !Q_stricmp(ext, "GL_EXT_framebuffer_multisample")))
+		return qtrue;
+#endif
 	const char *ptr = Q_stristr( glConfig.extensions_string, ext );
 	if (ptr == NULL)
 		return qfalse;
@@ -218,8 +316,8 @@ void GLimp_InitExtraExtensions()
 	qglMultiDrawElementsEXT = NULL;
 	if( GLimp_HaveExtension( extension ) )
 	{
-		qglMultiDrawArraysEXT = (PFNGLMULTIDRAWARRAYSEXTPROC) SDL_GL_GetProcAddress("glMultiDrawArraysEXT");
-		qglMultiDrawElementsEXT = (PFNGLMULTIDRAWELEMENTSEXTPROC) SDL_GL_GetProcAddress("glMultiDrawElementsEXT");
+		qglMultiDrawArraysEXT = (void (APIENTRY *)(GLenum, GLint *, GLsizei *, GLsizei)) SDL_GL_GetProcAddress("glMultiDrawArraysEXT");
+		qglMultiDrawElementsEXT = (void (APIENTRY *)(GLenum, const GLsizei *, GLenum, const GLvoid **, GLsizei)) SDL_GL_GetProcAddress("glMultiDrawElementsEXT");
 
 		if ( r_ext_multi_draw_arrays->integer )
 			glRefConfig.multiDrawArrays = qtrue;
@@ -427,7 +525,10 @@ void GLimp_InitExtraExtensions()
 
 		Q_strncpyz( version, (char *) qglGetString (GL_SHADING_LANGUAGE_VERSION_ARB), sizeof( version ) );
 
-		sscanf(version, "%d.%d", &glRefConfig.glslMajorVersion, &glRefConfig.glslMinorVersion);
+		char *versionNumber = version;
+		while (*versionNumber && !isdigit((unsigned char)*versionNumber))
+			versionNumber++;
+		sscanf(versionNumber, "%d.%d", &glRefConfig.glslMajorVersion, &glRefConfig.glslMinorVersion);
 
 		ri.Printf(PRINT_ALL, "...using GLSL version %s\n", version);
 	}

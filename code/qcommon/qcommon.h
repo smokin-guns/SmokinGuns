@@ -148,7 +148,8 @@ typedef enum {
 	NA_IP,
 	NA_IP6,
 	NA_MULTICAST6,
-	NA_UNSPEC
+	NA_UNSPEC,
+	NA_WEBSOCKET
 } netadrtype_t;
 
 typedef enum {
@@ -187,6 +188,10 @@ qboolean	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_messag
 void		NET_JoinMulticast6(void);
 void		NET_LeaveMulticast6(void);
 void		NET_Sleep(int msec);
+#ifdef __EMSCRIPTEN__
+int			Sys_WebSocketSendPacket(const void *data, int length);
+int			Sys_WebSocketReceivePacket(byte *data, int capacity);
+#endif
 
 
 #define	MAX_MSGLEN				16384		// max length of a message, which may

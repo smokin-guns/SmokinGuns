@@ -36,6 +36,12 @@ GLimp_SetGamma
 */
 void GLimp_SetGamma( unsigned char red[256], unsigned char green[256], unsigned char blue[256] )
 {
+#ifdef __EMSCRIPTEN__
+	/* Browsers do not expose display hardware gamma ramps. */
+	(void)red;
+	(void)green;
+	(void)blue;
+#else
 	Uint16 table[3][256];
 	int i, j;
 
@@ -87,5 +93,6 @@ void GLimp_SetGamma( unsigned char red[256], unsigned char green[256], unsigned 
 	}
 
 	SDL_SetGammaRamp(table[0], table[1], table[2]);
+#endif
 }
 

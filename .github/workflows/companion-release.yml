@@ -1,0 +1,87 @@
+name: Companion release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "companion-v*"
+
+permissions:
+  contents: write
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-musl,x86_64-pc-windows-gnu
+      - name: Install cross-linkers
+        run: sudo apt-get update && sudo apt-get install -y musl-tools gcc-mingw-w64-x86-64 zip
+      - name: Build static Linux companion and source archive
+        run: SG_COMPANION_TARGET=x86_64-unknown-linux-musl bash web/companion/package.sh
+      - name: Build Windows GNU companion
+        run: SG_COMPANION_TARGET=x86_64-pc-windows-gnu bash web/companion/package.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smokinguns-companion-${{ github.ref_name }}
+          path: web/companion/dist/*.zip
+          if-no-files-found: error
+
+  linux-arm64:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-unknown-linux-musl
+      - name: Install musl linker
+        run: sudo apt-get update && sudo apt-get install -y musl-tools zip
+      - name: Build static Linux ARM64 companion
+        run: SG_COMPANION_TARGET=aarch64-unknown-linux-musl bash web/companion/package.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smokinguns-companion-linux-arm64-${{ github.ref_name }}
+          path: web/companion/dist/smokinguns-companion-linux-arm64-*.zip
+          if-no-files-found: error
+
+  windows-arm64:
+    runs-on: windows-11-arm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-pc-windows-msvc
+      - name: Build Windows ARM64 companion
+        shell: pwsh
+        run: |
+          cargo build --release --target aarch64-pc-windows-msvc --manifest-path web/companion/Cargo.toml
+          $version = (Select-String -Path web/companion/Cargo.toml -Pattern '^version = "([^"]+)"').Matches[0].Groups[1].Value
+          $stage = Join-Path $env:RUNNER_TEMP "smokinguns-companion-windows-arm64"
+          New-Item -ItemType Directory -Force $stage | Out-Null
+          New-Item -ItemType Directory -Force web/companion/dist | Out-Null
+          Copy-Item web/companion/target/aarch64-pc-windows-msvc/release/smokinguns-companion.exe $stage
+          Copy-Item web/companion/README.md, COPYING.txt, web/companion/THIRD_PARTY_NOTICES.txt $stage
+          Move-Item (Join-Path $stage 'COPYING.txt') (Join-Path $stage 'LICENSE.txt')
+          Compress-Archive -Path (Join-Path $stage '*') -DestinationPath "web/companion/dist/smokinguns-companion-windows-arm64-v$version.zip" -CompressionLevel Optimal
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smokinguns-companion-windows-arm64-${{ github.ref_name }}
+          path: web/companion/dist/smokinguns-companion-windows-arm64-*.zip
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/companion-v')
+    needs: [linux, linux-arm64, windows-arm64]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: smokinguns-companion-*-*
+          path: release-assets
+          merge-multiple: true
+      - name: Publish GitHub release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-assets/*.zip

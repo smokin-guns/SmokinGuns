@@ -397,6 +397,8 @@ qboolean NET_CompareBaseAdrMask(netadr_t a, netadr_t b, int netmask)
 
 	if (a.type == NA_LOOPBACK)
 		return qtrue;
+	if (a.type == NA_WEBSOCKET)
+		return qtrue;
 
 	if(a.type == NA_IP)
 	{
@@ -461,6 +463,8 @@ const char	*NET_AdrToString (netadr_t a)
 		Com_sprintf (s, sizeof(s), "loopback");
 	else if (a.type == NA_BOT)
 		Com_sprintf (s, sizeof(s), "bot");
+	else if (a.type == NA_WEBSOCKET)
+		Com_sprintf (s, sizeof(s), "websocket");
 	else if (a.type == NA_IP || a.type == NA_IP6)
 	{
 		struct sockaddr_storage sadr;
@@ -481,6 +485,8 @@ const char	*NET_AdrToStringwPort (netadr_t a)
 		Com_sprintf (s, sizeof(s), "loopback");
 	else if (a.type == NA_BOT)
 		Com_sprintf (s, sizeof(s), "bot");
+	else if (a.type == NA_WEBSOCKET)
+		Com_sprintf (s, sizeof(s), "websocket");
 	else if(a.type == NA_IP)
 		Com_sprintf(s, sizeof(s), "%s:%hu", NET_AdrToString(a), ntohs(a.port));
 	else if(a.type == NA_IP6)
@@ -644,6 +650,12 @@ void Sys_SendPacket( int length, const void *data, netadr_t to ) {
 	int				ret = SOCKET_ERROR;
 	struct sockaddr_storage	addr;
 
+	if (to.type == NA_WEBSOCKET) {
+#ifdef __EMSCRIPTEN__
+		Sys_WebSocketSendPacket(data, length);
+#endif
+		return;
+	}
 	if( to.type != NA_BROADCAST && to.type != NA_IP && to.type != NA_IP6 && to.type != NA_MULTICAST6)
 	{
 		Com_Error( ERR_FATAL, "Sys_SendPacket: bad address type" );
@@ -1556,11 +1568,13 @@ void NET_Config( qboolean enableNetworking ) {
 
 	if( start )
 	{
+#ifndef __EMSCRIPTEN__
 		if (net_enabled->integer)
 		{
 			NET_OpenIP();
 			NET_SetMulticast6();
 		}
+#endif
 	}
 }
 
@@ -1654,6 +1668,23 @@ Sleeps msec or until something happens on the network
 */
 void NET_Sleep(int msec)
 {
+#ifdef __EMSCRIPTEN__
+	byte bufData[MAX_MSGLEN];
+	netadr_t from;
+	msg_t netmsg;
+	int length;
+	(void)msec;
+	while ((length = Sys_WebSocketReceivePacket(bufData, sizeof(bufData))) > 0) {
+		MSG_Init(&netmsg, bufData, sizeof(bufData));
+		netmsg.cursize = length;
+		Com_Memset(&from, 0, sizeof(from));
+		from.type = NA_WEBSOCKET;
+		if (com_sv_running->integer)
+			Com_RunAndTimeServerPacket(&from, &netmsg);
+		else
+			CL_PacketEvent(from, &netmsg);
+	}
+#else
 	struct timeval timeout;
 	fd_set fdr;
 	int retval;
@@ -1696,6 +1727,7 @@ void NET_Sleep(int msec)
 		Com_Printf("Warning: select() syscall failed: %s\n", NET_ErrorString());
 	else if(retval > 0)
 		NET_Event(&fdr);
+#endif
 }
 
 /*

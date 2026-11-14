@@ -908,6 +908,61 @@ endif #NetBSD
 endif #IRIX
 endif #SunOS
 
+#############################################################################
+## SETUP AND BUILD -- EMSCRIPTEN
+#############################################################################
+
+ifeq ($(PLATFORM),emscripten)
+  WEB_GAME_DATA_DIR ?= $(BUILD_DIR)/web-game-data
+  WEB_GAME_DATA_STAMP := $(WEB_GAME_DATA_DIR).prepared
+  WEB_GAME_LICENSE := $(BUILD_DIR)/Smokin_Guns_LICENSE.txt
+  ifneq ($(wildcard $(WEB_GAME_DATA_STAMP)),)
+    WEB_GAME_DATA_DEP := $(WEB_GAME_DATA_STAMP)
+  endif
+  CC=emcc
+  ARCH=wasm32
+  BINEXT=.js
+  SHLIBEXT=wasm
+
+  BUILD_CLIENT=1
+  BUILD_SERVER=0
+  BUILD_CLIENT_SMP=0
+  BUILD_GAME_SO=0
+  BUILD_GAME_QVM=0
+  BUILD_RENDERER_OPENGL2=1
+  BUILD_SDK_DIFF=0
+  SDK_DIFF=0
+  USE_RENDERER_DLOPEN=0
+  USE_LOCAL_HEADERS=0
+
+  USE_OPENAL=0
+  USE_CURL=0
+  USE_MUMBLE=0
+  USE_VOIP=0
+  USE_CODEC_VORBIS=0
+  USE_CODEC_OPUS=0
+  USE_FREETYPE=0
+
+  CLIENT_CFLAGS := $(filter-out -DSDK_DIFF=%, $(CLIENT_CFLAGS))
+  SERVER_CFLAGS := $(filter-out -DSDK_DIFF=%, $(SERVER_CFLAGS))
+
+  CLIENT_CFLAGS += -s USE_SDL=2
+  CLIENT_LDFLAGS += -s TOTAL_MEMORY=256mb -sALLOW_MEMORY_GROWTH
+  CLIENT_LDFLAGS += -s STACK_SIZE=5MB -s MIN_WEBGL_VERSION=2
+  CLIENT_LDFLAGS += -s MAX_WEBGL_VERSION=2 -s FULL_ES2=1
+  CLIENT_LDFLAGS += -s EXIT_RUNTIME=1 -s EXPORT_ES6
+  CLIENT_LDFLAGS += -s EXPORT_NAME=smokinguns
+  CLIENT_LDFLAGS += -lidbfs.js
+  CLIENT_LDFLAGS += -s EXPORTED_RUNTIME_METHODS=FS,IDBFS,addRunDependency,removeRunDependency
+
+  # Browser game data is delivered as independently cached chunks by web/index.html.
+
+  CLIENT_LIBS=
+  RENDERER_LIBS=
+  LIBS=
+  OPTIMIZE=-O3
+endif
+
 ifndef CC
   CC=gcc
 endif
@@ -946,10 +1001,23 @@ ifneq ($(BUILD_CLIENT),0)
       TARGETS += $(B)/renderer_opengl2_$(SHLIBNAME)
     endif
   else
-    TARGETS += $(B)/$(CLIENTBIN)$(FULLBINEXT)
-    ifneq ($(BUILD_RENDERER_OPENGL2), 0)
+    ifeq ($(PLATFORM),emscripten)
       TARGETS += $(B)/$(CLIENTBIN)_opengl2$(FULLBINEXT)
+    else
+      TARGETS += $(B)/$(CLIENTBIN)$(FULLBINEXT)
     endif
+    ifneq ($(BUILD_RENDERER_OPENGL2), 0)
+      ifneq ($(PLATFORM),emscripten)
+      TARGETS += $(B)/$(CLIENTBIN)_opengl2$(FULLBINEXT)
+      endif
+    endif
+  endif
+endif
+
+ifeq ($(PLATFORM),emscripten)
+  TARGETS += $(B)/index.html $(B)/transport.js
+  ifneq ($(wildcard $(WEB_GAME_DATA_STAMP)),)
+    TARGETS += $(B)/Smokin_Guns_LICENSE.txt $(B)/COPYING.txt
   endif
 endif
 
@@ -1524,6 +1592,14 @@ $(Q3ASM): $(Q3ASMOBJ)
 # CLIENT/SERVER
 #############################################################################
 
+ifeq ($(PLATFORM),emscripten)
+  SDL_INPUT_OBJ=$(B)/client/sdl_input_sdl2.o
+  SDL_GLIMP_OBJ=$(B)/renderergl1/sdl_glimp_sdl2.o
+else
+  SDL_INPUT_OBJ=$(B)/client/sdl_input.o
+  SDL_GLIMP_OBJ=$(B)/renderergl1/sdl_glimp.o
+endif
+
 Q3OBJ = \
   $(B)/client/cl_cgame.o \
   $(B)/client/cl_cin.o \
@@ -1619,11 +1695,15 @@ Q3OBJ = \
   $(B)/client/l_script.o \
   $(B)/client/l_struct.o \
   \
-  $(B)/client/sdl_input.o \
+  $(SDL_INPUT_OBJ) \
   $(B)/client/sdl_snd.o \
   \
   $(B)/client/con_log.o \
   $(B)/client/sys_main.o
+
+ifeq ($(PLATFORM),emscripten)
+  Q3OBJ += $(B)/client/sys_websocket.o
+endif
 
 ifeq ($(PLATFORM),mingw32)
   Q3OBJ += \
@@ -1675,7 +1755,7 @@ Q3R2OBJ = \
   $(B)/renderergl2/tr_world.o \
   \
   $(B)/renderergl1/sdl_gamma.o \
-  $(B)/renderergl1/sdl_glimp.o
+  $(SDL_GLIMP_OBJ)
 
 Q3R2STRINGOBJ = \
   $(B)/renderergl2/glsl/bokeh_fp.o \
@@ -1739,7 +1819,7 @@ Q3ROBJ = \
   $(B)/renderergl1/tr_world.o \
   \
   $(B)/renderergl1/sdl_gamma.o \
-  $(B)/renderergl1/sdl_glimp.o
+  $(SDL_GLIMP_OBJ)
 
 ifneq ($(USE_RENDERER_DLOPEN), 0)
   Q3ROBJ += \
@@ -2126,6 +2206,28 @@ $(B)/$(CLIENTBIN)_opengl2$(FULLBINEXT): $(Q3OBJ) $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(J
 	$(Q)$(CC) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
 		-o $@ $(Q3OBJ) $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ) \
 		$(LIBSDLMAIN) $(CLIENT_LIBS) $(RENDERER_LIBS) $(LIBS)
+endif
+
+ifeq ($(PLATFORM),emscripten)
+$(B)/$(CLIENTBIN)_opengl2$(FULLBINEXT): $(WEB_GAME_DATA_DEP) Makefile
+
+$(B)/Smokin_Guns_LICENSE.txt: $(WEB_GAME_LICENSE)
+	$(echo_cmd) "CP $<"
+	$(Q)cp $< $@
+
+$(B)/COPYING.txt: COPYING.txt
+	$(echo_cmd) "CP $<"
+	$(Q)cp $< $@
+endif
+
+ifeq ($(PLATFORM),emscripten)
+$(B)/index.html: web/index.html
+	$(echo_cmd) "CP $<"
+	$(Q)cp $< $@
+
+$(B)/transport.js: web/transport.js
+	$(echo_cmd) "CP $<"
+	$(Q)cp $< $@
 endif
 
 ifneq ($(strip $(LIBSDLMAIN)),)

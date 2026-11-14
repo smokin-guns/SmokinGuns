@@ -425,6 +425,7 @@ static void ProjectDlightTexture( void ) {
 		else {
 			GL_State( GLS_ATEST_GT_0 | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
 		}
+		GLSL_SetUniformInt(sp, UNIFORM_ALPHATEST, 1);
 
 		if (tess.multiDrawPrimitives)
 		{
@@ -1178,6 +1179,13 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 		}
 
 		GL_State( pStage->stateBits );
+		switch (pStage->stateBits & GLS_ATEST_BITS)
+		{
+		case GLS_ATEST_GT_0:  GLSL_SetUniformInt(sp, UNIFORM_ALPHATEST, 1); break;
+		case GLS_ATEST_LT_80: GLSL_SetUniformInt(sp, UNIFORM_ALPHATEST, 2); break;
+		case GLS_ATEST_GE_80: GLSL_SetUniformInt(sp, UNIFORM_ALPHATEST, 3); break;
+		default:              GLSL_SetUniformInt(sp, UNIFORM_ALPHATEST, 0); break;
+		}
 
 		{
 			vec4_t baseColor;

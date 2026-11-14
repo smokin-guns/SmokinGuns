@@ -1842,11 +1842,21 @@ void CL_Connect_f( void ) {
 
 	Q_strncpyz( clc.servername, server, sizeof(clc.servername) );
 
+#ifdef __EMSCRIPTEN__
+	if (!Q_stricmp(clc.servername, "localhost")) {
+		NET_StringToAdr(clc.servername, &clc.serverAddress, family);
+	} else {
+		Com_Memset(&clc.serverAddress, 0, sizeof(clc.serverAddress));
+		clc.serverAddress.type = NA_WEBSOCKET;
+		clc.serverAddress.port = BigShort(PORT_SERVER);
+	}
+#else
 	if (!NET_StringToAdr(clc.servername, &clc.serverAddress, family) ) {
 		Com_Printf ("Bad server address\n");
 		clc.state = CA_DISCONNECTED;
 		return;
 	}
+#endif
 	if (clc.serverAddress.port == 0) {
 		clc.serverAddress.port = BigShort( PORT_SERVER );
 	}

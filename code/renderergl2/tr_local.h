@@ -37,6 +37,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../renderercommon/iqm.h"
 #include "../renderercommon/qgl.h"
 
+/* Populated by the SDL GLimp when the active context is OpenGL ES. */
+extern int qglesMajorVersion;
+extern int qglesMinorVersion;
+
 #define GL_INDEX_TYPE		GL_UNSIGNED_INT
 typedef unsigned int glIndex_t;
 
@@ -700,6 +704,7 @@ typedef enum
 	UNIFORM_PRIMARYLIGHTRADIUS,
 
 	UNIFORM_CUBEMAPINFO,
+	UNIFORM_ALPHATEST,
 
 	UNIFORM_COUNT
 } uniform_t;

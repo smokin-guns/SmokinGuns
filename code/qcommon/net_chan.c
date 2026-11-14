@@ -551,6 +551,10 @@ void NET_SendPacket( netsrc_t sock, int length, const void *data, netadr_t to ) 
 	if ( to.type == NA_BAD ) {
 		return;
 	}
+	if (to.type == NA_WEBSOCKET) {
+		Sys_SendPacket(length, data, to);
+		return;
+	}
 
 	if ( sock == NS_CLIENT && cl_packetdelay->integer > 0 ) {
 		NET_QueuePacket( length, data, to, cl_packetdelay->integer );

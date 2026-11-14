@@ -794,4 +794,47 @@ extern          HGLRC(APIENTRY * qwglCreateContextAttribsARB) (HDC hdC, HGLRC hS
 extern GLXContext	(APIENTRY * qglXCreateContextAttribsARB) (Display *dpy, GLXFBConfig config, GLXContext share_context, Bool direct, const int *attrib_list);
 #endif
 
+#ifdef __EMSCRIPTEN__
+/* GLES 3 lacks these desktop fixed-function entry points. */
+void APIENTRY GLimp_GLES_Begin(GLenum mode);
+void APIENTRY GLimp_GLES_End(void);
+void APIENTRY GLimp_GLES_Vertex3fv(const GLfloat *vertex);
+void APIENTRY GLimp_GLES_Vertex3f(GLfloat x, GLfloat y, GLfloat z);
+void APIENTRY GLimp_GLES_Color3f(GLfloat red, GLfloat green, GLfloat blue);
+void APIENTRY GLimp_GLES_Color4f(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
+void APIENTRY GLimp_GLES_CallList(GLuint list);
+void APIENTRY GLimp_GLES_TexEnvf(GLenum target, GLenum pname, GLfloat param);
+void APIENTRY GLimp_GLES_PolygonMode(GLenum face, GLenum mode);
+void APIENTRY GLimp_GLES_AlphaFunc(GLenum func, GLclampf ref);
+void APIENTRY GLimp_GLES_DrawBuffer(GLenum mode);
+void APIENTRY GLimp_GLES_Enable(GLenum cap);
+void APIENTRY GLimp_GLES_Disable(GLenum cap);
+#undef qglBegin
+#undef qglEnd
+#undef qglVertex3fv
+#undef qglVertex3f
+#undef qglColor3f
+#undef qglColor4f
+#undef qglCallList
+#undef qglTexEnvf
+#undef qglPolygonMode
+#undef qglAlphaFunc
+#undef qglDrawBuffer
+#undef qglEnable
+#undef qglDisable
+#define qglBegin GLimp_GLES_Begin
+#define qglEnd GLimp_GLES_End
+#define qglVertex3fv GLimp_GLES_Vertex3fv
+#define qglVertex3f GLimp_GLES_Vertex3f
+#define qglColor3f GLimp_GLES_Color3f
+#define qglColor4f GLimp_GLES_Color4f
+#define qglCallList GLimp_GLES_CallList
+#define qglTexEnvf GLimp_GLES_TexEnvf
+#define qglPolygonMode GLimp_GLES_PolygonMode
+#define qglAlphaFunc GLimp_GLES_AlphaFunc
+#define qglDrawBuffer GLimp_GLES_DrawBuffer
+#define qglEnable GLimp_GLES_Enable
+#define qglDisable GLimp_GLES_Disable
+#endif
+
 #endif

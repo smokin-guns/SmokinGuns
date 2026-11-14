@@ -31,6 +31,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <ctype.h>
 #include <errno.h>
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#endif
+
 #ifndef DEDICATED
 #ifdef USE_LOCAL_HEADERS
 #	include "SDL.h"
@@ -139,7 +143,12 @@ Handle new console input
 */
 char *Sys_ConsoleInput(void)
 {
+#ifdef __EMSCRIPTEN__
+	/* Browser console input is handled by SDL; never read the virtual stdin. */
+	return NULL;
+#else
 	return CON_Input( );
+#endif
 }
 
 #ifdef DEDICATED
@@ -262,9 +271,13 @@ cpuFeatures_t Sys_GetProcessorFeatures( void )
 #ifndef DEDICATED
 	if( SDL_HasRDTSC( ) )    features |= CF_RDTSC;
 	if( SDL_HasMMX( ) )      features |= CF_MMX;
+	#ifndef __EMSCRIPTEN__
 	if( SDL_HasMMXExt( ) )   features |= CF_MMX_EXT;
+	#endif
 	if( SDL_Has3DNow( ) )    features |= CF_3DNOW;
+	#ifndef __EMSCRIPTEN__
 	if( SDL_Has3DNowExt( ) ) features |= CF_3DNOW_EXT;
+	#endif
 	if( SDL_HasSSE( ) )      features |= CF_SSE;
 	if( SDL_HasSSE2( ) )     features |= CF_SSE2;
 	if( SDL_HasAltiVec( ) )  features |= CF_ALTIVEC;
@@ -651,6 +664,14 @@ void Sys_BinaryEngineComment( void ) {
 main
 =================
 */
+#ifdef __EMSCRIPTEN__
+static void Sys_Frame( void )
+{
+	IN_Frame( );
+	Com_Frame( );
+}
+#endif
+
 int main( int argc, char **argv )
 {
 	int   i;
@@ -671,7 +692,14 @@ int main( int argc, char **argv )
 #	endif
 
 	// Run time
-	const SDL_version *ver = SDL_Linked_Version( );
+	const SDL_version *ver;
+#ifdef __EMSCRIPTEN__
+	SDL_version sdlVersion;
+	SDL_GetVersion( &sdlVersion );
+	ver = &sdlVersion;
+#else
+	ver = SDL_Linked_Version( );
+#endif
 
 #define MINSDL_VERSION \
 	XSTRING(MINSDL_MAJOR) "." \
@@ -752,7 +780,9 @@ int main( int argc, char **argv )
 	Com_Init( commandLine );
 	NET_Init( );
 
+#ifndef __EMSCRIPTEN__
 	CON_Init( );
+#endif
 
 	signal( SIGILL, Sys_SigHandler );
 	signal( SIGFPE, Sys_SigHandler );
@@ -767,11 +797,16 @@ int main( int argc, char **argv )
 	Cvar_Get("sa_engine_inuse", "1", CVAR_ROM);
 #endif
 
+#ifdef __EMSCRIPTEN__
+	/* Let the browser schedule frames instead of blocking its event loop. */
+	emscripten_set_main_loop( Sys_Frame, 0, 1 );
+#else
 	while( 1 )
 	{
 		IN_Frame( );
 		Com_Frame( );
 	}
+#endif
 
 	return 0;
 }

@@ -145,6 +145,7 @@ static uniformInfo_t uniformsInfo[] =
 	{ "u_PrimaryLightRadius",  GLSL_FLOAT },
 
 	{ "u_CubeMapInfo", GLSL_VEC4 },
+	{ "u_AlphaTest", GLSL_INT },
 };
 
 
@@ -197,6 +198,11 @@ static void GLSL_PrintShaderSource(GLhandleARB object)
 	static char     msgPart[1024];
 	int             maxLength = 0;
 	int             i;
+	if (!qglGetShaderSourceARB)
+	{
+		ri.Printf(PRINT_ALL, "Shader source retrieval is unavailable in this GL implementation.\n");
+		return;
+	}
 
 	qglGetObjectParameterivARB(object, GL_OBJECT_SHADER_SOURCE_LENGTH_ARB, &maxLength);
 
@@ -220,9 +226,37 @@ static void GLSL_GetShaderHeader( GLenum shaderType, const GLcharARB *extra, cha
 	dest[0] = '\0';
 
 	// HACK: abuse the GLSL preprocessor to turn GLSL 1.20 shaders into 1.30 ones
+#ifdef __EMSCRIPTEN__
+	Q_strcat(dest, size, "#version 300 es\n");
+	Q_strcat(dest, size, "precision mediump float;\n");
+	Q_strcat(dest, size, "precision mediump sampler2DShadow;\n");
+	if (shaderType == GL_VERTEX_SHADER_ARB)
+	{
+		Q_strcat(dest, size, "#define attribute in\n");
+		Q_strcat(dest, size, "#define varying out\n");
+	}
+	else
+	{
+		Q_strcat(dest, size, "#define varying in\n");
+		Q_strcat(dest, size, "out vec4 out_Color;\n");
+		Q_strcat(dest, size, "#define gl_FragColor out_Color\n");
+		Q_strcat(dest, size, "#define texture2D texture\n");
+		Q_strcat(dest, size, "#define textureCubeLod textureLod\n");
+		Q_strcat(dest, size, "#define shadow2D texture\n");
+	}
+#else
 	if(glRefConfig.glslMajorVersion > 1 || (glRefConfig.glslMajorVersion == 1 && glRefConfig.glslMinorVersion >= 30))
 	{
-		Q_strcat(dest, size, "#version 130\n");
+		if (qglesMajorVersion >= 3 && glRefConfig.glslMajorVersion >= 3)
+			Q_strcat(dest, size, "#version 300 es\n");
+		else
+			Q_strcat(dest, size, "#version 130\n");
+
+		if (qglesMajorVersion >= 2)
+		{
+			Q_strcat(dest, size, "precision mediump float;\n");
+			Q_strcat(dest, size, "precision mediump sampler2DShadow;\n");
+		}
 
 		if(shaderType == GL_VERTEX_SHADER_ARB)
 		{
@@ -235,12 +269,19 @@ static void GLSL_GetShaderHeader( GLenum shaderType, const GLcharARB *extra, cha
 
 			Q_strcat(dest, size, "out vec4 out_Color;\n");
 			Q_strcat(dest, size, "#define gl_FragColor out_Color\n");
+			if (qglesMajorVersion >= 3)
+			{
+				Q_strcat(dest, size, "#define texture2D texture\n");
+				Q_strcat(dest, size, "#define textureCubeLod textureLod\n");
+				Q_strcat(dest, size, "#define shadow2D texture\n");
+			}
 		}
 	}
 	else
 	{
 		Q_strcat(dest, size, "#version 120\n");
 	}
+#endif
 
 	// HACK: add some macros to avoid extra uniforms and save speed and code maintenance
 	//Q_strcat(dest, size,
@@ -941,7 +982,7 @@ void GLSL_InitGPUShaders(void)
 
 	attribs = ATTR_POSITION | ATTR_TEXCOORD;
 
-	if (!GLSL_InitGPUShader(&tr.textureColorShader, "texturecolor", attribs, qtrue, NULL, qfalse, fallbackShader_texturecolor_vp, fallbackShader_texturecolor_fp))
+	if (!GLSL_InitGPUShader(&tr.textureColorShader, "texturecolor", attribs, qtrue, NULL, qtrue, fallbackShader_texturecolor_vp, fallbackShader_texturecolor_fp))
 	{
 		ri.Error(ERR_FATAL, "Could not load texturecolor shader!");
 	}
@@ -1298,7 +1339,7 @@ void GLSL_InitGPUShaders(void)
 
 	Q_strcat(extradefines, 1024, "#define USE_SHADOW_CASCADE\n");
 
-	Q_strcat(extradefines, 1024, va("#define r_shadowMapSize %d\n", r_shadowMapSize->integer));
+	Q_strcat(extradefines, 1024, va("#define r_shadowMapSize %d.0\n", r_shadowMapSize->integer));
 	Q_strcat(extradefines, 1024, va("#define r_shadowCascadeZFar %f\n", r_shadowCascadeZFar->value));
 
 

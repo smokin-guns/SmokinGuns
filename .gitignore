@@ -1,4 +1,8 @@
 build
+web/companion/dist/
+web/companion/target/
+build/site/
+web/game-data/
 Makefile.local
 *.swp
 *tags

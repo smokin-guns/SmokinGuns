@@ -36,7 +36,7 @@ vec4 depthGaussian1D(sampler2D imageMap, sampler2D depthMap, vec2 tex, float zFa
 	{
 		for (j = 1; j < GAUSS_SIZE; j++)
 		{
-			vec2 offset = direction * j;
+			vec2 offset = direction * float(j);
 			float depthSample = zFar * getLinearDepth(depthMap, tex + offset, zFarDivZNear);
 			float depthExpected = depthCenter + dot(centerSlope, offset);
 			if(abs(depthSample - depthExpected) < 5.0)
